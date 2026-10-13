@@ -16,6 +16,18 @@ live state.
 | 6 | Existing callers unharmed: FIRST, plus UBC Canvas, Kaltura and ubccheck | their tests and live checks |
 | 7 | Shipped: README, docs, llms.txt, skill, CI, pushed | GitHub page reviewed |
 
+## Status at v0.2.0 (2026-10-13)
+
+| # | Result |
+|---|---|
+| 1 | 41 MCP tools and the same commands on the CLI, sharing live tabs (mcp_conformance 32, test_daemon 102) |
+| 2 | Invisibility guard after every session command in the test suite; zero violations. Daemon runs with the prohibited activation policy; focus regression test fails before 16c35ab |
+| 3 | All speed targets met at p50 and p95 (bench/results.md): snapshot 0.9 ms socket / 14 ms CLI, click 1.5 / 15 ms, navigate 13 / 27 ms, cold start 408 ms, one-shot read 385 ms |
+| 4 | Lifecycle tests: auto-spawn, idle exit, stale socket, racing spawns, concurrent clients, SIGTERM, one-shots through a live daemon |
+| 5 | Agent eval 14/14 in each of three arms, zero critical failures (bench/eval/RESULTS.md) |
+| 6 | FIRST (110 tests; live Instagram and LinkedIn reads) and UBC (Canvas pulls, downloads, Kaltura, ubccheck) verified on the installed build |
+| 7 | README, docs, llms.txt, skill, CI, Homebrew head formula, release zip target |
+
 ## Commands (target surface)
 
 - Session: `open` (alias `goto`), `back`, `forward`, `reload`, `tabs`, `tab new|select|close`, `status`, `stop`
@@ -59,3 +71,4 @@ umbra mcp ─┘   per profile         ├─ Tab …
 ## Ledger
 
 - 2026-10-12: v0.1 (read, fetch, download, sign-in, cookies, profiles, keepSession, `--until`) in production for FIRST and UBC. A download cookie bug was fixed by switching to a top-level navigation that becomes a download.
+- 2026-10-13: v0.2.0. Daemon, tabs, snapshot refs, 13 trusted-input actions, capture and observe, MCP server, handoff. Built by parallel lanes (interact, capture, MCP, tests, proving ground, brand, packaging) on the foundation, integrated and verified by the lead. Bugs found by tests and agents and fixed on the way: focus taken at launch, quadratic reply read, SIGPIPE, stop race, scratch tabs and downloads after timeouts, handoff windows left up, attachments shown inline, --profile read too late, form submits not reported, wait --idle ignoring its timeout.
