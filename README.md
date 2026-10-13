@@ -319,10 +319,22 @@ Each agent ran each task once, the tasks were written by this project, and every
 
 ## Benchmarks
 
-<!-- BENCHMARKS: the lead fills this section from a quiet-machine run of bench/bench.py (bench/results.md). -->
+Umbra against Playwright 1.62 on the same local pages of the proving site. Each cell is the median over 20 runs, in milliseconds. Measured on an M1 Pro MacBook Pro with macOS 27, on a quiet machine. The p95s, the method and every check are in [bench/results.md](bench/results.md).
 
-> [!NOTE]
-> Results are pending a run on a quiet machine. [bench/README.md](bench/README.md) describes the method: Umbra through the CLI and through its socket, against Playwright Chromium and WebKit on the same local pages, timing cold start, navigation, snapshot, click, fill, screenshot, eval and image blocking.
+| | Umbra CLI | Umbra socket (MCP) | Playwright Chromium | Playwright WebKit |
+|---|---:|---:|---:|---:|
+| Accessibility snapshot | 14 | **0.9** | 3.6 | 4.4 |
+| Click + DOM update | 15 | **1.5** | 16 | 66 |
+| Fill a React-controlled field | 15 | **1.3** | 2.1 | 3.0 |
+| Eval round trip | 12 | **0.2** | 0.3 | 0.4 |
+| Viewport screenshot to a file | 64 | **50** | 85 | 57 |
+| Warm navigate (local page) | 27 | 13 | **6.5** | 13 |
+| 200-image page | 175 | 163 | **83** | 147 |
+| 200-image page, images blocked | 42 | **29** | 76 | 60 |
+| Cold start to first page | 408 | | **153** | 718 |
+| One-shot `read`, no daemon | 385 | | | |
+
+Through its socket, which is how `umbra mcp` talks to it, Umbra is the fastest of the four at reading and acting on a page. Each CLI command adds about 12 ms of process start-up, which is still small next to an agent's thinking time. Chromium starts faster: its figure leaves out Node's own start-up, while Umbra's includes spawning the daemon and WebKit. Chromium also loads a page full of uncached images faster unless you `block images`.
 
 ## FAQ
 
