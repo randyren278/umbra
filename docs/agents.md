@@ -1,64 +1,77 @@
 # Using Umbra from an agent
 
-Coding agents such as Claude Code can use Umbra through their shell tool. An agent runs a command, reads stdout, and branches on the exit code. It sees the web the way you do, signed in, while your screen and your Safari stay yours.
+An agent can use Umbra in three ways. They all drive the same live tabs, so you can mix them:
 
-This page covers what works in 0.1.0: the one-shot `read`, `fetch` and `download` commands. Live tabs, snapshots, clicks and an MCP server are planned but not built yet (see [What's next](../README.md#whats-next)).
+- **Claude Code skill.** [`skill/SKILL.md`](../skill/SKILL.md) teaches the loop, targets, waiting, sign-in, handoff and the rules. The agent then works through its shell tool.
+- **MCP.** `umbra mcp` exposes every command as a tool. See [mcp.md](mcp.md).
+- **Plain instructions.** For any agent with a shell, paste the block below into `AGENTS.md`, `CLAUDE.md` or the system prompt.
 
-## Instructions to give your agent
+## Install the skill
 
-Paste this into the `AGENTS.md`, `CLAUDE.md` or system prompt your agent reads, and adjust the sites:
+```sh
+mkdir -p ~/.claude/skills/umbra && cp skill/SKILL.md ~/.claude/skills/umbra/
+```
+
+Claude Code picks it up in new sessions and uses it whenever a task needs a browser: a page behind a login, JavaScript-rendered content, a form, a download that needs a session, or a screenshot.
+
+## Instructions for any agent
 
 ```markdown
-## Signed-in web pages: use umbra
+## Web browsing: use umbra
 
-`umbra` is a headless WebKit browser with its own signed-in cookie store. Use it instead of
-Safari, AppleScript or curl for pages that need a sign-in. It never opens a window.
+`umbra` is a headless WebKit browser on this Mac. It's invisible, signed in to the user's
+sites, and keeps tabs alive between commands. Use it instead of Safari, AppleScript or
+Computer Use for anything on the web.
 
-- Run JavaScript in a page and print the result: `umbra read <url> <<< 'return document.title'`.
-  The script is the body of an async function. Return a string, or an object or array to get JSON.
-- Get a page's HTML: `umbra read <url> < /dev/null`. Always give `read` a script or
-  `< /dev/null` on stdin.
-- Call the site's API with the session: `umbra fetch <url>` (same origin as the site).
-- Save a file: `umbra download <url> <path>`.
-- If the page redirects or renders late, add `--until '<JavaScript expression>'` to `read`.
-- Exit 3 means signed out. Stop and ask the user to run `umbra sign-in <site>`. Never try to
-  sign in yourself, and never fall back to Safari.
-- Exit 2 is a timeout or a script error (stderr says which), 4 is a page that failed to load,
-  and 5 is an HTTP error (the body is still printed).
+- Loop: `umbra open <url>`, then `umbra snapshot --interactive` (an outline with refs like
+  e3), then act: `umbra click e4`, `umbra fill e3 "text"`, `umbra select e5 "Label"`,
+  `umbra press Enter`. Snapshot again after anything that changes the page; refs reset
+  after a navigation.
+- Targets: a ref from the latest snapshot, `text=Visible text`, or a CSS selector.
+- Wait for conditions, never sleep: `umbra wait --text Saved` (or --selector, --url, --gone, --idle).
+- Read cheaply: `umbra text`, `umbra markdown --main`, `umbra get <target>`. Use
+  `umbra screenshot shot.png` only when layout matters.
+- Signed out (exit 3, or a login page where content should be): stop and ask the user to
+  run `umbra sign-in <site>`. Never type their passwords.
+- 2FA, CAPTCHA or consent: `umbra handoff "What the user should do" --until "<JS condition>"`.
+- If the request asks for an action (refund it, submit the form), do it and report what
+  happened. If a consequential action (purchase, post, message, submission, refund,
+  deletion) is your own idea, ask first.
+- Add --json for structured output. `umbra help <command>` lists parameters.
 ```
 
-Every command in that block was run against a live site and a local server before this page was written.
+The commands in that block were checked against the Northwind Ops test app in [`bench/site`](../bench/README.md) while this page was written. The `sign-in` and `handoff` windows weren't opened.
 
-### Why "always give `read` a script"
+## Working well
 
-`read` takes its script from stdin whenever stdin isn't a terminal. If an agent's shell leaves stdin open as a pipe that never closes, `read` waits for the script that never comes. A here-string (`<<<`), a file (`< script.js`) or `< /dev/null` always ends.
+- **Snapshot small.** `snapshot --interactive` keeps only elements with refs, plus headings. `--scope main` (or any ref, `text=` or selector) narrows it to the part that matters. That keeps the context window for the task.
+- **Read before you act.** `text` and `markdown --main` are much cheaper than a screenshot, and they include content that isn't interactive, such as prices, statuses and table cells.
+- **Trust the waits that are built in.** `open` waits for the page to load. `click` waits until its target is visible, enabled and not covered, and waits for any page it opens. Use `wait` only for content that arrives later, such as `wait --text "Settings saved"` after a save. `--text` matches case-sensitively.
+- **One tab per task.** `open <url> --tab NAME` opens a named tab (created if new), and `--tab NAME` on any later command addresses it. Pop-ups (`target=_blank`, `window.open`) become tabs of their own, and the click that opened one reports its name.
+- **Make pages lighter.** `block images trackers` speeds up heavy pages. `reload` applies it to the current page.
+- **Parallel agents need their own profiles.** The current tab and the cookies belong to the profile, so two agents on one profile change things under each other. Give each its own `--profile`, or at least its own `--tab`. Cookies on `127.0.0.1` are shared across ports.
+- **Dialogs don't block.** Alerts, confirms and prompts are accepted by default, and the reply of the click that raised one reports it. Run `dialog dismiss` first to decline the next one.
+- **Debug with the page's own signals.** `console --level error` and `network --failed` show what went wrong on the page, not just that something did.
 
-## When the agent hits exit 3
+## When the user is needed
 
-Signing in happens in a window, with your password and your second factor, so it stays your job. The agent's part is to notice exit 3 and say which site needs it:
+Signing in happens once per site, in a window, by the user: `umbra sign-in <SiteName>` for a site in [sites.json](sites.md) or `umbra sign-in https://site/login` for any other. The agent's part is to notice it's signed out (exit 3 from `read --cookie`, or a login form in a snapshot where content should be) and say which site needs it.
 
-```console
-$ umbra read --cookie li_at https://www.linkedin.com/feed/ <<< 'return 1'
-signed out of www.linkedin.com
-```
-
-You then run `umbra sign-in LinkedIn`, sign in, close the window, and tell the agent to carry on. Sites marked `keepSession` in [sites.json](sites.md#keepsession) stay signed in across runs, so this should be rare.
-
-Add `--cookie NAME` to a `read` whenever the site has a clear session cookie. Without it, a signed-out page loads normally and the agent may happily read the login page.
+Mid-task steps that need a person, such as a two-factor prompt, a CAPTCHA or a consent screen, go through `handoff`. It shows the tab in a window with the agent's message and returns when the user closes it or when the `--until` condition holds. Then the tab hides again and the agent carries on in the same tab.
 
 ## Give the agent its own profile
 
-A profile is a separate cookie store. Giving an agent its own means it can only reach the sites you signed it into, and its experiments can't disturb the store your scheduled jobs use:
+A profile is a separate cookie store with its own daemon. An agent on its own profile can only reach the sites you signed it into, and it can't disturb the profile your scheduled jobs use:
 
 ```sh
-UMBRA_PROFILE=agent umbra sign-in https://canvas.example.edu/login
+umbra --profile agent sign-in https://canvas.example.edu/login
 ```
 
-Then have the agent's shell export `UMBRA_PROFILE=agent`, or tell the agent to prefix its commands with it. Runs on different profiles also don't wait on each other's lock.
+Then tell the agent to pass `--profile agent` on every command, or set `UMBRA_PROFILE=agent` in its environment (or in its MCP config; see [mcp.md](mcp.md#choosing-a-profile)).
 
 ## What an agent can and can't do here
 
-- It acts as you. Any site you're signed into, the agent can read, and its JavaScript runs with the page's full power. Umbra doesn't stop a script from pressing a button. Give agents the profiles and sites you'd trust them with.
-- It never sees cookie values. `umbra cookies` prints names and expiry dates only, and nothing in Umbra exports a value.
-- It can't sign in, pass two-factor prompts or solve CAPTCHAs. Those stay with you.
-- Runs on one profile take turns. An agent that fires several commands at once on the same profile gets them one after another.
+- It acts as you. On a signed-in site the agent can read, click and submit as you would, so give it the profiles and sites you'd trust it with.
+- It never sees cookie values. `cookies` prints names and expiry dates only, and nothing in Umbra exports a value.
+- It can't sign in, pass two-factor prompts or solve CAPTCHAs on its own. Those stay with you, through `sign-in` and `handoff`.
+- It can't reach inside closed shadow roots or cross-origin iframes. `snapshot` marks cross-origin iframes so the agent knows they're there.

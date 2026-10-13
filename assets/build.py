@@ -17,28 +17,31 @@ INK, PAPER, MUTED, DIM = "#07060d", "#f4efe6", "#c3bdd3", "#9a93b3"
 AMBER, ORCHID, GREEN = "#f6b26b", "#c06bd6", "#5fd38d"
 
 TAGLINE = ["The headless browser built for agents.", "Native WebKit, invisible, signed in."]
-COMMANDS = "read · fetch · download · sign-in"  # what ships today; keep it to commands that exist
+COMMANDS = "open · snapshot · click · fill · screenshot · mcp"  # keep it to commands that exist
 
-# The how-it-works diagram: cards on a grid of (row, column), and arrows between cards (horizontal
-# within a row, vertical within a column; "both" draws two heads). A line starting with "✓ " gets a
-# green check. Each line should stay under about 24 characters to fit its card.
+# The how-it-works diagram: cards on a grid of (row, column), optionally spanning (rows, columns),
+# and arrows between cards that share rows (drawn across) or columns (drawn down); "both" draws two
+# heads. A line starting with "✓ " gets a green check. Lines should stay under about 24 characters
+# per column a card spans. Row heights follow the cards that span one row.
 DIAGRAM = {
     "title": "How Umbra works",
-    "desc": "Your script or agent runs the umbra command and gets back text, JSON or a file plus an exit code. "
-            "umbra takes the profile's lock and drives WebKit off screen, with no window or Dock icon. WebKit "
-            "presents Safari's user agent, runs your JavaScript, fetches and downloads, using Umbra's own cookie "
-            "store on disk. umbra sign-in fills that store once, in one window with a check per site. Safari is "
-            "untouched: no tabs, no focus taken, no shared cookies.",
+    "desc": "The umbra CLI and the umbra mcp server are both clients of one daemon per profile, which they reach "
+            "over a unix socket and start on first use. The daemon owns the tabs: WebKit views in off-screen windows "
+            "that pages see as visible, driven with trusted native input. The tabs share Umbra's own cookie store on "
+            "disk, filled once by umbra sign-in; sign-in and handoff are the only windows, shown when the person is "
+            "needed. Safari and the screen are untouched: no Dock icon, no focus taken, no shared cookies.",
     "cards": {
-        "script": dict(at=(0, 0), heading="Your script", lines=["agents, launchd, shell", "gets text, JSON or files", "plus an exit code"]),
-        "umbra": dict(at=(0, 1), heading="umbra", mono=True, lines=["takes the profile lock", "no window, no Dock icon", "starts in about 0.4 s"]),
-        "webkit": dict(at=(0, 2), heading="WebKit, off screen", lines=["Safari's user agent", "runs your JavaScript", "fetches and downloads"]),
-        "safari": dict(at=(1, 0), heading="Safari, untouched", lines=["no tabs, no focus taken", "no shared cookies"],
-                       accent=DIM, dashed=True, icon="compass"),
-        "signin": dict(at=(1, 1), heading="umbra sign-in", mono=True, accent=GREEN, lines=["once, in one window", "✓ when signed in"]),
-        "store": dict(at=(1, 2), heading="Its own cookie store", accent=ORCHID, lines=["on disk, kept per profile", "values never printed"]),
+        "cli": dict(at=(0, 0), heading="umbra CLI", mono=True, lines=["your shell or script", "text or --json out", "plus an exit code"]),
+        "mcp": dict(at=(1, 0), heading="umbra mcp", mono=True, lines=["Claude Code, Cursor,", "Claude Desktop", "every command a tool"]),
+        "daemon": dict(at=(0, 1), span=(2, 1), heading="Daemon", lines=["one per profile", "unix socket, JSON lines", "starts on first use",
+                                                                         "exits after 15 idle min", "", "snapshot, refs and", "actions in an isolated", "JavaScript world"]),
+        "tabs": dict(at=(0, 2), heading="Tabs", lines=["WebKit, off screen", "pages report visible", "trusted native input"]),
+        "store": dict(at=(1, 2), heading="Cookie store", accent=ORCHID, lines=["Umbra's own, on disk", "one per profile", "values never printed"]),
+        "screen": dict(at=(2, 0), span=(1, 2), heading="Safari and your screen, untouched", accent=DIM, dashed=True, icon="compass",
+                       lines=["no Dock icon, no focus taken", "no Safari tabs, no shared cookies"]),
+        "signin": dict(at=(2, 2), heading="sign-in, handoff", mono=True, accent=GREEN, lines=["a window only when", "you're needed"]),
     },
-    "arrows": [("script", "umbra"), ("umbra", "webkit"), ("webkit", "store", "both"), ("signin", "store")],
+    "arrows": [("cli", "daemon"), ("mcp", "daemon"), ("daemon", "tabs"), ("tabs", "store", "both"), ("signin", "store")],
 }
 
 DEFS = """
@@ -213,12 +216,12 @@ def social():
                f"""
   <rect width="1280" height="640" fill="url(#sky)"/>
   <circle cx="300" cy="320" r="330" fill="url(#halo)"/>
-  {stars(1280, 640, 130, 13, avoid=[(300, 320, 240), (860, 320, 320)])}
+  {stars(1280, 640, 130, 13, avoid=[(300, 320, 240), (890, 330, 370)])}
   {mark(300, 320, 450)}
   <text x="560" y="300" font-family="{SANS}" font-size="140" font-weight="600" letter-spacing="4" fill="{PAPER}">umbra</text>
   <text x="565" y="368" font-family="{SANS}" font-size="35" fill="{PAPER}" fill-opacity="0.92">{TAGLINE[0]}</text>
   <text x="565" y="418" font-family="{SANS}" font-size="35" fill="{MUTED}">{TAGLINE[1]}</text>
-  <text x="566" y="472" font-family="{MONO}" font-size="26" fill="{AMBER}" fill-opacity="0.85">{COMMANDS}</text>""")
+  <text x="566" y="470" font-family="{MONO}" font-size="22" fill="{AMBER}" fill-opacity="0.85">{COMMANDS}</text>""")
 
 
 def compass(x, y):
@@ -259,28 +262,33 @@ def arrow(x1, y1, x2, y2, both=False):
 
 
 def diagram(spec=DIAGRAM):
-    """Lays out DIAGRAM: 330-wide cards in columns, each row as tall as its longest card."""
+    """Lays out DIAGRAM: 330-wide columns, each row as tall as its longest one-row card."""
     cards, w, gap, top, row_gap = spec["cards"], 330, 57, 108, 70
-    rows = max(c["at"][0] for c in cards.values()) + 1
-    columns = max(c["at"][1] for c in cards.values()) + 1
-    heights = [104 + 36 * max(len(c["lines"]) for c in cards.values() if c["at"][0] == r) for r in range(rows)]
+    span = lambda c: c.get("span", (1, 1))
+    rows = max(c["at"][0] + span(c)[0] for c in cards.values())
+    columns = max(c["at"][1] + span(c)[1] for c in cards.values())
+    heights = [104 + 36 * max([len(c["lines"]) for c in cards.values() if c["at"][0] == r and span(c)[0] == 1] or [1])
+               for r in range(rows)]
     ys = [top + sum(heights[:r]) + row_gap * r for r in range(rows)]
     width, height = 96 + columns * w + (columns - 1) * gap, ys[-1] + heights[-1] + 42
 
     def frame(name):
-        row, column = cards[name]["at"]
-        return 48 + column * (w + gap), ys[row], w, heights[row]
+        (row, column), (down, across) = cards[name]["at"], span(cards[name])
+        return (48 + column * (w + gap), ys[row], across * w + (across - 1) * gap,
+                sum(heights[row:row + down]) + row_gap * (down - 1))
 
     body = [box(*frame(name), c["heading"], c["lines"], c.get("accent", AMBER), c.get("mono", False),
                 c.get("dashed", False), c.get("icon")) for name, c in cards.items()]
     for start, end, *both in spec["arrows"]:
         (ax, ay, aw, ah), (bx, by, bw, bh) = frame(start), frame(end)
-        if ay == by:
+        top_, bottom = max(ay, by), min(ay + ah, by + bh)
+        if top_ < bottom:  # side by side: across, level with the rows they share
             x1, x2 = (ax + aw + 6, bx - 6) if bx > ax else (ax - 6, bx + bw + 6)
-            body.append(arrow(x1, ay + ah / 2, x2, by + bh / 2, bool(both)))
-        else:
+            body.append(arrow(x1, (top_ + bottom) / 2, x2, (top_ + bottom) / 2, bool(both)))
+        else:  # stacked: down, centred on the columns they share
+            x = (max(ax, bx) + min(ax + aw, bx + bw)) / 2
             y1, y2 = (ay + ah + 6, by - 6) if by > ay else (ay - 6, by + bh + 6)
-            body.append(arrow(ax + aw / 2, y1, bx + bw / 2, y2, bool(both)))
+            body.append(arrow(x, y1, x, y2, bool(both)))
     return svg(width, height, spec["title"], spec["desc"], f"""
   {card(width, height)}
   {stars(width, height, 40, 11)}

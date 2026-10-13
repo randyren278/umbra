@@ -1,6 +1,25 @@
 # Recipes
 
-These are copy-paste callers and patterns for scripts that use Umbra. The callers below were run against a local test server before publishing. Swap in your own URLs.
+Copy-paste patterns for driving Umbra from scripts and agents. There are two styles:
+
+- **Session commands** (`open`, `snapshot`, `click`, `fill`…) talk to the profile's daemon, so a tab and its sign-in carry over from one command to the next. Use them to work through a site step by step.
+- **One-shot commands** (`read`, `fetch`, `download`) do one job and exit with a code. Scheduled scripts use them.
+
+Every recipe here was run against Northwind Ops, the test app in [`bench/site`](../bench/README.md) (`python3 bench/site/server.py --port 8765`), or against a local test server. Swap in your own URLs.
+
+**Session commands**
+
+- [A table that spans several pages](#a-table-that-spans-several-pages)
+- [Fill in a form and confirm it saved](#fill-in-a-form-and-confirm-it-saved)
+- [Save a file the page downloads](#save-a-file-the-page-downloads)
+- [Upload a file behind a styled button](#upload-a-file-behind-a-styled-button)
+- [Follow a pop-up into its own tab](#follow-a-pop-up-into-its-own-tab)
+- [Screenshots, PDFs and the mobile layout](#screenshots-pdfs-and-the-mobile-layout)
+- [Find out why a page misbehaves](#find-out-why-a-page-misbehaves)
+- [Structured output for scripts](#structured-output-for-scripts)
+- [A long-lived client on the socket](#a-long-lived-client-on-the-socket)
+
+**One-shot commands**
 
 - [Exit codes in practice](#exit-codes-in-practice)
 - [Python](#python) · [Node](#node) · [Shell](#shell)
@@ -10,6 +29,131 @@ These are copy-paste callers and patterns for scripts that use Umbra. The caller
 - [Downloading files](#downloading-files)
 - [Running on a schedule with launchd](#running-on-a-schedule-with-launchd)
 - [Trying scripts on a separate profile](#trying-scripts-on-a-separate-profile)
+
+## A table that spans several pages
+
+The orders table is rendered by JavaScript, ten rows at a time, with a **Next** button. Read each page as markdown, and stop when **Next** is disabled:
+
+```zsh
+umbra open 127.0.0.1:8765/app/orders
+while true; do
+  umbra markdown --target table >> orders.md
+  umbra get "text=Next" --json | jq -e .enabled > /dev/null || break
+  umbra click "text=Next"
+  umbra wait --idle
+done
+```
+
+`wait --idle` returns once the network has been quiet for 500 ms, which here means the next page of rows has arrived. All 40 orders end up in `orders.md`.
+
+## Fill in a form and confirm it saved
+
+```sh
+umbra open 127.0.0.1:8765/app/settings
+umbra fill "text=Display name" "Jordan Lee"
+umbra click "text=Save changes"
+umbra wait --text "Settings saved"
+```
+
+`fill` types the value as trusted keyboard input, so a React-controlled field keeps it. A label works as the target for its field. `wait --text` matches case-sensitively and exits 2 if the text never appears.
+
+## Save a file the page downloads
+
+```sh
+umbra click "text=Export CSV"     # reports: downloaded orders.csv to ~/Downloads/Umbra/…
+umbra downloads                   # every file this tab downloaded, with its path
+```
+
+Files a page downloads land in `~/Downloads/Umbra/`, in a folder named after the profile when you use one. The click waits for the download and reports where it went. When you already know the URL, `umbra download <url> <file>` saves it exactly where you say.
+
+## Upload a file behind a styled button
+
+```sh
+umbra open 127.0.0.1:8765/app/upload
+umbra upload "text=Choose file…" invoice.pdf
+```
+
+`upload` clicks the button natively and answers the file chooser it opens, so it works even when the real `<input type=file>` is hidden. Relative paths mean your current directory.
+
+## Follow a pop-up into its own tab
+
+A link with `target=_blank` opens a new tab, and the click names it:
+
+```console
+$ umbra click "text=Q3 2026 operations report"
+clicked link "Q3 2026 operations report ↗" (e1) → opened tab tab-2: Q3 2026 operations report · Northwind Ops · http://127.0.0.1:8765/app/report?quarter=2026-Q3 (switch with: tab select tab-2)
+
+$ umbra get "#report-number" --tab tab-2
+RPT-585498
+```
+
+To keep tasks apart from the start, open each in a named tab with `umbra open <url> --tab NAME`.
+
+## Screenshots, PDFs and the mobile layout
+
+```sh
+umbra screenshot page.png                 # the viewport
+umbra screenshot page.png --full          # the whole page
+umbra screenshot row.png --target e12     # one element
+umbra pdf page.pdf                        # one tall page, selectable text, working links
+
+umbra viewport --mobile && umbra reload   # iPhone Safari's user agent at 390×844
+umbra screenshot mobile.png --full
+umbra viewport 1280 900                   # back to the desktop user agent
+```
+
+The tab stays invisible the whole time. Without a path, `screenshot` returns the image as base64 (with `--json`) or, over MCP, as an image the model can see.
+
+## Find out why a page misbehaves
+
+```sh
+umbra console --level error     # console errors, uncaught exceptions and rejected promises
+umbra network --failed          # requests that failed or got an HTTP error
+umbra info                      # status, ready state, visibility, scroll and element counts
+```
+
+Pages that are heavy with images or trackers load faster with `umbra block images trackers` followed by `umbra reload`. `umbra block --none` turns it off again.
+
+## Structured output for scripts
+
+Every command takes `--json` and prints its full result as JSON, which `jq` can pick apart:
+
+```sh
+umbra info --json | jq -r .status                  # 200
+umbra get "text=Next" --json | jq -e .enabled      # exits 1 when the button is disabled
+umbra links --json | jq -r '.links[].href'
+```
+
+## A long-lived client on the socket
+
+The CLI pays for a process start on every command. A program that sends many commands can keep one connection to the daemon instead. It's a unix socket that takes one JSON object per line: send `{id, command, args}` and get back `{id, ok, result}` or `{id, ok: false, error: {code, message}}`. Command and argument names are the same as the CLI's, and `umbra schema` lists them.
+
+```python
+import json
+import os
+import socket
+
+profile = os.environ.get("UMBRA_PROFILE")
+name = f"daemon-{profile}.sock" if profile else "daemon.sock"
+path = os.path.expanduser(f"~/Library/Application Support/Umbra/{name}")
+
+with socket.socket(socket.AF_UNIX) as sock:
+    sock.connect(path)  # start the daemon first with any session command, e.g. `umbra tabs`
+    lines = sock.makefile("rw")
+
+    def call(command, **args):
+        lines.write(json.dumps({"id": 1, "command": command, "args": args}) + "\n")
+        lines.flush()
+        reply = json.loads(lines.readline())
+        if not reply["ok"]:
+            raise RuntimeError(f"{command}: exit {reply['error']['code']}: {reply['error']['message']}")
+        return reply["result"]
+
+    call("open", url="http://127.0.0.1:8765/app/orders")
+    print(call("get", target="text=Showing")["text"])   # Showing 1–10 of 40 orders
+```
+
+Profile names longer than 24 characters get a hashed socket name instead; keep them short to use this as written.
 
 ## Exit codes in practice
 
@@ -23,7 +167,9 @@ These are copy-paste callers and patterns for scripts that use Umbra. The caller
 | `64` | Usage error | No | A bug in the caller |
 | `78` | `sites.json` can't be parsed | No | Fix the file |
 
-Umbra writes results to stdout and messages to stderr. Runs on the same profile take turns, and time spent waiting for the lock doesn't count toward `--timeout`. So if your caller enforces its own timeout, make it generous.
+Umbra writes results to stdout and messages to stderr. When the profile's daemon is running, one-shots go through it and share its tabs' session. Otherwise they run on their own, take turns on the profile's lock, and time spent waiting for the lock doesn't count toward `--timeout`. So if your caller enforces its own timeout, make it generous.
+
+The callers below run any `umbra` command, not just the one-shots. Add `--json` to a session command and parse what it prints.
 
 ## Python
 
@@ -235,4 +381,4 @@ umbra sign-in https://canvas.example.edu/login
 umbra read https://canvas.example.edu/ < modules.js
 ```
 
-A profile is a separate store under `~/Library/WebKit/com.randyren.umbra/WebsiteDataStore/`. To find its folder so you can delete it, see [how-it-works.md](how-it-works.md#profiles).
+`--profile scratch` on a single command does the same as the variable. A profile has its own store, daemon and download folder. When you're done, `umbra --profile scratch stop`; to delete the profile's files, see [how-it-works.md](how-it-works.md#profiles).

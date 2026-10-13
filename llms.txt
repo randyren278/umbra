@@ -1,0 +1,50 @@
+# Umbra
+
+> Umbra is the headless browser built for agents: the WebKit built into macOS, running invisibly, signed in to the user's sites through its own cookie store. Agents drive live tabs from a shell (`umbra <command>`) or over MCP (`umbra mcp`), and scheduled scripts use the one-shot `read`, `fetch` and `download`. macOS 14 or later only.
+
+Facts an agent needs:
+
+- A per-profile daemon keeps tabs alive between commands. It starts on the first command and exits after 15 idle minutes. The CLI and `umbra mcp` drive the same tabs.
+- Tabs are invisible but pages see themselves as visible (`visibilityState`, `requestAnimationFrame` and `IntersectionObserver` work). Input is native, so events are trusted (`isTrusted == true`). Umbra never takes focus or shows a Dock icon.
+- Never drive Safari with AppleScript, and never type the user's passwords. Do the actions the request asks for; ask first before a consequential action (purchase, post, message, submission, refund, deletion) that is your own idea.
+- `--profile NAME` (or `UMBRA_PROFILE`) selects a separate cookie store and daemon. Use one for experiments. The current tab and cookies belong to the profile, so parallel agents each need their own profile (or at least their own `--tab`); cookies on 127.0.0.1 are shared across ports.
+- Dialogs never block: alerts, confirms and prompts are accepted by default and reported in the reply of the action that raised them. Run `umbra dialog dismiss` before an action to decline the next one.
+
+The loop:
+
+```
+umbra open example.com/login          # loads and waits: "Title · URL · HTTP 200"
+umbra snapshot --interactive          # outline with refs:  - textbox "Email" [ref=e3]
+umbra fill e3 me@example.com          # trusted typing, React-safe
+umbra click "text=Sign in"            # waits until clickable, follows the navigation
+umbra snapshot --interactive          # refs reset after navigation: snapshot again
+```
+
+Targets are a ref from the latest snapshot (`e12`), `text=Visible text`, or a CSS selector. Wait for conditions instead of sleeping: `umbra wait --text|--selector|--url|--js|--gone|--idle`. Every command takes `--json`, `--timeout SECONDS` and `--profile NAME`; page commands take `--tab NAME`. Options may go before or after the command (`umbra --tab work snapshot`). `umbra help <command>` documents each one, and `umbra schema` prints all of them as JSON.
+
+Commands:
+
+- Session: `open <url>` (`--new`, `--until JS`; alias `goto`), `back`, `forward`, `reload`, `tabs`, `tab select|new|close <name>`, `wait`, `eval <js>`, `block <types>`, `viewport [w h] [--mobile]`, `handoff "<message>" [--until JS]`, `status`, `stop`
+- See: `snapshot [--interactive] [--scope t]`, `text`, `markdown [--main]`, `html`, `links [--filter s]`, `get <t> [--attr name]`, `info`
+- Act: `click <t>`, `fill <t> <value>`, `type <text> [--target t]`, `press <keys…>`, `select <t> <values…>`, `check <t>`, `uncheck <t>`, `hover <t>`, `focus <t>`, `scroll [--dy n|--to bottom|--target t]`, `drag <from> <to>`, `upload <t> <files…>`, `dialog accept|dismiss`
+- Capture: `screenshot [path] [--full] [--target t]`, `pdf <path>`
+- Observe: `console [--level error]`, `network [--failed] [--filter s]`, `downloads`, `cookies [domain]` (names only, never values)
+- One-shot: `read <url> < script.js` (`--cookie NAME`, `--until`, `--wait`), `fetch <url> [--from page]`, `download <url> <file>`
+- Humans: `sign-in [site|url]` opens a window for the user to sign in; `handoff` shows a tab for 2FA, a CAPTCHA or consent, then hides it again
+
+Exit codes: 0 done; 1 Umbra itself failed; 2 timed out or a script threw; 3 signed out (ask the user to run `umbra sign-in <site>`); 4 the page or download failed to load; 5 HTTP error status; 64 usage error; 78 `sites.json` can't be parsed.
+
+## Docs
+
+- [README](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/README.md): what Umbra is, install, the loop, the full command reference, security model and limitations
+- [Agent skill](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/skill/SKILL.md): the Claude Code skill that teaches the loop, sign-in, handoff and the rules
+- [MCP](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/mcp.md): `umbra mcp` setup for Claude Code, Claude Desktop and Cursor, tools, images, progress and errors
+- [Agents](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/agents.md): instructions to paste into AGENTS.md, working habits, profiles for agents
+- [Recipes](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/recipes.md): paginated tables, forms, downloads, uploads, pop-ups, screenshots, the socket protocol, and callers for scripts
+- [Sites and sign-in](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/sites.md): `sites.json`, signed-in checks and `keepSession`
+
+## Optional
+
+- [How it works](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/how-it-works.md): the daemon, socket protocol, tabs, native input, cookie store, profiles and locks
+- [Proving ground and benchmark](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/bench/README.md): the Northwind Ops test app, 15 graded agent tasks, and the benchmark against Playwright
+- [Changelog](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/CHANGELOG.md)

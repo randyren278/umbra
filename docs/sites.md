@@ -72,9 +72,9 @@ Scripts get the same kind of check through `umbra read --cookie NAME`. That exit
 
 ## keepSession
 
-WebKit holds session-only cookies (those without an expiry date) in memory and drops them when the process ends. Each Umbra run is its own process. For a site whose sign-in rests on session cookies, which is common with university single sign-on and Canvas, that means you're signed in during `umbra sign-in` and signed out on the very next run.
+WebKit holds session-only cookies (those without an expiry date) in memory and drops them when the process ends. That process is the sign-in window, a one-shot run, or the profile's daemon, which exits after 15 idle minutes. For a site whose sign-in rests on session cookies, which is common with university single sign-on and Canvas, you'd be signed in during `umbra sign-in` and signed out once that process ends.
 
-With `"keepSession": true`, Umbra rewrites that site's session-only cookies at the end of every run (and while the sign-in window is open) as ordinary cookies that expire 30 days later. Because every run renews them, the session lasts as long as you use it at least once a month, or until the site ends it on its side.
+With `"keepSession": true`, Umbra rewrites that site's session-only cookies as ordinary cookies that expire 30 days later. It does this when a one-shot run ends, when the daemon stops, and while the sign-in window is open. Because each of those renews them, the session lasts as long as you use it at least once a month, or until the site ends it on its side.
 
 **Signs you need it:** sign-in shows a green check, but the next `read --cookie` exits 3 or the next API call gets 401. `umbra cookies <domain>` shows `session` in the expiry column for the cookies that matter.
 
@@ -93,7 +93,7 @@ umbra sign-in https://example.com/login   # a one-off tab, named after the host,
 umbra                              # the same as `umbra sign-in`
 ```
 
-An unknown name exits 64 and lists the names it knows. With no sites file and no arguments, `umbra sign-in` exits 64 and explains how to name a URL instead.
+Signing in stops the profile's daemon first, because the window needs the store to itself; the next session command starts a new one. An unknown name exits 64 and lists the names it knows. With no sites file and no arguments, `umbra sign-in` exits 64 and explains how to name a URL instead.
 
 ## Separate files and profiles
 

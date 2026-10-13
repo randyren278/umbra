@@ -2,6 +2,32 @@
 
 All notable changes to Umbra are recorded here. Versions follow [Semantic Versioning](https://semver.org).
 
+## 0.2.0 - 2026-10-13
+
+Umbra becomes a browser agents can drive step by step. The 0.1 one-shot commands keep their contract.
+
+### Added
+
+- A per-profile daemon (`umbra serve`) that keeps tabs alive between commands. It starts on first use, listens on a unix socket that only your user can open (one JSON object per line), and exits after 15 idle minutes (`UMBRA_IDLE`). `status` and `stop` manage it.
+- Tabs that pages see as visible: each `WKWebView` lives in a transparent, click-through window off screen with occlusion detection off, so `visibilityState`, `requestAnimationFrame` and `IntersectionObserver` behave as they do on screen. No Dock icon, and the daemon never takes focus.
+- Session commands: `open` (alias `goto`), `back`, `forward`, `reload`, `tabs`, `tab select|new|close`, `wait` (`--selector`, `--text`, `--url`, `--js`, `--gone`, `--idle`, `--ms`), `eval`, `block`, `viewport` (with `--mobile`), `downloads`. Pop-ups become tabs.
+- `snapshot`: an accessibility-style outline with stable element refs (`e5`), with `--interactive` and `--scope`. It covers open shadow roots and same-origin iframes and marks cross-origin ones. It runs in an isolated JavaScript world the page can't see.
+- Thirteen actions with trusted native input: `click`, `fill`, `type`, `press`, `select`, `check`, `uncheck`, `hover`, `scroll`, `drag`, `upload`, `dialog`, `focus`. They take a ref, `text=…` or a CSS selector, and wait until the target is actionable. Plus `get` for a quick read of one element.
+- Capture and observe: `screenshot` (viewport, `--full`, or one element), `pdf`, `text`, `markdown` (`--main`), `html`, `links`, `console`, `network`, `info`.
+- `handoff`: shows a tab to the person for 2FA, a CAPTCHA or consent, and hides it again when they're done or an `--until` condition holds.
+- `umbra mcp`: a stdio MCP server whose 41 tools are the commands, driving the same tabs as the CLI. It returns screenshots as images, sends progress for long calls, and marks read-only and file-writing tools. `umbra mcp --print-config` prints setup for Claude Code, Claude Desktop and Cursor.
+- `--json` and `--profile NAME` on every command; `umbra help <command>` and `umbra schema`, generated from one command registry.
+- `skill/SKILL.md`, a Claude Code skill; `llms.txt`; docs for MCP and agents.
+- `bench/`: the Northwind Ops test app, 15 graded agent tasks, a benchmark against Playwright, and an agent eval (`bench/eval/`) in which fresh agents passed all 14 unattended tasks.
+- Tests for the daemon and session commands, and for MCP conformance, with an invisibility check after every daemon command.
+
+### Changed
+
+- `read`, `fetch` and `download` go through the profile's daemon when one is running, and share its session.
+- `umbra sign-in` stops the profile's daemon before it opens its window.
+- `make install` and `make uninstall` stop a running daemon first.
+- JSON output keeps slashes unescaped and sorts keys.
+
 ## 0.1.0 - 2026-10-12
 
 The first public release.
