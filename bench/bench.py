@@ -39,6 +39,7 @@ DOWNLOADS = Path.home() / 'Downloads/Umbra'
 # (key, label, the Umbra commands it needs)
 METRICS = [
     ('cold', 'Cold start to first page loaded', ['open']),
+    ('read', 'One-shot read (no daemon), cold', ['read']),
     ('navigate', 'Warm navigate to a local page', ['open']),
     ('snapshot', 'Accessibility snapshot (orders table)', ['snapshot']),
     ('click', 'Click + DOM update (role=switch)', ['click']),
@@ -48,6 +49,8 @@ METRICS = [
     ('heavy', '/heavy load, 200 images', ['open']),
     ('heavy_blocked', '/heavy load, images blocked', ['open', 'block']),
 ]
+# ROADMAP.md's speed targets: metric -> p50 limit in ms
+TARGETS = {'snapshot': 25, 'click': 40, 'navigate': 120, 'cold': 700, 'read': 500}
 COLUMNS = [('umbra_cli', 'Umbra CLI'), ('umbra_socket', 'Umbra socket'),
            ('chromium', 'Playwright Chromium'), ('webkit', 'Playwright WebKit')]
 
@@ -104,7 +107,8 @@ class Umbra:
         return words
 
     def cli(self, command, **args):
-        done = subprocess.run([self.binary, *self.argv(command, args)], env=self.env, capture_output=True, text=True)
+        done = subprocess.run([self.binary, *self.argv(command, args)], env=self.env, capture_output=True, text=True,
+                              stdin=subprocess.DEVNULL)
         if done.returncode:
             raise Failed(f'umbra {command} exited {done.returncode}: {done.stderr.strip()[:200]}')
         return {'text': done.stdout}
@@ -223,6 +227,20 @@ def bench_umbra(umbra, only, runs, warmup, tmp):
         cell('cold', 'cli', cold)
         results['cold']['umbra_socket'] = {'na': 'CLI only'}
 
+    if wanted('read', needs['read']):
+        def read():
+            samples = []
+            for _ in range(runs):  # with no daemon running, `read` loads the page in its own process
+                umbra.stop()
+                start = time.perf_counter()
+                out = umbra.cli('read', url=base + '/login')
+                samples.append((time.perf_counter() - start) * 1000)
+                expect('Sign in' in out['text'], 'read did not return the login page')
+                expect(umbra.daemon_pid() is None, 'read started a daemon')
+            return samples
+        cell('read', 'cli', read)
+        results['read']['umbra_socket'] = {'na': 'CLI only'}
+
     umbra.cli('open', url=base + '/__login?next=/app')
     for path in ('cli', 'socket'):
         if wanted('navigate', needs['navigate']):
@@ -313,7 +331,7 @@ def percentile(samples, q):
 
 
 def stats(cell):
-    if 'samples' in cell and cell['samples']:
+    if cell.get('samples') and 'p50' not in cell:
         cell['p50'] = round(statistics.median(cell['samples']), 2)
         cell['p95'] = round(percentile(cell['samples'], 0.95), 2)
         cell['samples'] = [round(s, 2) for s in cell['samples']]
@@ -354,17 +372,29 @@ def write_results(data):
     m = data['machine']
     lines = ['# Umbra vs Playwright on Northwind Ops', '',
              f"Measured {data['date']} on a {m['model']} ({m['cpu']}, {m['cores']} cores, {m['memory_gb']} GB), "
-             f"macOS {m['macos']} ({m['build']}), load average {m['load_average'][0]} at the start.",
-             f"{data['umbra_version']} at {m['umbra_commit']}; Playwright {data.get('playwright', 'not run')} "
-             + ' and '.join(f"{name} {v}" for name, v in data.get('browsers', {}).items()) + '.',
+             f"macOS {m['macos']} ({m['build']}). One-minute load average {m['load_average'][0]} at the start and "
+             f"{m.get('load_average_end', ['?'])[0]} at the end.",
+             f"{data['umbra_version']} at {m['umbra_commit']}; "
+             + (f"Playwright {data['playwright']} with " + ' and '.join(f"{name} {v}" for name, v in data['browsers'].items())
+                if data.get('browsers') else 'Playwright not run') + '.',
              f"Each cell is p50 / p95 in milliseconds over {data['runs']} timed runs, after {data['warmup']} untimed warm-up runs "
-             '(cold start has none: every run is cold). Every run is checked afterward (untimed): the page loaded, the switch '
+             '(the two cold rows have none: every run is cold). Every run is checked afterward (untimed): the page loaded, the switch '
              'flipped, the field holds the value, the images loaded or were blocked.', '',
              '| Metric | ' + ' | '.join(label for _, label in COLUMNS) + ' |',
              '|---|' + '---:|' * len(COLUMNS)]
     for key, label, _ in METRICS:
         row = data['metrics'].get(key, {})
         lines.append(f'| {label} | ' + ' | '.join(summary(row.get(col, {})) for col, _ in COLUMNS) + ' |')
+    lines += ['', '## ROADMAP speed targets', '', 'p50 against the target; p95 in parentheses.', '',
+              '| Target | Umbra CLI | Umbra socket |', '|---|---:|---:|']
+    for key, label, _ in METRICS:
+        if key in TARGETS:
+            cells = []
+            for col in ('umbra_cli', 'umbra_socket'):
+                cell = data['metrics'].get(key, {}).get(col, {})
+                cells.append(f"{ms(cell['p50'])} ({ms(cell['p95'])}) {'met' if cell['p50'] < TARGETS[key] else 'MISSED'}"
+                             if 'p50' in cell else summary(cell))
+            lines.append(f'| {label} < {TARGETS[key]} ms | ' + ' | '.join(cells) + ' |')
     lines += ['', '## What each path measures', '',
               '- **Umbra CLI**: wall time of `umbra <command>` as a fresh process, as an agent\'s shell tool runs it '
               '(process start, connecting to the daemon, the command, printing). Cold start runs `umbra stop` first and waits '
@@ -375,6 +405,9 @@ def write_results(data):
               'is `launch()` + `newContext()` + `newPage()` + `goto()` inside that process; Node\'s own start-up is not counted. '
               'Each context is non-persistent, so every launch uses a fresh temporary profile.',
               '', '## Notes', '',
+              '- One-shot read: `umbra read <url> < /dev/null` with no daemon running, so it starts WebKit in its own process, '
+              'loads /login and prints the HTML. Each run stops the daemon first and checks that none was started. Playwright '
+              'has no counterpart row; its cold start row is the nearest comparison.',
               '- Accessibility snapshot: Umbra `snapshot` against Playwright `page.locator(\'body\').ariaSnapshot()` on /app/orders '
               'with 10 rows loaded.',
               '- Click: the settings page\'s `role=switch` button, whose handler flips `aria-checked` synchronously. Playwright\'s '
@@ -426,6 +459,7 @@ def main():
         run_all(options, only, umbra, base, tmp, data)
     finally:
         finish()
+    data['machine']['load_average_end'] = [round(x, 2) for x in os.getloadavg()]
     for row in data['metrics'].values():
         for cell in row.values():
             stats(cell)

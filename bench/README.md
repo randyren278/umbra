@@ -93,6 +93,7 @@ Playwright 1.62.1 matches the browsers already cached in `~/Library/Caches/ms-pl
 | Metric | Umbra | Playwright |
 |---|---|---|
 | Cold start to first page | `umbra stop`, wait for the daemon to exit, then time `umbra open /login` | `launch` + `newContext` + `newPage` + `goto` |
+| One-shot read, cold | `umbra stop`, then time `umbra read /login < /dev/null` (no daemon: it starts WebKit in its own process) | none |
 | Warm navigate | `open /app` | `goto('/app')` |
 | Accessibility snapshot | `snapshot` on `/app/orders` | `locator('body').ariaSnapshot()` |
 | Click + DOM update | `click <ref>` on the switch (its `aria-checked` flips) | `locator('#notifications').click()` |
@@ -103,4 +104,4 @@ Playwright 1.62.1 matches the browsers already cached in `~/Library/Caches/ms-pl
 
 Umbra is measured two ways. **CLI** runs a fresh `umbra` process per command, the way an agent's shell tool runs it. **Socket** keeps one connection to `~/Library/Application Support/Umbra/daemon-<profile>.sock` and sends one JSON object per line (`{id, command, args}` → `{id, ok, result}`). Playwright runs as one persistent Node process per browser, which is its best case. A metric whose Umbra command isn't built shows `n/a (not built)`.
 
-Run the benchmark on a quiet machine. Builds and test suites running alongside it change the numbers, and `results.md` records the load average at the start.
+Run the benchmark on a quiet machine. Builds and test suites running alongside it change the numbers, and `results.md` records the load average at the start and the end, plus the commit, and checks the p50s against the ROADMAP speed targets.
