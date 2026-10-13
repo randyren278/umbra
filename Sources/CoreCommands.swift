@@ -58,6 +58,23 @@ for (let i = 0; i < 600; i++) {
 return false
 """
 
+/// A tab for one-shot work, closed when the command answers, its own timeout included, so a
+/// slow page never leaves a scratch tab behind.
+func scratch(_ engine: Engine, _ kind: String, _ args: Args, timeout fallback: Double,
+             _ reply: @escaping Reply) -> (Tab, Reply) {
+    let tab = engine.open(name: "\(kind)-\(UUID().uuidString.prefix(6))", select: false)
+    var answered = false
+    let finish: Reply = { result in
+        guard !answered else { return }
+        answered = true
+        engine.close(tab)
+        reply(result)
+    }
+    let timeout = args.number("timeout") ?? fallback
+    DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { finish(.failure(UmbraError(2, "no answer in \(duration(timeout))"))) }
+    return (tab, finish)
+}
+
 func coreCommands() -> [Command] {
     [
         Command(name: "open", help: "Load a URL in a tab (the current one, or --tab NAME, created if new) and wait for it to load.",
@@ -218,8 +235,7 @@ func coreCommands() -> [Command] {
                          Param(name: "until", kind: .string, help: "JavaScript condition to wait for, across redirects")],
                 usesTab: false, timeout: 90) { args, engine, reply in
             guard let url = normalizeURL(args.string("url") ?? "") else { return reply(.failure(UmbraError(64, "not a URL"))) }
-            let tab = engine.open(name: "read-\(UUID().uuidString.prefix(6))", select: false)
-            let finish: Reply = { result in engine.close(tab); reply(result) }
+            let (tab, finish) = scratch(engine, "read", args, timeout: 90, reply)
             tab.load(url) { loaded in
                 if case .failure(let error) = loaded { return finish(.failure(error)) }
                 DispatchQueue.main.asyncAfter(deadline: .now() + (args.number("wait") ?? 0)) {
@@ -254,17 +270,16 @@ func coreCommands() -> [Command] {
                   let page = URL(string: args.string("from") ?? "/robots.txt", relativeTo: url)?.absoluteURL else {
                 return reply(.failure(UmbraError(64, "fetch needs an absolute URL")))
             }
-            let tab = engine.open(name: "fetch-\(UUID().uuidString.prefix(6))", select: false)
+            let (tab, finish) = scratch(engine, "fetch", args, timeout: 90, reply)
             tab.load(page) { loaded in
-                if case .failure(let error) = loaded { engine.close(tab); return reply(.failure(error)) }
+                if case .failure(let error) = loaded { return finish(.failure(error)) }
                 tab.run(fetchScript, ["url": url.absoluteString]) { result in
-                    engine.close(tab)
                     guard case .success(let value) = result, let pair = value as? [Any],
                           let status = pair.first as? Int, let body = pair.last as? String else {
-                        if case .failure(let error) = result { return reply(.failure(UmbraError(4, "request failed: \(error.message)"))) }
-                        return reply(.failure(UmbraError(4, "request failed")))
+                        if case .failure(let error) = result { return finish(.failure(UmbraError(4, "request failed: \(error.message)"))) }
+                        return finish(.failure(UmbraError(4, "request failed")))
                     }
-                    reply(.success(["status": status, "body": body, "text": body]))
+                    finish(.success(["status": status, "body": body, "text": body]))
                 }
             }
         },
@@ -280,6 +295,8 @@ func coreCommands() -> [Command] {
                 job = nil
                 code == 0 ? reply(.success(["path": file.path, "text": file.path])) : reply(.failure(UmbraError(code, message)))
             }
+            let timeout = args.number("timeout") ?? 300
+            DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { [weak job] in job?.cancel("no answer in \(duration(timeout))") }
         },
     ]
 }

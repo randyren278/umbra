@@ -122,6 +122,8 @@ final class Download: NSObject, WKNavigationDelegate, WKDownloadDelegate {
     let file: URL
     let part: URL
     let finished: (Int32, String) -> Void
+    var transfer: WKDownload?
+    var done = false
 
     init(_ url: URL, to file: URL, finished: @escaping (Int32, String) -> Void = { leave($0, $1) }) {
         self.file = file
@@ -131,7 +133,7 @@ final class Download: NSObject, WKNavigationDelegate, WKDownloadDelegate {
         var isDirectory: ObjCBool = false
         let folder = file.deletingLastPathComponent().path
         guard FileManager.default.fileExists(atPath: folder, isDirectory: &isDirectory), isDirectory.boolValue else {
-            DispatchQueue.main.async { finished(4, "no such directory: \(folder)") }
+            DispatchQueue.main.async { self.end(4, "no such directory: \(folder)") }
             return
         }
         web.navigationDelegate = self
@@ -142,43 +144,62 @@ final class Download: NSObject, WKNavigationDelegate, WKDownloadDelegate {
                  decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
         if let http = navigationResponse.response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             decisionHandler(.cancel)
-            return finished(5, "HTTP \(http.statusCode)")
+            return end(5, "HTTP \(http.statusCode)")
         }
         decisionHandler(.download)
     }
 
     func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
+        transfer = download
         download.delegate = self
+    }
+
+    /// Answers once; whatever WebKit reports afterwards is ignored.
+    func end(_ code: Int32, _ message: String) {
+        guard !done else { return }
+        done = true
+        finished(code, message)
+    }
+
+    /// Stops the transfer for good: a timed-out download must never land later.
+    func cancel(_ message: String) {
+        guard !done else { return }
+        transfer?.cancel { _ in }
+        web.stopLoading()
+        try? FileManager.default.removeItem(at: part)
+        end(2, message)
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         // Handing the response to a download interrupts the navigation (WebKit error 102): expected.
         let error = error as NSError
         guard !(error.domain == "WebKitErrorDomain" && error.code == 102), error.code != NSURLErrorCancelled else { return }
-        finished(4, "download failed: \(error.localizedDescription)")
+        end(4, "download failed: \(error.localizedDescription)")
     }
 
     func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String,
                   completionHandler: @escaping (URL?) -> Void) {
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             completionHandler(nil)
-            return finished(5, "HTTP \(http.statusCode)")
+            return end(5, "HTTP \(http.statusCode)")
         }
+        if done { return completionHandler(nil) }
         try? FileManager.default.removeItem(at: part)
         completionHandler(part)
     }
 
     func downloadDidFinish(_ download: WKDownload) {
+        guard !done else { try? FileManager.default.removeItem(at: part); return }
         guard rename(part.path, file.path) == 0 else {
             try? FileManager.default.removeItem(at: part)
-            return finished(4, "could not move the download to \(file.path)")
+            return end(4, "could not move the download to \(file.path)")
         }
-        finished(0, "")
+        end(0, "")
     }
 
     func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
         try? FileManager.default.removeItem(at: part)
-        finished(4, "download failed: \(error.localizedDescription)")
+        end(4, "download failed: \(error.localizedDescription)")
     }
 }
 
@@ -189,7 +210,7 @@ func headless(timeout: Double, _ start: () -> AnyObject) -> Never {
     silenceWebKit()
     let job = start()
     DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
-        if let download = job as? Download { try? FileManager.default.removeItem(at: download.part) }
+        if let download = job as? Download { return download.cancel("no answer in \(duration(timeout))") }
         leave(2, "no answer in \(duration(timeout))")
     }
     withExtendedLifetime(job) { NSApplication.shared.run() }
