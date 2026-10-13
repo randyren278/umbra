@@ -204,11 +204,9 @@ func coreCommands() -> [Command] {
                             "text": "umbra daemon \(getpid()) · profile \(profile ?? "default") · up \(uptime) s · \(engine.tabs.count) tab(s)"]))
         },
         Command(name: "stop", help: "Close every tab and stop this profile's daemon.", usesTab: false, mcp: false) { _, _, reply in
+            unlink(socketPath)  // from here on, a new command starts a fresh daemon instead of reaching this one
             reply(.success(["text": "stopped"]))
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                unlink(socketPath)
-                keepSessions { exit(0) }
-            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { keepSessions { exit(0) } }
         },
         // The one-shot commands, served by a running daemon so scripts never wait on its lock.
         Command(name: "read", help: "Load a page in a scratch tab, run a script (or return its HTML), and close it.",

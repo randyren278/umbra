@@ -63,8 +63,16 @@ final class Daemon {
     var inFlight = 0
 
     func run() -> Never {
-        // One daemon per profile: a second one bows out before touching the socket.
-        guard takeLock("daemon", wait: false) != nil else { exit(0) }
+        // A client that hangs up mid-reply must not take every tab down with it.
+        signal(SIGPIPE, SIG_IGN)
+        // One daemon per profile: a second one bows out before touching the socket, after
+        // giving a stopping predecessor a moment to let go.
+        var owned = takeLock("daemon", wait: false)
+        for _ in 0..<40 where owned == nil {
+            usleep(50_000)
+            owned = takeLock("daemon", wait: false)
+        }
+        guard owned != nil else { exit(0) }
         NSApplication.shared.setActivationPolicy(.accessory)  // windows allowed, no Dock icon, no Command-Tab
         unlink(socketPath)
         let listener = socket(AF_UNIX, SOCK_STREAM, 0)
@@ -215,10 +223,11 @@ func call(_ command: String, _ args: [String: Any], spawn: Bool = true) -> Resul
     writeAll(fd, line(["id": 1, "command": command, "args": args]))
     var buffer = Data()
     var chunk = [UInt8](repeating: 0, count: 65536)
-    while buffer.firstIndex(of: 10) == nil {
+    while true {  // a reply can be megabytes (screenshots): look for the newline in new bytes only
         let count = read(fd, &chunk, chunk.count)
         if count <= 0 { return .failure(UmbraError(1, "Umbra's daemon closed the connection; see \(daemonLog)")) }
         buffer.append(chunk, count: count)
+        if chunk[..<count].contains(10) { break }
     }
     guard let reply = try? JSONSerialization.jsonObject(with: buffer) as? [String: Any] else {
         return .failure(UmbraError(1, "unreadable reply from Umbra's daemon"))
