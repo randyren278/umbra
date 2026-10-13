@@ -63,6 +63,7 @@ return false
 func scratch(_ engine: Engine, _ kind: String, _ args: Args, timeout fallback: Double,
              _ reply: @escaping Reply) -> (Tab, Reply) {
     let tab = engine.open(name: "\(kind)-\(UUID().uuidString.prefix(6))", select: false)
+    if engine.current === tab { engine.current = nil }  // never the tab a session command lands on
     var answered = false
     let finish: Reply = { result in
         guard !answered else { return }
@@ -195,14 +196,27 @@ func coreCommands() -> [Command] {
                          Param(name: "until", kind: .string, help: "JavaScript condition that ends the handoff by itself")],
                 timeout: 900) { args, engine, reply in
             guard case .success(let tab) = engine.tab(args) else { return reply(.failure(UmbraError(64, "no open tab"))) }
-            tab.handoff = { report(tab, reply) }
-            tab.reveal(args.string("message") ?? "Finish this step, then close the window")
-            if let until = args.string("until") {
-                tab.wait(until: until, timeout: args.number("timeout") ?? 900) { result in
+            let timeout = args.number("timeout") ?? 900
+            let begin = {
+                tab.handoff = { report(tab, reply) }
+                tab.reveal(args.string("message") ?? "Finish this step, then close the window")
+                // Whatever happens, the window hides again: on --until, on close, or at the timeout.
+                DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
                     guard tab.handoff != nil else { return }
-                    if case .failure(let error) = result { tab.handoff = { reply(.failure(error)) } }
+                    tab.handoff = { reply(.failure(UmbraError(2, "handoff timed out after \(duration(timeout))"))) }
                     tab.endHandoff()
                 }
+                guard let until = args.string("until") else { return }
+                tab.wait(until: until, timeout: timeout) { result in
+                    guard tab.handoff != nil, case .success = result else { return }
+                    tab.endHandoff()
+                }
+            }
+            // Nothing to hand off when the condition already holds: no window flashes up.
+            guard let until = args.string("until") else { return begin() }
+            tab.run("return Boolean(\(until))") { result in
+                if case .success(let value) = result, (value as? Bool) == true { return report(tab, reply) }
+                begin()
             }
         },
         Command(name: "cookies", help: "Cookie names, domains and expiry in this profile's store. Never values.",
