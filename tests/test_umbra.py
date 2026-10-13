@@ -32,6 +32,8 @@ REPO = Path(__file__).resolve().parent.parent
 UMBRA = os.environ.get('UMBRA') or str(REPO / 'build/Umbra.app/Contents/MacOS/umbra')
 STORES = Path.home() / 'Library/WebKit/com.randyren.umbra/WebsiteDataStore'
 LOCKS = Path.home() / 'Library/Application Support/Umbra'
+DOWNLOADS = Path.home() / 'Downloads/Umbra'  # page downloads land in DOWNLOADS/<profile>
+DOWNLOADS_EXISTED = DOWNLOADS.exists()
 REAL_STORE = '6f1c7a52-3d0b-4e8f-9a61-f1a57c0de001'
 RUN = 'test-' + secrets.token_hex(4)
 TMP = Path(tempfile.mkdtemp(prefix='umbra-tests-'))
@@ -48,8 +50,42 @@ def store_dir(name):
 
 
 def profile_files(name):
-    """The profile's store and every per-profile file (store-NAME.lock, and whatever else NAME.* appears)."""
-    return [store_dir(name), *LOCKS.glob(f'*-{name}.*')]
+    """The profile's store, its downloads and every per-profile file (store-NAME.lock, daemon-NAME.sock…)."""
+    return [store_dir(name), DOWNLOADS / name, *LOCKS.glob(f'*-{name}.*')]
+
+
+def daemons():
+    """Running `umbra serve` processes as {pid: profile}, '' for the default profile."""
+    listing = subprocess.run(['ps', '-axww', '-E', '-o', 'pid=,command='], capture_output=True, text=True, timeout=30).stdout
+    found = {}
+    for words in map(str.split, listing.splitlines()):
+        if len(words) > 2 and words[1].endswith('/umbra') and words[2] == 'serve':
+            named = [w.split('=', 1)[1] for w in words[3:] if w.startswith('UMBRA_PROFILE=')]
+            found[int(words[0])] = named[0] if named else ''
+    return found
+
+
+def alive(pid):
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+
+
+def stop_daemons(names):
+    """Stops these profiles' daemons as a user would (`umbra stop`), killing any that linger."""
+    running = {pid: name for pid, name in daemons().items() if name in names}
+    for name in set(running.values()) | {n for n in names if (LOCKS / f'daemon-{n}.sock').exists()}:
+        try:
+            subprocess.run([UMBRA, 'stop'], env=environment(name, None), capture_output=True, timeout=10)
+        except subprocess.TimeoutExpired:
+            pass
+    deadline = time.monotonic() + 6
+    while any(map(alive, running)) and time.monotonic() < deadline:
+        time.sleep(0.05)
+    for pid in filter(alive, running):
+        os.kill(pid, signal.SIGKILL)
 
 
 def new_profile():
@@ -64,15 +100,17 @@ def cleanup():
         if child.poll() is None:
             child.kill()
             child.wait()
+    stop_daemons(profiles)
     # A WebKit helper can outlive its umbra by a moment, so check the stores stay gone.
     for _ in range(3):
         for name in profiles:
-            shutil.rmtree(store_dir(name), ignore_errors=True)
-            for path in profile_files(name)[1:]:
-                path.unlink(missing_ok=True)
+            for path in profile_files(name):
+                shutil.rmtree(path, ignore_errors=True) if path.is_dir() else path.unlink(missing_ok=True)
         time.sleep(0.2)
         if not any(path.exists() for name in profiles for path in profile_files(name)):
             break
+    if not DOWNLOADS_EXISTED and DOWNLOADS.is_dir() and not any(DOWNLOADS.iterdir()):
+        DOWNLOADS.rmdir()
     shutil.rmtree(TMP, ignore_errors=True)
 
 
@@ -99,15 +137,16 @@ class Result:
         return self.out.decode()
 
 
-def environment(profile, sites):
+def environment(profile, sites, env=None):
+    """A test run's environment: its own profile and sites file; a daemon it starts idles out in a minute."""
     assert profile in profiles, 'tests must use new_profile(): never the default store, always cleaned up'
-    return dict(os.environ, UMBRA_PROFILE=profile, UMBRA_SITES=str(sites or NO_SITES))
+    return {**os.environ, 'UMBRA_PROFILE': profile, 'UMBRA_SITES': str(sites or NO_SITES), 'UMBRA_IDLE': '60', **(env or {})}
 
 
-def spawn(*args, profile, input=None, sites=None, stdin=subprocess.DEVNULL, binary=UMBRA, cwd=None):
+def spawn(*args, profile, input=None, sites=None, stdin=subprocess.DEVNULL, binary=UMBRA, cwd=None, env=None):
     """Starts umbra with input as its script (stdin is /dev/null without one)."""
     proc = subprocess.Popen([binary, *args], stdin=subprocess.PIPE if input is not None else stdin,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=environment(profile, sites),
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=environment(profile, sites, env),
                             cwd=cwd)
     children.append(proc)
     if input is not None:
@@ -611,6 +650,17 @@ class DownloadTests(UmbraCase):
             h.wfile.flush()
             h.close_connection = True
 
+        @srv.route('/late')
+        def late(h):
+            h.send_response(200)
+            h.send_header('Content-Type', 'application/octet-stream')
+            h.send_header('Content-Length', str(len(cls.small)))
+            h.end_headers()
+            h.wfile.write(cls.small[:100 << 10])
+            h.wfile.flush()
+            h.server.owner.closing.wait(3)
+            h.wfile.write(cls.small[100 << 10:])
+
         @srv.route('/stalled')
         def stalled(h):
             h.send_response(200)
@@ -755,6 +805,14 @@ class DownloadTests(UmbraCase):
         self.assertEqual(target.read_text(), 'previous')
         self.assertOnly(self.tmp, ['stalled.bin'])
 
+    def test_a_timed_out_download_never_lands_later(self):
+        target = self.tmp / 'late.bin'
+        target.write_text('previous')
+        self.assertTimedOut(self.download('/late', target, '--timeout', '1'), 1)
+        time.sleep(3.5)  # the server finishes sending meanwhile
+        self.assertEqual(target.read_bytes(), b'previous', 'the download landed after umbra reported a timeout')
+        self.assertOnly(self.tmp, ['late.bin'])
+
     def test_bad_usage_exits_64(self):
         url = self.srv.url('/small.bin')
         for args in [[], [url], [url, 'a', 'b'], [url, 'a', '--timeout', 'later']]:
@@ -800,6 +858,10 @@ class SessionTests(UmbraCase):
                        profile=profile or self.profile)
         self.assertExit(r, 0)
 
+    def assertKeptExpiry(self, shown, now):
+        """A kept session cookie is given 30 days when the run that holds it ends."""
+        self.assertAlmostEqual((expiry(shown) - now).total_seconds(), 30 * 86400, delta=3600)
+
     def test_kept_session_cookies_survive_the_next_run(self):
         sites = self.sites(True)
         self.sign_in('/login-session', sites)
@@ -839,7 +901,7 @@ class SessionTests(UmbraCase):
         self.assertEqual(sorted(rows), ['hsess', 'keep', 'sess'])
         self.assertEqual({row[1] for row in rows.values()}, {'127.0.0.1'})
         self.assertAlmostEqual((expiry(rows['keep'][2]) - now).total_seconds(), 3600, delta=300)
-        self.assertAlmostEqual((expiry(rows['sess'][2]) - now).total_seconds(), 30 * 86400, delta=3600)
+        self.assertKeptExpiry(rows['sess'][2], now)
         everything = self.umbra('cookies', sites=sites)
         self.assertExit(everything, 0)
         self.assertEqual(sorted(line.split('\t')[1] for line in everything.text.splitlines()),
@@ -1009,14 +1071,20 @@ class CliTests(UmbraCase):
                 self.assertEqual(r.out, b'')
 
 
-if __name__ == '__main__':
+def main(module='__main__'):
+    """Runs a test module, then proves its profiles left nothing behind: no store, file or daemon."""
     if not os.access(UMBRA, os.X_OK):
         sys.exit(f'no umbra binary at {UMBRA}: run make build (or set UMBRA)')
     try:
-        passed = unittest.main(exit=False).result.wasSuccessful()
+        passed = unittest.main(module=module, exit=False).result.wasSuccessful()
     finally:
         cleanup()
     left = [str(path) for name in profiles for path in profile_files(name) if path.exists()]
+    left += [f'daemon pid {pid} ({name})' for pid, name in daemons().items() if name in profiles]
     if left:
         print('left behind:\n  ' + '\n  '.join(left), file=sys.stderr)
     sys.exit(0 if passed and not left else 1)
+
+
+if __name__ == '__main__':
+    main()
