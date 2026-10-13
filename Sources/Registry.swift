@@ -141,7 +141,7 @@ func usageLine(_ command: Command) -> String {
             : "--\(param.name)" + (param.kind == .boolean ? "" : " <\(param.kind.rawValue)>")
         return param.required ? shown : "[\(shown)]"
     }
-    return (["umbra", command.name] + parts).joined(separator: " ")
+    return "usage: " + (["umbra", command.name] + parts).joined(separator: " ")
 }
 
 /// JSON Schema for a command's params, as MCP's tools/list and `umbra schema` present them.

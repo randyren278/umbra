@@ -10,6 +10,7 @@
 import AppKit
 
 registry = coreCommands() + interactCommands() + captureCommands()
+_ = sites  // a malformed sites file stops every command (exit 78), before anything else runs
 
 var args = Array(CommandLine.arguments.dropFirst().filter { !$0.hasPrefix("-psn_") })
 
@@ -22,7 +23,19 @@ let json = args.contains("--json")
 args.removeAll { $0 == "--json" }
 let command = args.isEmpty ? "sign-in" : args.removeFirst()
 
+let oneShots = """
+    usage: umbra read <url> [--cookie NAME] [--wait SECONDS] [--until JS] [--timeout SECONDS]  < script.js
+           umbra fetch <url> [--from PAGE] [--timeout SECONDS]
+           umbra download <url> <file> [--timeout SECONDS]
+           umbra sign-in [site or URL ...]
+           umbra cookies [domain]
+           umbra --version
+           umbra <command> [args]  (session commands below; `umbra help <command>` for details)
+    """
+
 let overview = """
+    \(oneShots)
+
     umbra: the headless browser built for agents (native WebKit, invisible, signed in)
 
     Session (a daemon keeps tabs alive between commands):
@@ -46,7 +59,7 @@ func option(_ name: String) -> String? {
 
 func seconds(_ name: String, default value: Double) -> Double {
     guard let text = option(name) else { return value }
-    guard let number = Double(text), number >= 0 else { fail(64, "\(name) takes a number of seconds") }
+    guard let number = Double(text), number >= 0 else { fail(64, "\(name) takes a number of seconds\n\n\(oneShots)") }
     return number
 }
 
@@ -171,7 +184,7 @@ case "cookies" where connectDaemon().map({ close($0) }) == nil:
     NSApplication.shared.run()
 
 default:
-    guard let found = lookup(command) else { fail(64, "unknown command: \(command)\n\n\(overview)") }
+    guard let found = lookup(command) else { fail(64, "\(oneShots)\n\nunknown command: \(command)") }
     switch parseArguments(found, args) {
     case .failure(let error): fail(error.code, error.message)
     case .success(var values):
