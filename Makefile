@@ -50,7 +50,7 @@ install: build
 	mkdir -p "$(APPDIR)" "$(BINDIR)"
 	rm -rf "$(INSTALLED).new" "$(INSTALLED).old"
 	ditto $(APP) "$(INSTALLED).new"
-	if [ -x "$(INSTALLED)/Contents/MacOS/umbra" ]; then "$(INSTALLED)/Contents/MacOS/umbra" stop; fi
+	if [ -x "$(INSTALLED)/Contents/MacOS/umbra" ]; then "$(INSTALLED)/Contents/MacOS/umbra" stop || true; fi
 	if [ -d "$(INSTALLED)" ]; then mv "$(INSTALLED)" "$(INSTALLED).old"; fi
 	mv "$(INSTALLED).new" "$(INSTALLED)"
 	rm -rf "$(INSTALLED).old"
@@ -59,7 +59,7 @@ install: build
 # Removes the app and the link it made, nothing else: the cookie stores stay signed in. First it
 # stops the daemon (UMBRA_PROFILE's, or the default one) so none keeps running from a deleted app.
 uninstall:
-	if [ -x "$(INSTALLED)/Contents/MacOS/umbra" ]; then "$(INSTALLED)/Contents/MacOS/umbra" stop; fi
+	if [ -x "$(INSTALLED)/Contents/MacOS/umbra" ]; then "$(INSTALLED)/Contents/MacOS/umbra" stop || true; fi
 	rm -rf "$(INSTALLED)" "$(INSTALLED).new" "$(INSTALLED).old"
 	if [ "$$(readlink "$(LINK)")" = "$(INSTALLED)/Contents/MacOS/umbra" ]; then rm "$(LINK)"; fi
 	@echo 'Kept the cookie stores in $(HOME)/Library/WebKit/$(ID)/ (delete that folder to sign out everywhere).'
