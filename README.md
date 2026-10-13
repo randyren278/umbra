@@ -117,8 +117,8 @@ Sites see Safari's user agent, built from the version of Safari installed on the
 You need macOS 14 Sonoma or later and the Xcode Command Line Tools (`xcode-select --install`).
 
 ```sh
-git clone https://github.com/randyren278/macOS-headless-browser.git
-cd macOS-headless-browser
+git clone https://github.com/randyren278/umbra.git
+cd umbra
 make install
 ```
 

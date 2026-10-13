@@ -36,15 +36,15 @@ Exit codes: 0 done; 1 Umbra itself failed; 2 timed out or a script threw; 3 sign
 
 ## Docs
 
-- [README](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/README.md): what Umbra is, install, the loop, the full command reference, security model and limitations
-- [Agent skill](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/skill/SKILL.md): the agent skill (Claude Code and Codex) that teaches the loop, sign-in, handoff and the rules
-- [MCP](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/mcp.md): `umbra mcp` setup for Claude Code, Codex, Claude Desktop and Cursor, tools, images, progress and errors
-- [Agents](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/agents.md): instructions to paste into AGENTS.md, working habits, profiles for agents
-- [Recipes](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/recipes.md): paginated tables, forms, downloads, uploads, pop-ups, screenshots, the socket protocol, and callers for scripts
-- [Sites and sign-in](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/sites.md): `sites.json`, signed-in checks and `keepSession`
+- [README](https://raw.githubusercontent.com/randyren278/umbra/main/README.md): what Umbra is, install, the loop, the full command reference, security model and limitations
+- [Agent skill](https://raw.githubusercontent.com/randyren278/umbra/main/skill/SKILL.md): the agent skill (Claude Code and Codex) that teaches the loop, sign-in, handoff and the rules
+- [MCP](https://raw.githubusercontent.com/randyren278/umbra/main/docs/mcp.md): `umbra mcp` setup for Claude Code, Codex, Claude Desktop and Cursor, tools, images, progress and errors
+- [Agents](https://raw.githubusercontent.com/randyren278/umbra/main/docs/agents.md): instructions to paste into AGENTS.md, working habits, profiles for agents
+- [Recipes](https://raw.githubusercontent.com/randyren278/umbra/main/docs/recipes.md): paginated tables, forms, downloads, uploads, pop-ups, screenshots, the socket protocol, and callers for scripts
+- [Sites and sign-in](https://raw.githubusercontent.com/randyren278/umbra/main/docs/sites.md): `sites.json`, signed-in checks and `keepSession`
 
 ## Optional
 
-- [How it works](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/how-it-works.md): the daemon, socket protocol, tabs, native input, cookie store, profiles and locks
-- [Proving ground and benchmark](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/bench/README.md): the Northwind Ops test app, 15 graded agent tasks, and the benchmark against Playwright
-- [Changelog](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/CHANGELOG.md)
+- [How it works](https://raw.githubusercontent.com/randyren278/umbra/main/docs/how-it-works.md): the daemon, socket protocol, tabs, native input, cookie store, profiles and locks
+- [Proving ground and benchmark](https://raw.githubusercontent.com/randyren278/umbra/main/bench/README.md): the Northwind Ops test app, 15 graded agent tasks, and the benchmark against Playwright
+- [Changelog](https://raw.githubusercontent.com/randyren278/umbra/main/CHANGELOG.md)

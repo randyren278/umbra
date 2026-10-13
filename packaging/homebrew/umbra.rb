@@ -7,9 +7,9 @@
 # and `brew upgrade --fetch-HEAD umbra` to rebuild from the latest main.
 class Umbra < Formula
   desc "Headless WebKit browser for macOS background jobs"
-  homepage "https://github.com/randyren278/macOS-headless-browser"
+  homepage "https://github.com/randyren278/umbra"
   license "MIT"
-  head "https://github.com/randyren278/macOS-headless-browser.git", branch: "main"
+  head "https://github.com/randyren278/umbra.git", branch: "main"
 
   depends_on macos: :sonoma
 
