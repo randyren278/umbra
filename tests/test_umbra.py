@@ -1030,6 +1030,7 @@ class SignInTests(UmbraCase):
             proc.terminate()
             proc.wait(10)
         finally:
+            umbra('stop', profile=self.profile)  # the daemon shows the window
             srv.close()
 
 

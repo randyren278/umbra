@@ -38,7 +38,7 @@ Every command has `umbra help <command>`. Add `--json` for structured output. `u
 ## Sign-in and humans
 
 - If the request gives you credentials for the site, sign in with them.
-- Otherwise exit code 3, or a login page where you expected content, means signed out. Ask the user to run `umbra sign-in <SiteName>` (sites live in `~/.config/umbra/sites.json`) or `umbra sign-in https://site/login` and sign in themselves. Wait for them; don't ask them to send you their password.
+- Otherwise exit code 3, or a login page where you expected content, means signed out. Tell the user which site needs them, then run `umbra sign-in <SiteName>` (sites live in `~/.config/umbra/sites.json`) or `umbra sign-in https://site/login`. Umbra's window opens on that login page for them and the command returns once they're signed in (exit 0), or exits 3 if they close it. Never ask them to send you their password.
 - 2FA, CAPTCHA or consent screens mid-flow: `umbra handoff "Approve the Duo push" --until "location.pathname.startsWith('/app')"`. This shows the tab to the user, then hides it again.
 
 ## Rules

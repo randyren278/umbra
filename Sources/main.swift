@@ -18,7 +18,7 @@ if let index = args.firstIndex(of: "--profile"), index + 1 < args.count {
     args.removeSubrange(index...index + 1)
 }
 
-registry = coreCommands() + interactCommands() + captureCommands()
+registry = coreCommands() + interactCommands() + captureCommands() + signInCommands()
 _ = sites  // a malformed sites file stops every command (exit 78), before anything else runs
 let json = args.contains("--json")
 args.removeAll { $0 == "--json" }
@@ -50,7 +50,6 @@ let overview = """
     \(registry.map { "  \($0.name.padding(toLength: 10, withPad: " ", startingAt: 0)) \($0.help.components(separatedBy: ". ").first!.trimmingCharacters(in: ["."]))" }.joined(separator: "\n"))
 
     Also:
-      sign-in    One window to sign in to sites from ~/.config/umbra/sites.json, or a URL
       mcp        Serve every command as an MCP tool over stdio
       schema     Every command and its parameters, as JSON
       serve      Run the daemon in the foreground
@@ -96,7 +95,7 @@ func show(_ result: Result<[String: Any], UmbraError>) -> Never {
 switch command {
 case "help", "-h", "--help":
     let special = [
-        "sign-in": "usage: umbra sign-in [site or URL ...]\n\nOpens one window (no Dock icon) with a tab per site and a live signed-in check, so a person can sign in once; Umbra keeps the session afterwards. Sites come from ~/.config/umbra/sites.json (or $UMBRA_SITES): [{name, domain, login, cookie | probe, keepSession}]. A URL opens an ad hoc tab. Stops this profile's daemon first, since it holds the store.",
+        "sign-in": "usage: umbra sign-in [site or URL ...] [--timeout SECONDS]\n\nShows the person Umbra's sign-in window; opening Umbra.app does the same. With no sites it lists every site in ~/.config/umbra/sites.json (or $UMBRA_SITES: [{name, domain, login, cookie | probe, keepSession}]) and whether each is signed in, and returns at once. With site names or login URLs, it opens the login page of each one still signed out and returns once all are signed in (exit 0), or exits 3 if the window is closed first, 2 after --timeout (default 900). A signed-in site is never loaded: its page closes the moment the sign-in lands, so the window can't be used to browse. A URL has no check: the person clicks Done. The daemon shows the window, so other commands keep working meanwhile.",
         "mcp": "usage: umbra mcp [--print-config]\n\nServes every command as an MCP tool over stdio (JSON-RPC), sharing live tabs with the CLI through this profile's daemon. --print-config prints setup snippets for Claude Code, Claude Desktop and Cursor.",
         "schema": "usage: umbra schema\n\nEvery daemon command with its description, usage line and JSON Schema for its parameters, as JSON.",
         "serve": "usage: umbra serve\n\nRuns this profile's daemon in the foreground. Normally it starts by itself on the first session command and exits after UMBRA_IDLE seconds (default 900) without commands.",
@@ -169,25 +168,11 @@ case "download":
     headless(timeout: timeout) { Download(url, to: file) }
 
 case "sign-in":
-    // A URL opens an ad hoc tab (no live check); a name picks a site from the sites file.
-    let chosen = args.isEmpty ? sites : args.compactMap { arg -> Site? in
-        if let url = URL(string: arg), ["http", "https"].contains(url.scheme ?? ""), let host = url.host {
-            return Site(name: host, domain: host, login: arg)
-        }
-        guard let site = sites.first(where: { $0.name.caseInsensitiveCompare(arg) == .orderedSame }) else {
-            fail(64, "no site named \(arg) in \(sitesFile.path); known: \(sites.map(\.name).joined(separator: ", "))")
-        }
-        return site
-    }
-    guard !chosen.isEmpty else {
-        fail(64, "nothing to sign in to: name a URL (umbra sign-in https://example.com/login) or list sites in \(sitesFile.path)")
-    }
-    if connectDaemon().map({ close($0) }) != nil { _ = call("stop", [:], spawn: false); usleep(500_000) }  // it holds the store
-    NSApplication.shared.setActivationPolicy(.accessory)  // a window, but no Dock icon and no Command-Tab entry
-    takeLock()
-    let delegate = SignIn(chosen)
-    NSApplication.shared.delegate = delegate  // a weak reference; withExtendedLifetime keeps it alive
-    withExtendedLifetime(delegate) { NSApplication.shared.run() }
+    // The daemon shows the window: it owns the store, so agents keep working while a person signs
+    // in. Opening Umbra.app runs this with no arguments.
+    let timeout = seconds("--timeout", default: 900)
+    if case .failure(let error) = resolveSites(args) { fail(error.code, error.message) }
+    show(call("sign-in", ["sites": args, "timeout": timeout]))
 
 case "status" where connectDaemon().map({ close($0) }) == nil:
     print("no daemon running for profile \(profile ?? "default")")

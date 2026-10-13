@@ -85,8 +85,9 @@ final class Daemon {
         }
         chmod(socketPath, 0o600)
         takeLock()  // the store: waits for a one-shot run already under way
+        SignInWindow.handingOff = { self.engine.tabs.contains { $0.handoff != nil } }
         NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
-            if !self.engine.tabs.contains(where: { $0.handoff != nil }) { NSApp.deactivate() }
+            if !SignInWindow.handingOff() && SignInWindow.shown == nil { NSApp.deactivate() }
         }
         Thread.detachNewThread {
             while true {
@@ -95,14 +96,16 @@ final class Daemon {
             }
         }
         Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
-            let handingOff = self.engine.tabs.contains { $0.handoff != nil }
-            if self.inFlight == 0, !handingOff, Date().timeIntervalSince(self.lastUsed) > idleLimit { self.shutdown() }
+            let busy = self.inFlight > 0 || SignInWindow.handingOff() || SignInWindow.shown != nil
+            if !busy, Date().timeIntervalSince(self.lastUsed) > idleLimit { self.shutdown() }
         }
         signal(SIGTERM, SIG_IGN)
         let terminate = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
         terminate.setEventHandler { self.shutdown() }
         terminate.resume()
-        withExtendedLifetime(terminate) { NSApplication.shared.run() }
+        let app = DaemonApp(self)
+        NSApplication.shared.delegate = app  // a weak reference, kept alive below
+        withExtendedLifetime((terminate, app)) { NSApplication.shared.run() }
         exit(0)
     }
 
@@ -168,9 +171,38 @@ final class Daemon {
     }
 }
 
-/// An accessory app shows no menu bar, but Command-V still routes through the main menu: during
-/// a handoff, the person must be able to paste a password.
-func installEditMenu() {
+/// The person opening Umbra.app while its daemon runs reaches the daemon (macOS hands the launch to
+/// the running app), so the daemon answers it with the sign-in window.
+final class DaemonApp: NSObject, NSApplicationDelegate {
+    let daemon: Daemon
+    init(_ daemon: Daemon) { self.daemon = daemon }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        SignInWindow.request((try? readSites()) ?? [], named: false, timeout: 0) { _ in }
+        return false
+    }
+
+    /// Quit (the menu, Command-Q, the Dock) closes the window; Umbra keeps working for agents.
+    /// Logging out, restarting or shutting down quits it.
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        let event = NSAppleEventManager.shared().currentAppleEvent
+        let reason = event?.paramDescriptor(forKeyword: AEKeyword(kAEQuitReason)) ?? event?.attributeDescriptor(forKeyword: AEKeyword(kAEQuitReason))
+        if let window = SignInWindow.shown, reason == nil {
+            window.close()
+            return .terminateCancel
+        }
+        daemon.shutdown()  // exits once the cookies are on disk
+        return .terminateCancel
+    }
+}
+
+/// The app menu, and an Edit menu: Command-V routes through the main menu even when no menu bar
+/// shows (a handoff), and the person must be able to paste a password.
+func installMenus() {
+    let app = NSMenu(title: "Umbra")
+    app.addItem(withTitle: "About Umbra", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+    app.addItem(.separator())
+    app.addItem(withTitle: "Quit Umbra", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
     let edit = NSMenu(title: "Edit")
     edit.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
     edit.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
@@ -178,10 +210,12 @@ func installEditMenu() {
     edit.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
     edit.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
     edit.addItem(withTitle: "Close", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
-    let item = NSMenuItem()
-    item.submenu = edit
     NSApp.mainMenu = NSMenu()
-    NSApp.mainMenu?.addItem(item)
+    for menu in [app, edit] {
+        let item = NSMenuItem()
+        item.submenu = menu
+        NSApp.mainMenu?.addItem(item)
+    }
 }
 
 // MARK: Client

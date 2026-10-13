@@ -6,7 +6,7 @@ Umbra is a Swift program, in [Sources/](../Sources/), compiled into a small macO
 
 `make build` compiles the sources with `swiftc` into `build/Umbra.app` and signs it ad hoc. `Info.plist` is linked into the binary itself (`-sectcreate __TEXT __info_plist`), so the bundle identifier `com.randyren.umbra` holds however you launch it: from the app, through the `~/.local/bin/umbra` symlink, or from a copy of the binary. That matters because the identifier decides where WebKit keeps the cookie store.
 
-Headless work runs under the *prohibited* activation policy. The process has no Dock icon and no menu bar, and it can never become the active app. `umbra sign-in` and `handoff` use the *accessory* policy instead, which allows a window but still shows no Dock icon and no Command-Tab entry.
+Headless work runs under the *prohibited* activation policy. The process has no Dock icon and no menu bar, and it can never become the active app. While the sign-in window is open the daemon switches to the *regular* policy (a Dock icon and a menu bar), and `handoff` uses the *accessory* policy, which allows a window but shows no Dock icon and no Command-Tab entry. Both switch back when their window closes.
 
 ## The daemon
 
@@ -95,7 +95,7 @@ Only one process at a time works with a profile's store, through an exclusive `f
 
 - **A running daemon** holds the lock for its whole life. One-shot commands for that profile then go through the daemon, which runs them in a scratch tab, so they see the daemon's session.
 - **Without a daemon,** a one-shot takes the lock itself, so one-shot runs take turns. Time spent waiting for the lock doesn't count toward `--timeout`. The kernel releases the lock when the process ends, even if it crashes.
-- **`umbra sign-in`** stops the profile's daemon first, then holds the lock while its window is open.
+- **`umbra sign-in`** asks the daemon (starting it if needed) to show its window, so signing in shares the daemon's store and lock, and other commands keep working meanwhile.
 
 ## The one-shot commands
 
@@ -125,6 +125,13 @@ Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, lik
 
 ## The sign-in window
 
-`umbra sign-in` opens one window, *Sign in to Umbra*. It has a segmented control with one tab per site and a WebKit view for each, all sharing the profile's store. Umbra watches the store and re-checks each site whenever a cookie changes or a page finishes loading. A tab gets a green check once its site passes, and after a fresh sign-in the window moves on to the next site that still needs one.
+The daemon shows the sign-in window, for `umbra sign-in`, for an MCP client calling `sign-in`, and when the person opens Umbra.app. Opening the app while the daemon runs reaches the daemon, because macOS hands a launch to the running app; it answers with the window.
 
-The app has no visible menu bar, but it installs a hidden Edit menu so that Command-V can paste a password and Command-W can close the window. Closing the window saves the session cookies of `keepSession` sites and quits. Passkeys and Touch ID prompts don't work in this window; sign in with a password and a push approval or a one-time code.
+The window is a way to sign in, never a way to browse a site:
+
+- **The list** shows each site in the sites file and whether it is signed in. It checks without loading any page: a cookie site by its cookie in the store, a probe site by a request for its probe path in a view that is never shown, cancelled as soon as the status is known (a redirect counts as signed out).
+- **A login page** appears only when the person clicks Sign In, or when `umbra sign-in <site>` names a site that is signed out. Every main-frame response in it is checked before it is shown: once the site counts as signed in, that response is cancelled and the page is closed, so the signed-in site never renders. A cookie site is also checked whenever the store's cookies change, which catches sign-ins made by a script. A probe site is checked once the flow is back on its domain, since single sign-on pages often live elsewhere.
+- **`umbra sign-in <sites>`** answers once every named site is signed in, then closes the window unless the person had opened it. Sites already signed in answer at once and open nothing. Closing the window first exits 3; `--timeout` (default 900 seconds) exits 2 and hides the window again.
+- **Sign Out** (and `umbra sign-out <site>`) deletes the cookies within the site's domain from the profile's store.
+
+While the window is open the daemon has a Dock icon and a menu bar with an Edit menu, so Command-V can paste a password and Command-W can close the window. Quit, from the menu or the Dock, closes the window and leaves the daemon running for agents; logging out quits it. Every sign-in writes the store's cookies to disk at once, keeping the session cookies of `keepSession` sites. Passkeys and Touch ID prompts don't work in this window; sign in with a password and a push approval or a one-time code.

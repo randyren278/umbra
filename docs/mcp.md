@@ -50,7 +50,7 @@ Then sign that profile in to the sites the agent should reach: `UMBRA_PROFILE=ag
 - **Text plus structured results.** Every result has a short text line. The other fields arrive as `structuredContent`, the same fields `--json` prints on the CLI.
 - **Images.** `screenshot` without a path returns the image itself as MCP image content, alongside a text line such as `88×48 PNG (base64 in data)`.
 - **Tool hints.** Tools that only look (`snapshot`, `text`, `markdown`, `links`, `info`, `console`, `network`…) are marked read-only. `screenshot`, `pdf` and `download` are marked destructive because they can replace a file at the path given. Every tool is marked open-world.
-- **Errors the model can act on.** A failure comes back as a tool error with Umbra's message. Codes 1 to 4 also get a hint: a signed-out site, for example, says to ask the person to run `umbra sign-in <site>`.
+- **Errors the model can act on.** A failure comes back as a tool error with Umbra's message. Codes 1 to 4 also get a hint: a signed-out site, for example, says to call `sign-in` with the site's name, which shows the person Umbra's window and returns once they've signed in.
 - **Progress for long calls.** If the client sends a progress token, `open`, `wait`, `handoff` and other long calls report progress every 5 seconds, so the client's request timeout doesn't give up on them.
 
 Relative paths in arguments (`screenshot shot.png`, `upload … invoice.pdf`) are resolved against the directory the server was started in, unless the call passes `cwd`.

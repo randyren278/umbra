@@ -5,7 +5,7 @@
 Facts an agent needs:
 
 - A per-profile daemon keeps tabs alive between commands. It starts on the first command and exits after 15 idle minutes. The CLI and `umbra mcp` drive the same tabs.
-- Tabs are invisible but pages see themselves as visible (`visibilityState`, `requestAnimationFrame` and `IntersectionObserver` work). Input is native, so events are trusted (`isTrusted == true`). Umbra never takes focus or shows a Dock icon.
+- Tabs are invisible but pages see themselves as visible (`visibilityState`, `requestAnimationFrame` and `IntersectionObserver` work). Input is native, so events are trusted (`isTrusted == true`). Umbra never takes focus or shows a Dock icon, except while its sign-in window is open.
 - Never drive Safari with AppleScript, and never type the user's passwords. Do the actions the request asks for; ask first before a consequential action (purchase, post, message, submission, refund, deletion) that is your own idea.
 - `--profile NAME` (or `UMBRA_PROFILE`) selects a separate cookie store and daemon. Use one for experiments. The current tab and cookies belong to the profile, so parallel agents each need their own profile (or at least their own `--tab`); cookies on 127.0.0.1 are shared across ports.
 - Dialogs never block: alerts, confirms and prompts are accepted by default and reported in the reply of the action that raised them. Run `umbra dialog dismiss` before an action to decline the next one.
@@ -30,9 +30,9 @@ Commands:
 - Capture: `screenshot [path] [--full] [--target t]`, `pdf <path>`
 - Observe: `console [--level error]`, `network [--failed] [--filter s]`, `downloads`, `cookies [domain]` (names only, never values)
 - One-shot: `read <url> < script.js` (`--cookie NAME`, `--until`, `--wait`), `fetch <url> [--from page]`, `download <url> <file>`
-- Humans: `sign-in [site|url]` opens a window for the user to sign in; `handoff` shows a tab for 2FA, a CAPTCHA or consent, then hides it again
+- Humans: `sign-in [site|url]` opens Umbra's window on the login page and returns once the user is signed in (a signed-in site is never shown); `handoff` shows a tab for 2FA, a CAPTCHA or consent, then hides it again
 
-Exit codes: 0 done; 1 Umbra itself failed; 2 timed out or a script threw; 3 signed out (ask the user to run `umbra sign-in <site>`); 4 the page or download failed to load; 5 HTTP error status; 64 usage error; 78 `sites.json` can't be parsed.
+Exit codes: 0 done; 1 Umbra itself failed; 2 timed out or a script threw; 3 signed out (run `umbra sign-in <site>` and the user signs in in a window); 4 the page or download failed to load; 5 HTTP error status; 64 usage error; 78 `sites.json` can't be parsed.
 
 ## Docs
 

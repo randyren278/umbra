@@ -31,8 +31,8 @@ Computer Use for anything on the web.
 - Wait for conditions, never sleep: `umbra wait --text Saved` (or --selector, --url, --gone, --idle).
 - Read cheaply: `umbra text`, `umbra markdown --main`, `umbra get <target>`. Use
   `umbra screenshot shot.png` only when layout matters.
-- Signed out (exit 3, or a login page where content should be): stop and ask the user to
-  run `umbra sign-in <site>`. Never type their passwords.
+- Signed out (exit 3, or a login page where content should be): tell the user which site,
+  then run `umbra sign-in <site>`; it returns once they've signed in. Never type their passwords.
 - 2FA, CAPTCHA or consent: `umbra handoff "What the user should do" --until "<JS condition>"`.
 - If the request asks for an action (refund it, submit the form), do it and report what
   happened. If a consequential action (purchase, post, message, submission, refund,
@@ -55,7 +55,7 @@ The commands in that block were checked against the Northwind Ops test app in [`
 
 ## When the user is needed
 
-Signing in happens once per site, in a window, by the user: `umbra sign-in <SiteName>` for a site in [sites.json](sites.md) or `umbra sign-in https://site/login` for any other. The agent's part is to notice it's signed out (exit 3 from `read --cookie`, or a login form in a snapshot where content should be) and say which site needs it.
+Signing in happens once per site, in a window, by the user: `umbra sign-in <SiteName>` for a site in [sites.json](sites.md) or `umbra sign-in https://site/login` for any other. The agent's part is to notice it's signed out (exit 3 from `read --cookie`, or a login form in a snapshot where content should be), say which site needs it, and run that command: the window opens on the login page and the command returns once the user is signed in. A site that is already signed in returns at once and is never shown.
 
 Mid-task steps that need a person, such as a two-factor prompt, a CAPTCHA or a consent screen, go through `handoff`. It shows the tab in a window with the agent's message and returns when the user closes it or when the `--until` condition holds. Then the tab hides again and the agent carries on in the same tab.
 

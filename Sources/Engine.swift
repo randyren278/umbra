@@ -28,6 +28,8 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     var downloads: [[String: Any]] = []
     var handoff: (() -> Void)?
     var navigations = 0                              // main-frame navigations started; actions compare before and after
+    private var watchdog = 0                         // the live load watch; older timers and late answers stand down
+    private var restarting = false                   // the web process was killed on purpose: not a crash
     private var saving: [ObjectIdentifier: (url: String, path: URL)] = [:]
 
     init(name: String, configuration: WKWebViewConfiguration, engine: Engine) {
@@ -75,22 +77,48 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     }
 
     /// A watchdog for loads on a starved machine (seen on CI): a load that never starts is
-    /// retried, then reported; a page that finished without WebKit saying so is finished.
-    private func watch(_ url: URL, from started: Int, tries: Int) {
+    /// retried, then reported; a page that finished without WebKit saying so is finished; and a
+    /// web process that stops answering (seen when several start at once) is replaced, and the
+    /// load retried in the new one.
+    private func watch(_ url: URL, from started: Int, tries: Int, silent: Int = 0) {
+        watchdog += 1
+        let generation = watchdog
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
-            guard let self, !self.loading.isEmpty else { return }
+            guard let self, generation == self.watchdog, !self.loading.isEmpty else { return }
             if self.navigations == started, !self.web.isLoading {
                 guard tries < 3 else { return self.finishLoading(.failure(UmbraError(4, "the page never started loading"))) }
                 self.web.load(URLRequest(url: url))
                 return self.watch(url, from: started, tries: tries + 1)
             }
+            var answered = false
             self.web.evaluateJavaScript("document.readyState") { value, _ in
-                if (value as? String) == "complete", !self.web.isLoading, !self.loading.isEmpty {
-                    return self.finishLoading(.success(()))
-                }
+                answered = true
+                guard generation == self.watchdog, !self.loading.isEmpty else { return }
+                if (value as? String) == "complete", !self.web.isLoading { return self.finishLoading(.success(())) }
                 self.watch(url, from: started, tries: tries)
             }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                guard !answered, generation == self.watchdog, !self.loading.isEmpty else { return }
+                // A busy page can be silent for a moment; silent twice running, it is stuck.
+                guard silent > 0 else { return self.watch(url, from: started, tries: tries, silent: 1) }
+                guard tries < 3, self.restartWebProcess() else {
+                    return self.finishLoading(.failure(UmbraError(4, "the page's web process stopped answering")))
+                }
+                self.web.load(URLRequest(url: url))
+                self.watch(url, from: self.navigations, tries: tries + 1)
+            }
         }
+    }
+
+    /// Ends the page's web process; WebKit starts a new one for the next load. False where
+    /// WebKit doesn't offer the call.
+    private func restartWebProcess() -> Bool {
+        let kill = NSSelectorFromString("_killWebContentProcessAndResetState")
+        guard web.responds(to: kill) else { return false }
+        restarting = true
+        web.perform(kill)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in self?.restarting = false }
+        return true
     }
 
     /// Back, forward or reload; fails at once when there is nowhere to go.
@@ -124,7 +152,7 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
 
     func failed(_ error: Error) {
         let error = error as NSError
-        if error.code == NSURLErrorCancelled { return }  // replaced by a newer navigation, which will answer
+        if error.code == NSURLErrorCancelled || restarting { return }  // replaced by a newer navigation, which will answer
         if error.domain == "WebKitErrorDomain" && error.code == 102 {  // became a download
             return finishLoading(.success(()))
         }
@@ -154,6 +182,7 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        if restarting { return restarting = false }
         finishLoading(.failure(UmbraError(4, "the page's web process crashed; it will reload on the next navigation")))
     }
 
@@ -260,8 +289,9 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     /// Shows the tab as an ordinary window so a person can finish a step Umbra can't: 2FA, a
     /// CAPTCHA, a consent screen. Closing the window hands control back.
     func reveal(_ message: String) {
-        NSApp.setActivationPolicy(.accessory)  // a window the person can use, still no Dock icon
-        installEditMenu()
+        // A window the person can use, still no Dock icon (unless the sign-in window has one up).
+        if SignInWindow.shown == nil { NSApp.setActivationPolicy(.accessory) }
+        installMenus()
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
         window.title = "Umbra · \(message)"
         window.collectionBehavior = []
@@ -279,7 +309,7 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         NSApp.deactivate()  // hand focus back to whatever the person was using
         let finished = handoff
         handoff = nil
-        if !engine.tabs.contains(where: { $0.handoff != nil }) { NSApp.setActivationPolicy(.prohibited) }
+        if !engine.tabs.contains(where: { $0.handoff != nil }) && SignInWindow.shown == nil { NSApp.setActivationPolicy(.prohibited) }
         finished?()
     }
 

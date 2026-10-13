@@ -53,10 +53,15 @@ struct Site: Decodable {
 let sitesFile = environment["UMBRA_SITES"].map { URL(fileURLWithPath: $0) }
     ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".config/umbra/sites.json")
 
-let sites: [Site] = {
+/// The sites file as it is now; no file means no sites.
+func readSites() throws -> [Site] {
     guard let data = try? Data(contentsOf: sitesFile) else { return [] }
-    do { return try JSONDecoder().decode([Site].self, from: data) }
-    catch { fail(78, "could not read \(sitesFile.path): \(error)") }
+    return try JSONDecoder().decode([Site].self, from: data)
+}
+
+/// The sites file when this process started: a malformed one stops every command (exit 78).
+let sites: [Site] = {
+    do { return try readSites() } catch { fail(78, "could not read \(sitesFile.path): \(error)") }
 }()
 
 extension HTTPCookie {
@@ -76,9 +81,10 @@ func configuration() -> WKWebViewConfiguration {
 }
 
 func keepSessions(then done: @escaping () -> Void) {
+    let kept = (try? readSites()) ?? sites  // a daemon outlives edits to the sites file
     store.httpCookieStore.getAllCookies { cookies in
         let lasting = cookies.filter { cookie in
-            cookie.isSessionOnly && sites.contains { $0.keepSession == true && cookie.within($0.domain) }
+            cookie.isSessionOnly && kept.contains { $0.keepSession == true && cookie.within($0.domain) }
         }.compactMap { cookie -> HTTPCookie? in
             var properties = cookie.properties ?? [:]
             properties[.discard] = nil

@@ -456,7 +456,7 @@ class Calls(unittest.TestCase):
         result = self.server.call('read', {'url': BASE + '/page', 'cookie': 'session'})
         self.assertIs(result['isError'], True)
         self.assertIn('signed out of 127.0.0.1', text(result))
-        self.assertIn('`umbra sign-in <site>`', text(result))
+        self.assertIn('Call `sign-in`', text(result))
 
     def test_argument_mistakes_are_tool_errors(self):
         result = self.server.call('open', {})

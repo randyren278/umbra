@@ -73,7 +73,7 @@ Umbra drives the same WebKit that Safari uses, through Apple's own `WKWebView`. 
 
 - **Pages see themselves as visible.** `document.visibilityState` is `"visible"`, `requestAnimationFrame` runs, and `IntersectionObserver` fires, so lazy loading, infinite scroll and animations behave as they do for a person.
 - **Input is trusted.** Clicks, key presses, scrolls and mouse drags are native macOS events sent to the view, so the page sees `isTrusted == true`. `fill` inserts text through the same input path as typing, so React-controlled fields keep the value.
-- **Nothing takes focus.** The daemon has no Dock icon and never becomes the active app. The only windows you'll ever see are `sign-in` and `handoff`, and they appear only when a person is needed.
+- **Nothing takes focus.** The daemon has no Dock icon and never becomes the active app, except while you have its sign-in window open. The only windows you'll ever see are `sign-in` and `handoff`, and they appear only when a person is needed.
 
 Here is that checked from inside a tab, on the same session as above:
 
@@ -228,11 +228,14 @@ These keep their original contract for scheduled scripts: one process, a result 
 Umbra never types your passwords. You sign in once, in a window:
 
 ```sh
-umbra sign-in https://canvas.example.edu/login    # any site, as a one-off tab
-umbra sign-in                                      # every site in ~/.config/umbra/sites.json
+umbra sign-in                                      # or open Umbra.app: every site in ~/.config/umbra/sites.json
+umbra sign-in Canvas                               # one site; returns once you're signed in
+umbra sign-in https://canvas.example.edu/login    # any site, as a one-off page
 ```
 
-The window has a tab per site and shows a green check as each one is signed in. List your regular sites in [`sites.json`](docs/sites.md) with a cookie or probe that proves you're signed in. Mark `keepSession` on the ones whose sign-in rests on session cookies, such as university single sign-on, so the sign-in survives between runs. Signing in stops the profile's daemon first, because the window needs the store to itself.
+The window lists your sites and whether each is signed in, and it only ever shows a login page: a site you're signed in to is never loaded, and a site's page closes the moment its sign-in lands. Umbra is a way to sign in, not a browser for you, so it can't become another place to scroll Instagram. While the window is open, Umbra has a Dock icon; Quit closes the window, and agents keep working throughout. A signed-in row has a Sign Out button, and so does the command line (`umbra sign-out Canvas`), for a sign-in the site has dropped.
+
+List your regular sites in [`sites.json`](docs/sites.md) with a cookie or probe that proves you're signed in. Mark `keepSession` on the ones whose sign-in rests on session cookies, such as university single sign-on, so the sign-in survives between runs.
 
 Mid-task, an agent may hit something only you can do: a two-factor prompt, a CAPTCHA or a consent screen. `handoff` shows you that tab in a window with a message, and returns when you close it or when a condition holds:
 

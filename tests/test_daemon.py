@@ -285,24 +285,49 @@ class LifecycleTests(SessionCase):
         tabs = {tab['tab']: tab['title'] for tab in self.json('tabs')['tabs']}
         self.assertEqual(tabs, {'a': 'page a', 'b': 'page b'})
 
-    def diagnose(self, pid):
-        """What the daemon was doing when a client gave up: does it still answer, and its main thread."""
-        status = subprocess.run([base.UMBRA, 'tabs', '--json'], env=base.environment(self.profile, None, None),
-                                capture_output=True, text=True, timeout=20)
+    def diagnose(self, pid, tab, started):
+        """What happened when a client gave up: did its request reach the server, does its page answer,
+        does the daemon, and what is its main thread doing."""
+        env = base.environment(self.profile, None, None)
+        arrived = [(r.query.get('n'), round(r.t - started, 2)) for r in self.srv.requests('/page')]
+        page = subprocess.run([base.UMBRA, 'eval', '--tab', tab, '--timeout', '5',
+                               'return [document.readyState, location.href, document.title]'],
+                              env=env, capture_output=True, text=True, timeout=20)
+        status = subprocess.run([base.UMBRA, 'tabs', '--json'], env=env, capture_output=True, text=True, timeout=20)
         sample = subprocess.run(['sample', str(pid), '2', '-mayDie'], capture_output=True, text=True, timeout=30)
         main = sample.stdout.split('Thread_')[1][:4000] if 'Thread_' in sample.stdout else sample.stdout[:2000]
-        return f'tabs exit {status.returncode}: {status.stdout[:1500]} {status.stderr[-300:]}\nmain thread:\n{main}'
+        return (f'/page requests (n, seconds after the opens): {arrived}\n'
+                f'eval in {tab}: exit {page.returncode} {page.stdout.strip()} {page.stderr.strip()[-300:]}\n'
+                f'tabs exit {status.returncode}: {status.stdout[:1500]} {status.stderr[-300:]}\nmain thread:\n{main}')
+
+    def test_a_load_whose_web_process_stops_answering_moves_to_a_new_one(self):
+        # A page script that holds its process for a minute stands in for a stuck web process
+        # (seen on CI when several start at once: the request never leaves, scripts get no answer).
+        served = []
+
+        def stuck_once(h):
+            served.append(h.req)
+            h.reply(200, '<title>stuck</title><script>const t = Date.now(); while (Date.now() - t < 60000);</script>'
+                    if len(served) == 1 else '<title>fresh</title>')
+        self.srv.route('/stuck-once')(stuck_once)
+        r = self.umbra('open', self.srv.url('/stuck-once'), '--json')
+        self.assertExit(r, 0)
+        self.assertEqual(json.loads(r.out)['title'], 'fresh')
+        self.assertEqual(len(served), 2)
+        self.assertLess(r.elapsed, 40)
 
     def test_five_concurrent_clients(self):
         self.assertExit(self.umbra('tabs'), 0)
         [pid] = daemon_pids(self.profile)
+        started = time.monotonic()
         procs = [base.spawn('open', '--tab', f'c{n}', self.srv.url(f'/page?n={n}'), profile=self.profile) for n in range(5)]
-        for proc in procs:
+        for n, proc in enumerate(procs):
             try:
-                out, err = proc.communicate(timeout=60)
+                out, err = proc.communicate(timeout=75)  # past open's own 60 s, so its answer shows
             except subprocess.TimeoutExpired:
-                self.fail(f'{proc.args[1:4]} gave no answer in 60 s\n{self.diagnose(pid)}')
-            self.assertEqual(proc.returncode, 0, err)
+                self.fail(f'{proc.args[1:4]} gave no answer in 75 s\n{self.diagnose(pid, f"c{n}", started)}')
+            if proc.returncode != 0:
+                self.fail(f'{proc.args[1:4]} exited {proc.returncode}: {err.decode()}\n{self.diagnose(pid, f"c{n}", started)}')
         script = 'await new Promise(r => setTimeout(r, 300)); return location.search'
         procs = [base.spawn('eval', '--tab', f'c{n}', script, profile=self.profile) for n in range(5)]
         for n, proc in enumerate(procs):
@@ -610,6 +635,140 @@ class SessionCommandTests(SessionCase):
         self.assertEqual((status['profile'], status['idleLimit']), (self.profile, 60))
         self.assertEqual([t['title'] for t in status['tabs']], ['Page A'])
         self.assertIn(f'profile {self.profile}', self.umbra('status').text)
+
+
+# MARK: The sign-in window
+
+def app_type(pid):
+    """How the system runs a process: Foreground (Dock icon), UIElement, or BackgroundOnly."""
+    asn = subprocess.run(['lsappinfo', 'find', f'pid={pid}'], capture_output=True, text=True, timeout=10).stdout.strip()
+    info = subprocess.run(['lsappinfo', 'info', asn], capture_output=True, text=True, timeout=10).stdout
+    found = re.search(r'type="(\w+)"', info)
+    return found.group(1) if found else None
+
+
+@unittest.skipUnless(base.window_server(), 'no window server (not in an Aqua session): skipping the sign-in window')
+@unittest.skipIf(os.environ.get('UMBRA_TEST_GUI') == '0', 'UMBRA_TEST_GUI=0')
+class SignInWindowTests(SessionCase):
+    """The window signs a person in and then gets out of the way: a site that is signed in is
+    never loaded, so the window can't be used to browse it."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.srv = srv = Server()
+        signed = [('Set-Cookie', 'sess=on; Path=/; Max-Age=3600')]
+        srv.page('/set', '<title>set</title>', headers=signed)
+        # A sign-in by script (XHR), then the site moves on to its feed four seconds later.
+        srv.page('/login-xhr', '<title>Log in</title><script>setTimeout(async () => { await fetch("/set");'
+                               ' setTimeout(() => location = "/feed", 4000) }, 300)</script>')
+        srv.page('/feed', '<title>feed</title>')
+        # A sign-in by redirect, as single sign-on ends: the cookie comes with a 302 to the home page.
+        srv.page('/login-redirect', '<title>Log in</title><script>setTimeout(() => location = "/do-login", 300)</script>')
+        srv.route('/do-login')(lambda h: h.redirect('/home', headers=signed))
+        srv.page('/home', '<title>home</title><script>fetch("/home-ran")</script>')
+        srv.page('/home-ran', 'ran')
+        srv.route('/api/me')(lambda h: h.reply(200 if h.req.cookies.get('sess') == 'on' else 401, '{}', 'application/json'))
+        srv.page('/set-stale', '<title>stale</title>', headers=[('Set-Cookie', 'sess=stale; Path=/; Max-Age=3600')])
+        srv.page('/login-never', '<title>Log in</title>')
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.srv.close()
+
+    def setUp(self):
+        super().setUp()
+        self.sites = base.write_sites([
+            {'name': 'Xhr', 'domain': '127.0.0.1', 'login': self.srv.url('/login-xhr'), 'cookie': 'sess'},
+            {'name': 'Probe', 'domain': 'localhost', 'login': self.srv.url('/login-redirect', 'localhost'), 'probe': '/api/me'},
+            {'name': 'Never', 'domain': '127.0.0.1', 'login': self.srv.url('/login-never'), 'cookie': 'never'},
+            {'name': 'Both', 'domain': '127.0.0.1', 'login': self.srv.url('/login-xhr'), 'cookie': 'sess', 'probe': '/api/me'},
+        ])
+        self.mark = len(self.srv.log)  # the server is shared: this test's requests come after
+
+    def run_umbra(self, *args, **kwargs):
+        return self.umbra(*args, sites=self.sites, guard=False, timeout=90, **kwargs)
+
+    def requests(self, path=None):
+        return [r for r in self.srv.log[self.mark:] if path is None or r.path == path]
+
+    def logins(self):
+        return [r.path for r in self.requests() if r.path.startswith('/login')]
+
+    def test_a_sign_in_by_script_closes_the_page_before_the_site_moves_on(self):
+        r = self.run_umbra('sign-in', 'Xhr')
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'Xhr: signed in\n')
+        time.sleep(5)  # past the moment the page would have gone to its feed
+        self.assertEqual(self.requests('/feed'), [], 'the signed-in site was loaded')
+        self.assertInvisible(self.profile, 'sign-in done', settle=3)
+        [pid] = daemon_pids(self.profile)
+        self.assertEqual(app_type(pid), 'BackgroundOnly', 'no Dock icon once the window is gone')
+
+    def test_a_probed_site_is_checked_before_its_page_shows(self):
+        r = self.run_umbra('sign-in', 'Probe')
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'Probe: signed in\n')
+        self.assertTrue(self.requests('/home'), 'the sign-in never reached the home page')
+        time.sleep(1)
+        self.assertEqual(self.requests('/home-ran'), [], 'the signed-in page was rendered')
+        self.assertEqual([q.cookies.get('sess') for q in self.requests('/api/me')][-1], 'on')
+        self.assertInvisible(self.profile, 'sign-in done', settle=3)
+
+    def test_signed_in_sites_are_never_loaded(self):
+        for host in ['127.0.0.1', 'localhost']:
+            self.assertExit(self.run_umbra('open', self.srv.url('/set', host)), 0)
+        before = len(self.requests())
+        r = self.run_umbra('sign-in', 'Xhr', 'Probe')
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'Xhr: signed in\nProbe: signed in\n')
+        self.assertLess(r.elapsed, 15)
+        self.assertInvisible(self.profile, 'already signed in')  # no window at all
+        # Opening Umbra: the window lists the sites, and still loads none of them.
+        r = self.run_umbra('sign-in')
+        self.assertExit(r, 0)
+        [pid] = daemon_pids(self.profile)
+        self.assertTrue(wait_for(lambda: app_type(pid) == 'Foreground', 5), 'the window should come with a Dock icon')
+        shown = wait_for(lambda: [w for w in window_report([pid])['windows']
+                                  if w['onscreen'] and w['alpha'] > 0 and w['visibleArea'] > 0], 5)
+        self.assertTrue(shown, 'the sign-in window never showed')
+        time.sleep(2)
+        self.assertEqual(self.logins(), [], 'a login page was loaded for a signed-in site')
+        self.assertEqual({r.path for r in self.requests()[before:]} - {'/api/me'}, set(),
+                         'only the probe may reach a signed-in site')
+        self.assertExit(self.run_umbra('tabs'), 0)  # agents keep working while the window is up
+
+    def test_a_session_the_site_ended_is_signed_in_again(self):
+        # The cookie is still there, but the site no longer accepts it: the probe tells.
+        self.assertExit(self.run_umbra('open', self.srv.url('/set-stale')), 0)
+        r = self.run_umbra('sign-in', 'Both')
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'Both: signed in\n')
+        self.assertEqual(self.logins(), ['/login-xhr'], 'the dead session should have opened the login page')
+        self.assertEqual([q.cookies.get('sess') for q in self.requests('/api/me')], ['stale'],
+                         'the stale cookie is checked once, then cleared before the login page loads')
+        r = self.run_umbra('sign-in', 'Both')
+        self.assertExit(r, 0)
+        self.assertEqual(self.logins(), ['/login-xhr'], 'signed in now: no page')
+        time.sleep(5)
+        self.assertEqual(self.requests('/feed'), [])
+
+    def test_no_sign_in_in_time_hides_the_window_again(self):
+        r = self.run_umbra('sign-in', 'Never', '--timeout', '3')
+        self.assertExit(r, 2)
+        self.assertSays(r, 'Never')
+        self.assertEqual(self.logins(), ['/login-never'])
+        self.assertInvisible(self.profile, 'sign-in timed out', settle=3)
+        [pid] = daemon_pids(self.profile)
+        self.assertEqual(app_type(pid), 'BackgroundOnly')
+
+    def test_sign_out_removes_only_that_sites_cookies(self):
+        for host in ['127.0.0.1', 'localhost']:
+            self.assertExit(self.run_umbra('open', self.srv.url('/set', host)), 0)
+        r = self.run_umbra('sign-out', 'Xhr')
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'signed out of Xhr (1 cookie removed)\n')
+        self.assertEqual(self.run_umbra('cookies', '127.0.0.1').text, '')
+        self.assertIn('sess\tlocalhost', self.run_umbra('cookies', 'localhost').text)
 
 
 if __name__ == '__main__':

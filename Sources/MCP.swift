@@ -25,7 +25,7 @@ let readOnlyTools: Set = ["snapshot", "text", "markdown", "screenshot", "tabs", 
 let errorHints: [Int32: String] = [
     1: "Umbra itself failed; the next call starts it again.",
     2: "A script threw, or nothing happened in time: pass a larger timeout, or wait for a specific condition.",
-    3: "Ask the person to run `umbra sign-in <site>` in a terminal, then open the page again.",
+    3: "Call `sign-in` with the site's name: the person signs in in Umbra's window and the call returns once they have. Then open the page again.",
     4: "Check the URL, and that the site is up.",
 ]
 

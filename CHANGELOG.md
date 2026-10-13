@@ -2,6 +2,25 @@
 
 All notable changes to Umbra are recorded here. Versions follow [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+### Changed
+
+- The sign-in window is a way to sign in, never a way to browse. It lists each site and whether it is signed in without loading any page, shows a site's login page only to sign in, and closes it the moment the sign-in lands, before the signed-in site renders.
+- The daemon shows the sign-in window, so other commands keep working while a person signs in; `umbra sign-in` no longer stops the daemon. Opening Umbra.app shows the window even while the daemon runs (macOS hands the launch to it). The window comes with a Dock icon and a menu bar; Quit closes the window and leaves the daemon running.
+- `umbra sign-in <sites>` returns once every named site is signed in, at once (with no window) if they already are; exit 3 if the window is closed first, 2 after `--timeout` (default 900 seconds). With no sites it opens the window and returns at once.
+- `sign-in` is an MCP tool, and a signed-out error tells the model to call it.
+
+- A site with both `cookie` and `probe` counts as signed in only when the probe passes too, so a session the site ended while its cookie stayed opens the login page instead of being reported as signed in.
+
+### Added
+
+- `umbra sign-out <site>`, and a Sign Out button in the window: deletes the site's cookies from the profile's store.
+
+### Fixed
+
+- A load whose web process stops answering (seen on GitHub's runners when several tabs start at once: the request never left and scripts got no answer) no longer hangs until the command's timeout. After two silent checks the watchdog ends that process and retries the load in a new one, up to twice, then reports exit 4.
+
 ## 0.2.0 - 2026-10-13
 
 Umbra becomes a browser agents can drive step by step. The 0.1 one-shot commands keep their contract.

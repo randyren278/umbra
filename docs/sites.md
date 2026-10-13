@@ -23,42 +23,44 @@ A JSON array with one object per site. [examples/sites.example.json](../examples
     "name": "LinkedIn",
     "domain": "linkedin.com",
     "login": "https://www.linkedin.com/login",
-    "cookie": "li_at"
+    "cookie": "li_at",
+    "probe": "/feed/"
   },
   {
     "name": "Instagram",
     "domain": "instagram.com",
     "login": "https://www.instagram.com/accounts/login/",
-    "cookie": "sessionid"
+    "cookie": "sessionid",
+    "probe": "/accounts/edit/"
   }
 ]
 ```
 
 | Field | Required | Meaning |
 |---|---|---|
-| `name` | yes | The tab label, and the name you pass to `umbra sign-in` (matched without regard to case). |
+| `name` | yes | The name the window shows, and the one you pass to `umbra sign-in` (matched without regard to case). |
 | `domain` | yes | The site's domain, such as `linkedin.com`. It covers subdomains, so `www.linkedin.com` counts. |
-| `login` | yes | The URL the sign-in tab opens. |
-| `cookie` | one of these | The name of a cookie that exists only while you're signed in. HttpOnly cookies count. |
-| `probe` | one of these | A same-origin path that answers with a 2xx status only while you're signed in. |
+| `login` | yes | The login page the window opens. |
+| `cookie` | one or both | The name of a cookie that exists only while you're signed in. HttpOnly cookies count. |
+| `probe` | one or both | A path on the site that answers 2xx, without a redirect, only while you're signed in. |
 | `keepSession` | no | `true` keeps this domain's session-only cookies between runs. Defaults to `false`. |
 
-If a site has both `cookie` and `probe`, Umbra checks `cookie` and ignores `probe`. With neither, the tab still works for signing in, but it never shows a check.
+If a site has both `cookie` and `probe`, it counts as signed in when the cookie is set and the probe passes: the cookie answers "signed out" without a request, and the probe catches a session the site ended while its cookie stayed. With neither, its login page still works for signing in, but Umbra can't tell when you're done: you click Done.
 
 ## Signed-in checks: `cookie` or `probe`
 
-The sign-in window re-checks every site whenever a cookie changes or a page finishes loading. A site passes when:
+The sign-in window checks each site when it lists it, and checks the site you're signing in to before each page it would show; once the site passes, that page is never loaded. A site passes when:
 
 - **`cookie`:** a cookie with that name is set on `domain` or one of its subdomains.
-- **`probe`:** the tab is showing a page on `domain`, and a `fetch()` of the probe path from that page returns 2xx. API endpoints that need a session work well here. Canvas's `/api/v1/users/self` answers 401 until you sign in.
+- **`probe`:** a request for the probe path on the site answers 2xx without a redirect. Umbra makes it in a view that is never shown, on the login page's origin when that is on `domain`, otherwise `https://<domain>`. API endpoints that need a session work well here. Canvas's `/api/v1/users/self` answers 401 until you sign in.
 
-Use `cookie` when the site has one clearly named session cookie. Use `probe` when cookie names are generic or change, or when you'd rather ask the site directly.
+Use `cookie` when the site has one clearly named session cookie. Use `probe` when cookie names are generic or change, or when you'd rather ask the site directly. Use both when the site can end a session without clearing its cookie: a page that answers 200 when you're signed in and redirects to the login page when you're not (Instagram's `/accounts/edit/`, LinkedIn's `/feed/`) makes a good probe. When the window opens a login page for such a site, it first removes the old session cookie, so only a fresh sign-in counts.
 
 Scripts get the same kind of check through `umbra read --cookie NAME`. That exits 3 when no cookie with that name is sent to the page's final host.
 
 ### Finding the cookie name
 
-1. Open the site in a one-off tab, sign in, and close the window:
+1. Open the site in a one-off page, sign in, and click Done:
    ```sh
    umbra sign-in https://www.example.com/login
    ```
@@ -66,34 +68,35 @@ Scripts get the same kind of check through `umbra read --cookie NAME`. That exit
    ```sh
    umbra cookies example.com
    ```
-3. Sign out on the site (`umbra sign-in https://www.example.com/`), list again, and pick a cookie that disappeared. Names like `session`, `sessionid`, `auth` or `user_session` are good bets.
+3. Sign out (`umbra sign-out example.com`), sign in again, list again, and pick a cookie that appeared with the sign-in. Names like `session`, `sessionid`, `auth` or `user_session` are good bets.
 
 `umbra cookies` prints one cookie per line as name, domain and expiry. The expiry is `session` for cookies that die with the browser.
 
 ## keepSession
 
-WebKit holds session-only cookies (those without an expiry date) in memory and drops them when the process ends. That process is the sign-in window, a one-shot run, or the profile's daemon, which exits after 15 idle minutes. For a site whose sign-in rests on session cookies, which is common with university single sign-on and Canvas, you'd be signed in during `umbra sign-in` and signed out once that process ends.
+WebKit holds session-only cookies (those without an expiry date) in memory and drops them when the process ends. That process is a one-shot run or the profile's daemon (which also shows the sign-in window), which exits after 15 idle minutes. For a site whose sign-in rests on session cookies, which is common with university single sign-on and Canvas, you'd be signed in during `umbra sign-in` and signed out once that process ends.
 
-With `"keepSession": true`, Umbra rewrites that site's session-only cookies as ordinary cookies that expire 30 days later. It does this when a one-shot run ends, when the daemon stops, and while the sign-in window is open. Because each of those renews them, the session lasts as long as you use it at least once a month, or until the site ends it on its side.
+With `"keepSession": true`, Umbra rewrites that site's session-only cookies as ordinary cookies that expire 30 days later. It does this when a one-shot run ends, when the daemon stops, and at each sign-in in the window. Because each of those renews them, the session lasts as long as you use it at least once a month, or until the site ends it on its side.
 
-**Signs you need it:** sign-in shows a green check, but the next `read --cookie` exits 3 or the next API call gets 401. `umbra cookies <domain>` shows `session` in the expiry column for the cookies that matter.
+**Signs you need it:** the sign-in window says you're signed in, but the next `read --cookie` exits 3 or the next API call gets 401. `umbra cookies <domain>` shows `session` in the expiry column for the cookies that matter.
 
 **The trade-off:** the site meant those cookies to vanish when the browser quit. With `keepSession` they sit on disk in Umbra's store for up to 30 days, much like ticking "keep me signed in". Anyone who can read your home folder could reuse them. Turn it on only for the sites that need it, and only on a Mac you trust.
 
-**Turning it off** stops the renewal. Cookies that were already rewritten keep their 30-day expiry. To drop them now, sign out on the site with `umbra sign-in <url>`.
+**Turning it off** stops the renewal. Cookies that were already rewritten keep their 30-day expiry. To drop them now, `umbra sign-out <site>`.
 
 **Matching:** a cookie is kept when its domain is the site's `domain` or a subdomain of it. If your sign-in passes through a separate identity provider (say `login.example.edu` for `canvas.example.edu`) and you also want that provider's session kept, add it as its own entry with `keepSession: true`.
 
 ## Using sites from the command line
 
 ```sh
-umbra sign-in                      # every site, one tab each
-umbra sign-in canvas linkedin      # chosen sites, by name
-umbra sign-in https://example.com/login   # a one-off tab, named after the host, with no check
-umbra                              # the same as `umbra sign-in`
+umbra sign-in                      # the window, listing every site; returns at once
+umbra sign-in canvas linkedin      # chosen sites, by name: returns once both are signed in
+umbra sign-in https://example.com/login   # a one-off page, named after the host, with no check
+umbra                              # the same as `umbra sign-in`, and so is opening Umbra.app
+umbra sign-out canvas              # delete the site's cookies from the store
 ```
 
-Signing in stops the profile's daemon first, because the window needs the store to itself; the next session command starts a new one. An unknown name exits 64 and lists the names it knows. With no sites file and no arguments, `umbra sign-in` exits 64 and explains how to name a URL instead.
+Named sites that are already signed in return at once (exit 0) and open nothing. Otherwise the window opens each login page in turn and the command returns once all are signed in; it exits 3 if the window is closed first and 2 after `--timeout` (default 900 seconds). The profile's daemon shows the window, so other commands keep working meanwhile. An unknown name exits 64 and lists the names it knows. With no sites file and no arguments, `umbra sign-in` exits 64 and explains how to name a URL instead.
 
 ## Separate files and profiles
 
