@@ -73,7 +73,11 @@ final class Daemon {
             owned = takeLock("daemon", wait: false)
         }
         guard owned != nil else { exit(0) }
-        NSApplication.shared.setActivationPolicy(.accessory)  // windows allowed, no Dock icon, no Command-Tab
+        _ = startedAt
+        // Prohibited: no Dock icon, no menu bar, and the app can never become active, so it never
+        // takes focus from the person. Tab windows still order in, so pages still see themselves as
+        // visible. Only a handoff switches to accessory, for as long as the person needs the window.
+        NSApplication.shared.setActivationPolicy(.prohibited)
         unlink(socketPath)
         let listener = socket(AF_UNIX, SOCK_STREAM, 0)
         guard listener >= 0, withAddress({ bind(listener, $0, $1) }) == 0, listen(listener, 32) == 0 else {
@@ -81,7 +85,9 @@ final class Daemon {
         }
         chmod(socketPath, 0o600)
         takeLock()  // the store: waits for a one-shot run already under way
-        installEditMenu()
+        NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
+            if !self.engine.tabs.contains(where: { $0.handoff != nil }) { NSApp.deactivate() }
+        }
         Thread.detachNewThread {
             while true {
                 let client = accept(listener, nil, nil)

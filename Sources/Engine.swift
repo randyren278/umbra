@@ -240,6 +240,8 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     /// Shows the tab as an ordinary window so a person can finish a step Umbra can't: 2FA, a
     /// CAPTCHA, a consent screen. Closing the window hands control back.
     func reveal(_ message: String) {
+        NSApp.setActivationPolicy(.accessory)  // a window the person can use, still no Dock icon
+        installEditMenu()
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
         window.title = "Umbra · \(message)"
         window.collectionBehavior = []
@@ -254,9 +256,10 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
 
     func endHandoff() {
         conceal()
-        NSApp.hide(nil)  // hand focus back to whatever the person was using
+        NSApp.deactivate()  // hand focus back to whatever the person was using
         let finished = handoff
         handoff = nil
+        if !engine.tabs.contains(where: { $0.handoff != nil }) { NSApp.setActivationPolicy(.prohibited) }
         finished?()
     }
 

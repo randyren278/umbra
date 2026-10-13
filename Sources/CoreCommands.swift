@@ -110,6 +110,7 @@ func coreCommands() -> [Command] {
                 engine.current = tab
                 reply(.success(pageInfo(tab)))
             case "close":
+                if let name, !engine.tabs.contains(where: { $0.name == name }) { return reply(.failure(UmbraError(64, "no tab named \(name)"))) }
                 guard let tab = name.flatMap({ name in engine.tabs.first { $0.name == name } }) ?? engine.current else {
                     return reply(.failure(UmbraError(64, "no tab to close")))
                 }
