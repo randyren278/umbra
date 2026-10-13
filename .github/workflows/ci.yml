@@ -32,6 +32,12 @@ jobs:
         env:
           UMBRA_IDLE: 60
 
+      - name: WebKit diagnostics
+        if: failure()
+        run: |
+          log show --last 20m --style compact --predicate 'process == "umbra" OR process CONTAINS "com.apple.WebKit"' 2>/dev/null | grep -iE 'error|fail|crash|terminat|jetsam|timeout' | tail -150 || true
+          ls -la ~/Library/Logs/DiagnosticReports 2>/dev/null | grep -iE 'umbra|WebKit' || echo 'no crash reports'
+
       - name: Stop test daemons
         if: always()
         run: |

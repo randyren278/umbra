@@ -71,6 +71,26 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     func load(_ url: URL, done: @escaping (Result<Void, UmbraError>) -> Void) {
         loading.append(done)
         web.load(URLRequest(url: url))
+        watch(url, from: navigations, tries: 1)
+    }
+
+    /// A watchdog for loads on a starved machine (seen on CI): a load that never starts is
+    /// retried, then reported; a page that finished without WebKit saying so is finished.
+    private func watch(_ url: URL, from started: Int, tries: Int) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            guard let self, !self.loading.isEmpty else { return }
+            if self.navigations == started, !self.web.isLoading {
+                guard tries < 3 else { return self.finishLoading(.failure(UmbraError(4, "the page never started loading"))) }
+                self.web.load(URLRequest(url: url))
+                return self.watch(url, from: started, tries: tries + 1)
+            }
+            self.web.evaluateJavaScript("document.readyState") { value, _ in
+                if (value as? String) == "complete", !self.web.isLoading, !self.loading.isEmpty {
+                    return self.finishLoading(.success(()))
+                }
+                self.watch(url, from: started, tries: tries)
+            }
+        }
     }
 
     /// Back, forward or reload; fails at once when there is nowhere to go.
