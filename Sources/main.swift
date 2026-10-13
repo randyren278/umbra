@@ -95,7 +95,15 @@ func show(_ result: Result<[String: Any], UmbraError>) -> Never {
 
 switch command {
 case "help", "-h", "--help":
-    if let name = args.first, let found = lookup(name) {
+    let special = [
+        "sign-in": "usage: umbra sign-in [site or URL ...]\n\nOpens one window (no Dock icon) with a tab per site and a live signed-in check, so a person can sign in once; Umbra keeps the session afterwards. Sites come from ~/.config/umbra/sites.json (or $UMBRA_SITES): [{name, domain, login, cookie | probe, keepSession}]. A URL opens an ad hoc tab. Stops this profile's daemon first, since it holds the store.",
+        "mcp": "usage: umbra mcp [--print-config]\n\nServes every command as an MCP tool over stdio (JSON-RPC), sharing live tabs with the CLI through this profile's daemon. --print-config prints setup snippets for Claude Code, Claude Desktop and Cursor.",
+        "schema": "usage: umbra schema\n\nEvery daemon command with its description, usage line and JSON Schema for its parameters, as JSON.",
+        "serve": "usage: umbra serve\n\nRuns this profile's daemon in the foreground. Normally it starts by itself on the first session command and exits after UMBRA_IDLE seconds (default 900) without commands.",
+    ]
+    if let name = args.first, let text = special[name] {
+        print(text)
+    } else if let name = args.first, let found = lookup(name) {
         print(usageLine(found) + "\n\n" + found.help + "\n")
         for param in found.params + (found.usesTab ? globalParams : [globalParams[1]]) {
             print("  " + (param.positional ? param.name : "--\(param.name)").padding(toLength: 14, withPad: " ", startingAt: 0) + param.help)
