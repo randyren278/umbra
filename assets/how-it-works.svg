@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 600" width="1280" height="600" role="img" aria-labelledby="title desc">
+  <title id="title">How Umbra works</title>
+  <desc id="desc">Your scripts call the umbra command. Umbra loads pages in an off-screen WebKit view that uses its own cookie store, signed in once, and returns text, JSON or files. Safari is never opened or shared.</desc>
+  <defs>
+  <radialGradient id="corona" cx="0" cy="0" r="230" gradientUnits="userSpaceOnUse">
+    <stop offset="0.60" stop-color="#ffe7b0" stop-opacity="0"/>
+    <stop offset="0.655" stop-color="#fff1d2" stop-opacity="1"/>
+    <stop offset="0.70" stop-color="#f6b26b" stop-opacity="0.7"/>
+    <stop offset="0.82" stop-color="#c06bd6" stop-opacity="0.22"/>
+    <stop offset="1" stop-color="#7c5cf6" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="moon" cx="-40" cy="-50" r="190" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#1c1830"/>
+    <stop offset="1" stop-color="#07060d"/>
+  </radialGradient>
+  <radialGradient id="bead" cx="0" cy="0" r="46" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="0.18" stop-color="#fff4dc"/>
+    <stop offset="0.45" stop-color="#ffd08a" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#ffb35c" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#1b1730"/>
+    <stop offset="1" stop-color="#07060d"/>
+  </linearGradient>
+  </defs>
+  <rect width="1280" height="600" rx="28" fill="url(#sky)"/>
+  <circle cx="580.6" cy="334.0" r="1.6" fill="#ffffff" fill-opacity="0.35"/><circle cx="1083.1" cy="123.9" r="1.6" fill="#ffffff" fill-opacity="0.43"/><circle cx="1005.6" cy="69.5" r="1.2" fill="#ffffff" fill-opacity="0.21"/><circle cx="688.3" cy="521.7" r="0.8" fill="#ffffff" fill-opacity="0.42"/><circle cx="510.4" cy="273.3" r="1" fill="#ffffff" fill-opacity="0.43"/><circle cx="1054.0" cy="51.9" r="0.8" fill="#ffffff" fill-opacity="0.24"/><circle cx="317.9" cy="33.1" r="1.6" fill="#ffffff" fill-opacity="0.30"/><circle cx="753.5" cy="126.9" r="1" fill="#ffffff" fill-opacity="0.44"/><circle cx="639.7" cy="392.3" r="1.6" fill="#ffffff" fill-opacity="0.44"/><circle cx="523.7" cy="329.1" r="0.8" fill="#ffffff" fill-opacity="0.47"/><circle cx="409.5" cy="146.5" r="1.2" fill="#ffffff" fill-opacity="0.16"/><circle cx="718.8" cy="77.3" r="0.8" fill="#ffffff" fill-opacity="0.53"/><circle cx="498.4" cy="560.2" r="0.8" fill="#ffffff" fill-opacity="0.25"/><circle cx="1172.9" cy="45.7" r="1.6" fill="#ffffff" fill-opacity="0.59"/><circle cx="512.0" cy="57.5" r="1" fill="#ffffff" fill-opacity="0.50"/><circle cx="352.7" cy="65.5" r="1.2" fill="#ffffff" fill-opacity="0.16"/><circle cx="527.7" cy="540.2" r="1" fill="#ffffff" fill-opacity="0.26"/><circle cx="142.1" cy="50.0" r="1.6" fill="#ffffff" fill-opacity="0.23"/><circle cx="714.0" cy="270.1" r="1" fill="#ffffff" fill-opacity="0.59"/><circle cx="976.4" cy="254.1" r="1.6" fill="#ffffff" fill-opacity="0.20"/><circle cx="541.1" cy="136.9" r="1.2" fill="#ffffff" fill-opacity="0.54"/><circle cx="1232.6" cy="352.7" r="0.8" fill="#ffffff" fill-opacity="0.24"/><circle cx="508.1" cy="501.3" r="0.8" fill="#ffffff" fill-opacity="0.17"/><circle cx="198.7" cy="266.8" r="0.8" fill="#ffffff" fill-opacity="0.50"/><circle cx="426.5" cy="184.3" r="0.8" fill="#ffffff" fill-opacity="0.18"/><circle cx="276.5" cy="377.6" r="0.8" fill="#ffffff" fill-opacity="0.42"/><circle cx="479.9" cy="273.4" r="1.6" fill="#ffffff" fill-opacity="0.52"/><circle cx="185.4" cy="235.3" r="1" fill="#ffffff" fill-opacity="0.29"/><circle cx="301.0" cy="362.7" r="1" fill="#ffffff" fill-opacity="0.22"/><circle cx="801.0" cy="330.6" r="1.6" fill="#ffffff" fill-opacity="0.55"/><circle cx="769.2" cy="255.4" r="0.8" fill="#ffffff" fill-opacity="0.20"/><circle cx="655.4" cy="160.9" r="1.6" fill="#ffffff" fill-opacity="0.27"/><circle cx="1044.0" cy="354.8" r="1.2" fill="#ffffff" fill-opacity="0.38"/><circle cx="1175.7" cy="571.0" r="1" fill="#ffffff" fill-opacity="0.25"/><circle cx="714.1" cy="500.2" r="0.8" fill="#ffffff" fill-opacity="0.28"/><circle cx="1160.9" cy="131.9" r="0.8" fill="#ffffff" fill-opacity="0.18"/><circle cx="529.5" cy="157.5" r="0.8" fill="#ffffff" fill-opacity="0.23"/><circle cx="476.2" cy="341.0" r="1" fill="#ffffff" fill-opacity="0.19"/><circle cx="188.7" cy="271.8" r="1.2" fill="#ffffff" fill-opacity="0.45"/><circle cx="878.6" cy="348.0" r="1" fill="#ffffff" fill-opacity="0.42"/>
+  <text x="56" y="70" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="600" fill="#f4efe6">How it works</text>
+  
+  <rect x="56" y="110" width="330" height="300" rx="16" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.14"/>
+  <rect x="56" y="128" width="4" height="30" rx="2" fill="#f6b26b"/>
+  <text x="80" y="152" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" font-weight="600" fill="#f4efe6">Your jobs</text><text x="80" y="188" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">FIRST: Instagram story links</text><text x="80" y="218" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">FIRST: LinkedIn apply links</text><text x="80" y="248" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">Canvas API and course files</text><text x="80" y="278" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">Kaltura lecture pages</text><text x="80" y="308" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">anything behind a sign-in</text>
+  <line x1="386" y1="260" x2="460" y2="260" stroke="#f6b26b" stroke-opacity="0.8" stroke-width="2.5"/><path d="M470 260 l-14 -7 v14 z" fill="#f6b26b" fill-opacity="0.9"/>
+  
+  <rect x="476" y="110" width="330" height="300" rx="16" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.14"/>
+  <rect x="476" y="128" width="4" height="30" rx="2" fill="#f6b26b"/>
+  <text x="500" y="152" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" font-weight="600" fill="#f4efe6">umbra</text><text x="500" y="188" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">read   page + async script</text><text x="500" y="218" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">fetch  same-origin GET</text><text x="500" y="248" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">download   file to disk</text><text x="500" y="278" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">sign-in   once per site</text><text x="500" y="308" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">exit 3 = signed out</text>
+  <line x1="806" y1="260" x2="880" y2="260" stroke="#f6b26b" stroke-opacity="0.8" stroke-width="2.5"/><path d="M890 260 l-14 -7 v14 z" fill="#f6b26b" fill-opacity="0.9"/>
+  
+  <rect x="896" y="110" width="330" height="140" rx="16" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.14"/>
+  <rect x="896" y="128" width="4" height="30" rx="2" fill="#f6b26b"/>
+  <text x="920" y="152" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" font-weight="600" fill="#f4efe6">Off-screen WebKit</text><text x="920" y="188" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">no window, no Dock icon</text><text x="920" y="218" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">runs take turns</text>
+  
+  <rect x="896" y="270" width="330" height="140" rx="16" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.14"/>
+  <rect x="896" y="288" width="4" height="30" rx="2" fill="#c06bd6"/>
+  <text x="920" y="312" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" font-weight="600" fill="#f4efe6">Its own cookie store</text><text x="920" y="348" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">signed in once, kept</text><text x="920" y="378" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">no cookie ever leaves</text>
+  <rect x="56" y="452" width="1170" height="96" rx="16" fill="#ffffff" fill-opacity="0.025" stroke="#ffffff" stroke-opacity="0.10" stroke-dasharray="6 6"/>
+  <g transform="translate(112 500)" opacity="0.55">
+    <circle r="26" fill="none" stroke="#b9b3c9" stroke-width="2.5"/>
+    <g transform="rotate(45)"><path d="M0 -20 L5 0 L-5 0 Z" fill="#ff6b6b"/><path d="M0 20 L5 0 L-5 0 Z" fill="#b9b3c9"/></g>
+  </g>
+  <text x="160" y="492" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" font-weight="600" fill="#f4efe6">Safari stays yours</text>
+  <text x="160" y="524" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#b9b3c9">No tabs opened, no hidden windows to catch your links, no shared cookies, nothing in Downloads.</text>
+</svg>
