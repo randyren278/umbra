@@ -17,6 +17,7 @@ import json
 import os
 import plistlib
 import queue
+import re
 import secrets
 import shutil
 import signal
@@ -245,9 +246,7 @@ class Handshake(unittest.TestCase):
             version = plistlib.load(file)['CFBundleShortVersionString']
         self.assertEqual(result['serverInfo'], {'name': 'umbra', 'title': 'Umbra', 'version': version})
         self.assertEqual(result['capabilities'], {'tools': {'listChanged': False}})
-        for tool in ('open', 'snapshot', 'wait', 'handoff', 'screenshot', 'fetch'):
-            self.assertIn(f'`{tool}`', result['instructions'])
-        self.assertLess(len(result['instructions']), 1200)
+        self.assertIsInstance(result['instructions'], str)  # content: Tools.test_instructions_teach_the_loop…
         self.assertEqual(server.request('ping')['result'], {})
         self.assertEqual(server.close(), 0)
         self.assertEqual(server.junk, [])
@@ -273,7 +272,7 @@ class Tools(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         server = Server(COLD)
-        server.initialize()
+        cls.instructions = server.initialize()['instructions']
         cls.tools = server.request('tools/list')['result']['tools']
         server.close()
         cls.commands = json.loads(umbra('schema', profile=COLD).stdout)['commands']
@@ -313,8 +312,27 @@ class Tools(unittest.TestCase):
     def test_annotations(self):
         for tool in self.tools:
             with self.subTest(tool=tool['name']):
-                self.assertEqual(tool['annotations'], {'readOnlyHint': tool['name'] in READ_ONLY,
-                                                       'destructiveHint': False, 'openWorldHint': True})
+                writes = bool({'path', 'file'} & set(tool['inputSchema']['properties']))  # may replace a file
+                self.assertEqual(tool['annotations'], {'readOnlyHint': tool['name'] in READ_ONLY and not writes,
+                                                       'destructiveHint': writes, 'openWorldHint': True})
+        hints = {tool['name']: tool['annotations'] for tool in self.tools}
+        for name in {'download', 'screenshot', 'pdf'} & set(hints):
+            self.assertIs(hints[name]['destructiveHint'], True, name)
+        for name in {'snapshot', 'text', 'tabs', 'upload'} & set(hints):  # upload reads its files
+            self.assertIs(hints[name]['destructiveHint'], False, name)
+
+    def test_instructions_teach_the_loop_with_real_tools(self):
+        words = self.instructions
+        self.assertLess(len(words), 1200, 'concise')
+        self.assertRegex(words, r'persist between calls')
+        # open, then snapshot for refs, then act on the refs; snapshot again after changes
+        order = [words.index(part) for part in ('`open`', '`snapshot`', 'refs', '`click`', 'snapshot again')]
+        self.assertEqual(order, sorted(order))
+        for part in ('`wait`', 'instead of sleeping', '`handoff`', '2FA', 'CAPTCHA', '`screenshot`', '`fetch`'):
+            self.assertIn(part, words)
+        # Every tool the instructions name is one this server offers.
+        named = set(re.findall(r'`([a-z-]+)`', words)) - {'umbra'}
+        self.assertLessEqual(named, {tool['name'] for tool in self.tools})
 
 
 class Calls(unittest.TestCase):
@@ -431,6 +449,37 @@ class Calls(unittest.TestCase):
             self.assertEqual(text(answer['result']), str(calls[answer['id']]))
         self.assertEqual([calls[answer['id']] for answer in answers[1:]], [4, 3, 2, 1, 0])
         self.assertLess(elapsed, 2, 'the calls overlapped instead of running one after another')
+
+    def test_long_calls_send_progress_when_the_client_asks(self):
+        self.open_page()
+
+        def slow(ms, value, token=None):
+            params = {'name': 'eval', 'arguments': {'script': f'await new Promise(r => setTimeout(r, {ms})); return "{value}"'}}
+            if token is not None:
+                params['_meta'] = {'progressToken': token}
+            return self.server.send('tools/call', params)
+
+        long, short, silent = slow(11000, 'long', 'beat'), slow(6500, 'short', 7), slow(6500, 'silent')
+        messages = []
+        while not any(message.get('id') == long for message in messages):
+            messages.append(self.server.receive())
+        answered = {message['id']: index for index, message in enumerate(messages) if 'id' in message}
+        self.assertEqual(set(answered), {long, short, silent})
+        for id, value in ((long, 'long'), (short, 'short'), (silent, 'silent')):
+            self.assertEqual(text(messages[answered[id]]['result']), value)
+
+        def beats(token):
+            return [index for index, message in enumerate(messages) if message.get('method') == 'notifications/progress'
+                    and message['params']['progressToken'] == token]
+
+        progress = [message for message in messages if message.get('method') == 'notifications/progress']
+        self.assertEqual({message['params']['progressToken'] for message in progress}, {'beat', 7}, 'only when asked')
+        values = [messages[index]['params']['progress'] for index in beats('beat')]
+        self.assertGreaterEqual(len(values), 2)  # every 5 s: at 5 and 10 s of 11
+        self.assertEqual(values, sorted(set(values)), 'progress only increases')
+        self.assertTrue(beats(7))
+        self.assertLess(max(beats(7)), answered[short], 'nothing after the answer')
+        self.assertTrue(all(message['params']['message'].startswith('eval') for message in progress))
 
     def test_survives_a_daemon_restart(self):
         first = self.server.call('status')['structuredContent']

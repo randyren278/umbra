@@ -10,14 +10,15 @@ let mcpInstructions = """
     tabs persist between calls (the `umbra` CLI drives the same tabs). Work in a loop: `open` a URL, \
     `snapshot` to see the page as a tree with element refs (e1, e2…), then act on refs with `click`, \
     `fill`, `type`, `press` or `select`. Refs go stale when the page changes: snapshot again after \
-    navigating or after any action that changes the page. Never sleep: `wait` for a selector, text, \
-    URL, JavaScript condition or network idle. For 2FA, a CAPTCHA or a consent screen, call `handoff` \
+    navigating or after any action that changes the page. `wait` for a selector, text, URL, JavaScript \
+    condition or network idle instead of sleeping. For 2FA, a CAPTCHA or a consent screen, call `handoff` \
     with a short message; the person finishes it in a window and the call returns. Use `screenshot` \
     only when visual layout matters; `text` and `markdown` are cheaper for reading. For a JSON API on \
     a signed-in site, `fetch` the URL directly: one request with the browser's cookies, no tab needed.
     """
 
-/// Tools that only look. Every tool may reach any site; none deletes anything.
+/// Tools that only look, unless they write a file where the caller says (a `path` or `file`
+/// param), which may replace one. Every tool may reach any site.
 let readOnlyTools: Set = ["snapshot", "text", "markdown", "screenshot", "tabs", "status", "cookies", "links",
                           "html", "info", "console", "network", "downloads", "get"]
 
@@ -33,8 +34,9 @@ func mcpTools() -> [[String: Any]] {
         var schema = inputSchema(command)
         schema["additionalProperties"] = false
         if (schema["required"] as? [String])?.isEmpty == true { schema["required"] = nil }  // draft-04 forbids []
+        let writes = command.params.contains { ["path", "file"].contains($0.name) }
         return ["name": command.name, "description": command.help, "inputSchema": schema,
-                "annotations": ["readOnlyHint": readOnlyTools.contains(command.name), "destructiveHint": false,
+                "annotations": ["readOnlyHint": readOnlyTools.contains(command.name) && !writes, "destructiveHint": writes,
                                 "openWorldHint": true]]
     }
 }
@@ -83,7 +85,7 @@ func rpcError(_ id: Any, _ code: Int, _ message: String) -> [String: Any] {
     ["jsonrpc": "2.0", "id": id, "error": ["code": code, "message": message]]
 }
 
-/// JSON-RPC ids are strings or numbers; MCP also rules out null.
+/// JSON-RPC ids and MCP progress tokens are strings or numbers; MCP also rules out null.
 func validID(_ id: Any?) -> Bool {
     if id is String { return true }
     guard let number = id as? NSNumber else { return false }
@@ -156,12 +158,32 @@ func runMCP() -> Never {
             output.lock()
             running.insert(key)
             output.unlock()
+            // A client that asked for progress hears from a long call (open, wait, handoff) every 5 s,
+            // so an SDK's request timeout doesn't give up on it.
+            let heartbeat: DispatchSourceTimer? = {
+                guard let token = (params["_meta"] as? [String: Any])?["progressToken"], validID(token) else { return nil }
+                let started = Date()
+                let timer = DispatchSource.makeTimerSource(queue: .global())
+                timer.schedule(deadline: .now() + 5, repeating: 5)
+                timer.setEventHandler {
+                    let seconds = Int(Date().timeIntervalSince(started).rounded())
+                    output.lock()
+                    if running.contains(key) {
+                        writeAll(STDOUT_FILENO, line(["jsonrpc": "2.0", "method": "notifications/progress", "params":
+                            ["progressToken": token, "progress": seconds, "message": "\(name): \(seconds) s"]]))
+                    }
+                    output.unlock()
+                }
+                timer.resume()
+                return timer
+            }()
             calls.enter()
             Thread.detachNewThread {
                 var values = arguments.filter { !($0.value is NSNull) }  // models send null for "not given"
                 values["cwd"] = values["cwd"] ?? FileManager.default.currentDirectoryPath  // relative paths mean the client's directory
                 let result: Result<[String: Any], UmbraError> = argumentProblem(command, values).map { .failure($0) }
                     ?? call(name, values)
+                heartbeat?.cancel()
                 output.lock()
                 if running.remove(key) != nil { writeAll(STDOUT_FILENO, line(rpcResult(id, toolResult(result)))) }
                 output.unlock()
