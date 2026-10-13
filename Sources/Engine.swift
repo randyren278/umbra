@@ -118,10 +118,11 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse,
                  decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
-        if navigationResponse.isForMainFrame {
-            status = (navigationResponse.response as? HTTPURLResponse)?.statusCode
-        }
-        decisionHandler(navigationResponse.canShowMIMEType ? .allow : .download)
+        let http = navigationResponse.response as? HTTPURLResponse
+        if navigationResponse.isForMainFrame { status = http?.statusCode }
+        // As in Safari, an attachment downloads even when WebKit could show it (a CSV export).
+        let attachment = http?.value(forHTTPHeaderField: "Content-Disposition")?.lowercased().hasPrefix("attachment") == true
+        decisionHandler(navigationResponse.canShowMIMEType && !attachment ? .allow : .download)
     }
 
     func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
