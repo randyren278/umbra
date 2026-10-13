@@ -47,8 +47,9 @@ def store_dir(name):
     return STORES / '-'.join((h[:8], h[8:12], h[12:16], h[16:20], h[20:]))
 
 
-def lock_file(name):
-    return LOCKS / f"store-{name.replace('/', '_')}.lock"
+def profile_files(name):
+    """The profile's store and every per-profile file (store-NAME.lock, and whatever else NAME.* appears)."""
+    return [store_dir(name), *LOCKS.glob(f'*-{name}.*')]
 
 
 def new_profile():
@@ -67,9 +68,10 @@ def cleanup():
     for _ in range(3):
         for name in profiles:
             shutil.rmtree(store_dir(name), ignore_errors=True)
-            lock_file(name).unlink(missing_ok=True)
+            for path in profile_files(name)[1:]:
+                path.unlink(missing_ok=True)
         time.sleep(0.2)
-        if not any(store_dir(name).exists() for name in profiles):
+        if not any(path.exists() for name in profiles for path in profile_files(name)):
             break
     shutil.rmtree(TMP, ignore_errors=True)
 
@@ -244,6 +246,7 @@ class ReadTests(UmbraCase):
         r = self.read('/', 'return {a: 1, b: "two", c: [true, null], d: {e: "/path"}}')
         self.assertExit(r, 0)
         self.assertEqual(json.loads(r.out), {'a': 1, 'b': 'two', 'c': [True, None], 'd': {'e': '/path'}})
+        self.assertIn(b'"/path"', r.out, 'slashes are not escaped')
         self.assertEqual(r.out.count(b'\n'), 1)
 
     def test_array_is_printed_as_json(self):
@@ -1013,7 +1016,7 @@ if __name__ == '__main__':
         passed = unittest.main(exit=False).result.wasSuccessful()
     finally:
         cleanup()
-    left = [str(path) for name in profiles for path in (store_dir(name), lock_file(name)) if path.exists()]
+    left = [str(path) for name in profiles for path in profile_files(name) if path.exists()]
     if left:
         print('left behind:\n  ' + '\n  '.join(left), file=sys.stderr)
     sys.exit(0 if passed and not left else 1)
