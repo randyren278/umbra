@@ -1,0 +1,21 @@
+[
+  {
+    "name": "Canvas",
+    "domain": "canvas.example.edu",
+    "login": "https://canvas.example.edu/login",
+    "probe": "/api/v1/users/self",
+    "keepSession": true
+  },
+  {
+    "name": "LinkedIn",
+    "domain": "linkedin.com",
+    "login": "https://www.linkedin.com/login",
+    "cookie": "li_at"
+  },
+  {
+    "name": "Instagram",
+    "domain": "instagram.com",
+    "login": "https://www.instagram.com/accounts/login/",
+    "cookie": "sessionid"
+  }
+]
