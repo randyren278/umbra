@@ -1,0 +1,116 @@
+{
+  "about": "Realistic tasks for an agent driving Umbra against Northwind Ops (bench/site/server.py). Before each task, POST the task's setup (or {}) to {base}/__reset. Give the agent the preamble plus the prompt, with {base}, {out} and {repo} filled in (grade.py --prompt does this). Grade with bench/grade.py. Never show the agent this file, grade.py or the /__ endpoints.",
+  "preamble": "Northwind Ops, our operations web app, is running at {base}. If it asks you to sign in, the username is agent and the password is umbra-pass.",
+  "placeholders": {
+    "base": "the site's base URL, e.g. http://127.0.0.1:8765",
+    "out": "an empty directory the task may write files into",
+    "repo": "absolute path of the Umbra repository"
+  },
+  "tasks": [
+    {
+      "id": "pending-count",
+      "prompt": "Log in and tell me how many orders are pending right now.",
+      "setup": {},
+      "artifacts": ["state", "answer"],
+      "grading": "A form sign-in happened, and the answer states the number of orders whose status is pending."
+    },
+    {
+      "id": "shipped-total",
+      "prompt": "What's the combined total of all our shipped orders? Give me the exact dollar amount.",
+      "setup": {},
+      "artifacts": ["state", "answer"],
+      "grading": "The answer contains the sum of the totals of every shipped order, to the cent. The table is paginated 10 rows at a time, so this needs the status filter or every page."
+    },
+    {
+      "id": "refund-1017",
+      "prompt": "Customer called about order 1017. Please refund it.",
+      "setup": {},
+      "artifacts": ["state"],
+      "grading": "Exactly one refund was issued, for order 1017. The Refund button asks for confirmation in a confirm() dialog, which has to be accepted."
+    },
+    {
+      "id": "export-csv",
+      "prompt": "Export the full orders list as CSV from the Orders page and save the file as {out}/orders.csv.",
+      "setup": {},
+      "artifacts": ["state", "out"],
+      "grading": "The site served its CSV export (an export event), and {out}/orders.csv has the id, customer, total, status and date columns with all 40 orders matching the server's data."
+    },
+    {
+      "id": "upload-invoice",
+      "prompt": "Upload the supplier invoice at {repo}/bench/site/fixtures/invoice.pdf on the Upload invoice page, and tell me the receipt code it gives you.",
+      "setup": {},
+      "artifacts": ["state", "answer"],
+      "grading": "The server received invoice.pdf with the fixture's SHA-256 (the file input is hidden behind a styled button), and the answer contains the receipt code it returned."
+    },
+    {
+      "id": "wizard",
+      "prompt": "Set up a workspace for a new customer through Onboarding: Dana Whitfield, dana.whitfield@example.com, company Whitfield Logistics, Team plan, 12 seats. What's the confirmation number?",
+      "setup": {},
+      "artifacts": ["state", "answer"],
+      "grading": "One wizard submission with that name, email, plan team and 12 seats was accepted, and the answer contains its confirmation number."
+    },
+    {
+      "id": "feed-featured",
+      "prompt": "Somewhere in the Activity feed there's an item marked as featured. Which one is it? Give me its FX code.",
+      "setup": {},
+      "artifacts": ["answer"],
+      "grading": "The answer names the featured item's FX code (and no more than two other FX codes). The feed loads 20 items at a time as you scroll, and the featured item is past the first 60."
+    },
+    {
+      "id": "display-name",
+      "prompt": "Change my display name to Jordan Lee in Settings and save it.",
+      "setup": {},
+      "artifacts": ["state"],
+      "grading": "The saved display name is Jordan Lee. The field is a React-style controlled input: setting .value without an input event the framework accepts is silently reverted."
+    },
+    {
+      "id": "bio",
+      "prompt": "Update my bio in Settings to read: Keeps the trucks moving, rain or shine. Save it when you're done.",
+      "setup": {},
+      "artifacts": ["state"],
+      "grading": "The saved bio is exactly that sentence (the bio is a contenteditable box, not an input)."
+    },
+    {
+      "id": "theme-teal",
+      "prompt": "Switch my theme color to Teal in Settings and save.",
+      "setup": {},
+      "artifacts": ["state"],
+      "grading": "The saved theme color is Teal (#0d9488). The swatches live in a web component's shadow DOM."
+    },
+    {
+      "id": "iframe-notifications",
+      "prompt": "Go to the Embedded widget page and turn off email notifications in the embedded settings form, then save it there.",
+      "setup": {},
+      "artifacts": ["state"],
+      "grading": "A save came from the embedded (same-origin iframe) form with notifications off. The toggle is a role=switch button."
+    },
+    {
+      "id": "popup-report",
+      "prompt": "Open the Q3 2026 operations report from the Reports page and tell me its report number.",
+      "setup": {},
+      "artifacts": ["state", "answer"],
+      "grading": "The report page was viewed (it opens in a new window via target=_blank) and the answer contains its report number."
+    },
+    {
+      "id": "otp-login",
+      "prompt": "Sign in to Northwind Ops. The account has two-step verification turned on; when it asks, the code is 424242. Then tell me how many open tickets the dashboard shows.",
+      "setup": {"otp": true},
+      "artifacts": ["state", "answer"],
+      "grading": "The password and the one-time code were accepted, and the answer contains the dashboard's open ticket count."
+    },
+    {
+      "id": "slow-forecast",
+      "prompt": "Open {base}/slow and tell me the Q4 revenue forecast it shows.",
+      "setup": {},
+      "artifacts": ["answer"],
+      "grading": "The answer contains the forecast figure, which the page loads 1.5 s after it opens (it is not in the HTML)."
+    },
+    {
+      "id": "captcha-handoff",
+      "prompt": "Open {base}/captcha, get past the security check, and tell me the account balance behind it.",
+      "setup": {},
+      "artifacts": ["state", "transcript"],
+      "grading": "The agent handed the tab to a person with Umbra's handoff (the CLI command or the MCP tool) instead of trying to solve the CAPTCHA itself. Solving it without a handoff fails. In an unattended run nobody is there to solve it, so the handoff waits until its timeout or until someone closes the window."
+    }
+  ]
+}

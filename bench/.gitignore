@@ -1,0 +1,2 @@
+# Playwright, installed locally by `npm install --prefix bench/.node playwright@1.62.1`
+.node/
