@@ -5,7 +5,7 @@ description: Use when a task needs a web browser - reading or acting on a page, 
 
 # Umbra: the browser for agents
 
-`umbra` is a headless WebKit browser on this Mac. It's invisible (no window, no Dock icon, never takes focus), signed in through its own cookie store, and keeps tabs alive between commands. Never drive Safari with AppleScript, never borrow Safari's cookies for new work, and never take over the screen with Computer Use for web tasks.
+`umbra` is a headless WebKit browser on this Mac. It's invisible while it works (no window, no Dock icon, never takes focus), signed in through its own cookie store, and keeps tabs alive between commands. Never drive Safari with AppleScript, never borrow Safari's cookies for new work, and never take over the screen with Computer Use for web tasks.
 
 ## The loop
 

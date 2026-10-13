@@ -8,12 +8,18 @@
 umbra mcp --print-config
 ```
 
-This prints the setup for Claude Code, Claude Desktop and Cursor, filled in with the full path of the `umbra` you ran it with. After `make install` that path is `~/Applications/Umbra.app/Contents/MacOS/umbra`.
+This prints the setup for Claude Code, Codex, Claude Desktop and Cursor, filled in with the full path of the `umbra` you ran it with. After `make install` that path is `~/Applications/Umbra.app/Contents/MacOS/umbra`.
 
 **Claude Code** (add `--scope user` to use it in every project):
 
 ```sh
 claude mcp add umbra -- ~/Applications/Umbra.app/Contents/MacOS/umbra mcp
+```
+
+**Codex** (every project):
+
+```sh
+codex mcp add umbra -- ~/Applications/Umbra.app/Contents/MacOS/umbra mcp
 ```
 
 **Claude Desktop** (`~/Library/Application Support/Claude/claude_desktop_config.json`) and **Cursor** (`~/.cursor/mcp.json`) take the same block. Use the absolute path that `--print-config` prints, since these files don't expand `~`:

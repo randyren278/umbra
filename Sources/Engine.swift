@@ -102,6 +102,7 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
                 // A busy page can be silent for a moment; silent twice running, it is stuck.
                 guard silent > 0 else { return self.watch(url, from: started, tries: tries, silent: 1) }
                 guard tries < 3, self.restartWebProcess() else {
+                    if tries >= 3 { _ = self.restartWebProcess() }  // the next load on this tab starts clean
                     return self.finishLoading(.failure(UmbraError(4, "the page's web process stopped answering")))
                 }
                 self.web.load(URLRequest(url: url))

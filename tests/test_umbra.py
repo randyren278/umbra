@@ -991,14 +991,15 @@ class SignInTests(UmbraCase):
         self.assertExit(r, 64)
         self.assertSays(r, 'nosuch', 'Local')
 
-    def test_nothing_to_sign_in_to_exits_64(self):
-        for args in [['sign-in'], []]:
+    def test_save_needs_one_login_url(self):
+        # (With no sites at all, `umbra sign-in` opens the window empty: test_daemon's SignInWindowTests.)
+        sites = write_sites([{'name': 'Local', 'domain': '127.0.0.1', 'login': 'http://127.0.0.1:9/login', 'cookie': 'c'}])
+        for args in [['sign-in', '--save', 'X'], ['sign-in', 'Local', '--save', 'X']]:
             with self.subTest(args):
-                r = self.umbra(*args)
+                r = self.umbra(*args, sites=sites)
                 self.assertExit(r, 64)
-                self.assertSays(r)
-        r = self.umbra('sign-in', sites=write_sites([]))
-        self.assertExit(r, 64)
+                self.assertSays(r, '--save')
+        umbra('stop', profile=self.profile)
 
     def test_a_malformed_sites_file_exits_78_for_every_command(self):
         broken = TMP / 'broken-sites.json'

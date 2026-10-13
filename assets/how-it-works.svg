@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 890" width="1200" height="890" role="img" aria-labelledby="title desc">
   <title id="title">How Umbra works</title>
-  <desc id="desc">The umbra CLI and the umbra mcp server are both clients of one daemon per profile, which they reach over a unix socket and start on first use. The daemon owns the tabs: WebKit views in off-screen windows that pages see as visible, driven with trusted native input. The tabs share Umbra's own cookie store on disk, filled once by umbra sign-in; sign-in and handoff are the only windows, shown when the person is needed. Safari and the screen are untouched: no Dock icon, no focus taken, no shared cookies.</desc>
+  <desc id="desc">The umbra CLI and the umbra mcp server are both clients of one daemon per profile, which they reach over a unix socket and start on first use. The daemon owns the tabs: WebKit views in off-screen windows that pages see as visible, driven with trusted native input. The tabs share Umbra's own cookie store on disk, filled once by umbra sign-in; sign-in and handoff are the only windows, shown when the person is needed. Safari and the screen are untouched: no focus taken, no shared cookies, and no Dock icon while it works.</desc>
   <defs>
   <radialGradient id="corona" cx="0" cy="0" r="230" gradientUnits="userSpaceOnUse">
     <stop offset="0.60" stop-color="#ffe7b0" stop-opacity="0"/>
@@ -47,7 +47,7 @@
   <rect x="48" y="390" width="330" height="212" rx="18" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.16"/>
   <rect x="48" y="416" width="5" height="34" rx="2.5" fill="#f6b26b"/>
   <text x="76" y="444" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="27" font-weight="600" fill="#f4efe6">umbra mcp</text>
-  <text x="76" y="486" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">Claude Code, Cursor,</text><text x="76" y="522" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">Claude Desktop</text><text x="76" y="558" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">every command a tool</text>
+  <text x="76" y="486" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">Claude Code, Codex,</text><text x="76" y="522" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">Cursor, Claude Desktop</text><text x="76" y="558" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">every command a tool</text>
   <rect x="435" y="108" width="330" height="494" rx="18" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.16"/>
   <rect x="435" y="134" width="5" height="34" rx="2.5" fill="#f6b26b"/>
   <text x="463" y="162" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" font-weight="600" fill="#f4efe6">Daemon</text>
@@ -63,7 +63,7 @@
   <rect x="48" y="672" width="717" height="176" rx="18" fill="#ffffff" fill-opacity="0.02" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="7 7" stroke-opacity="0.22"/>
   <rect x="48" y="698" width="5" height="34" rx="2.5" fill="#9a93b3"/>
   <text x="76" y="726" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" font-weight="600" fill="#f4efe6">Safari and your screen, untouched</text>
-  <text x="76" y="768" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">no Dock icon, no focus taken</text><text x="76" y="804" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">no Safari tabs, no shared cookies</text>
+  <text x="76" y="768" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">no focus taken, no shared cookies</text><text x="76" y="804" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">no Safari tabs, no Dock icon while it works</text>
   <g transform="translate(725 812)" opacity="0.7">
     <circle r="20" fill="none" stroke="#c3bdd3" stroke-width="2.5"/>
     <g transform="rotate(45)"><path d="M0 -15 L4.5 0 L-4.5 0 Z" fill="#ff6b6b"/><path d="M0 15 L4.5 0 L-4.5 0 Z" fill="#c3bdd3"/></g>

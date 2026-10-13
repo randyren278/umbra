@@ -181,8 +181,9 @@ func runMCP() -> Never {
             Thread.detachNewThread {
                 var values = arguments.filter { !($0.value is NSNull) }  // models send null for "not given"
                 values["cwd"] = values["cwd"] ?? FileManager.default.currentDirectoryPath  // relative paths mean the client's directory
-                let result: Result<[String: Any], UmbraError> = argumentProblem(command, values).map { .failure($0) }
-                    ?? call(name, values)
+                let problem = argumentProblem(command, values)
+                values["sitesFile"] = sitesFile.path  // set after the check, so a model can't choose the file
+                let result: Result<[String: Any], UmbraError> = problem.map { .failure($0) } ?? call(name, values)
                 heartbeat?.cancel()
                 output.lock()
                 if running.remove(key) != nil { writeAll(STDOUT_FILENO, line(rpcResult(id, toolResult(result)))) }
@@ -197,7 +198,7 @@ func runMCP() -> Never {
     exit(0)
 }
 
-/// `umbra mcp --print-config`: setup snippets for Claude Code, Claude Desktop and Cursor.
+/// `umbra mcp --print-config`: setup snippets for Claude Code, Codex, Claude Desktop and Cursor.
 func printMCPConfig() -> Never {
     let path = Bundle.main.executableURL?.resolvingSymlinksInPath().path ?? CommandLine.arguments[0]
     func quoted(_ word: String) -> String {
@@ -212,6 +213,9 @@ func printMCPConfig() -> Never {
     print("""
         Claude Code (add --scope user to use it in every project):
           claude mcp add umbra\(profile.map { " -e " + quoted("UMBRA_PROFILE=" + $0) } ?? "") -- \(quoted(path)) mcp
+
+        Codex (every project):
+          codex mcp add umbra\(profile.map { " --env " + quoted("UMBRA_PROFILE=" + $0) } ?? "") -- \(quoted(path)) mcp
 
         Claude Desktop (~/Library/Application Support/Claude/claude_desktop_config.json):
         \(block)

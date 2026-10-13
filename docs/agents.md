@@ -2,17 +2,19 @@
 
 An agent can use Umbra in three ways. They all drive the same live tabs, so you can mix them:
 
-- **Claude Code skill.** [`skill/SKILL.md`](../skill/SKILL.md) teaches the loop, targets, waiting, sign-in, handoff and the rules. The agent then works through its shell tool.
+- **Agent skill** (Claude Code and Codex). [`skill/SKILL.md`](../skill/SKILL.md) teaches the loop, targets, waiting, sign-in, handoff and the rules. The agent then works through its shell tool.
 - **MCP.** `umbra mcp` exposes every command as a tool. See [mcp.md](mcp.md).
 - **Plain instructions.** For any agent with a shell, paste the block below into `AGENTS.md`, `CLAUDE.md` or the system prompt.
 
 ## Install the skill
 
 ```sh
-mkdir -p ~/.claude/skills/umbra && cp skill/SKILL.md ~/.claude/skills/umbra/
+mkdir -p ~/.claude/skills ~/.codex/skills
+ln -s "$PWD/skill" ~/.claude/skills/umbra    # Claude Code
+ln -s "$PWD/skill" ~/.codex/skills/umbra     # Codex
 ```
 
-Claude Code picks it up in new sessions and uses it whenever a task needs a browser: a page behind a login, JavaScript-rendered content, a form, a download that needs a session, or a screenshot.
+Claude Code and Codex pick it up in new sessions and use it whenever a task needs a browser: a page behind a login, JavaScript-rendered content, a form, a download that needs a session, or a screenshot.
 
 ## Instructions for any agent
 

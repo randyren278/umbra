@@ -5,7 +5,7 @@
 Facts an agent needs:
 
 - A per-profile daemon keeps tabs alive between commands. It starts on the first command and exits after 15 idle minutes. The CLI and `umbra mcp` drive the same tabs.
-- Tabs are invisible but pages see themselves as visible (`visibilityState`, `requestAnimationFrame` and `IntersectionObserver` work). Input is native, so events are trusted (`isTrusted == true`). Umbra never takes focus or shows a Dock icon, except while its sign-in window is open.
+- Tabs are invisible but pages see themselves as visible (`visibilityState`, `requestAnimationFrame` and `IntersectionObserver` work). Input is native, so events are trusted (`isTrusted == true`). While agents work, Umbra never takes focus or shows a Dock icon; only the sign-in window (with a Dock icon) and handoff (without) appear, when a person is needed.
 - Never drive Safari with AppleScript, and never type the user's passwords. Do the actions the request asks for; ask first before a consequential action (purchase, post, message, submission, refund, deletion) that is your own idea.
 - `--profile NAME` (or `UMBRA_PROFILE`) selects a separate cookie store and daemon. Use one for experiments. The current tab and cookies belong to the profile, so parallel agents each need their own profile (or at least their own `--tab`); cookies on 127.0.0.1 are shared across ports.
 - Dialogs never block: alerts, confirms and prompts are accepted by default and reported in the reply of the action that raised them. Run `umbra dialog dismiss` before an action to decline the next one.
@@ -37,8 +37,8 @@ Exit codes: 0 done; 1 Umbra itself failed; 2 timed out or a script threw; 3 sign
 ## Docs
 
 - [README](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/README.md): what Umbra is, install, the loop, the full command reference, security model and limitations
-- [Agent skill](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/skill/SKILL.md): the Claude Code skill that teaches the loop, sign-in, handoff and the rules
-- [MCP](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/mcp.md): `umbra mcp` setup for Claude Code, Claude Desktop and Cursor, tools, images, progress and errors
+- [Agent skill](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/skill/SKILL.md): the agent skill (Claude Code and Codex) that teaches the loop, sign-in, handoff and the rules
+- [MCP](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/mcp.md): `umbra mcp` setup for Claude Code, Codex, Claude Desktop and Cursor, tools, images, progress and errors
 - [Agents](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/agents.md): instructions to paste into AGENTS.md, working habits, profiles for agents
 - [Recipes](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/recipes.md): paginated tables, forms, downloads, uploads, pop-ups, screenshots, the socket protocol, and callers for scripts
 - [Sites and sign-in](https://raw.githubusercontent.com/randyren278/macOS-headless-browser/main/docs/sites.md): `sites.json`, signed-in checks and `keepSession`

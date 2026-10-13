@@ -6,17 +6,19 @@ All notable changes to Umbra are recorded here. Versions follow [Semantic Versio
 
 ### Changed
 
-- The sign-in window is a way to sign in, never a way to browse. It lists each site and whether it is signed in without loading any page, shows a site's login page only to sign in, and closes it the moment the sign-in lands, before the signed-in site renders.
+- The sign-in window is a way to sign in, not a way to browse. It lists each site and whether it is signed in without loading any page. For a site it can check, it shows the login page only to sign in and closes it the moment the sign-in lands, before the signed-in site renders; a one-off URL or an added account's first sign-in stays open until Done.
 - The daemon shows the sign-in window, so other commands keep working while a person signs in; `umbra sign-in` no longer stops the daemon. Opening Umbra.app shows the window even while the daemon runs (macOS hands the launch to it). The window comes with a Dock icon and a menu bar; Quit closes the window and leaves the daemon running.
 - `umbra sign-in <sites>` returns once every named site is signed in, at once (with no window) if they already are; exit 3 if the window is closed first, 2 after `--timeout` (default 900 seconds). With no sites it opens the window and returns at once.
 - `sign-in` is an MCP tool, and a signed-out error tells the model to call it.
-
-- A site with both `cookie` and `probe` counts as signed in only when the probe passes too, so a session the site ended while its cookie stayed opens the login page instead of being reported as signed in.
+- A site with both `cookie` and `probe` counts as signed in only when the probe passes too, so a session the site ended while its cookie stayed opens the login page instead of being reported as signed in. The old cookie is never deleted: a sign-in counts when the cookie gets a new value. A probe that answers 503, 429 or the like can't tell, so a named sign-in exits 4 and opens nothing.
 
 ### Added
 
 - `umbra sign-out <site>`, and a Sign Out button in the window: deletes the site's cookies from the profile's store.
 - Add Account in the window, and `umbra sign-in <login URL> --save NAME`: a pasted login link becomes a site in `sites.json`. During its first sign-in Umbra learns the cookie it sets (a session-like one that appeared after the login page loaded), so from then on the site is checked like the others, and agents can use it.
+- The agent eval runs Codex too (`eval.py run-codex`, with `process.py` reading each run's transcript): GPT-6 Sol in Codex completed 14 of 14 tasks with the skill in its prompt and 14 of 14 as installed, with zero critical failures. Results are in `bench/eval/RESULTS.md` and `bench/eval/scores.json`.
+- `umbra mcp --print-config` prints the line for Codex.
+- README diagrams in the artwork's style, each with a phone layout: the loop, why WebKit, the sign-in window, handoff, profiles, how it works, and two drawn from data by `assets/charts.py` (the eval scoreboard and the speed chart).
 
 ### Fixed
 

@@ -465,6 +465,11 @@ class Calls(unittest.TestCase):
         result = self.server.call('eval', {'script': 'return 1', 'selector': 'h1'})
         self.assertIs(result['isError'], True)
         self.assertIn('eval has no parameter selector; it takes script, tab, timeout', text(result))
+        # The server sends its own sites file with each call; a model can't name one.
+        result = self.server.call('status', {'sitesFile': '/tmp/elsewhere.json'})
+        self.assertIs(result['isError'], True)
+        self.assertIn('status has no parameter sitesFile', text(result))
+        self.assertFalse(self.server.call('status', {}).get('isError'))
 
     def test_null_arguments_count_as_not_given(self):
         self.open_page()
@@ -650,6 +655,7 @@ class PrintConfig(unittest.TestCase):
         self.assertEqual(server['env'], {'UMBRA_PROFILE': PROFILE})
         self.assertEqual(blocks[1], blocks[0])
         self.assertIn(f"claude mcp add umbra -e UMBRA_PROFILE={PROFILE} -- {server['command']} mcp\n", result.stdout)
+        self.assertIn(f"codex mcp add umbra --env UMBRA_PROFILE={PROFILE} -- {server['command']} mcp\n", result.stdout)
         # The snippet starts a working server on its profile.
         started = Server(server['env']['UMBRA_PROFILE'], argv=[server['command'], *server['args']])
         self.assertEqual(started.initialize()['serverInfo']['name'], 'umbra')

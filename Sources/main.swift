@@ -95,8 +95,8 @@ func show(_ result: Result<[String: Any], UmbraError>) -> Never {
 switch command {
 case "help", "-h", "--help":
     let special = [
-        "sign-in": "usage: umbra sign-in [site or URL ...] [--save NAME] [--timeout SECONDS]\n\nShows the person Umbra's sign-in window; opening Umbra.app does the same. With no sites it lists every site in ~/.config/umbra/sites.json (or $UMBRA_SITES: [{name, domain, login, cookie | probe, keepSession}]) and whether each is signed in, and returns at once. With site names or login URLs, it opens the login page of each one still signed out and returns once all are signed in (exit 0), or exits 3 if the window is closed first, 2 after --timeout (default 900). A signed-in site is never loaded: its page closes the moment the sign-in lands, so the window can't be used to browse. A URL has no check: the person clicks Done. With --save NAME, a login URL becomes a site in the sites file (as the window's Add Account does): Umbra learns the cookie its sign-in sets, so from then on it is checked like the others and agents can use it. The daemon shows the window, so other commands keep working meanwhile.",
-        "mcp": "usage: umbra mcp [--print-config]\n\nServes every command as an MCP tool over stdio (JSON-RPC), sharing live tabs with the CLI through this profile's daemon. --print-config prints setup snippets for Claude Code, Claude Desktop and Cursor.",
+        "sign-in": "usage: umbra sign-in [site or URL ...] [--save NAME] [--timeout SECONDS]\n\nShows the person Umbra's sign-in window; opening Umbra.app does the same. With no sites it lists every site in ~/.config/umbra/sites.json (or $UMBRA_SITES: [{name, domain, login, cookie | probe, keepSession}]) and whether each is signed in, and returns at once. With site names or login URLs, it opens the login page of each one still signed out and returns once all are signed in (exit 0), or exits 3 if the window is closed first, 2 after --timeout (default 900). A signed-in site is never loaded: its page closes the moment the sign-in lands, so the window can't be used to browse. A URL has no check: the person clicks Done. An unknown site name exits 64. With --save NAME (refused, exit 64, if the name or domain is already listed), a login URL becomes a site in the sites file (as the window's Add Account does): Umbra learns the cookie its sign-in sets, so from then on it is checked like the others and agents can use it. The daemon shows the window, so other commands keep working meanwhile.",
+        "mcp": "usage: umbra mcp [--print-config]\n\nServes every command as an MCP tool over stdio (JSON-RPC), sharing live tabs with the CLI through this profile's daemon. --print-config prints setup snippets for Claude Code, Codex, Claude Desktop and Cursor.",
         "schema": "usage: umbra schema\n\nEvery daemon command with its description, usage line and JSON Schema for its parameters, as JSON.",
         "serve": "usage: umbra serve\n\nRuns this profile's daemon in the foreground. Normally it starts by itself on the first session command and exits after UMBRA_IDLE seconds (default 900) without commands.",
     ]
@@ -173,7 +173,7 @@ case "sign-in":
     let timeout = seconds("--timeout", default: 900)
     let save = option("--save")
     if case .failure(let error) = resolveSites(args) { fail(error.code, error.message) }
-    var values: [String: Any] = ["sites": args, "timeout": timeout]
+    var values: [String: Any] = ["sites": args, "timeout": timeout, "sitesFile": sitesFile.path]
     values["save"] = save
     show(call("sign-in", values))
 
@@ -197,6 +197,7 @@ default:
     case .success(var values):
         if found.name == "eval", values["script"] == nil || values["script"] as? String == "-" { values["script"] = stdinText() }
         values["cwd"] = FileManager.default.currentDirectoryPath  // relative paths mean the caller's directory
+        values["sitesFile"] = sitesFile.path  // and the caller's sites file, which may not be the daemon's
         show(call(found.name, values))
     }
 }

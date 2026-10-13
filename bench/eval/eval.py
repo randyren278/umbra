@@ -4,12 +4,14 @@
   eval.py setup --arm skill|bare [--tasks a,b] --port 9200   one site server, profile and workdir per task
   eval.py grade --arm skill|bare                              grade every candidate from server state and answers
   eval.py teardown --arm skill|bare                           stop servers and daemons, delete profiles
+  eval.py run-codex --run NAME [--jobs 4]                     run every candidate of a set-up run with `codex exec`
 
 Each candidate gets a wrapper that pins Umbra to its own throwaway profile, a workdir with its
 own copy of any input file, and a prompt rendered from bench/tasks.json. Candidates write their
 final answer to <workdir>/answer.txt. Graders and answer keys stay outside their prompt.
 """
 import argparse, hashlib, json, os, shutil, signal, subprocess, sys, time, urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 BENCH = Path(__file__).resolve().parent.parent
@@ -99,6 +101,38 @@ def grade_all(run):
     (ROOT / run / 'grades.json').write_text(json.dumps(rows, indent=2))
 
 
+def run_codex(run, jobs):
+    """Each candidate is a fresh, ephemeral `codex exec` in its workdir, with the user's Codex setup
+    (model, skills, AGENTS.md) except where isolation needs otherwise: `umbra` on PATH is the
+    candidate's wrapper, the Umbra MCP server is pinned to the candidate's profile, Codex's own
+    browser REPL is off (it would take over the screen), turn notifications are off,
+    and HERA_OFF keeps the runs out of the Hera vault. The JSON event stream is the transcript."""
+    def one(e):
+        work = Path(e['work'])
+        env = {**os.environ, 'HERA_OFF': '1', 'UMBRA_PROFILE': e['profile'], 'UMBRA_IDLE': '300',
+               'PATH': f"{work / 'bin'}:{os.environ['PATH']}"}
+        args = ['codex', 'exec', '--ephemeral', '--skip-git-repo-check', '--json',
+                '--dangerously-bypass-approvals-and-sandbox', '-C', str(work),
+                '-o', str(work / 'last-message.txt'), '-c', 'notify=[]',
+                '-c', f'mcp_servers.umbra.env.UMBRA_PROFILE="{e["profile"]}"',
+                '-c', 'mcp_servers.umbra.env.UMBRA_IDLE="300"',
+                '-c', 'mcp_servers.node_repl.enabled=false',
+                (work / 'prompt.txt').read_text()]
+        start = time.monotonic()
+        with open(work / 'transcript.jsonl', 'w') as out:
+            try:
+                code = subprocess.run(args, env=env, stdout=out, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+                                      timeout=900).returncode
+            except subprocess.TimeoutExpired:
+                code = 'timeout'
+        if not (work / 'answer.txt').exists() and (work / 'last-message.txt').exists():
+            shutil.copy(work / 'last-message.txt', work / 'answer.txt')
+        (work / 'run.json').write_text(json.dumps({'exit': code, 'seconds': round(time.monotonic() - start, 1)}))
+        print(e['task'], code, round(time.monotonic() - start), 's', flush=True)
+    with ThreadPoolExecutor(jobs) as pool:
+        list(pool.map(one, json.loads(manifest(run).read_text())))
+
+
 def teardown(run):
     for e in json.loads(manifest(run).read_text()):
         try:
@@ -115,16 +149,21 @@ def teardown(run):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('action', choices=['setup', 'grade', 'teardown'])
-    parser.add_argument('--arm', choices=['skill', 'bare'], required=True)
+    parser.add_argument('action', choices=['setup', 'grade', 'teardown', 'run-codex'])
+    parser.add_argument('--arm', choices=['skill', 'bare'])
     parser.add_argument('--tasks', default='')
     parser.add_argument('--port', type=int, default=9200)
     parser.add_argument('--run', help='name of this run (default: the arm)')
+    parser.add_argument('--jobs', type=int, default=4, help='run-codex: candidates at once')
     options = parser.parse_args()
     run = options.run or options.arm
+    if not run or (options.action == 'setup' and not options.arm):
+        parser.error('setup needs --arm; the other actions need --run or --arm')
     if options.action == 'setup':
         setup(options.arm, [t for t in options.tasks.split(',') if t], options.port, run)
     elif options.action == 'grade':
         grade_all(run)
+    elif options.action == 'run-codex':
+        run_codex(run, options.jobs)
     else:
         teardown(run)

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">The Umbra loop</title>
+  <desc id="desc">Open a page, read its snapshot, act on an element ref, then read the changed page. All four commands use one persistent signed-in tab.</desc>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#1b1730"/><stop offset="1" stop-color="#07060d"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#f6b26b" stop-opacity=".24"/><stop offset="1" stop-color="#f6b26b" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="420" rx="28" fill="url(#sky)"/>
+  <rect x="1" y="1" width="1198" height="418" rx="27" fill="none" stroke="#fff1d2" stroke-opacity=".14" stroke-width="2"/>
+  <circle cx="1111" cy="71" r="89" fill="url(#glow)"/>
+  <circle cx="1111" cy="71" r="30" fill="#fff4dc"/><circle cx="1106" cy="76" r="30" fill="#1b1730"/>
+  <text x="48" y="70" fill="#f4efe6" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="34" font-weight="600">One tab. One continuous loop.</text>
+  <text x="48" y="111" fill="#c3bdd3" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25">The next action comes from what the page just showed you.</text>
+  <g font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif">
+    <g transform="translate(48 152)"><rect width="258" height="161" rx="18" fill="#ffffff" fill-opacity=".055" stroke="#fff1d2" stroke-opacity=".20"/><text x="23" y="42" fill="#f6b26b" font-size="21" font-weight="700">01 / OPEN</text><text x="23" y="91" fill="#f4efe6" font-size="30" font-weight="600">Load the page</text><text x="23" y="129" fill="#c3bdd3" font-size="23">Wait for navigation</text></g>
+    <g transform="translate(330 152)"><rect width="258" height="161" rx="18" fill="#ffffff" fill-opacity=".055" stroke="#fff1d2" stroke-opacity=".20"/><text x="23" y="42" fill="#c06bd6" font-size="21" font-weight="700">02 / SEE</text><text x="23" y="91" fill="#f4efe6" font-size="30" font-weight="600">Read snapshot</text><text x="23" y="129" fill="#c3bdd3" font-size="23">Find an element ref</text></g>
+    <g transform="translate(612 152)"><rect width="258" height="161" rx="18" fill="#ffffff" fill-opacity=".055" stroke="#fff1d2" stroke-opacity=".20"/><text x="23" y="42" fill="#5fd38d" font-size="21" font-weight="700">03 / ACT</text><text x="23" y="91" fill="#f4efe6" font-size="30" font-weight="600">Click or fill</text><text x="23" y="129" fill="#c3bdd3" font-size="23">Use native input</text></g>
+    <g transform="translate(894 152)"><rect width="258" height="161" rx="18" fill="#ffffff" fill-opacity=".055" stroke="#fff1d2" stroke-opacity=".20"/><text x="23" y="42" fill="#f6b26b" font-size="21" font-weight="700">04 / SEE AGAIN</text><text x="23" y="91" fill="#f4efe6" font-size="30" font-weight="600">Read the result</text><text x="23" y="129" fill="#c3bdd3" font-size="23">Fresh page, fresh refs</text></g>
+  </g>
+  <g stroke="#f6b26b" stroke-width="3" fill="#f6b26b"><path d="M309 233h15"/><path d="m324 233-8-5v10z"/><path d="M591 233h15"/><path d="m606 233-8-5v10z"/><path d="M873 233h15"/><path d="m888 233-8-5v10z"/></g>
+  <path d="M81 349h1038" stroke="#c06bd6" stroke-opacity=".6" stroke-width="2"/>
+  <circle cx="81" cy="349" r="5" fill="#c06bd6"/><circle cx="1119" cy="349" r="5" fill="#c06bd6"/>
+  <text x="600" y="388" text-anchor="middle" fill="#c3bdd3" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="23">The signed-in tab and its history persist between commands</text>
+</svg>

@@ -1,0 +1,363 @@
+{
+ "date": "2026-10-13",
+ "tasks_run": 14,
+ "site": "Northwind Ops (bench/site), seed 7",
+ "codex": "codex-cli 0.162.1, model gpt-6-sol, reasoning effort high",
+ "arms": [
+  {
+   "family": "Claude",
+   "agent": "Claude Opus 5.5",
+   "guidance": "skill in the prompt",
+   "tasks": [
+    [
+     "pending-count",
+     "PASS"
+    ],
+    [
+     "shipped-total",
+     "PASS"
+    ],
+    [
+     "refund-1017",
+     "PASS"
+    ],
+    [
+     "export-csv",
+     "PASS"
+    ],
+    [
+     "upload-invoice",
+     "PASS"
+    ],
+    [
+     "wizard",
+     "PASS"
+    ],
+    [
+     "feed-featured",
+     "PASS"
+    ],
+    [
+     "display-name",
+     "PASS"
+    ],
+    [
+     "bio",
+     "PASS"
+    ],
+    [
+     "theme-teal",
+     "PASS"
+    ],
+    [
+     "iframe-notifications",
+     "PASS"
+    ],
+    [
+     "popup-report",
+     "PASS"
+    ],
+    [
+     "otp-login",
+     "PASS"
+    ],
+    [
+     "slow-forecast",
+     "PASS"
+    ]
+   ],
+   "passed": 14,
+   "total": 14,
+   "critical": 0,
+   "median_calls": 8,
+   "total_calls": 116,
+   "help_lookups": 2,
+   "sleep_runs": 0,
+   "median_seconds": 28
+  },
+  {
+   "family": "Claude",
+   "agent": "Claude Opus 5.5",
+   "guidance": "only umbra help",
+   "tasks": [
+    [
+     "pending-count",
+     "PASS"
+    ],
+    [
+     "shipped-total",
+     "PASS"
+    ],
+    [
+     "refund-1017",
+     "PASS"
+    ],
+    [
+     "export-csv",
+     "PASS"
+    ],
+    [
+     "upload-invoice",
+     "PASS"
+    ],
+    [
+     "wizard",
+     "PASS"
+    ],
+    [
+     "feed-featured",
+     "PASS"
+    ],
+    [
+     "display-name",
+     "PASS"
+    ],
+    [
+     "bio",
+     "PASS"
+    ],
+    [
+     "theme-teal",
+     "PASS"
+    ],
+    [
+     "iframe-notifications",
+     "PASS"
+    ],
+    [
+     "popup-report",
+     "PASS"
+    ],
+    [
+     "otp-login",
+     "PASS"
+    ],
+    [
+     "slow-forecast",
+     "PASS"
+    ]
+   ],
+   "passed": 14,
+   "total": 14,
+   "critical": 0,
+   "median_calls": 9,
+   "total_calls": 128,
+   "help_lookups": 21,
+   "sleep_runs": 2,
+   "median_seconds": 29.5
+  },
+  {
+   "family": "Claude",
+   "agent": "Claude Sonnet 5.5",
+   "guidance": "skill in the prompt",
+   "tasks": [
+    [
+     "pending-count",
+     "PASS"
+    ],
+    [
+     "shipped-total",
+     "PASS"
+    ],
+    [
+     "refund-1017",
+     "PASS"
+    ],
+    [
+     "export-csv",
+     "PASS"
+    ],
+    [
+     "upload-invoice",
+     "PASS"
+    ],
+    [
+     "wizard",
+     "PASS"
+    ],
+    [
+     "feed-featured",
+     "PASS"
+    ],
+    [
+     "display-name",
+     "PASS"
+    ],
+    [
+     "bio",
+     "PASS"
+    ],
+    [
+     "theme-teal",
+     "PASS"
+    ],
+    [
+     "iframe-notifications",
+     "PASS"
+    ],
+    [
+     "popup-report",
+     "PASS"
+    ],
+    [
+     "otp-login",
+     "PASS"
+    ],
+    [
+     "slow-forecast",
+     "PASS"
+    ]
+   ],
+   "passed": 14,
+   "total": 14,
+   "critical": 0,
+   "median_calls": 6.5,
+   "total_calls": 89,
+   "help_lookups": 1,
+   "sleep_runs": 2,
+   "median_seconds": 21.5
+  },
+  {
+   "family": "Codex",
+   "agent": "GPT-6 Sol in Codex",
+   "guidance": "skill in the prompt",
+   "tasks": [
+    [
+     "pending-count",
+     "PASS"
+    ],
+    [
+     "shipped-total",
+     "PASS"
+    ],
+    [
+     "refund-1017",
+     "PASS"
+    ],
+    [
+     "export-csv",
+     "PASS"
+    ],
+    [
+     "upload-invoice",
+     "PASS"
+    ],
+    [
+     "wizard",
+     "PASS"
+    ],
+    [
+     "feed-featured",
+     "PASS"
+    ],
+    [
+     "display-name",
+     "PASS"
+    ],
+    [
+     "bio",
+     "PASS"
+    ],
+    [
+     "theme-teal",
+     "PASS"
+    ],
+    [
+     "iframe-notifications",
+     "PASS"
+    ],
+    [
+     "popup-report",
+     "PASS"
+    ],
+    [
+     "otp-login",
+     "PASS"
+    ],
+    [
+     "slow-forecast",
+     "PASS"
+    ]
+   ],
+   "passed": 14,
+   "total": 14,
+   "critical": 0,
+   "median_calls": 14.5,
+   "total_calls": 214,
+   "help_lookups": 3,
+   "sleep_runs": 0,
+   "median_seconds": 41.2
+  },
+  {
+   "family": "Codex",
+   "agent": "GPT-6 Sol in Codex",
+   "guidance": "as installed: nothing in the prompt",
+   "tasks": [
+    [
+     "pending-count",
+     "PASS"
+    ],
+    [
+     "shipped-total",
+     "PASS"
+    ],
+    [
+     "refund-1017",
+     "PASS"
+    ],
+    [
+     "export-csv",
+     "PASS"
+    ],
+    [
+     "upload-invoice",
+     "PASS"
+    ],
+    [
+     "wizard",
+     "PASS"
+    ],
+    [
+     "feed-featured",
+     "PASS"
+    ],
+    [
+     "display-name",
+     "PASS"
+    ],
+    [
+     "bio",
+     "PASS"
+    ],
+    [
+     "theme-teal",
+     "PASS"
+    ],
+    [
+     "iframe-notifications",
+     "PASS"
+    ],
+    [
+     "popup-report",
+     "PASS"
+    ],
+    [
+     "otp-login",
+     "PASS"
+    ],
+    [
+     "slow-forecast",
+     "PASS"
+    ]
+   ],
+   "passed": 14,
+   "total": 14,
+   "critical": 0,
+   "median_calls": 17.0,
+   "total_calls": 252,
+   "help_lookups": 17,
+   "sleep_runs": 0,
+   "median_seconds": 42.7
+  }
+ ]
+}

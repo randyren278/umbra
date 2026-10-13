@@ -182,17 +182,18 @@ final class DaemonApp: NSObject, NSApplicationDelegate {
         return false
     }
 
-    /// Quit (the menu, Command-Q, the Dock) closes the window; Umbra keeps working for agents.
-    /// Logging out, restarting or shutting down quits it.
+    /// Quit (the menu, Command-Q, the Dock) closes the windows the person sees, the sign-in window
+    /// and any handoff; Umbra keeps working for agents. Logging out, restarting or shutting down quits it.
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         let event = NSAppleEventManager.shared().currentAppleEvent
         let reason = event?.paramDescriptor(forKeyword: AEKeyword(kAEQuitReason)) ?? event?.attributeDescriptor(forKeyword: AEKeyword(kAEQuitReason))
-        if let window = SignInWindow.shown, reason == nil {
-            window.close()
+        guard reason != nil else {
+            SignInWindow.shown?.close()
+            daemon.engine.tabs.filter { $0.handoff != nil }.forEach { $0.endHandoff() }
             return .terminateCancel
         }
-        daemon.shutdown()  // exits once the cookies are on disk
-        return .terminateCancel
+        daemon.shutdown()  // writes the cookies to disk, then exits: the quit goes ahead
+        return .terminateLater
     }
 }
 

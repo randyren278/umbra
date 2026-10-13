@@ -53,9 +53,9 @@ struct Site: Decodable {
 let sitesFile = environment["UMBRA_SITES"].map { URL(fileURLWithPath: $0) }
     ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".config/umbra/sites.json")
 
-/// The sites file as it is now; no file means no sites.
-func readSites() throws -> [Site] {
-    guard let data = try? Data(contentsOf: sitesFile) else { return [] }
+/// A sites file as it is now; no file means no sites.
+func readSites(_ file: URL = sitesFile) throws -> [Site] {
+    guard let data = try? Data(contentsOf: file) else { return [] }
     return try JSONDecoder().decode([Site].self, from: data)
 }
 
@@ -80,8 +80,12 @@ func configuration() -> WKWebViewConfiguration {
     return config
 }
 
+/// Sites files that sign-in requests named besides this process's own (a client may use another).
+var requestSitesFiles: Set<URL> = []
+
 func keepSessions(then done: @escaping () -> Void) {
-    let kept = (try? readSites()) ?? sites  // a daemon outlives edits to the sites file
+    // A daemon outlives edits to the sites file, and sign-ins may come from another file.
+    let kept = ((try? readSites()) ?? sites) + requestSitesFiles.flatMap { (try? readSites($0)) ?? [] }
     store.httpCookieStore.getAllCookies { cookies in
         let lasting = cookies.filter { cookie in
             cookie.isSessionOnly && kept.contains { $0.keepSession == true && cookie.within($0.domain) }

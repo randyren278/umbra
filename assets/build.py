@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerates Umbra's artwork: logo.svg, mark.svg, icon.svg, banner.svg, how-it-works.svg,
+"""Regenerates Umbra's artwork: logo.svg, mark.svg, icon.svg, banner.svg, how-it-works(-mobile).svg,
 social-preview.png and AppIcon.icns (the last two need rsvg-convert, and the icon iconutil). Run from
 anywhere (or `make icon`); writes beside this file. The words on the artwork and the how-it-works
 diagram are data, defined just below the palette."""
@@ -29,19 +29,36 @@ DIAGRAM = {
             "over a unix socket and start on first use. The daemon owns the tabs: WebKit views in off-screen windows "
             "that pages see as visible, driven with trusted native input. The tabs share Umbra's own cookie store on "
             "disk, filled once by umbra sign-in; sign-in and handoff are the only windows, shown when the person is "
-            "needed. Safari and the screen are untouched: no Dock icon, no focus taken, no shared cookies.",
+            "needed. Safari and the screen are untouched: no focus taken, no shared cookies, and no Dock icon while it works.",
     "cards": {
         "cli": dict(at=(0, 0), heading="umbra CLI", mono=True, lines=["your shell or script", "text or --json out", "plus an exit code"]),
-        "mcp": dict(at=(1, 0), heading="umbra mcp", mono=True, lines=["Claude Code, Cursor,", "Claude Desktop", "every command a tool"]),
+        "mcp": dict(at=(1, 0), heading="umbra mcp", mono=True, lines=["Claude Code, Codex,", "Cursor, Claude Desktop", "every command a tool"]),
         "daemon": dict(at=(0, 1), span=(2, 1), heading="Daemon", lines=["one per profile", "unix socket, JSON lines", "starts on first use",
                                                                          "exits after 15 idle min", "", "snapshot, refs and", "actions in an isolated", "JavaScript world"]),
         "tabs": dict(at=(0, 2), heading="Tabs", lines=["WebKit, off screen", "pages report visible", "trusted native input"]),
         "store": dict(at=(1, 2), heading="Cookie store", accent=ORCHID, lines=["Umbra's own, on disk", "one per profile", "values never printed"]),
         "screen": dict(at=(2, 0), span=(1, 2), heading="Safari and your screen, untouched", accent=DIM, dashed=True, icon="compass",
-                       lines=["no Dock icon, no focus taken", "no Safari tabs, no shared cookies"]),
+                       lines=["no focus taken, no shared cookies", "no Safari tabs, no Dock icon while it works"]),
         "signin": dict(at=(2, 2), heading="sign-in, handoff", mono=True, accent=GREEN, lines=["a window only when", "you're needed"]),
     },
     "arrows": [("cli", "daemon"), ("mcp", "daemon"), ("daemon", "tabs"), ("tabs", "store", "both"), ("signin", "store")],
+}
+
+# The same diagram in one column, for phone-width pages (the README's <picture> picks it).
+DIAGRAM_MOBILE = {
+    "column": 504,  # 600 wide in all, like the other phone layouts
+    "title": DIAGRAM["title"],
+    "desc": DIAGRAM["desc"],
+    "cards": {
+        "clients": dict(at=(0, 0), heading="umbra, umbra mcp", mono=True, lines=["your shell, or every command", "as a tool in Claude Code, Codex"]),
+        "daemon": dict(at=(1, 0), heading="Daemon", lines=["one per profile", "starts on first use", "exits after 15 idle min"]),
+        "tabs": dict(at=(2, 0), heading="Tabs", lines=["WebKit, off screen", "pages report visible", "trusted native input"]),
+        "store": dict(at=(3, 0), heading="Cookie store", accent=ORCHID, lines=["Umbra's own, on disk", "values never printed"]),
+        "signin": dict(at=(4, 0), heading="sign-in, handoff", mono=True, accent=GREEN, lines=["a window only when", "you're needed"]),
+        "screen": dict(at=(5, 0), heading="Your screen, untouched", accent=DIM, dashed=True, icon="compass",
+                       lines=["no focus taken, no shared cookies", "no Dock icon while it works"]),
+    },
+    "arrows": [("clients", "daemon"), ("daemon", "tabs"), ("tabs", "store", "both"), ("signin", "store")],
 }
 
 DEFS = """
@@ -263,7 +280,7 @@ def arrow(x1, y1, x2, y2, both=False):
 
 def diagram(spec=DIAGRAM):
     """Lays out DIAGRAM: 330-wide columns, each row as tall as its longest one-row card."""
-    cards, w, gap, top, row_gap = spec["cards"], 330, 57, 108, 70
+    cards, w, gap, top, row_gap = spec["cards"], spec.get("column", 330), 57, 108, 70
     span = lambda c: c.get("span", (1, 1))
     rows = max(c["at"][0] + span(c)[0] for c in cards.values())
     columns = max(c["at"][1] + span(c)[1] for c in cards.values())
@@ -306,7 +323,7 @@ def render(svg_text, out, width, height=None):
 
 def main():
     for name, make in [("logo.svg", logo), ("mark.svg", mark_svg), ("icon.svg", icon), ("banner.svg", banner),
-                       ("how-it-works.svg", diagram)]:
+                       ("how-it-works.svg", diagram), ("how-it-works-mobile.svg", lambda: diagram(DIAGRAM_MOBILE))]:
         (HERE / name).write_text(make())
     if not shutil.which("rsvg-convert"):
         return print("rsvg-convert not found: skipped social-preview.png and AppIcon.icns")

@@ -4,7 +4,13 @@
 
 <p align="center">
   <strong>Sign in once. Your agents take it from there.</strong><br>
-  Umbra runs the WebKit built into macOS with no window. An agent opens a page, reads it as an outline with element refs, and clicks, types and fills with trusted native input, from a shell or over MCP. Tabs stay alive between commands, sign-ins live in Umbra's own cookie store, and your screen, your focus and Safari are never touched.
+  Umbra runs the WebKit built into macOS with no window. An agent opens a page, reads it as an outline with element refs, and clicks, types and fills with trusted native input, from a shell or over MCP. Tabs stay alive between commands, sign-ins live in Umbra's own cookie store, and while agents work, your screen, your focus and Safari are never touched.
+</p>
+
+<p align="center">
+  <strong>14 of 14</strong> eval tasks in all 5 agent setups, Claude Code and Codex (70 of 70 runs) ·
+  snapshot in <strong>0.9 ms</strong> and click in <strong>1.5 ms</strong> over the MCP socket ·
+  a window only when you're needed
 </p>
 
 <p align="center">
@@ -13,11 +19,20 @@
   <a href="#quick-start">Quick start</a> ·
   <a href="#commands">Commands</a> ·
   <a href="docs/mcp.md">MCP</a> ·
+  <a href="#agent-eval">Agent eval</a> ·
+  <a href="#benchmarks">Benchmarks</a> ·
   <a href="#security-model">Security</a> ·
   <a href="#limitations">Limitations</a>
 </p>
 
 ## The loop
+
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/the-loop-mobile.svg">
+    <img src="assets/the-loop.svg" width="100%" alt="Umbra keeps one signed-in tab through a four-step loop: open a page, read its snapshot, act on an element ref, then read the changed page with fresh refs.">
+  </picture>
+</p>
 
 Open a page, look at it, act on what you see, look again. This is a real session against Northwind Ops, the test app in [`bench/site`](bench/README.md), started with `python3 bench/site/server.py --port 8765`:
 
@@ -65,15 +80,20 @@ Showing 1–9 of 9 orders
 
 Each command is a short process that talks to a per-profile daemon, so the tab, its history and its sign-in carry over from one command to the next. A target is a ref from the latest snapshot (`e4`), `text=` with visible text, or a CSS selector. Refs are numbered afresh after a navigation, so snapshot again before acting on a new page. Add `--json` to any command for structured output.
 
-In the project's [agent eval](#agent-eval), fresh Claude Code agents completed all 14 unattended tasks on this app with Umbra, even when given nothing but `umbra help` to go on.
+In the project's [agent eval](#agent-eval), fresh Claude Code and Codex agents completed all 14 unattended tasks on this app with Umbra, even with nothing about the skill in the task prompt, only `umbra help`.
 
 ## Why native WebKit, and why invisible
 
 Umbra drives the same WebKit that Safari uses, through Apple's own `WKWebView`. Every tab lives in a transparent, click-through window placed far off screen, with WebKit's occlusion detection turned off. That gives agents three things a headless browser usually can't:
 
-- **Pages see themselves as visible.** `document.visibilityState` is `"visible"`, `requestAnimationFrame` runs, and `IntersectionObserver` fires, so lazy loading, infinite scroll and animations behave as they do for a person.
-- **Input is trusted.** Clicks, key presses, scrolls and mouse drags are native macOS events sent to the view, so the page sees `isTrusted == true`. `fill` inserts text through the same input path as typing, so React-controlled fields keep the value.
-- **Nothing takes focus.** The daemon has no Dock icon and never becomes the active app, except while you have its sign-in window open. The only windows you'll ever see are `sign-in` and `handoff`, and they appear only when a person is needed.
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/why-webkit-mobile.svg">
+    <img src="assets/why-webkit.svg" width="100%" alt="Native WebKit keeps pages visible to their own scripts, sends trusted input events, and leaves the Mac's focus alone; visible windows appear only for sign-in or handoff.">
+  </picture>
+</p>
+
+`document.visibilityState` stays `"visible"`, `requestAnimationFrame` and `IntersectionObserver` keep running, and native clicks, key presses, scrolls and mouse drags arrive with `isTrusted == true`. `fill` uses the input method path so React-controlled fields keep their values. The daemon has no Dock icon and never becomes the active app, except while a sign-in or handoff window is open (handoff shows no Dock icon).
 
 Here is that checked from inside a tab, on the same session as above:
 
@@ -130,21 +150,26 @@ The first command starts the daemon, and every command after that reuses it. `um
 umbra mcp --print-config
 ```
 
-It prints a ready-to-run line for Claude Code and JSON blocks for Claude Desktop and Cursor, using the full path of your `umbra`. For a `make install`, the Claude Code line is:
+It prints ready-to-run lines for Claude Code and Codex and JSON blocks for Claude Desktop and Cursor, using the full path of your `umbra`. For a `make install`:
 
 ```sh
-claude mcp add umbra -- ~/Applications/Umbra.app/Contents/MacOS/umbra mcp
+claude mcp add --scope user umbra -- ~/Applications/Umbra.app/Contents/MacOS/umbra mcp   # Claude Code
+codex mcp add umbra -- ~/Applications/Umbra.app/Contents/MacOS/umbra mcp                 # Codex
 ```
 
-Add `--scope user` to use it in every project. [docs/mcp.md](docs/mcp.md) covers the other clients, profiles, image results and progress for long calls.
+Leave out `--scope user` to add it to the current project only. [docs/mcp.md](docs/mcp.md) covers the other clients, profiles, image results and progress for long calls.
 
 ### Teach your agent
 
-[`skill/SKILL.md`](skill/SKILL.md) is a Claude Code skill that teaches the loop, the targets, waiting, sign-in and handoff, and the rules. Install it with:
+[`skill/SKILL.md`](skill/SKILL.md) is an agent skill that teaches the loop, the targets, waiting, sign-in and handoff, and the rules. Claude Code and Codex both load it from their skills folder; a link keeps it current as you pull:
 
 ```sh
-mkdir -p ~/.claude/skills/umbra && cp skill/SKILL.md ~/.claude/skills/umbra/
+mkdir -p ~/.claude/skills ~/.codex/skills
+ln -s "$PWD/skill" ~/.claude/skills/umbra    # Claude Code
+ln -s "$PWD/skill" ~/.codex/skills/umbra     # Codex
 ```
+
+In the [agent eval](#agent-eval), with nothing about the skill in the task prompt (only the standing `AGENTS.md` rule that names it), Codex read the installed skill in all 14 runs.
 
 For other agents, [docs/agents.md](docs/agents.md) has a short block to paste into `AGENTS.md` or a system prompt.
 
@@ -225,18 +250,32 @@ These keep their original contract for scheduled scripts: one process, a result 
 
 ## Sign-in and handoff
 
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/sign-in-mobile.svg">
+    <img src="assets/sign-in.svg" width="100%" alt="Umbra's sign-in window lists each account (for example Canvas and LinkedIn signed in, GitHub signed out) with Sign In, Sign Out and Add Account. It checks each site without loading it, shows a site's page only to sign in, and closes that page the moment the sign-in lands; agents then use the session in the background.">
+  </picture>
+</p>
+
 Umbra never types your passwords. You sign in once, in a window:
 
 ```sh
-umbra sign-in                                      # or open Umbra.app: every site in ~/.config/umbra/sites.json
-umbra sign-in Canvas                               # one site; returns once you're signed in
-umbra sign-in https://canvas.example.edu/login    # any site, as a one-off page
-umbra sign-in https://github.com/login --save GitHub   # add an account: kept with the others
+umbra sign-in                                    # every site in sites.json (or open Umbra.app)
+umbra sign-in Canvas                             # one site; returns once you're signed in
+umbra sign-in https://canvas.example.edu/login   # any site, as a one-off page
+umbra sign-in https://github.com/login --save GitHub   # add it to your sites
 ```
 
-The window lists your sites and whether each is signed in, and it only ever shows a login page: a site you're signed in to is never loaded, and a site's page closes the moment its sign-in lands. Umbra is a way to sign in, not a browser for you, so it can't become another place to scroll Instagram. While the window is open, Umbra has a Dock icon; Quit closes the window, and agents keep working throughout. A signed-in row has a Sign Out button, and so does the command line (`umbra sign-out Canvas`), for a sign-in the site has dropped. **Add Account** takes a link to any site's login page: you sign in once, Umbra learns which cookie marks you as signed in, and agents can use the account from then on.
+The window lists your sites and whether each is signed in, without loading any of them. For a site Umbra can check (a cookie or probe in `sites.json`), it shows only the login page: a site you're signed in to is never loaded, and the page closes the moment the sign-in lands. A one-off URL, or an added account's first sign-in, has nothing to check yet, so its page stays open until you click Done. Umbra is a way to sign in, not a browser for you: a site you're signed in to can't become another place to scroll Instagram. While the window is open, Umbra has a Dock icon; Quit closes the window, and agents keep working throughout. A signed-in row has a Sign Out button, and so does the command line (`umbra sign-out Canvas`), for a sign-in the site has dropped. **Add Account** takes a link to any site's login page: you sign in once and click Done, Umbra learns which cookie marks you as signed in, and from then on the account is checked like the others and agents can use it.
 
 List your regular sites in [`sites.json`](docs/sites.md) with a cookie or probe that proves you're signed in. Mark `keepSession` on the ones whose sign-in rests on session cookies, such as university single sign-on, so the sign-in survives between runs.
+
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/human-handoff-mobile.svg">
+    <img src="assets/human-handoff.svg" width="100%" alt="You sign in through a visible window, an agent uses that profile off screen, and handoff briefly reveals the agent's tab when a person must complete a step before it hides again.">
+  </picture>
+</p>
 
 Mid-task, an agent may hit something only you can do: a two-factor prompt, a CAPTCHA or a consent screen. `handoff` shows you that tab in a window with a message, and returns when you close it or when a condition holds:
 
@@ -249,6 +288,13 @@ The window hides again afterward, and the tab carries on where you left it. If t
 ## Profiles
 
 A profile is a separate browser identity: its own cookie store, daemon, socket and download folder. The default profile is your main one. Choose another with `--profile NAME` or `UMBRA_PROFILE=NAME`:
+
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/profile-lanes-mobile.svg">
+    <img src="assets/profile-lanes.svg" width="100%" alt="Example research and work profiles form separate lanes: each agent has its own daemon and tabs, cookie store, and downloads, so parallel work does not disturb the other profile.">
+  </picture>
+</p>
 
 ```sh
 umbra --profile research open https://news.example.com/
@@ -275,7 +321,10 @@ Results go to stdout and messages to stderr. Over MCP, a failure comes back as a
 ## How it works
 
 <p align="center">
-  <img src="assets/how-it-works.svg" width="100%" alt="The umbra CLI and the umbra mcp server are both clients of one daemon per profile, reached over a unix socket and started on first use. The daemon owns the tabs: WebKit views in off-screen windows that pages see as visible, driven with trusted native input. The tabs share Umbra's own cookie store on disk, filled once by umbra sign-in. Sign-in and handoff are the only windows, shown when the person is needed. Safari and the screen are untouched.">
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/how-it-works-mobile.svg">
+    <img src="assets/how-it-works.svg" width="100%" alt="The umbra CLI and the umbra mcp server are both clients of one daemon per profile, reached over a unix socket and started on first use. The daemon owns the tabs: WebKit views in off-screen windows that pages see as visible, driven with trusted native input. The tabs share Umbra's own cookie store on disk, filled by umbra sign-in. Sign-in and handoff are the only windows, shown when the person is needed. Safari and the screen are untouched: no focus taken, no shared cookies, and no Dock icon while it works.">
+  </picture>
 </p>
 
 The first command for a profile starts a daemon, `umbra serve`, which owns WebKit, the tabs and the cookie store. The CLI and `umbra mcp` send it one JSON object per line over a unix socket that only your user can open, so a shell and an MCP client drive the same live tabs. The daemon exits after 15 idle minutes (`UMBRA_IDLE` sets the limit in seconds).
@@ -307,23 +356,43 @@ Snapshot, refs and actions run in an isolated JavaScript world. They share the p
 
 ## Agent eval
 
-Can a fresh agent get real work done with Umbra? The harness, [`bench/eval/eval.py`](bench/eval/eval.py), gives each of the proving ground's 14 unattended tasks to a fresh, isolated Claude Code agent. Each agent gets its own instance of the site, its own working directory and its own Umbra profile, and never sees the graders. The tasks include password and one-time-code sign-in, paginated and filtered tables, a refund behind `confirm()`, a CSV export, a hidden file input, a validated wizard, infinite scroll, a React-controlled input, a contenteditable, shadow DOM, an iframe, a pop-up and late-loading content. Each is graded from the site's server-side state, the answer and any output files.
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/eval-mobile.svg">
+    <img src="assets/eval.svg" width="100%" alt="Five agent setups each completed all 14 tasks, 70 of 70, with zero critical failures: Claude Opus 5.5 with the skill (median 8 tool calls per task), Claude Opus 5.5 with only umbra help (9), Claude Sonnet 5.5 with the skill (6.5), GPT-6 Sol in Codex with the skill (14.5), and GPT-6 Sol in Codex as installed, with its own skill and no help in the prompt (17).">
+  </picture>
+</p>
 
-| Agent | Passed | Median tool calls per task | `umbra help` lookups, all runs | Runs that used `sleep` |
-|---|:-:|:-:|:-:|:-:|
-| Opus 5.5 with the skill | 14/14 | 8 | 2 | 0 |
-| Opus 5.5 with only `umbra help` | 14/14 | 9 | 21 | 2 |
-| Sonnet 5.5 with the skill | 14/14 | 6.5 | 1 | 2 |
+Can a fresh agent get real work done with Umbra? The harness, [`bench/eval/eval.py`](bench/eval/eval.py), gives each of the proving ground's 14 unattended tasks to a fresh, isolated agent: a Claude Code subagent, or a `codex exec` run. Each one gets its own instance of the site, its own working directory and its own Umbra profile, and never sees the graders. The tasks include password and one-time-code sign-in, paginated and filtered tables, a refund behind `confirm()`, a CSV export, a hidden file input, a validated wizard, infinite scroll, a React-controlled input, a contenteditable, shadow DOM, an iframe, a pop-up and late-loading content. Each is graded from the site's server-side state, the answer and any output files.
 
-None of the 42 runs had a critical failure: no Safari or AppleScript, no escaping the profile, and no reading the repository's answer sources.
+| Agent | Guidance | Passed | Median tool calls | `umbra help` lookups, all runs | Runs that used `sleep` | Median time per task |
+|---|---|:-:|:-:|:-:|:-:|:-:|
+| Claude Opus 5.5 | the skill, in the prompt | 14/14 | 8 | 2 | 0 | 28 s |
+| Claude Opus 5.5 | only `umbra help` | 14/14 | 9 | 21 | 2 | 29.5 s |
+| Claude Sonnet 5.5 | the skill, in the prompt | 14/14 | 6.5 | 1 | 2 | 21.5 s |
+| GPT-6 Sol in Codex | the skill, in the prompt | 14/14 | 14.5 | 3 | 0 | 41 s |
+| GPT-6 Sol in Codex | as installed: nothing in the prompt | 14/14 | 17 | 17 | 0 | 43 s |
 
-The eval also fixed the skill. An early draft told agents to get the user's OK before refunds and similar actions, so one agent stopped and asked before a refund the user had explicitly requested. The rule now covers only consequential actions that are the agent's own idea, and the rerun passed.
+None of the 70 runs had a critical failure: no Safari or AppleScript, no leaving its own profile, no reading the repository's graders, and no other browser or screen tool. For Codex, [`bench/eval/process.py`](bench/eval/process.py) checks every command and tool call in each run's transcript.
 
-Each agent ran each task once, the tasks were written by this project, and everything ran on one Mac. The 15th task, a CAPTCHA handoff, needs a person at the screen and wasn't run, and only Claude models were tested. The [full report](bench/eval/RESULTS.md) has every task and the process numbers.
+What the runs showed:
+
+- **Both model families do the whole job.** Claude and GPT-6 Sol each passed every task, with and without the skill pasted into the prompt: 14 tasks in 5 setups, 70 of 70 runs.
+- **An installed skill gets used.** With nothing about the skill in the task prompt, only the standing `AGENTS.md` rule that names it, Codex read its installed `umbra` skill in all 14 runs, and none used `sleep` instead of `wait`. The skill's value is economy: with it in the prompt, agents look things up far less (3 `umbra help` lookups across 14 Codex runs, against 17 without).
+- **The skill was fixed by the eval.** An early draft told agents to get the user's OK before refunds and similar actions, so one agent stopped and asked before a refund the user had explicitly requested. The rule now covers only consequential actions that are the agent's own idea, and the rerun passed.
+
+Each agent ran each task once, the tasks were written by this project, and everything ran on one Mac. The 15th task, a CAPTCHA handoff, needs a person at the screen and wasn't run. Every agent ran with this Mac's own setup, where the skill is installed and the global instructions name it, so "only `umbra help`" and "nothing in the prompt" mean nothing about the skill in the task prompt. Codex ran with its usual setup except where isolation required otherwise: its Umbra MCP server pinned to the run's profile, its own browser tool off, and no session history kept. The Claude arms ran an earlier build (0eecdd3) than the Codex arms (30c0835). In between came 12 source changes, including download-aware click, navigation reports for form submits, the `wait --idle` timeout and new help pages, so call counts and times across the two families aren't like for like. The [full report](bench/eval/RESULTS.md) has every task and the process numbers.
 
 ## Benchmarks
 
-Umbra against Playwright 1.62 on the same local pages of the proving site. Each cell is the median over 20 runs, in milliseconds. Measured on an M1 Pro MacBook Pro with macOS 27, on a quiet machine. The p95s, the method and every check are in [bench/results.md](bench/results.md).
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/speed-mobile.svg">
+    <img src="assets/speed.svg" width="100%" alt="Median milliseconds per action, log scale, Umbra over its socket against Playwright Chromium and WebKit: accessibility snapshot 0.9 against 3.6 and 4.4; click 1.5 against 16 and 66; fill a React field 1.3 against 2.1 and 3.0; eval round trip 0.2 against 0.3 and 0.4; viewport screenshot 50 against 85 and 57; warm navigate 13 against 6.5 and 13, the one action where Chromium is faster.">
+  </picture>
+</p>
+
+Umbra against Playwright 1.62 on the same local pages of the proving site. Each cell is the median over 20 runs, in milliseconds. Measured on an M1 Pro MacBook Pro with macOS 27; results.md notes the machine's load during the run. The p95s, the method and every check are in [bench/results.md](bench/results.md).
 
 | | Umbra CLI | Umbra socket (MCP) | Playwright Chromium | Playwright WebKit |
 |---|---:|---:|---:|---:|
@@ -374,10 +443,13 @@ An invisibility guard runs after every daemon command in the suite. It fails the
 
 ```sh
 make build     # build/Umbra.app (BUILD=dir builds elsewhere), signed ad hoc as com.randyren.umbra
-make icon      # regenerate the artwork in assets/ from assets/build.py
+make icon      # regenerate the logo, icon, banner and how-it-works diagram (assets/build.py)
 make release   # dist/Umbra-<version>.zip and its .sha256
 make help      # list targets and overrides
+python3 assets/charts.py   # redraw the eval, speed and sign-in pictures from bench/ data
 ```
+
+The loop, WebKit, handoff and profile diagrams are hand-drawn SVGs in the same style; edit them directly.
 
 [AGENTS.md](AGENTS.md) explains the architecture and the safety rules for working on Umbra, including never touching the default profile. [CHANGELOG.md](CHANGELOG.md) has release notes.
 

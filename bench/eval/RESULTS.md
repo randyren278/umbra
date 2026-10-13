@@ -1,6 +1,6 @@
 # Agent eval: can a fresh agent get real work done with Umbra?
 
-Run 2026-10-13 on a MacBook Pro (M1 Pro, macOS 27.0.1) with Umbra installed from 0eecdd3.
+Run 2026-10-13 on a MacBook Pro (M1 Pro, macOS 27.0.1): the Claude arms with Umbra installed from 0eecdd3, the Codex arms with it installed from 30c0835.
 Harness: `bench/eval/eval.py`. Tasks and graders: `bench/tasks.json`, `bench/grade.py`.
 
 ## Claim
@@ -29,44 +29,50 @@ using Computer Use.
   - content that loads late
 
   The 15th task, `captcha-handoff`, needs a person at the screen and wasn't run.
-- **Isolation:** each candidate is a fresh Claude Code subagent with no conversation history. It gets its own site server (seed 7), its own workdir, and an `umbra` wrapper pinned to its own profile. It never sees the graders or expected values.
+- **Isolation:** each candidate is a fresh Claude Code subagent with no conversation history, or a fresh `codex exec --ephemeral` run (`eval.py run-codex`). It gets its own site server (seed 7), its own workdir, and an `umbra` wrapper pinned to its own profile. It never sees the graders or expected values.
 - **Grading:** objective. `grade.py` reads the server's event log and state, the answer text, and the output files.
-- **Process checks:** read from each candidate's full tool transcript.
+- **Process checks:** read from each candidate's full tool transcript; for Codex, by `bench/eval/process.py`, which flags every command or tool call that touches Safari or AppleScript, leaves the run's profile, reads this repo (other than the skill), or uses another browser or screen tool.
+- **Claude's setup:** each candidate is a Claude Code subagent on this Mac, where the skill was installed (`~/.claude/skills/umbra`) and the global `~/.claude/CLAUDE.md` names it. So in opus-bare, "only `umbra help`" means nothing about the skill in the task prompt, not that the skill was out of reach.
+- **Codex's setup:** the user's own Codex install (model, `~/.codex/skills/umbra`, global `AGENTS.md`), with three changes for isolation: the Umbra MCP server pinned to the run's profile (`-c mcp_servers.umbra.env.UMBRA_PROFILE=…`), the `node_repl` browser tool off (it would take over the screen), and `HERA_OFF=1` with no turn notifications so the runs leave no trace in the user's notes.
 
 | Arm | Model | Guidance |
 |---|---|---|
 | opus-skill | Claude Opus 5.5 | `skill/SKILL.md` in the prompt |
 | opus-bare | Claude Opus 5.5 | only "the browser is Umbra; `umbra help` explains it" |
 | sonnet-skill | Claude Sonnet 5.5 | `skill/SKILL.md` in the prompt |
+| codex-skill | GPT-6 Sol in Codex (codex-cli 0.162.1, model gpt-6-sol, reasoning effort high) | `skill/SKILL.md` in the prompt |
+| codex-bare | the same | only "the browser is Umbra; `umbra help` explains it", with Codex's installed skill available as usual |
 
 ## Results
 
-| Task | opus-skill | opus-bare | sonnet-skill |
-|---|:-:|:-:|:-:|
-| pending-count | PASS | PASS | PASS |
-| shipped-total | PASS | PASS | PASS |
-| refund-1017 | PASS | PASS | PASS |
-| export-csv | PASS | PASS | PASS |
-| upload-invoice | PASS | PASS | PASS |
-| wizard | PASS | PASS | PASS |
-| feed-featured | PASS | PASS | PASS |
-| display-name | PASS | PASS | PASS |
-| bio | PASS | PASS | PASS |
-| theme-teal | PASS | PASS | PASS |
-| iframe-notifications | PASS | PASS | PASS |
-| popup-report | PASS | PASS | PASS |
-| otp-login | PASS | PASS | PASS |
-| slow-forecast | PASS | PASS | PASS |
-| **Total** | **14/14** | **14/14** | **14/14** |
+| Task | opus-skill | opus-bare | sonnet-skill | codex-skill | codex-bare |
+|---|:-:|:-:|:-:|:-:|:-:|
+| pending-count | PASS | PASS | PASS | PASS | PASS |
+| shipped-total | PASS | PASS | PASS | PASS | PASS |
+| refund-1017 | PASS | PASS | PASS | PASS | PASS |
+| export-csv | PASS | PASS | PASS | PASS | PASS |
+| upload-invoice | PASS | PASS | PASS | PASS | PASS |
+| wizard | PASS | PASS | PASS | PASS | PASS |
+| feed-featured | PASS | PASS | PASS | PASS | PASS |
+| display-name | PASS | PASS | PASS | PASS | PASS |
+| bio | PASS | PASS | PASS | PASS | PASS |
+| theme-teal | PASS | PASS | PASS | PASS | PASS |
+| iframe-notifications | PASS | PASS | PASS | PASS | PASS |
+| popup-report | PASS | PASS | PASS | PASS | PASS |
+| otp-login | PASS | PASS | PASS | PASS | PASS |
+| slow-forecast | PASS | PASS | PASS | PASS | PASS |
+| **Total** | **14/14** | **14/14** | **14/14** | **14/14** | **14/14** |
 
-| Process (per arm, 14 runs) | opus-skill | opus-bare | sonnet-skill |
-|---|:-:|:-:|:-:|
-| Critical failures | 0 | 0 | 0 |
-| Median tool calls per task | 8 | 9 | 6.5 |
-| Total tool calls | 116 | 128 | 89 |
-| `umbra help` lookups (all runs) | 2 | 21 | 1 |
-| Runs that used `sleep` instead of `wait` | 0 | 2 | 2 |
-| Median wall time per task | 28 s | 29.5 s | 21.5 s |
+| Process (per arm, 14 runs) | opus-skill | opus-bare | sonnet-skill | codex-skill | codex-bare |
+|---|:-:|:-:|:-:|:-:|:-:|
+| Critical failures | 0 | 0 | 0 | 0 | 0 |
+| Median tool calls per task | 8 | 9 | 6.5 | 14.5 | 17 |
+| Total tool calls | 116 | 128 | 89 | 214 | 252 |
+| `umbra help` lookups (all runs) | 2 | 21 | 1 | 3 | 17 |
+| Runs that used `sleep` instead of `wait` | 0 | 2 | 2 | 0 | 0 |
+| Median wall time per task | 28 s | 29.5 s | 21.5 s | 41 s | 43 s |
+
+Codex counts each shell command or MCP call as a tool call. Neither Codex arm used the Umbra MCP tools (both drove the CLI), and none fetched the site around the browser with `curl` or the like. In codex-bare, every run read the installed skill (`~/.codex/skills/umbra/SKILL.md`) before its first browser command; nothing in its task prompt mentioned the skill, but the standing `~/.codex/AGENTS.md` rule names it.
 
 ## What the eval changed
 
@@ -76,13 +82,15 @@ using Computer Use.
 
 ## Reading the results
 
-- Umbra is usable without the skill: opus-bare passed everything from `umbra help` alone, so the CLI's help text holds up for agents. The skill's value is efficiency and discipline: about 10× fewer help lookups, and none of opus-skill's runs fell back to `sleep`.
+- Umbra is usable without the skill in the prompt: opus-bare passed everything with only `umbra help` in the task prompt, which suggests the CLI's help text holds up for agents (the installed skill was within their reach too, and their transcripts weren't kept to show whether they used it). The skill's value is efficiency and discipline: about 10× fewer help lookups, and none of opus-skill's runs fell back to `sleep`.
 - A smaller model with the skill passed everything, with the fewest tool calls.
 - Limits:
   - Each arm ran each task once (n = 1 per cell).
   - The tasks were written by this project's own proving lane, not held out from it.
   - Everything ran on one machine, alongside other work.
   - CAPTCHA/handoff behaviour isn't covered.
-  - Only Claude models were tested.
+  - Two model families were tested: Claude (Opus and Sonnet 5.5, in Claude Code) and OpenAI's GPT-6 Sol (in Codex). Codex ran with high reasoning effort, the user's own setting.
 
-Decision: promote the revised skill.
+- Codex took more tool calls per task than Claude (14.5 and 17 against 6.5 to 9) and about 40 s a task. Its most common command was `snapshot`, about four per task. Its calls rarely went wrong: 2 of its 466 commands failed, and none was repeated back to back.
+
+Decision: promote the revised skill. Codex as installed needs nothing more: the skill in `~/.codex/skills` and the rule in `~/.codex/AGENTS.md` are enough.

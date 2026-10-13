@@ -1,12 +1,39 @@
 // For each line of process ids on stdin, prints one line of JSON: the displays and every window
 // those processes own, as the window server sees them. The suite keeps one running and uses it to
 // prove Umbra's windows stay invisible. "quit PID" instead sends that app Quit, as the Dock does,
-// and prints {"sent": true|false}.
+// and prints {"sent": true|false}. "press PID TITLE" presses the app's button with that title through
+// accessibility (as a person clicking it) and prints {"trusted": …, "pressed": …}; it needs this
+// process's terminal to have the Accessibility permission.
 import AppKit
+import ApplicationServices
+
+func button(_ element: AXUIElement, titled title: String) -> AXUIElement? {
+    var role: CFTypeRef?, name: CFTypeRef?, children: CFTypeRef?
+    AXUIElementCopyAttributeValue(element, kAXRoleAttribute as CFString, &role)
+    AXUIElementCopyAttributeValue(element, kAXTitleAttribute as CFString, &name)
+    if (role as? String) == "AXButton", (name as? String) == title { return element }
+    if (role as? String) == "AXWebArea" { return nil }  // the page's own buttons aren't Umbra's
+    AXUIElementCopyAttributeValue(element, kAXChildrenAttribute as CFString, &children)
+    for child in (children as? [AXUIElement]) ?? [] {
+        if let found = button(child, titled: title) { return found }
+    }
+    return nil
+}
 import CoreGraphics
 import Foundation
 
 while let line = readLine() {
+    if line.hasPrefix("press ") {
+        let parts = line.split(separator: " ", maxSplits: 2).map(String.init)
+        let trusted = AXIsProcessTrusted()
+        var pressed = false
+        if trusted, parts.count == 3, let pid = Int32(parts[1]), let target = button(AXUIElementCreateApplication(pid), titled: parts[2]) {
+            pressed = AXUIElementPerformAction(target, kAXPressAction as CFString) == .success
+        }
+        print("{\"trusted\": \(trusted), \"pressed\": \(pressed)}")
+        fflush(stdout)
+        continue
+    }
     if line.hasPrefix("quit "), let pid = Int32(line.dropFirst(5)) {
         let sent = NSRunningApplication(processIdentifier: pid)?.terminate() ?? false
         print(sent ? "{\"sent\": true}" : "{\"sent\": false}")

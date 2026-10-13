@@ -48,6 +48,15 @@ def quit_app(pid):
     return json.loads(lister.stdout.readline())['sent']
 
 
+def press(pid, title):
+    """Presses the app's button with this title, as a person would; None without the Accessibility permission."""
+    window_report([])
+    lister.stdin.write(f'press {pid} {title}\n')
+    lister.stdin.flush()
+    answer = json.loads(lister.stdout.readline())
+    return answer['pressed'] if answer['trusted'] else None
+
+
 def front_pid():
     """The frontmost app's pid, as LaunchServices reports it."""
     asn = subprocess.run(['lsappinfo', 'front'], capture_output=True, text=True, timeout=10).stdout.strip()
@@ -679,8 +688,13 @@ class SignInWindowTests(SessionCase):
         srv.page('/set-stale', '<title>stale</title>', headers=[('Set-Cookie', 'sess=stale; Path=/; Max-Age=3600')])
         srv.page('/login-never', '<title>Log in</title>')
         # An account Umbra doesn't know yet: a visitor cookie as the page loads, then a sign-in by script.
-        srv.page('/login-learn', '<title>Log in</title><script>setTimeout(() => fetch("/do-auth"), 1000)</script>',
+        srv.page('/login-learn', '<title>Log in</title><script>setTimeout(() => fetch("/do-auth").then(() => location = "/welcome"), 1000)</script>',
                  headers=[('Set-Cookie', 'visitor_session=anon; Path=/; Max-Age=3600')])
+        srv.page('/welcome', '<title>Welcome</title>')
+        # A login page that sets a session-like cookie of its own while nobody signs in.
+        srv.page('/login-guest', '<title>Log in</title><script>setTimeout(() => fetch("/guest"), 800)</script>')
+        srv.page('/guest', 'ok', headers=[('Set-Cookie', 'guest_session=g; Path=/; Max-Age=3600')])
+        srv.route('/api/flaky')(lambda h: h.reply(503, 'busy', 'text/plain'))
         srv.page('/do-auth', 'ok', headers=[('Set-Cookie', 'app_session=yes; Path=/; Max-Age=3600; HttpOnly'),
                                             ('Set-Cookie', 'csrftoken=t; Path=/; Max-Age=3600')])
 
@@ -758,7 +772,7 @@ class SignInWindowTests(SessionCase):
         self.assertEqual(r.text, 'Both: signed in\n')
         self.assertEqual(self.logins(), ['/login-xhr'], 'the dead session should have opened the login page')
         self.assertEqual([q.cookies.get('sess') for q in self.requests('/api/me')], ['stale'],
-                         'the stale cookie is checked once, then cleared before the login page loads')
+                         'the stale cookie is checked once; the sign-in counts when its value changes')
         r = self.run_umbra('sign-in', 'Both')
         self.assertExit(r, 0)
         self.assertEqual(self.logins(), ['/login-xhr'], 'signed in now: no page')
@@ -771,10 +785,14 @@ class SignInWindowTests(SessionCase):
         self.assertExit(r, 64)  # a name already taken
         proc = base.spawn('sign-in', self.srv.url('/login-learn', 'localhost'), '--save', 'Learnt',
                           profile=self.profile, sites=self.sites)
-        self.srv.wait_for('/do-auth')
+        self.srv.wait_for('/welcome')
         time.sleep(0.5)
         [pid] = daemon_pids(self.profile)
-        self.assertTrue(quit_app(pid))  # closing the window is Done
+        pressed = press(pid, 'Done')
+        if pressed is None:
+            proc.kill()
+            self.skipTest('pressing Done needs the Accessibility permission for this terminal')
+        self.assertTrue(pressed, 'no Done button')
         out, err = proc.communicate(timeout=30)
         self.assertEqual((proc.returncode, out.decode()), (0, 'Learnt: signed in\n'), err)
         saved = json.loads(self.sites.read_text())
@@ -787,6 +805,73 @@ class SignInWindowTests(SessionCase):
         self.assertExit(r, 0)
         self.assertEqual(r.text, 'Learnt: signed in\n')
         self.assertEqual(self.logins(), ['/login-learn'])
+
+    def test_the_callers_sites_file_counts_not_the_daemons(self):
+        self.assertExit(self.run_umbra('tabs'), 0)  # the daemon starts with self.sites
+        other = base.write_sites([{'name': 'Other', 'domain': '127.0.0.1', 'login': self.srv.url('/login-xhr'), 'cookie': 'sess'}])
+        self.assertExit(self.run_umbra('open', self.srv.url('/set')), 0)
+        r = self.umbra('sign-in', 'Other', sites=other, guard=False)
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'Other: signed in\n')
+        r = self.umbra('sign-out', 'Typo', sites=other)
+        self.assertExit(r, 64)
+        self.assertSays(r, 'Typo', 'Other')
+        r = self.umbra('sign-out', 'Other', sites=other)
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'signed out of Other (1 cookie removed)\n')
+
+    def test_a_check_that_cant_tell_opens_nothing_and_keeps_the_session(self):
+        # The probe answers 503: the session may well be fine, so it is neither shown nor deleted.
+        self.sites = base.write_sites([{'name': 'Flaky', 'domain': '127.0.0.1', 'login': self.srv.url('/login-xhr'),
+                                        'cookie': 'sess', 'probe': '/api/flaky'}])
+        self.assertExit(self.run_umbra('open', self.srv.url('/set')), 0)
+        r = self.run_umbra('sign-in', 'Flaky', '--timeout', '10')
+        self.assertExit(r, 4)
+        self.assertSays(r, 'Flaky', "couldn't tell")
+        self.assertEqual(self.logins(), [], 'nothing should open')
+        self.assertIn('sess\t127.0.0.1', self.run_umbra('cookies', '127.0.0.1').text, 'the session must survive')
+        self.assertInvisible(self.profile, 'nothing opened')
+
+    def test_closing_an_added_account_without_a_sign_in_learns_nothing(self):
+        self.sites = base.write_sites([])
+        proc = base.spawn('sign-in', self.srv.url('/login-guest'), '--save', 'Shop', profile=self.profile, sites=self.sites)
+        self.srv.wait_for('/guest')
+        time.sleep(0.5)
+        [pid] = daemon_pids(self.profile)
+        self.assertTrue(quit_app(pid))
+        out, err = proc.communicate(timeout=30)
+        self.assertEqual(proc.returncode, 3, err)
+        self.assertIn('no sign-in cookie appeared for Shop', err.decode())
+        self.assertEqual(json.loads(self.sites.read_text()), [{'name': 'Shop', 'domain': '127.0.0.1', 'login': self.srv.url('/login-guest')}])
+
+    def test_quit_ends_a_handoff_but_not_the_daemon(self):
+        self.assertExit(self.run_umbra('open', self.srv.url('/welcome')), 0)
+        [pid] = daemon_pids(self.profile)
+        proc = base.spawn('handoff', 'look', '--timeout', '60', profile=self.profile, sites=self.sites)
+        self.assertTrue(wait_for(lambda: [w for w in window_report([pid])['windows'] if w['onscreen'] and w['alpha'] > 0 and w['visibleArea'] > 0], 10))
+        self.assertTrue(quit_app(pid))  # Command-Q in the handoff window, as the Dock or menu sends it
+        out, err = proc.communicate(timeout=30)
+        self.assertEqual(proc.returncode, 0, err)
+        self.assertEqual(daemon_pids(self.profile), [pid], 'Quit must not stop the daemon')
+        self.assertInvisible(self.profile, 'handoff ended', settle=3)
+
+    def test_with_no_sites_yet_the_window_opens_empty(self):
+        self.sites = base.write_sites([])
+        r = self.run_umbra('sign-in')
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, "Umbra's sign-in window is open\n")
+        [pid] = daemon_pids(self.profile)
+        self.assertTrue(wait_for(lambda: app_type(pid) == 'Foreground', 5))
+
+    def test_a_request_that_times_out_hands_the_window_to_the_next(self):
+        never = base.spawn('sign-in', 'Never', '--timeout', '4', profile=self.profile, sites=self.sites)
+        self.srv.wait_for('/login-never')
+        xhr = base.spawn('sign-in', 'Xhr', '--timeout', '40', profile=self.profile, sites=self.sites)
+        out, err = never.communicate(timeout=30)
+        self.assertEqual(never.returncode, 2, err)
+        out, err = xhr.communicate(timeout=40)
+        self.assertEqual((xhr.returncode, out.decode()), (0, 'Xhr: signed in\n'), err)
+        self.assertInvisible(self.profile, 'both done', settle=3)
 
     def test_no_sign_in_in_time_hides_the_window_again(self):
         r = self.run_umbra('sign-in', 'Never', '--timeout', '3')
