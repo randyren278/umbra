@@ -196,7 +196,7 @@ func readout(_ tab: Tab, _ args: Args, _ body: String, _ values: [String: Any], 
     }
 }
 
-let readingCommands = [
+let readingCommands: [Command] = [
     Command(name: "text",
             help: "The visible text of the page, or of one element with --target, as the browser lays it out (innerText): hidden elements are left out and blocks are separated by line breaks. The cheapest way to read a page.",
             params: [targetParam]) { args, engine, reply in

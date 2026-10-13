@@ -234,7 +234,7 @@ func instrument(_ tab: Tab) {
 
 let levels = ["debug": 0, "log": 1, "info": 1, "warn": 2, "error": 3]
 
-let consoleCommand = Command(
+let consoleCommand: Command = Command(
     name: "console",
     help: "What the page logged: console.log/info/warn/error/debug calls, failed console.assert, uncaught exceptions and unhandled promise rejections, each with level, text, time and source URL and line, since the current page started loading (up to the last 500; iframes included). --level keeps that level and more severe ones (warn gives warnings and errors). --clear empties the log after returning it, so the next call shows only what is new.",
     params: [Param(name: "level", kind: .string, help: "Minimum level: debug, log, info, warn or error"),
@@ -254,7 +254,7 @@ let consoleCommand = Command(
                     "text": lines.isEmpty ? "no console messages" : lines.joined(separator: "\n")]))
 }
 
-let networkCommand = Command(
+let networkCommand: Command = Command(
     name: "network",
     help: "The tab's requests: page documents (with HTTP status and MIME type), fetch and XMLHttpRequest calls (method, status, duration, size) and every resource from the browser's resource timing (images, scripts, stylesheets…), plus resources that failed to load, since the current page started loading (up to the last 1000; iframes included). `inflight` counts fetch/XHR requests still running. --failed keeps errors and HTTP 4xx/5xx; --filter keeps URLs containing a substring; --clear empties the log after returning it.",
     params: [Param(name: "filter", kind: .string, help: "Substring the URL must contain"),
@@ -330,7 +330,7 @@ func compile(_ kinds: [String], done: @escaping (Result<Void, UmbraError>) -> Vo
     group.notify(queue: .main) { done(failure.map { .failure($0) } ?? .success(())) }
 }
 
-let blockCommand = Command(
+let blockCommand: Command = Command(
     name: "block",
     help: "Stop the tab from loading kinds of content, to make pages faster and quieter: images, fonts, media, stylesheets, scripts, and trackers (common analytics and ad hosts such as Google Analytics, Tag Manager, DoubleClick, the Facebook pixel, Hotjar, Segment, Mixpanel and Amplitude). Adds to what is already blocked; --none stops all blocking. --all applies to every open tab and to tabs opened later. Takes effect from the next load (reload to apply it to the current page). With no arguments, reports what is blocked.",
     params: [Param(name: "types", kind: .array, help: "images, fonts, media, stylesheets, scripts, trackers (spaces or commas)", positional: true),

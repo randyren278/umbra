@@ -5,8 +5,10 @@ import WebKit
 
 func captureCommands() -> [Command] {
     tabSetups.append(instrument)
-    return [screenshotCommand, pdfCommand] + readingCommands
-        + [consoleCommand, networkCommand, blockCommand, viewportCommand, infoCommand]
+    var commands: [Command] = [screenshotCommand, pdfCommand]
+    commands += readingCommands
+    commands += [consoleCommand, networkCommand, blockCommand, viewportCommand, infoCommand]
+    return commands  // built in steps: one long + chain is slow to type-check on older compilers
 }
 
 /// The tab a command acts on; replies with the reason when there is none.
@@ -193,7 +195,7 @@ func encode(_ image: CGImage, jpeg: Bool, quality: Double) -> Data? {
                 : rep.representation(using: .png, properties: [:])
 }
 
-let screenshotCommand = Command(
+let screenshotCommand: Command = Command(
     name: "screenshot",
     help: "Capture the page as an image: the visible viewport by default, the whole scrolling page with --full (up to 16384 CSS px tall), or one element with --target (an e<N> ref from `snapshot`, text=…, or a CSS selector; it is scrolled into view first). With a path the image is written there; without one it comes back base64-encoded in `data` with its `mime`. `width` and `height` are CSS pixels; `scale` is image pixels per CSS pixel. The tab stays invisible throughout.",
     params: [Param(name: "path", kind: .string, help: "File to write (.png or .jpg); omit to get base64 in `data`", positional: true),
@@ -237,7 +239,7 @@ let screenshotCommand = Command(
 
 // MARK: PDF
 
-let pdfCommand = Command(
+let pdfCommand: Command = Command(
     name: "pdf",
     help: "Save the whole page (not just the viewport) as a PDF file, as WebKit renders it on screen: one tall page, selectable text and working links. Returns the path, page count and size in bytes.",
     params: [Param(name: "path", kind: .string, help: "Where to write the PDF", required: true, positional: true)],
@@ -280,7 +282,7 @@ let viewportJS = """
     return [innerWidth, innerHeight, devicePixelRatio]
     """
 
-let viewportCommand = Command(
+let viewportCommand: Command = Command(
     name: "viewport",
     help: "Set the tab's viewport size in CSS pixels, as a responsive-design check would. --mobile sends iPhone Safari's user agent and defaults to 390×844; --scale sets the device pixel ratio (1, 2, 3). Each call sets the whole state: without --mobile the desktop user agent returns, without --scale the screen's own ratio. The user agent applies from the next navigation (reload to see a site's mobile version). With no arguments, reports the current viewport.",
     params: [Param(name: "width", kind: .number, help: "Width in CSS pixels", positional: true),
@@ -332,7 +334,7 @@ let infoJS = """
                iframes: document.querySelectorAll('iframe, frame').length}}
     """
 
-let infoCommand = Command(
+let infoCommand: Command = Command(
     name: "info",
     help: "A quick orientation on the current page: URL, title, HTTP status, viewport and device pixel ratio, scroll position, document size, readyState, visibilityState, and how many links, forms, images and iframes it has.",
     params: []
@@ -350,14 +352,14 @@ let infoCommand = Command(
             let count = Int(number("counts", key))
             return "\(count) \(count == 1 ? String(key.dropLast()) : key)"
         }
-        info["text"] = [
-            "\(title) · \(info["url"] as? String ?? "")" + (tab.status.map { " · HTTP \($0)" } ?? ""),
-            "viewport \(Int(number("viewport", "width")))×\(Int(number("viewport", "height"))) @\(number("viewport", "scale").formatted())x"
-                + " · scrolled to \(Int(number("scroll", "x"))),\(Int(number("scroll", "y")))"
-                + " of \(Int(number("document", "width")))×\(Int(number("document", "height")))"
-                + " · \(info["readyState"] as? String ?? "") · \(info["visibilityState"] as? String ?? "")",
-            counts.joined(separator: " · "),
-        ].joined(separator: "\n")
+        let url: String = info["url"] as? String ?? ""
+        let status: String = tab.status.map { " · HTTP \($0)" } ?? ""
+        let viewport: String = "viewport \(Int(number("viewport", "width")))×\(Int(number("viewport", "height"))) @\(number("viewport", "scale").formatted())x"
+        let scrolled: String = "scrolled to \(Int(number("scroll", "x"))),\(Int(number("scroll", "y")))"
+        let size: String = "of \(Int(number("document", "width")))×\(Int(number("document", "height")))"
+        let state: String = "\(info["readyState"] as? String ?? "") · \(info["visibilityState"] as? String ?? "")"
+        let lines: [String] = ["\(title) · \(url)\(status)", "\(viewport) · \(scrolled) \(size) · \(state)", counts.joined(separator: " · ")]
+        info["text"] = lines.joined(separator: "\n")
         reply(.success(info))
     }
 }
