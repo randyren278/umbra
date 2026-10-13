@@ -1,10 +1,19 @@
 #!/bin/zsh
 # Runs every Umbra command against a local server and checks output and exit codes.
-# Uses the installed binary and the real cookie store (only 127.0.0.1 is visited).
+# Tests the build output under a throwaway UMBRA_PROFILE, never the default (signed-in) store,
+# and removes that store and its lock when done. Only 127.0.0.1 is visited.
 set -u
-umbra=${UMBRA:-$HOME/.local/bin/umbra}
+repo=${0:A:h:h}
+umbra=${UMBRA:-$repo/build/Umbra.app/Contents/MacOS/umbra}
+[[ -x $umbra ]] || { print -u2 "no umbra at $umbra: run make build"; exit 1 }
 dir=$(mktemp -d)
-trap 'kill $server 2>/dev/null; rm -rf $dir' EXIT
+export UMBRA_PROFILE=test-smoke-$RANDOM$RANDOM UMBRA_SITES=$dir/no-sites.json
+hash=$(print -n "umbra profile $UMBRA_PROFILE" | shasum -a 256)
+store=$HOME/Library/WebKit/com.randyren.umbra/WebsiteDataStore/${hash[1,8]}-${hash[9,12]}-${hash[13,16]}-${hash[17,20]}-${hash[21,32]}
+lock="$HOME/Library/Application Support/Umbra/store-$UMBRA_PROFILE.lock"
+trap 'kill ${server:-} ${first:-} ${second:-} 2>/dev/null; wait; rm -rf $dir $store $lock
+      [[ ! -e $store && ! -e $lock ]] || print -u2 "left behind: $store $lock"' EXIT
+trap 'exit 130' INT TERM
 
 mkdir $dir/site
 cat > $dir/site/index.html <<'EOF'
@@ -46,14 +55,16 @@ print stale > $dir/blob.bin
 $umbra download $base/blob.bin $dir/blob.bin && cmp -s $dir/site/blob.bin $dir/blob.bin; check "download replaces an existing file" 0 $?
 $umbra download $base/missing.bin $dir/missing.bin 2>/dev/null; check "a download HTTP error exits 5" "5 1" "$? $([[ -e $dir/missing.bin ]]; print $?)"
 
-(print 'return "a"' | $umbra read $base/index.html > $dir/a) &
+print 'return "a"' | $umbra read $base/index.html > $dir/a &
 first=$!
-(print 'return "b"' | $umbra read $base/index.html > $dir/b) &
-wait $first $!
+print 'return "b"' | $umbra read $base/index.html > $dir/b &
+second=$!
+wait $first $second
 check "concurrent runs take turns" "a b" "$(cat $dir/a) $(cat $dir/b)"
 
+$umbra cookies > /dev/null; check "cookies lists the store" 0 $?
 $umbra frobnicate 2>/dev/null; check "an unknown command exits 64" 64 $?
-[[ -d $HOME/Library/WebKit/com.randyren.umbra/WebsiteDataStore ]]; check "the store is keyed by the bundle identifier" 0 $?
+[[ -d $store ]]; check "the profile's store is keyed by the bundle identifier and profile name" 0 $?
 
 (( failures )) && { print -u2 "$failures failed"; exit 1 }
 print "all passed"
