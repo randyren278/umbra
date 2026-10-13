@@ -94,9 +94,18 @@ umbra sign-in canvas linkedin      # chosen sites, by name: returns once both ar
 umbra sign-in https://example.com/login   # a one-off page, named after the host, with no check
 umbra                              # the same as `umbra sign-in`, and so is opening Umbra.app
 umbra sign-out canvas              # delete the site's cookies from the store
+umbra sign-in https://github.com/login --save GitHub   # add an account (see below)
 ```
 
 Named sites that are already signed in return at once (exit 0) and open nothing. Otherwise the window opens each login page in turn and the command returns once all are signed in; it exits 3 if the window is closed first and 2 after `--timeout` (default 900 seconds). The profile's daemon shows the window, so other commands keep working meanwhile. An unknown name exits 64 and lists the names it knows. With no sites file and no arguments, `umbra sign-in` exits 64 and explains how to name a URL instead.
+
+## Adding an account
+
+The window's **Add Account** button takes a link to a site's login page and an optional name, and `umbra sign-in <login URL> --save NAME` does the same from a shell. Umbra adds the site to the sites file (domain from the link's host without `www.`, the name from the host unless you give one), opens its login page, and you sign in and click Done. Agents can use the account from then on, like any other.
+
+You don't need to know the site's cookie. During that first sign-in Umbra notes the domain's cookies once the login page has loaded, and when you click Done (or close the window) it saves as the site's `cookie` the one the sign-in set: a new cookie whose name looks like a session (`sess`, `auth`, `token`, `sid`, `login`, `user`, `jwt`), ignoring ones like `csrftoken` or analytics, or else the only new HttpOnly cookie. After that the site is checked like the others: its status shows in the window, and its login page closes the moment you're signed in. If no cookie can be told apart, the site stays a link you sign in to with Done; add a `cookie` or `probe` by hand.
+
+Umbra rewrites the sites file to add the entry, one site per line, keeping every other entry and field. A name or domain that's already listed is refused.
 
 ## Separate files and profiles
 

@@ -1,10 +1,18 @@
 // For each line of process ids on stdin, prints one line of JSON: the displays and every window
 // those processes own, as the window server sees them. The suite keeps one running and uses it to
-// prove Umbra's windows stay invisible.
+// prove Umbra's windows stay invisible. "quit PID" instead sends that app Quit, as the Dock does,
+// and prints {"sent": true|false}.
+import AppKit
 import CoreGraphics
 import Foundation
 
 while let line = readLine() {
+    if line.hasPrefix("quit "), let pid = Int32(line.dropFirst(5)) {
+        let sent = NSRunningApplication(processIdentifier: pid)?.terminate() ?? false
+        print(sent ? "{\"sent\": true}" : "{\"sent\": false}")
+        fflush(stdout)
+        continue
+    }
     let pids = Set(line.split(separator: " ").compactMap { Int32($0) })
     var ids = [CGDirectDisplayID](repeating: 0, count: 32)
     var count: UInt32 = 0

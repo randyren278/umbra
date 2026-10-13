@@ -40,6 +40,14 @@ def window_report(pids):
     return json.loads(lister.stdout.readline())
 
 
+def quit_app(pid):
+    """Sends the app Quit, as the Dock or Command-Q does."""
+    window_report([])  # starts the helper
+    lister.stdin.write(f'quit {pid}\n')
+    lister.stdin.flush()
+    return json.loads(lister.stdout.readline())['sent']
+
+
 def front_pid():
     """The frontmost app's pid, as LaunchServices reports it."""
     asn = subprocess.run(['lsappinfo', 'front'], capture_output=True, text=True, timeout=10).stdout.strip()
@@ -670,6 +678,11 @@ class SignInWindowTests(SessionCase):
         srv.route('/api/me')(lambda h: h.reply(200 if h.req.cookies.get('sess') == 'on' else 401, '{}', 'application/json'))
         srv.page('/set-stale', '<title>stale</title>', headers=[('Set-Cookie', 'sess=stale; Path=/; Max-Age=3600')])
         srv.page('/login-never', '<title>Log in</title>')
+        # An account Umbra doesn't know yet: a visitor cookie as the page loads, then a sign-in by script.
+        srv.page('/login-learn', '<title>Log in</title><script>setTimeout(() => fetch("/do-auth"), 1000)</script>',
+                 headers=[('Set-Cookie', 'visitor_session=anon; Path=/; Max-Age=3600')])
+        srv.page('/do-auth', 'ok', headers=[('Set-Cookie', 'app_session=yes; Path=/; Max-Age=3600; HttpOnly'),
+                                            ('Set-Cookie', 'csrftoken=t; Path=/; Max-Age=3600')])
 
     @classmethod
     def tearDownClass(cls):
@@ -751,6 +764,29 @@ class SignInWindowTests(SessionCase):
         self.assertEqual(self.logins(), ['/login-xhr'], 'signed in now: no page')
         time.sleep(5)
         self.assertEqual(self.requests('/feed'), [])
+
+    def test_an_added_account_learns_its_sign_in_cookie(self):
+        self.sites = base.write_sites([{'name': 'Xhr', 'domain': '127.0.0.1', 'login': self.srv.url('/login-xhr'), 'cookie': 'sess'}])
+        r = self.run_umbra('sign-in', self.srv.url('/login-learn', 'localhost'), '--save', 'Xhr')
+        self.assertExit(r, 64)  # a name already taken
+        proc = base.spawn('sign-in', self.srv.url('/login-learn', 'localhost'), '--save', 'Learnt',
+                          profile=self.profile, sites=self.sites)
+        self.srv.wait_for('/do-auth')
+        time.sleep(0.5)
+        [pid] = daemon_pids(self.profile)
+        self.assertTrue(quit_app(pid))  # closing the window is Done
+        out, err = proc.communicate(timeout=30)
+        self.assertEqual((proc.returncode, out.decode()), (0, 'Learnt: signed in\n'), err)
+        saved = json.loads(self.sites.read_text())
+        self.assertEqual(saved[1], {'name': 'Learnt', 'domain': 'localhost', 'login': self.srv.url('/login-learn', 'localhost'),
+                                    'cookie': 'app_session'})
+        self.assertEqual(saved[0]['name'], 'Xhr', 'the other sites stay as they were')
+        self.assertInvisible(self.profile, 'window closed', settle=3)
+        # From now on it is checked like any site: signed in, so nothing opens.
+        r = self.run_umbra('sign-in', 'Learnt')
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'Learnt: signed in\n')
+        self.assertEqual(self.logins(), ['/login-learn'])
 
     def test_no_sign_in_in_time_hides_the_window_again(self):
         r = self.run_umbra('sign-in', 'Never', '--timeout', '3')

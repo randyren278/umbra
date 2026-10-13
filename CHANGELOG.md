@@ -16,6 +16,7 @@ All notable changes to Umbra are recorded here. Versions follow [Semantic Versio
 ### Added
 
 - `umbra sign-out <site>`, and a Sign Out button in the window: deletes the site's cookies from the profile's store.
+- Add Account in the window, and `umbra sign-in <login URL> --save NAME`: a pasted login link becomes a site in `sites.json`. During its first sign-in Umbra learns the cookie it sets (a session-like one that appeared after the login page loaded), so from then on the site is checked like the others, and agents can use it.
 
 ### Fixed
 

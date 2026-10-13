@@ -231,9 +231,10 @@ Umbra never types your passwords. You sign in once, in a window:
 umbra sign-in                                      # or open Umbra.app: every site in ~/.config/umbra/sites.json
 umbra sign-in Canvas                               # one site; returns once you're signed in
 umbra sign-in https://canvas.example.edu/login    # any site, as a one-off page
+umbra sign-in https://github.com/login --save GitHub   # add an account: kept with the others
 ```
 
-The window lists your sites and whether each is signed in, and it only ever shows a login page: a site you're signed in to is never loaded, and a site's page closes the moment its sign-in lands. Umbra is a way to sign in, not a browser for you, so it can't become another place to scroll Instagram. While the window is open, Umbra has a Dock icon; Quit closes the window, and agents keep working throughout. A signed-in row has a Sign Out button, and so does the command line (`umbra sign-out Canvas`), for a sign-in the site has dropped.
+The window lists your sites and whether each is signed in, and it only ever shows a login page: a site you're signed in to is never loaded, and a site's page closes the moment its sign-in lands. Umbra is a way to sign in, not a browser for you, so it can't become another place to scroll Instagram. While the window is open, Umbra has a Dock icon; Quit closes the window, and agents keep working throughout. A signed-in row has a Sign Out button, and so does the command line (`umbra sign-out Canvas`), for a sign-in the site has dropped. **Add Account** takes a link to any site's login page: you sign in once, Umbra learns which cookie marks you as signed in, and agents can use the account from then on.
 
 List your regular sites in [`sites.json`](docs/sites.md) with a cookie or probe that proves you're signed in. Mark `keepSession` on the ones whose sign-in rests on session cookies, such as university single sign-on, so the sign-in survives between runs.
 

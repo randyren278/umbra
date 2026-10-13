@@ -35,7 +35,7 @@ let oneShots = """
     usage: umbra read <url> [--cookie NAME] [--wait SECONDS] [--until JS] [--timeout SECONDS]  < script.js
            umbra fetch <url> [--from PAGE] [--timeout SECONDS]
            umbra download <url> <file> [--timeout SECONDS]
-           umbra sign-in [site or URL ...]
+           umbra sign-in [site or URL ...] [--save NAME]
            umbra cookies [domain]
            umbra --version
            umbra <command> [args]  (session commands below; `umbra help <command>` for details)
@@ -95,7 +95,7 @@ func show(_ result: Result<[String: Any], UmbraError>) -> Never {
 switch command {
 case "help", "-h", "--help":
     let special = [
-        "sign-in": "usage: umbra sign-in [site or URL ...] [--timeout SECONDS]\n\nShows the person Umbra's sign-in window; opening Umbra.app does the same. With no sites it lists every site in ~/.config/umbra/sites.json (or $UMBRA_SITES: [{name, domain, login, cookie | probe, keepSession}]) and whether each is signed in, and returns at once. With site names or login URLs, it opens the login page of each one still signed out and returns once all are signed in (exit 0), or exits 3 if the window is closed first, 2 after --timeout (default 900). A signed-in site is never loaded: its page closes the moment the sign-in lands, so the window can't be used to browse. A URL has no check: the person clicks Done. The daemon shows the window, so other commands keep working meanwhile.",
+        "sign-in": "usage: umbra sign-in [site or URL ...] [--save NAME] [--timeout SECONDS]\n\nShows the person Umbra's sign-in window; opening Umbra.app does the same. With no sites it lists every site in ~/.config/umbra/sites.json (or $UMBRA_SITES: [{name, domain, login, cookie | probe, keepSession}]) and whether each is signed in, and returns at once. With site names or login URLs, it opens the login page of each one still signed out and returns once all are signed in (exit 0), or exits 3 if the window is closed first, 2 after --timeout (default 900). A signed-in site is never loaded: its page closes the moment the sign-in lands, so the window can't be used to browse. A URL has no check: the person clicks Done. With --save NAME, a login URL becomes a site in the sites file (as the window's Add Account does): Umbra learns the cookie its sign-in sets, so from then on it is checked like the others and agents can use it. The daemon shows the window, so other commands keep working meanwhile.",
         "mcp": "usage: umbra mcp [--print-config]\n\nServes every command as an MCP tool over stdio (JSON-RPC), sharing live tabs with the CLI through this profile's daemon. --print-config prints setup snippets for Claude Code, Claude Desktop and Cursor.",
         "schema": "usage: umbra schema\n\nEvery daemon command with its description, usage line and JSON Schema for its parameters, as JSON.",
         "serve": "usage: umbra serve\n\nRuns this profile's daemon in the foreground. Normally it starts by itself on the first session command and exits after UMBRA_IDLE seconds (default 900) without commands.",
@@ -171,8 +171,11 @@ case "sign-in":
     // The daemon shows the window: it owns the store, so agents keep working while a person signs
     // in. Opening Umbra.app runs this with no arguments.
     let timeout = seconds("--timeout", default: 900)
+    let save = option("--save")
     if case .failure(let error) = resolveSites(args) { fail(error.code, error.message) }
-    show(call("sign-in", ["sites": args, "timeout": timeout]))
+    var values: [String: Any] = ["sites": args, "timeout": timeout]
+    values["save"] = save
+    show(call("sign-in", values))
 
 case "status" where connectDaemon().map({ close($0) }) == nil:
     print("no daemon running for profile \(profile ?? "default")")

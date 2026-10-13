@@ -30,7 +30,7 @@ Commands:
 - Capture: `screenshot [path] [--full] [--target t]`, `pdf <path>`
 - Observe: `console [--level error]`, `network [--failed] [--filter s]`, `downloads`, `cookies [domain]` (names only, never values)
 - One-shot: `read <url> < script.js` (`--cookie NAME`, `--until`, `--wait`), `fetch <url> [--from page]`, `download <url> <file>`
-- Humans: `sign-in [site|url]` opens Umbra's window on the login page and returns once the user is signed in (a signed-in site is never shown); `handoff` shows a tab for 2FA, a CAPTCHA or consent, then hides it again
+- Humans: `sign-in [site|url]` opens Umbra's window on the login page and returns once the user is signed in (a signed-in site is never shown; `--save NAME` adds a login URL as a new site); `handoff` shows a tab for 2FA, a CAPTCHA or consent, then hides it again
 
 Exit codes: 0 done; 1 Umbra itself failed; 2 timed out or a script threw; 3 signed out (run `umbra sign-in <site>` and the user signs in in a window); 4 the page or download failed to load; 5 HTTP error status; 64 usage error; 78 `sites.json` can't be parsed.
 

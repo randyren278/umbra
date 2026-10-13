@@ -47,6 +47,74 @@ func resolveSites(_ names: [String]) -> Result<[Site], UmbraError> {
     return .success(chosen)
 }
 
+/// A site for a pasted login link: its host without "www." as the domain, and unless one is given,
+/// a name from the host ("github.com" → "Github", "app.slack.com" → "Slack").
+func account(link: String, name: String?) -> Result<Site, UmbraError> {
+    guard let url = URL(string: link.trimmingCharacters(in: .whitespacesAndNewlines)),
+          ["http", "https"].contains(url.scheme?.lowercased() ?? ""), let host = url.host?.lowercased(), !host.isEmpty else {
+        return .failure(UmbraError(64, "\(link) is not a web link: paste the site's login page, such as https://github.com/login"))
+    }
+    let domain = host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+    let labels = domain.split(separator: ".").map(String.init)
+    let generic: Set = ["app", "login", "accounts", "account", "auth", "my", "signin", "sso", "id", "secure", "portal", "web", "m"]
+    let label = labels.count > 2 ? labels.first { !generic.contains($0) } ?? labels[0] : labels[0]
+    let chosen = name?.trimmingCharacters(in: .whitespaces).isEmpty == false ? name!.trimmingCharacters(in: .whitespaces)
+        : label.prefix(1).uppercased() + label.dropFirst()
+    let known = (try? readSites()) ?? []
+    if let same = known.first(where: { $0.name.caseInsensitiveCompare(chosen) == .orderedSame || $0.domain == domain }) {
+        return .failure(UmbraError(64, "\(same.name) (\(same.domain)) is already one of your sites"))
+    }
+    return .success(Site(name: chosen, domain: domain, login: url.absoluteString))
+}
+
+/// Adds a site to the sites file, or updates the entry with its name, leaving every other entry as
+/// it was. One site per line, name first, as the file is written by hand.
+func saveSite(_ site: Site) throws {
+    var list: [[String: Any]] = []
+    if let data = try? Data(contentsOf: sitesFile), !data.allSatisfy({ [9, 10, 13, 32].contains($0) }) {
+        guard let parsed = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
+            throw UmbraError(78, "\(sitesFile.path) is not a list of sites")
+        }
+        list = parsed
+    }
+    var entry: [String: Any] = ["name": site.name, "domain": site.domain, "login": site.login]
+    entry["cookie"] = site.cookie
+    entry["probe"] = site.probe
+    entry["keepSession"] = site.keepSession
+    if let index = list.firstIndex(where: { ($0["name"] as? String)?.caseInsensitiveCompare(site.name) == .orderedSame }) {
+        list[index].merge(entry) { $1 }
+    } else {
+        list.append(entry)
+    }
+    let order = ["name", "domain", "login", "cookie", "probe", "keepSession"]
+    let lines = try list.map { item -> String in
+        let keys = order.filter { item[$0] != nil } + item.keys.filter { !order.contains($0) }.sorted()
+        let fields = try keys.map { key -> String in
+            let value = try JSONSerialization.data(withJSONObject: item[key]!, options: [.fragmentsAllowed, .withoutEscapingSlashes])
+            return "\"\(key)\": " + String(decoding: value, as: UTF8.self)
+        }
+        return "  {" + fields.joined(separator: ", ") + "}"
+    }
+    try FileManager.default.createDirectory(at: sitesFile.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try Data(("[\n" + lines.joined(separator: ",\n") + "\n]\n").utf8).write(to: sitesFile, options: .atomic)
+}
+
+/// The cookie a first sign-in set, to recognise the account by from then on: one that appeared on
+/// the site's domain after its login page loaded, preferring session-like names, or else the only
+/// new HttpOnly one.
+func learnedCookie(_ cookies: [HTTPCookie], _ site: Site, since baseline: Set<String>) -> String? {
+    let ignored = "csrf|xsrf|^_ga|^_gid|consent|^__cf|^cf_|^_fb|lang|locale|theme|timezone|^tz"
+    let fresh = cookies.filter {
+        $0.within(site.domain) && !baseline.contains($0.name) && !$0.value.isEmpty
+            && $0.name.range(of: ignored, options: [.regularExpression, .caseInsensitive]) == nil
+    }
+    for hint in ["sess", "auth", "token", "sid", "login", "user", "jwt"] {
+        if let found = fresh.first(where: { $0.name.lowercased().contains(hint) }) { return found.name }
+    }
+    let httpOnly = fresh.filter(\.isHTTPOnly)
+    return httpOnly.count == 1 ? httpOnly[0].name : nil
+}
+
 /// Whether the store is signed in to a site, found without showing or rendering anything: its
 /// cookie, and a top-level request for its probe, cancelled as soon as the status is known. With
 /// both, the cookie answers "signed out" cheaply and the probe catches a session the site ended
@@ -127,6 +195,8 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     private var page: WKWebView?
     private var current: Site?
     private var poll: Timer?                   // re-checks a cookie site while its login page is up
+    private var learning: Set<String> = []     // added accounts whose sign-in cookie isn't known yet
+    private var baseline: Set<String>?         // their domain's cookie names once the login page loaded
     private var rows: [String: (icon: NSImageView, label: NSTextField, spinner: NSProgressIndicator, button: NSButton)] = [:]
 
     // MARK: Requests
@@ -134,7 +204,18 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     /// With no names, shows every site for the person, who closes the window when done. With names,
     /// signs in to each one still signed out and answers once all are; the window closes then
     /// unless the person had it open. Signed-in sites are never shown, and alone open nothing.
-    static func request(_ chosen: [Site], named: Bool, timeout: Double, reply: @escaping Reply) {
+    static func request(_ chosen: [Site], named: Bool, save: String? = nil, timeout: Double, reply: @escaping Reply) {
+        var chosen = chosen
+        if let save {  // a new account: remembered now, its cookie learned as the person signs in
+            guard chosen.count == 1, !chosen[0].checkable else { return reply(.failure(UmbraError(64, "--save takes one login URL"))) }
+            switch account(link: chosen[0].login, name: save) {
+            case .failure(let error): return reply(.failure(error))
+            case .success(let site):
+                do { try saveSite(site) } catch { return reply(.failure(error as? UmbraError ?? UmbraError(1, "could not save \(sitesFile.path): \(error)"))) }
+                chosen = [site]
+                (shown ?? SignInWindow()).learning.insert(site.name)
+            }
+        }
         if !named {
             let sign = shown ?? SignInWindow()
             sign.add(chosen)
@@ -218,6 +299,7 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         web.navigationDelegate = self
         web.uiDelegate = self
         page = web
+        baseline = nil
         showPage(site, web)
         // A session cookie still here belongs to a session the site ended: the sign-in's own
         // cookie is what counts, so the old one goes first.
@@ -304,6 +386,29 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         }
     }
 
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        guard webView === page, baseline == nil, let site = current, learning.contains(site.name) else { return }
+        store.httpCookieStore.getAllCookies { cookies in
+            if webView === self.page, self.baseline == nil { self.baseline = Set(cookies.filter { $0.within(site.domain) }.map(\.name)) }
+        }
+    }
+
+    /// When an added account's sign-in ends (Done, or the window closing), keeps the cookie it set,
+    /// so from now on Umbra can tell whether it is signed in. Without one it stays a plain link.
+    private func learn(_ site: Site?, then done: @escaping () -> Void) {
+        guard let site, learning.contains(site.name), let baseline else { return done() }
+        store.httpCookieStore.getAllCookies { cookies in
+            if let name = learnedCookie(cookies, site, since: baseline), let index = self.sites.firstIndex(where: { $0.name == site.name }) {
+                self.sites[index].cookie = name
+                self.learning.remove(site.name)
+                self.states[site.name] = .yes
+                try? saveSite(self.sites[index])
+                self.paint(self.sites[index])
+            }
+            done()
+        }
+    }
+
     /// Pop-ups (some sign-ins open one) load in the same page.
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
                  for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
@@ -322,12 +427,15 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     }
 
     func windowWillClose(_ notification: Notification) {
+        let finishing = current
         closePage()
         pending = []
-        answer(final: true)
-        store.httpCookieStore.remove(self)
         SignInWindow.shown = nil
-        persist {}
+        learn(finishing) {
+            self.answer(final: true)
+            store.httpCookieStore.remove(self)
+            persist {}
+        }
         NSApp.setActivationPolicy(SignInWindow.handingOff() ? .accessory : .prohibited)  // as a handoff, or as before
     }
 
@@ -335,12 +443,52 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         if let site = current, !site.checkable {  // a URL: its page closing is the sign-in done
             pending.removeAll { $0 == site.name }
             closePage()
-            answer(final: false)
-            return advance()
+            return learn(site) {
+                self.answer(final: false)
+                self.advance()
+            }
         }
         pending = []
         closePage()
         showList()
+    }
+
+    /// Asks for a login link (and a name), lists the site, and opens its login page.
+    @objc private func addAccount(_ sender: Any?) {
+        let link = NSTextField(string: "")
+        link.placeholderString = "https://github.com/login"
+        let name = NSTextField(string: "")
+        name.placeholderString = "Name (optional)"
+        for field in [link, name] { field.widthAnchor.constraint(equalToConstant: 300).isActive = true }
+        let fields = NSStackView(views: [link, name])
+        fields.orientation = .vertical
+        fields.spacing = 8
+        fields.frame = NSRect(x: 0, y: 0, width: 300, height: 56)
+        let alert = NSAlert()
+        alert.messageText = "Add an account"
+        alert.informativeText = "Paste the link to the site's login page. You sign in once; Umbra remembers it, and agents can use it."
+        alert.accessoryView = fields
+        alert.addButton(withTitle: "Add")
+        alert.addButton(withTitle: "Cancel")
+        alert.window.initialFirstResponder = link
+        alert.beginSheetModal(for: window) { response in
+            guard response == .alertFirstButtonReturn else { return }
+            switch account(link: link.stringValue, name: name.stringValue) {
+            case .failure(let error):
+                let problem = NSAlert()
+                problem.messageText = "Couldn't add that account"
+                problem.informativeText = error.message
+                problem.beginSheetModal(for: self.window)
+            case .success(let site):
+                do { try saveSite(site) } catch {
+                    let problem = NSAlert(error: error)
+                    return problem.beginSheetModal(for: self.window)
+                }
+                self.learning.insert(site.name)
+                self.add([site], known: [site.name: .unknown])
+                self.begin(site)
+            }
+        }
     }
 
     @objc private func signIn(_ sender: NSButton) {
@@ -399,16 +547,27 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
             list.addArrangedSubview(empty)
         }
         let path = sitesFile.path.replacingOccurrences(of: FileManager.default.homeDirectoryForCurrentUser.path, with: "~")
-        let footer = NSTextField(labelWithString: "Sites come from \(path)")
-        footer.font = .systemFont(ofSize: 11)
-        footer.textColor = .tertiaryLabelColor
+        let file = NSTextField(labelWithString: "Sites come from \(path)")
+        file.font = .systemFont(ofSize: 11)
+        file.textColor = .tertiaryLabelColor
+        file.lineBreakMode = .byTruncatingMiddle
+        file.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        let add = NSButton(title: "Add Account…", image: NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!,
+                           target: self, action: #selector(addAccount(_:)))
+        add.bezelStyle = .push
+        add.imagePosition = .imageLeading
+        add.setContentCompressionResistancePriority(.required, for: .horizontal)
+        let gap = NSView()
+        gap.setContentHuggingPriority(.init(1), for: .horizontal)
+        let footer = NSStackView(views: [add, gap, file])
+        footer.alignment = .centerY
 
         let root = NSStackView(views: [top, separator(), list, separator(), footer])
         root.orientation = .vertical
         root.alignment = .leading
         root.spacing = 14
         root.edgeInsets = NSEdgeInsets(top: 22, left: 24, bottom: 18, right: 24)
-        for view in [top, list] + root.arrangedSubviews.filter({ $0 is NSBox }) {
+        for view in [top, list, footer] + root.arrangedSubviews.filter({ $0 is NSBox }) {
             view.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -48).isActive = true
         }
         for view in list.arrangedSubviews {
@@ -499,10 +658,11 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
                             target: self, action: #selector(back(_:)))
         back.bezelStyle = .push
         back.imagePosition = .imageLeading
-        if !site.checkable { back.title = "Done"; back.image = nil; back.keyEquivalent = "\r" }
+        if !site.checkable { back.title = "Done"; back.image = nil }
         let title = NSTextField(labelWithString: "Sign in to \(site.name)")
         title.font = .systemFont(ofSize: 13, weight: .semibold)
-        let note = NSTextField(labelWithString: site.checkable ? "This page closes as soon as you're signed in." : "Click Done when you're signed in.")
+        let note = NSTextField(labelWithString: site.checkable ? "This page closes as soon as you're signed in."
+                               : learning.contains(site.name) ? "Sign in, then click Done. Umbra remembers this account." : "Click Done when you're signed in.")
         note.font = .systemFont(ofSize: 11)
         note.textColor = .secondaryLabelColor
         let spacer = NSView()
@@ -559,13 +719,14 @@ func removeCookies(of site: Site, named name: String? = nil, done: @escaping (In
 func signInCommands() -> [Command] {
     [
         Command(name: "sign-in", help: "Show the person Umbra's sign-in window. With site names or login URLs, it opens each one still signed out and answers once all are signed in (exit 3 if the window is closed first); a site already signed in answers at once and is never shown. With no sites, the window lists every site.",
-                params: [Param(name: "sites", kind: .array, help: "Site names from the sites file, or login URLs", positional: true)],
+                params: [Param(name: "sites", kind: .array, help: "Site names from the sites file, or login URLs", positional: true),
+                         Param(name: "save", kind: .string, help: "Add a login URL to the sites file under this name, as the window's Add Account does: Umbra learns its sign-in cookie, and agents can use it")],
                 usesTab: false, timeout: 900) { args, _, reply in
             let names = args.strings("sites")
             switch resolveSites(names) {
             case .failure(let error): reply(.failure(error))
             case .success(let chosen):
-                SignInWindow.request(chosen, named: !names.isEmpty, timeout: args.number("timeout") ?? 900, reply: reply)
+                SignInWindow.request(chosen, named: !names.isEmpty, save: args.string("save"), timeout: args.number("timeout") ?? 900, reply: reply)
             }
         },
         Command(name: "sign-out", help: "Remove a site's cookies from this profile, so its next sign-in starts fresh. The person's sign-in is gone afterwards: ask them first.",
