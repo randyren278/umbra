@@ -1,10 +1,12 @@
 # Builds Umbra.app, installs it to ~/Applications and links `umbra` into ~/.local/bin.
 # APPDIR and BINDIR move the install (make install APPDIR=/tmp/a BINDIR=/tmp/b); `make help` lists targets.
+# BUILD gives a parallel lane its own output (make build BUILD=build-x), signed the same way.
+BUILD ?= build
 APPDIR ?= $(HOME)/Applications
 BINDIR ?= $(HOME)/.local/bin
-APP := build/Umbra.app
+APP := $(BUILD)/Umbra.app
 BIN := $(APP)/Contents/MacOS/umbra
-SIGNED := build/.signed
+SIGNED := $(BUILD)/.signed
 INSTALLED := $(APPDIR)/Umbra.app
 LINK := $(BINDIR)/umbra
 plist = $(shell /usr/libexec/PlistBuddy -c 'Print :$(1)' Info.plist)
@@ -82,7 +84,7 @@ $(ZIP).sha256: $(ZIP)
 	cd $(@D) && shasum -a 256 $(notdir $<) > $(notdir $@)
 
 clean:
-	rm -rf build dist
+	rm -rf $(BUILD) dist
 
 help:
 	@echo 'make build      compile $(APP) and sign it ad hoc as $(ID)'
@@ -91,5 +93,5 @@ help:
 	@echo 'make uninstall  remove that app and link (cookie stores are kept)'
 	@echo 'make release    write $(ZIP) and $(ZIP).sha256'
 	@echo 'make icon       regenerate the artwork in assets/'
-	@echo 'make clean      remove build/ and dist/'
-	@echo 'Set APPDIR=... BINDIR=... to install or uninstall somewhere else.'
+	@echo 'make clean      remove $(BUILD)/ and dist/'
+	@echo 'Set APPDIR=... BINDIR=... to install or uninstall somewhere else, BUILD=... to build elsewhere.'
