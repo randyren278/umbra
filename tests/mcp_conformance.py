@@ -365,6 +365,7 @@ class Calls(unittest.TestCase):
         self.assertEqual(result, {'content': [{'type': 'text', 'text': PAGE}], 'structuredContent': {'status': 200}})
 
     def test_relative_paths_resolve_in_the_clients_directory(self):
+        self.server.call('status')  # the daemon runs elsewhere, so its own directory can't stand in
         with tempfile.TemporaryDirectory() as here, tempfile.TemporaryDirectory() as there:
             server = Server(PROFILE, cwd=here)  # MCP clients start the server in the project directory
             server.initialize()
