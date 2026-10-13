@@ -74,7 +74,7 @@ func show(_ result: Result<[String: Any], UmbraError>) -> Never {
         if json || value["text"] == nil {
             var copy = value
             copy["text"] = nil
-            let data = try! JSONSerialization.data(withJSONObject: jsonSafe(copy), options: [.prettyPrinted, .sortedKeys])
+            let data = try! JSONSerialization.data(withJSONObject: jsonSafe(copy), options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])
             print(String(decoding: data, as: UTF8.self))
         } else if let text = value["text"] as? String, !text.isEmpty {
             print(text)
@@ -189,6 +189,7 @@ default:
     case .failure(let error): fail(error.code, error.message)
     case .success(var values):
         if found.name == "eval", values["script"] == nil || values["script"] as? String == "-" { values["script"] = stdinText() }
+        values["cwd"] = FileManager.default.currentDirectoryPath  // relative paths mean the caller's directory
         show(call(found.name, values))
     }
 }

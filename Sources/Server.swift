@@ -22,7 +22,7 @@ func jsonSafe(_ value: Any) -> Any {
 }
 
 func line(_ object: [String: Any]) -> Data {
-    var data = (try? JSONSerialization.data(withJSONObject: jsonSafe(object))) ?? Data("{}".utf8)
+    var data = (try? JSONSerialization.data(withJSONObject: jsonSafe(object), options: [.withoutEscapingSlashes])) ?? Data("{}".utf8)
     data.append(10)
     return data
 }

@@ -69,7 +69,7 @@ func rendered(_ value: Any?) -> String? {
     case let string as String: return string
     case let bool as NSNumber where CFGetTypeID(bool) == CFBooleanGetTypeID(): return bool.boolValue ? "true" : "false"
     case let object where JSONSerialization.isValidJSONObject(object):
-        return String(data: try! JSONSerialization.data(withJSONObject: object), encoding: .utf8)!
+        return String(data: try! JSONSerialization.data(withJSONObject: object, options: [.withoutEscapingSlashes, .sortedKeys]), encoding: .utf8)!
     default: return String(describing: value)
     }
 }

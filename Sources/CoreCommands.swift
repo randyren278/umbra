@@ -274,7 +274,7 @@ func coreCommands() -> [Command] {
                          Param(name: "file", kind: .string, help: "Where to save it", required: true, positional: true)],
                 usesTab: false, timeout: 300) { args, _, reply in
             guard let url = URL(string: args.string("url") ?? "") else { return reply(.failure(UmbraError(64, "not a URL"))) }
-            let file = URL(fileURLWithPath: (args.string("file")! as NSString).expandingTildeInPath).standardizedFileURL
+            let file = args.path("file")!
             var job: Download?
             job = Download(url, to: file) { code, message in
                 _ = job

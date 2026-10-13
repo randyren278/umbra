@@ -49,6 +49,14 @@ struct Args {
         default: return false
         }
     }
+    /// A file path argument, resolved against the caller's directory ("cwd", sent by the CLI and MCP).
+    func path(_ name: String) -> URL? {
+        guard let text = string(name) else { return nil }
+        let expanded = (text as NSString).expandingTildeInPath
+        if expanded.hasPrefix("/") { return URL(fileURLWithPath: expanded).standardizedFileURL }
+        let base = string("cwd") ?? FileManager.default.currentDirectoryPath
+        return URL(fileURLWithPath: expanded, relativeTo: URL(fileURLWithPath: base, isDirectory: true)).standardizedFileURL
+    }
     func strings(_ name: String) -> [String] {
         switch values[name] {
         case let list as [Any]: return list.map { "\($0)" }
