@@ -27,6 +27,7 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     var uploads: [URL] = []                          // what the next file chooser receives
     var downloads: [[String: Any]] = []
     var handoff: (() -> Void)?
+    var navigations = 0                              // main-frame navigations started; actions compare before and after
     private var saving: [ObjectIdentifier: (url: String, path: URL)] = [:]
 
     init(name: String, configuration: WKWebViewConfiguration, engine: Engine) {
@@ -83,6 +84,10 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         let waiting = loading
         loading = []
         waiting.forEach { $0(result) }
+    }
+
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        navigations += 1
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
