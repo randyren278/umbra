@@ -196,8 +196,11 @@ case "stop" where connectDaemon().map({ close($0) }) == nil:
 case "cookies" where connectDaemon().map({ close($0) }) == nil:
     NSApplication.shared.setActivationPolicy(.prohibited)
     takeLock()
-    printCookies(args.first)
-    NSApplication.shared.run()
+    silenceWebKit()
+    // A store with no web view yet may not have read its cookies from disk (seen on a fresh CI
+    // runner): load a blank page first, then list.
+    let warm = Page(URL(string: "about:blank")!) { _ in printCookies(args.first) }
+    withExtendedLifetime(warm) { NSApplication.shared.run() }
 
 default:
     guard let found = lookup(command) else { fail(64, "\(oneShots)\n\nunknown command: \(command)") }

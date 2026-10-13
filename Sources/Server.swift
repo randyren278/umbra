@@ -108,7 +108,7 @@ final class Daemon {
 
     func shutdown() {
         unlink(socketPath)
-        keepSessions { exit(0) }
+        persist { exit(0) }
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) { exit(0) }
     }
 

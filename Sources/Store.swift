@@ -94,6 +94,19 @@ func keepSessions(then done: @escaping () -> Void) {
     }
 }
 
+/// keepSessions, then has WebKit write every cookie to disk before the process exits. The network
+/// process otherwise writes them on its own schedule, and a quick exit on a busy machine loses
+/// them: a sign-in made during the run would be gone on the next one.
+func persist(then done: @escaping () -> Void) {
+    keepSessions {
+        let flush = NSSelectorFromString("_flushCookiesToDiskWithCompletionHandler:")
+        let cookies = store.httpCookieStore
+        guard cookies.responds(to: flush) else { return done() }
+        typealias Flush = @convention(c) (AnyObject, Selector, @escaping @convention(block) () -> Void) -> Void
+        unsafeBitCast(cookies.method(for: flush), to: Flush.self)(cookies, flush) { DispatchQueue.main.async(execute: done) }
+    }
+}
+
 let supportDir: URL = {
     let dir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/Umbra")
     try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)

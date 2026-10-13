@@ -10,7 +10,7 @@ func leave(_ code: Int32, _ message: String = "") {
     guard !leaving else { return }
     leaving = true
     if !message.isEmpty { say(message) }
-    keepSessions { exit(code) }
+    persist { exit(code) }
     DispatchQueue.main.asyncAfter(deadline: .now() + 5) { exit(code) }
 }
 

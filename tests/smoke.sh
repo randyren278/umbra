@@ -44,7 +44,8 @@ out=$(print 'await new Promise(r => setTimeout(r, 400)); return {late: true}' | 
 out=$(print 'while (!window.__answer) await new Promise(r => setTimeout(r, 100)); return window.__answer' | $umbra read $base/index.html); check "read waits for a page global" 0 $? "set later" "$out"
 print 'throw new Error("boom")' | $umbra read $base/index.html 2>/dev/null; check "a throwing script exits 2" 2 $?
 print 'return 1' | $umbra read --cookie no_such_cookie $base/index.html 2>/dev/null; check "a missing session cookie exits 3" 3 $?
-print 'return 1' | $umbra read http://127.0.0.1:9/ 2>/dev/null; check "an unreachable page exits 4" 4 $?
+closed=$(python3 -c 'import socket; s = socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1])')  # bound then released: nothing listens
+print 'return 1' | $umbra read http://127.0.0.1:$closed/ 2>/dev/null; check "an unreachable page exits 4" 4 $?
 print 'await new Promise(r => setTimeout(r, 5000))' | $umbra read --timeout 1 $base/index.html 2>/dev/null; check "a slow script exits 2 at the timeout" 2 $?
 
 out=$($umbra fetch $base/data.json); check "fetch prints the body" 0 $? "$(cat $dir/site/data.json)" "$out"

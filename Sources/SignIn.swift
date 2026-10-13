@@ -188,7 +188,7 @@ final class SignIn: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKHTT
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        keepSessions { NSApp.reply(toApplicationShouldTerminate: true) }
+        persist { NSApp.reply(toApplicationShouldTerminate: true) }
         return .terminateLater
     }
 }
