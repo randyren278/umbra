@@ -227,7 +227,7 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         func check() {
             run("return Boolean(\(condition))", arguments, in: world) { result in
                 if case .success(let value) = result, (value as? Bool) == true { return done(.success(())) }
-                if Date() > deadline { return done(.failure(UmbraError(2, "timed out after \(Int(timeout)) s waiting for \(condition)"))) }
+                if Date() > deadline { return done(.failure(UmbraError(2, "timed out after \(duration(timeout)) waiting for \(condition)"))) }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: check)
             }
         }

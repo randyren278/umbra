@@ -148,7 +148,7 @@ final class Daemon {
             }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + timeout + 0.5) {
-            finish(.failure(UmbraError(2, "\(name) gave no answer in \(Int(timeout)) seconds")))
+            finish(.failure(UmbraError(2, "\(name) gave no answer in \(duration(timeout))")))
         }
         command.run(args, engine, finish)
     }

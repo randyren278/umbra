@@ -3,9 +3,30 @@ import AppKit
 import CryptoKit
 import WebKit
 
+/// Umbra's own messages. A one-shot run points the process's stderr at /dev/null, because WebKit
+/// prints internal chatter there ("sandbox_extension_issue_file failed…") that callers would
+/// mistake for errors.
+let messages = FileHandle(fileDescriptor: dup(STDERR_FILENO), closeOnDealloc: true)
+
+func silenceWebKit() {
+    _ = messages
+    let null = open("/dev/null", O_WRONLY)
+    dup2(null, STDERR_FILENO)
+    close(null)
+}
+
+func say(_ message: String) {
+    messages.write(Data((message + "\n").utf8))
+}
+
 func fail(_ code: Int32, _ message: String) -> Never {
-    FileHandle.standardError.write(Data((message + "\n").utf8))
+    say(message)
     exit(code)
+}
+
+/// "3 seconds", "0.5 seconds".
+func duration(_ seconds: Double) -> String {
+    String(format: "%g second%@", seconds, seconds == 1 ? "" : "s")
 }
 
 let environment = ProcessInfo.processInfo.environment

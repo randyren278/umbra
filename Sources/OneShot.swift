@@ -9,7 +9,7 @@ var leaving = false
 func leave(_ code: Int32, _ message: String = "") {
     guard !leaving else { return }
     leaving = true
-    if !message.isEmpty { FileHandle.standardError.write(Data((message + "\n").utf8)) }
+    if !message.isEmpty { say(message) }
     keepSessions { exit(code) }
     DispatchQueue.main.asyncAfter(deadline: .now() + 5) { exit(code) }
 }
@@ -128,6 +128,12 @@ final class Download: NSObject, WKNavigationDelegate, WKDownloadDelegate {
         self.finished = finished
         part = file.deletingLastPathComponent().appendingPathComponent("." + file.lastPathComponent + ".umbra-part")
         super.init()
+        var isDirectory: ObjCBool = false
+        let folder = file.deletingLastPathComponent().path
+        guard FileManager.default.fileExists(atPath: folder, isDirectory: &isDirectory), isDirectory.boolValue else {
+            DispatchQueue.main.async { finished(4, "no such directory: \(folder)") }
+            return
+        }
         web.navigationDelegate = self
         web.load(URLRequest(url: url))
     }
@@ -180,10 +186,11 @@ final class Download: NSObject, WKNavigationDelegate, WKDownloadDelegate {
 func headless(timeout: Double, _ start: () -> AnyObject) -> Never {
     NSApplication.shared.setActivationPolicy(.prohibited)
     takeLock()
+    silenceWebKit()
     let job = start()
     DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
         if let download = job as? Download { try? FileManager.default.removeItem(at: download.part) }
-        leave(2, "no answer in \(Int(timeout)) seconds")
+        leave(2, "no answer in \(duration(timeout))")
     }
     withExtendedLifetime(job) { NSApplication.shared.run() }
     exit(0)
