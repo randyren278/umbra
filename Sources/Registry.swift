@@ -87,7 +87,7 @@ func parseArguments(_ command: Command, _ argv: [String]) -> Result<[String: Any
     var index = 0
     func convert(_ param: Param, _ text: String) -> Any? {
         switch param.kind {
-        case .number: return Double(text)
+        case .number: return Double(text).flatMap { $0.isFinite ? $0 : nil }  // JSON has no NaN or infinity
         case .boolean: return ["1", "true", "yes"].contains(text.lowercased())
         case .string, .array: return text
         }
