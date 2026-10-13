@@ -9,16 +9,17 @@
 // 4 the page or download failed, 5 an HTTP error status, 64 usage, 78 a malformed sites file.
 import AppKit
 
-registry = coreCommands() + interactCommands() + captureCommands()
-_ = sites  // a malformed sites file stops every command (exit 78), before anything else runs
-
 var args = Array(CommandLine.arguments.dropFirst().filter { !$0.hasPrefix("-psn_") })
 
-// --profile must take effect before anything reads the environment.
+// --profile must take effect before anything reads the environment: `environment`, and with it
+// the profile, store and socket, are fixed on first use.
 if let index = args.firstIndex(of: "--profile"), index + 1 < args.count {
     setenv("UMBRA_PROFILE", args[index + 1], 1)
     args.removeSubrange(index...index + 1)
 }
+
+registry = coreCommands() + interactCommands() + captureCommands()
+_ = sites  // a malformed sites file stops every command (exit 78), before anything else runs
 let json = args.contains("--json")
 args.removeAll { $0 == "--json" }
 let command = args.isEmpty ? "sign-in" : args.removeFirst()
