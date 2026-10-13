@@ -81,8 +81,15 @@ let locateJS = findJS + """
     if (el) el.scrollIntoView({block: height === null ? 'nearest' : 'start', inline: 'nearest', behavior: 'instant'});
     else if (height !== null) scrollTo({left: 0, top: 0, behavior: 'instant'});
     const r = el ? el.getBoundingClientRect() : {left: 0, top: 0, width: innerWidth, height: innerHeight};
+    let x = r.left, y = r.top;
+    // In an iframe the rect is relative to the frame: add each frame's position, border and padding.
+    for (let w = el?.ownerDocument.defaultView; w && w !== window && w.frameElement; w = w.parent) {
+      const f = w.frameElement, b = f.getBoundingClientRect(), s = getComputedStyle(f);
+      x += b.left + f.clientLeft + parseFloat(s.paddingLeft);
+      y += b.top + f.clientTop + parseFloat(s.paddingTop);
+    }
     const d = document.documentElement;
-    return [r.left, r.top, r.width, r.height, scrollX, scrollY, Math.max(d.scrollHeight, document.body?.scrollHeight ?? 0),
+    return [x, y, r.width, r.height, scrollX, scrollY, Math.max(d.scrollHeight, document.body?.scrollHeight ?? 0),
             innerWidth, innerHeight, devicePixelRatio || 1, Math.max(d.scrollWidth, document.body?.scrollWidth ?? 0)];
     """
 
