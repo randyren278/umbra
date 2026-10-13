@@ -22,7 +22,14 @@ registry = coreCommands() + interactCommands() + captureCommands()
 _ = sites  // a malformed sites file stops every command (exit 78), before anything else runs
 let json = args.contains("--json")
 args.removeAll { $0 == "--json" }
+// Global options may come before the command too: `umbra --tab work snapshot`.
+var leading: [String] = []
+while args.count >= 2, ["--tab", "--timeout"].contains(args[0]) {
+    leading += args.prefix(2)
+    args.removeFirst(2)
+}
 let command = args.isEmpty ? "sign-in" : args.removeFirst()
+args += leading
 
 let oneShots = """
     usage: umbra read <url> [--cookie NAME] [--wait SECONDS] [--until JS] [--timeout SECONDS]  < script.js
