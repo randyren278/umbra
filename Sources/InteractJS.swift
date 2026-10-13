@@ -556,7 +556,7 @@ const fillKind = el => el.localName === 'textarea' || el.isContentEditable || el
 
 function arm(el, kind) {
   if (obs) obs.off();
-  const o = { seen: {}, nav: null, link: '', submit: false, unloading: false, prevented: null, files: null, subs: [] };
+  const o = { seen: {}, nav: null, link: '', submit: false, unloading: false, prevented: null, files: null, subs: [], from: location.href };
   const on = (t, type, fn, capture = true) => { t.addEventListener(type, fn, capture); o.subs.push(() => t.removeEventListener(type, fn, capture)); };
   const log = e => { if (!(e.type in o.seen)) o.seen[e.type] = e.isTrusted; };
   for (const w of new Set([window, el ? win(el) : window])) {
@@ -590,10 +590,11 @@ function observed() {
   out.events = o.seen;
   out.files = o.files;
   out.download = !!o.download || !!(o.nav && o.nav.download);
-  // A cross-document navigate event, unless it was intercepted (the URL then changes at once); failing
-  // that, a followed link, a submitted form or beforeunload.
-  const n = o.nav;
-  out.navigating = n ? !n.same && !n.download && location.href !== n.url : o.unloading || o.submit || !!o.link && !o.prevented && location.href !== o.link;
+  // A cross-document navigate event, unless the page intercepted it (the URL then changed to it at once:
+  // a form posting to its own URL leaves the URL alone); failing that, a followed link, a submitted form
+  // or beforeunload.
+  const n = o.nav, inPlace = url => location.href !== o.from && location.href === url;
+  out.navigating = n ? !n.same && !n.download && !inPlace(n.url) : o.unloading || o.submit || !!o.link && !o.prevented && !inPlace(o.link);
   return out;
 }
 
