@@ -48,11 +48,15 @@ func settle(_ tab: Tab, _ args: Args, _ reply: @escaping Reply) -> (Result<Void,
 
 let visibleJS = "(el => { if (!el) return false; const r = el.getBoundingClientRect(), s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none' })"
 
+// Idle: the document is complete and no new resource has started for 500 ms, checked until the
+// deadline, so a page that polls forever fails at --timeout instead of hanging.
 let idleJS = """
-let last = -1, quiet = 0;
-for (let i = 0; i < 600; i++) {
+const end = Date.now() + seconds * 1000;
+let last = -1, since = Date.now();
+while (Date.now() < end) {
   const count = performance.getEntriesByType('resource').length;
-  if (count === last && document.readyState === 'complete') { if (++quiet >= 5) return true; } else { quiet = 0; last = count; }
+  if (count !== last || document.readyState !== 'complete') { last = count; since = Date.now(); }
+  else if (Date.now() - since >= 500) return true;
   await new Promise(r => setTimeout(r, 100));
 }
 return false
@@ -167,9 +171,9 @@ func coreCommands() -> [Command] {
                 return DispatchQueue.main.asyncAfter(deadline: .now() + ms / 1000) { done(.success(())) }
             }
             if args.bool("idle") {
-                return tab.run(idleJS) { result in
+                return tab.run(idleJS, ["seconds": timeout]) { result in
                     if case .success(let value) = result, (value as? Bool) == true { return done(.success(())) }
-                    done(.failure(UmbraError(2, "the network never went idle")))
+                    done(.failure(UmbraError(2, "the network didn't go idle within \(duration(timeout)); the page may keep polling, so wait for --text or --selector instead")))
                 }
             }
             var conditions: [String] = []
