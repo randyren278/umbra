@@ -319,7 +319,7 @@ func aftermath(_ tab: Tab, _ engine: Engine, _ before: Before, deadline: Date, d
             done(seen)
         }
         // A download link, or a navigation that left the same document in place (an attachment):
-        // wait up to 2 s for the download to finish or fail.
+        // wait up to 3 s for the download to finish or fail.
         func downloads(_ extra: [String: Any]) {
             let stayed = extra["navigated"] as? Bool == true && extra["doc"] as? String == before.doc
             guard stayed || seen["download"] as? Bool == true || tab.downloads.count > before.downloads else { return finish(extra) }
@@ -330,7 +330,7 @@ func aftermath(_ tab: Tab, _ engine: Engine, _ before: Before, deadline: Date, d
                 if tab.downloads.count > before.downloads {
                     return finish(extra.merging(["downloads": Array(tab.downloads.dropFirst(before.downloads))]) { $1 })
                 }
-                if Date().timeIntervalSince(waited) > 2 || Date() > deadline { return finish(extra.merging(["downloading": true]) { $1 }) }
+                if Date().timeIntervalSince(waited) > 3 || Date() > deadline { return finish(extra.merging(["downloading": true]) { $1 }) }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: check)
             }
             check()
