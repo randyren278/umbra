@@ -126,6 +126,7 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     private var pinned = false                 // opened by the person: stays until they close it
     private var page: WKWebView?
     private var current: Site?
+    private var poll: Timer?                   // re-checks a cookie site while its login page is up
     private var rows: [String: (icon: NSImageView, label: NSTextField, spinner: NSProgressIndicator, button: NSButton)] = [:]
 
     // MARK: Requests
@@ -227,6 +228,9 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         removeCookies(of: site, named: name) { _ in
             if web === self.page { web.load(URLRequest(url: url)) }
         }
+        // The store's change notices can come late or not at all (seen on macOS 15), and a sign-in
+        // by script sets its cookie with no navigation to check: so look twice a second too.
+        poll = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in self?.cookiesChanged() }
     }
 
     private func signedIn(_ site: Site) {
@@ -265,6 +269,8 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     }
 
     private func closePage() {
+        poll?.invalidate()
+        poll = nil
         guard let page else { return }
         page.stopLoading()
         page.navigationDelegate = nil
@@ -276,8 +282,12 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     }
 
     func cookiesDidChange(in cookieStore: WKHTTPCookieStore) {
-        guard let site = current, site.cookie != nil else { return }
-        Check.run(site, confirm: false) { if $0 == .yes { self.signedIn(site) } }
+        cookiesChanged()
+    }
+
+    private func cookiesChanged() {
+        guard let site = current, site.cookie != nil, let web = page, web.url != nil else { return }
+        Check.run(site, confirm: false) { if $0 == .yes, web === self.page { self.signedIn(site) } }
     }
 
     /// Every page the sign-in lands on is checked before it is shown: once the site counts as signed
