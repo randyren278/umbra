@@ -85,18 +85,53 @@ def daemon_gone(profile, pid, timeout=15):
     return False
 
 
+def daemons():
+    """Pids of every `umbra serve` for this run's profiles, reachable or not: ps shows the environment
+    of this user's processes, and a daemon carries its profile there."""
+    listing = subprocess.run(['ps', 'axeww', '-o', 'pid=,command='], capture_output=True, text=True).stdout
+    profiles = '|'.join(re.escape(name) for name in (PROFILE, COLD))
+    pattern = re.compile(rf'/umbra serve\s.*\sUMBRA_PROFILE=({profiles})(\s|$)')
+    return [int(line.split(None, 1)[0]) for line in listing.splitlines() if pattern.search(line)]
+
+
+cleaned = False
+
+
 def cleanup():
-    for proc in processes:
+    """Stops every daemon the run started, then deletes its profiles' stores and files. Returns what
+    is left (nothing, normally)."""
+    global cleaned
+    if cleaned:
+        return []
+    for proc in processes:  # first, so no server starts another daemon
         if proc.poll() is None:
             proc.kill()
             proc.wait()
-    for name in (PROFILE, COLD):
-        try:
-            umbra('stop', profile=name, timeout=15)
-        except subprocess.TimeoutExpired:
-            pass
+    # `stop` reaches the daemon serving the socket. Others started in the same burst poll the lock for
+    # up to 2 s, and one takes over once the first stops: stop again until none is left, then make any
+    # straggler go. Files go last: deleting a lock file under a live daemon lets another lock a fresh
+    # copy and run beside it, out of reach of `stop`.
+    deadline = time.monotonic() + 5
+    while daemons() and time.monotonic() < deadline:
+        for name in (PROFILE, COLD):
+            try:
+                umbra('stop', profile=name, timeout=15)
+            except subprocess.TimeoutExpired:
+                pass
+        time.sleep(0.2)
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        for pid in daemons():
+            try:
+                os.kill(pid, sig)
+            except ProcessLookupError:
+                pass
+        deadline = time.monotonic() + 6
+        while daemons() and time.monotonic() < deadline:
+            time.sleep(0.1)
+    alive = daemons()
+    left = []
     # A WebKit helper can outlive its daemon by a moment, so check the stores stay gone.
-    for _ in range(5):
+    for _ in range(5 if not alive else 0):
         for name in (PROFILE, COLD):
             shutil.rmtree(store_dir(name), ignore_errors=True)
             for path in SUPPORT.glob(f'*-{name}.*'):
@@ -107,8 +142,17 @@ def cleanup():
                 for path in (store_dir(name), *SUPPORT.glob(f'*-{name}.*'), DOWNLOADS / name) if path.exists()]
         if not left:
             break
+    left = [f'daemon {pid}' for pid in alive] + left
+    cleaned = not left
     print(f'cleanup: left behind {", ".join(left)}' if left else
-          f'cleanup: stopped the daemon; removed the stores and files of {PROFILE} and {COLD}', file=sys.stderr)
+          f'cleanup: every daemon exited; removed the stores and files of {PROFILE} and {COLD}', file=sys.stderr)
+    return left
+
+
+def tearDownModule():
+    left = cleanup()
+    assert not left, f'cleanup left {left}'
+    assert not daemons(), 'a daemon for the suite\'s profiles is still alive'
 
 
 def interrupted(signum, frame):
@@ -116,7 +160,7 @@ def interrupted(signum, frame):
     os._exit(128 + signum)
 
 
-atexit.register(cleanup)
+atexit.register(cleanup)  # if the run stops early
 for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
     signal.signal(sig, interrupted)
 
