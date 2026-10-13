@@ -285,12 +285,23 @@ class LifecycleTests(SessionCase):
         tabs = {tab['tab']: tab['title'] for tab in self.json('tabs')['tabs']}
         self.assertEqual(tabs, {'a': 'page a', 'b': 'page b'})
 
+    def diagnose(self, pid):
+        """What the daemon was doing when a client gave up: does it still answer, and its main thread."""
+        status = subprocess.run([base.UMBRA, 'tabs', '--json'], env=base.environment(self.profile, None, None),
+                                capture_output=True, text=True, timeout=20)
+        sample = subprocess.run(['sample', str(pid), '2', '-mayDie'], capture_output=True, text=True, timeout=30)
+        main = sample.stdout.split('Thread_')[1][:4000] if 'Thread_' in sample.stdout else sample.stdout[:2000]
+        return f'tabs exit {status.returncode}: {status.stdout[:1500]} {status.stderr[-300:]}\nmain thread:\n{main}'
+
     def test_five_concurrent_clients(self):
         self.assertExit(self.umbra('tabs'), 0)
         [pid] = daemon_pids(self.profile)
         procs = [base.spawn('open', '--tab', f'c{n}', self.srv.url(f'/page?n={n}'), profile=self.profile) for n in range(5)]
         for proc in procs:
-            out, err = proc.communicate(timeout=60)
+            try:
+                out, err = proc.communicate(timeout=60)
+            except subprocess.TimeoutExpired:
+                self.fail(f'{proc.args[1:4]} gave no answer in 60 s\n{self.diagnose(pid)}')
             self.assertEqual(proc.returncode, 0, err)
         script = 'await new Promise(r => setTimeout(r, 300)); return location.search'
         procs = [base.spawn('eval', '--tab', f'c{n}', script, profile=self.profile) for n in range(5)]
