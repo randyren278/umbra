@@ -1,6 +1,8 @@
 # bench: Umbra's proving ground
 
-Three pieces, all local (127.0.0.1 only):
+The [external MiniWoB++ comparison](external/results/2026-10-13/RESULTS.md) runs 125 upstream task types with five repetitions in both Umbra MCP and Playwright MCP. See [the protocol](external/README.md) for grading, limits and reproduction.
+
+The project-authored proving ground below has three pieces, all local (127.0.0.1 only):
 
 - **Northwind Ops** (`site/server.py`): a small, deterministic SaaS app with the hard parts of real sites (client-side pagination, confirm dialogs, React-style controlled inputs, shadow DOM, iframes, hidden file inputs, multi-step forms, infinite scroll, pop-ups, two-step sign-in, slow content, a CAPTCHA). The server logs what the user did.
 - **Tasks** (`tasks.json`, `grade.py`): 15 requests worded the way a person would ask, each with an objective grader.

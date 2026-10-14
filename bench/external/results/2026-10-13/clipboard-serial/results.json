@@ -1,0 +1,1152 @@
+[
+  {
+    "task": "miniwob.copy-paste",
+    "seed": 17,
+    "repeat": 0,
+    "arm": "playwright",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 19.081735416999436
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.985272,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 6,
+      "observations": 2,
+      "seconds": 14.970280124995043
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 10,
+    "tool_seconds": [
+      0.10956833300588187,
+      0.5719424589915434,
+      0.007426791999023408,
+      0.008592625003075227,
+      0.5388789999997243,
+      0.03188616600527894,
+      0.005581124991294928,
+      0.5430292090022704,
+      0.0014023750118212774
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 6,
+    "usage": {
+      "input_tokens": 108915,
+      "cached_input_tokens": 99840,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 307,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste",
+    "seed": 17,
+    "repeat": 0,
+    "arm": "umbra",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 15.613460542008397
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.988746,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 3,
+      "observations": 2,
+      "seconds": 11.244328083994333
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 7,
+    "tool_seconds": [
+      0.00791120900248643,
+      0.06260316699626856,
+      0.010427624991280027,
+      0.0032420420029666275,
+      0.01051591700525023,
+      0.0016415419959230348
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 4,
+    "usage": {
+      "input_tokens": 115379,
+      "cached_input_tokens": 108800,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 228,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste",
+    "seed": 17,
+    "repeat": 1,
+    "arm": "umbra",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 15.7820581660053
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.988627,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 3,
+      "observations": 2,
+      "seconds": 11.360056915989844
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 7,
+    "tool_seconds": [
+      0.008063000001129694,
+      0.057340082988957874,
+      0.00805233400024008,
+      0.0026526660076342523,
+      0.006609957999899052,
+      0.0008160420111380517
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 4,
+    "usage": {
+      "input_tokens": 115436,
+      "cached_input_tokens": 108800,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 243,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste",
+    "seed": 17,
+    "repeat": 1,
+    "arm": "playwright",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 19.098086958998465
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.985608,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 6,
+      "observations": 2,
+      "seconds": 14.63258258299902
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 10,
+    "tool_seconds": [
+      0.09763712499989197,
+      0.5786514159990475,
+      0.007548833003966138,
+      0.005431958998087794,
+      0.5225173340004403,
+      0.029461332989740185,
+      0.00553675000264775,
+      0.5475763340073172,
+      0.0010218750103376806
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 6,
+    "usage": {
+      "input_tokens": 132681,
+      "cached_input_tokens": 125312,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 293,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste",
+    "seed": 1,
+    "repeat": 2,
+    "arm": "umbra",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 21.755647458994645
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.983586,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 3,
+      "observations": 2,
+      "seconds": 16.399164834001567
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 7,
+    "tool_seconds": [
+      0.007746708011836745,
+      0.05745304199808743,
+      0.008081207997747697,
+      0.00218716700328514,
+      0.006902416993398219,
+      0.000902708008652553
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 4,
+    "usage": {
+      "input_tokens": 110030,
+      "cached_input_tokens": 104704,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 269,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste",
+    "seed": 1,
+    "repeat": 2,
+    "arm": "playwright",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 24.457642332999967
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.979406,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 6,
+      "observations": 2,
+      "seconds": 20.847083333006594
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 10,
+    "tool_seconds": [
+      0.10182325000641868,
+      0.5750353329931386,
+      0.011028249995433725,
+      0.006303166999714449,
+      0.5432216249901103,
+      0.008667417001561262,
+      0.006539915993926115,
+      0.5527527079975698,
+      0.0022162920067785308
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 6,
+    "usage": {
+      "input_tokens": 169549,
+      "cached_input_tokens": 163072,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 424,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste",
+    "seed": 15,
+    "repeat": 3,
+    "arm": "umbra",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 17.863112582999747
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.986351,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 3,
+      "observations": 2,
+      "seconds": 13.640013582989923
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 7,
+    "tool_seconds": [
+      0.016987667011562735,
+      0.06200562498997897,
+      0.008493708010064438,
+      0.002151167005649768,
+      0.01212041699909605,
+      0.0020872089953627437
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 4,
+    "usage": {
+      "input_tokens": 111164,
+      "cached_input_tokens": 104832,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 274,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste",
+    "seed": 15,
+    "repeat": 3,
+    "arm": "playwright",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 20.259820582999964
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.983746,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 6,
+      "observations": 2,
+      "seconds": 16.51046674999816
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 10,
+    "tool_seconds": [
+      0.1006062920059776,
+      0.5924803749949206,
+      0.009514165998552926,
+      0.006419416997232474,
+      0.5328238749934826,
+      0.037209540998446755,
+      0.005844750005053356,
+      0.5571489589929115,
+      0.00175275000219699
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 6,
+    "usage": {
+      "input_tokens": 132872,
+      "cached_input_tokens": 125312,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 359,
+      "reasoning_output_tokens": 42
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste",
+    "seed": 32,
+    "repeat": 4,
+    "arm": "playwright",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 18.448041915995418
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.98532,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 6,
+      "observations": 2,
+      "seconds": 14.92859112500446
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 10,
+    "tool_seconds": [
+      0.11439091700594872,
+      0.5749262499884935,
+      0.008223958997405134,
+      0.0062752919911872596,
+      0.5289340420131339,
+      0.031476165997446515,
+      0.005840249999891967,
+      0.5559161669953028,
+      0.0019747500045923516
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 6,
+    "usage": {
+      "input_tokens": 132763,
+      "cached_input_tokens": 121472,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 327,
+      "reasoning_output_tokens": 39
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste",
+    "seed": 32,
+    "repeat": 4,
+    "arm": "umbra",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 17.208448167002643
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.986848,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 3,
+      "observations": 2,
+      "seconds": 13.141666167008225
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 7,
+    "tool_seconds": [
+      0.015301167004508898,
+      0.05692645799717866,
+      0.008509124992997386,
+      0.003211250004824251,
+      0.011364624995621853,
+      0.0013685000012628734
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 4,
+    "usage": {
+      "input_tokens": 115504,
+      "cached_input_tokens": 104064,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 258,
+      "reasoning_output_tokens": 31
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste-2",
+    "seed": 3,
+    "repeat": 0,
+    "arm": "umbra",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 19.423755166993942
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.984875,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 3,
+      "observations": 2,
+      "seconds": 15.112333833007142
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 7,
+    "tool_seconds": [
+      0.011464167007943615,
+      0.06128829199587926,
+      0.008405417000176385,
+      0.0026574169896775857,
+      0.011365541999111883,
+      0.001032457992550917
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 4,
+    "usage": {
+      "input_tokens": 129550,
+      "cached_input_tokens": 123136,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 282,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste-2",
+    "seed": 3,
+    "repeat": 0,
+    "arm": "playwright",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 20.55979916699289
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.983652,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 6,
+      "observations": 2,
+      "seconds": 16.58592379199399
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 10,
+    "tool_seconds": [
+      0.10298337499261834,
+      0.5819628340104828,
+      0.008495625006617047,
+      0.006460707998485304,
+      0.5417607499985024,
+      0.008399750004173256,
+      0.027443458006018773,
+      0.5323179999977583,
+      0.000967542000580579
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 6,
+    "usage": {
+      "input_tokens": 133127,
+      "cached_input_tokens": 110464,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 320,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste-2",
+    "seed": 32,
+    "repeat": 1,
+    "arm": "umbra",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 18.437132249993738
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.986371,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 3,
+      "observations": 2,
+      "seconds": 13.617569583002478
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 7,
+    "tool_seconds": [
+      0.01570283400360495,
+      0.05893929100420792,
+      0.008199083007639274,
+      0.0022021670010872185,
+      0.0103492080088472,
+      0.0009640000062063336
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 4,
+    "usage": {
+      "input_tokens": 116126,
+      "cached_input_tokens": 109184,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 259,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste-2",
+    "seed": 32,
+    "repeat": 1,
+    "arm": "playwright",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 24.876641084003495
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.978819,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 6,
+      "observations": 2,
+      "seconds": 21.437303582992172
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 10,
+    "tool_seconds": [
+      0.10443533401121385,
+      0.5837922909995541,
+      0.008038332991418429,
+      0.0056126669951481745,
+      0.5464018749917159,
+      0.008812416999717243,
+      0.014485459003481083,
+      0.548317708002287,
+      0.0016559999930905178
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 6,
+    "usage": {
+      "input_tokens": 170525,
+      "cached_input_tokens": 143744,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 434,
+      "reasoning_output_tokens": 41
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste-2",
+    "seed": 13,
+    "repeat": 2,
+    "arm": "playwright",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 23.60557295900071
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.983511,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 6,
+      "observations": 2,
+      "seconds": 16.738594833004754
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 10,
+    "tool_seconds": [
+      0.10746037500211969,
+      0.5849143749946961,
+      0.007305832987185568,
+      0.006851832993561402,
+      0.5261981250077952,
+      0.0313248750026105,
+      0.01460308299283497,
+      0.5566103330056649,
+      0.0013382500037550926
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 6,
+    "usage": {
+      "input_tokens": 156674,
+      "cached_input_tokens": 145664,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 346,
+      "reasoning_output_tokens": 25
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste-2",
+    "seed": 13,
+    "repeat": 2,
+    "arm": "umbra",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 17.11946462499327
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.987218,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 3,
+      "observations": 2,
+      "seconds": 12.772329500003252
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 7,
+    "tool_seconds": [
+      0.013605041996925138,
+      0.0601417500001844,
+      0.008317750005517155,
+      0.002628625006764196,
+      0.011759958011680283,
+      0.001616000008652918
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 4,
+    "usage": {
+      "input_tokens": 133266,
+      "cached_input_tokens": 126080,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 259,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste-2",
+    "seed": 20,
+    "repeat": 3,
+    "arm": "playwright",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 21.804453000004287
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.982441,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 6,
+      "observations": 2,
+      "seconds": 17.8026509170013
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 10,
+    "tool_seconds": [
+      0.11676695800269954,
+      0.5765970420034137,
+      0.00741641600325238,
+      0.007959417009260505,
+      0.5290446249855449,
+      0.03713795798830688,
+      0.006272416008869186,
+      0.5400420419900911,
+      0.001211875001899898
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 6,
+    "usage": {
+      "input_tokens": 132874,
+      "cached_input_tokens": 126464,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 286,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste-2",
+    "seed": 20,
+    "repeat": 3,
+    "arm": "umbra",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 14.9924745419994
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.989869,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 3,
+      "observations": 2,
+      "seconds": 10.118530749998172
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 7,
+    "tool_seconds": [
+      0.009135208005318418,
+      0.05904533299326431,
+      0.008198166004149243,
+      0.003730457989149727,
+      0.007007749998592772,
+      0.0012386250018607825
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 4,
+    "usage": {
+      "input_tokens": 115944,
+      "cached_input_tokens": 109184,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 228,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste-2",
+    "seed": 19,
+    "repeat": 4,
+    "arm": "umbra",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 18.30797550000716
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.986433,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 3,
+      "observations": 2,
+      "seconds": 13.552901624992955
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 7,
+    "tool_seconds": [
+      0.00851887499447912,
+      0.05955629200616386,
+      0.0086158749909373,
+      0.00362420899909921,
+      0.011583125000470318,
+      0.0013624169951071963
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 4,
+    "usage": {
+      "input_tokens": 129204,
+      "cached_input_tokens": 123904,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 281,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.copy-paste-2",
+    "seed": 19,
+    "repeat": 4,
+    "arm": "playwright",
+    "split": "test",
+    "run": {
+      "exit": 0,
+      "seconds": 28.77007087499078
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.978337,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 6,
+      "observations": 2,
+      "seconds": 21.888103208999382
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 10,
+    "tool_seconds": [
+      0.11239104100968689,
+      0.6218731249973644,
+      0.0149253330018837,
+      0.013826916998368688,
+      0.6063531249965308,
+      0.04746708300081082,
+      0.007816625002305955,
+      0.5362115419993643,
+      0.0011294580035610124
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 6,
+    "usage": {
+      "input_tokens": 156522,
+      "cached_input_tokens": 144640,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 326,
+      "reasoning_output_tokens": 33
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  }
+]

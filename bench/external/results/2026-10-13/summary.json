@@ -1,0 +1,158 @@
+{
+  "umbra": {
+    "successes": 524,
+    "episodes": 625,
+    "finished": 625,
+    "rate": 0.8384,
+    "strict_successes": 517,
+    "strict_rate": 0.8272,
+    "unbatched_budget_positive": 501,
+    "unbatched_budget_strict": 494,
+    "failures": {
+      "agent stopped unfinished": 64,
+      "wall time limit": 10,
+      "upstream rejected": 26,
+      "action limit": 1
+    },
+    "episode_seconds": {
+      "n": 625,
+      "p50": 21.002240040994366,
+      "p95": 83.72657795840058
+    },
+    "tool_seconds": {
+      "n": 4809,
+      "p50": 0.00797775000683032,
+      "p95": 0.03194405840768005
+    },
+    "calls": {
+      "n": 625,
+      "p50": 7.0,
+      "p95": 21.0
+    },
+    "actions": {
+      "n": 625,
+      "p50": 2.0,
+      "p95": 8.0
+    },
+    "input_tokens": {
+      "n": 614,
+      "p50": 127889.5,
+      "p95": 329468.25
+    },
+    "cached_input_tokens": {
+      "n": 614,
+      "p50": 113536.0,
+      "p95": 310380.80000000005
+    },
+    "output_tokens": {
+      "n": 614,
+      "p50": 263.0,
+      "p95": 1450.5000000000002
+    },
+    "cleanup_failures": 0,
+    "trace_violations": 0,
+    "splits": {
+      "train": {
+        "successes": 273,
+        "episodes": 310
+      },
+      "test": {
+        "successes": 251,
+        "episodes": 315
+      }
+    },
+    "task_cluster_95pct_ci": [
+      0.7824000000000001,
+      0.8911999999999999
+    ],
+    "strict_task_cluster_95pct_ci": [
+      0.7696,
+      0.8816
+    ]
+  },
+  "playwright": {
+    "successes": 494,
+    "episodes": 625,
+    "finished": 625,
+    "rate": 0.7904,
+    "strict_successes": 489,
+    "strict_rate": 0.7824,
+    "unbatched_budget_positive": 494,
+    "unbatched_budget_strict": 489,
+    "failures": {
+      "agent stopped unfinished": 81,
+      "action limit": 9,
+      "wall time limit": 6,
+      "upstream rejected": 34,
+      "infrastructure / setup": 1
+    },
+    "episode_seconds": {
+      "n": 625,
+      "p50": 25.188888582997606,
+      "p95": 71.56345254999175
+    },
+    "tool_seconds": {
+      "n": 4142,
+      "p50": 0.04716435450245626,
+      "p95": 5.0234365214455465
+    },
+    "calls": {
+      "n": 625,
+      "p50": 6.0,
+      "p95": 17.0
+    },
+    "actions": {
+      "n": 624,
+      "p50": 2.0,
+      "p95": 8.0
+    },
+    "input_tokens": {
+      "n": 620,
+      "p50": 148171.5,
+      "p95": 287371.55
+    },
+    "cached_input_tokens": {
+      "n": 620,
+      "p50": 140224.0,
+      "p95": 270867.19999999995
+    },
+    "output_tokens": {
+      "n": 620,
+      "p50": 316.0,
+      "p95": 1088.2499999999998
+    },
+    "cleanup_failures": 0,
+    "trace_violations": 0,
+    "splits": {
+      "train": {
+        "successes": 257,
+        "episodes": 310
+      },
+      "test": {
+        "successes": 237,
+        "episodes": 315
+      }
+    },
+    "task_cluster_95pct_ci": [
+      0.7263999999999999,
+      0.8512
+    ],
+    "strict_task_cluster_95pct_ci": [
+      0.7168000000000001,
+      0.8432000000000001
+    ]
+  },
+  "paired_difference": {
+    "umbra_minus_playwright": 0.048,
+    "task_cluster_95pct_ci": [
+      -0.0032000000000000045,
+      0.09920000000000001
+    ],
+    "method": "10000 paired bootstrap samples of task types, RandomState(42); seeds within a task stay grouped",
+    "strict_umbra_minus_playwright": 0.044800000000000006,
+    "strict_task_cluster_95pct_ci": [
+      -0.006400000000000004,
+      0.09603999999999945
+    ]
+  }
+}

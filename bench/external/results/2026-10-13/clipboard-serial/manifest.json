@@ -1,0 +1,186 @@
+{
+  "umbra_revision": "a215d69297124329c80ba743f773def3c950b257",
+  "binary_sha256": "96850cf40c9685dd00b40c5bf8304992f3fd2405367092e274534fd8a039c979",
+  "harness_sha256": "6fafb7a7f1b52f4d023e05973c0370ec4c2dfe3fb2068c0fa66e7c56d23bbf6d",
+  "miniwob_revision": "33c3b4ddef8c6eb67c57a29663d844b1eda7e614",
+  "browsergym_revision": "e71419aef5759a11cb7896a26c36e5f7e92d82b2",
+  "source_hashes": {
+    "browsergym/miniwob/src/browsergym/miniwob/base.py": "4d7b82b7b63403a9774969f4166ab858243bef381335ae1af3ced345e66552ab",
+    "browsergym/miniwob/src/browsergym/miniwob/all.py": "25c6ed2960494808e12d5a178290289e63f81eee328a0f47b384a66d53531b98",
+    "browsergym/experiments/src/browsergym/experiments/benchmark/configs.py": "b966c2e01dd5bb559c12c927d94189d533f856fd8665cebfa9416af946481097",
+    "browsergym/experiments/src/browsergym/experiments/benchmark/utils.py": "310045014808f38af288118f5919b90a44cbef26b92b74f35f5c2822f60f8bec",
+    "browsergym/experiments/src/browsergym/experiments/loop.py": "15cbb3e5ecbf516981870dbac08881ffdcaa6fbf64dfc1d3d7d9487141c94d3f"
+  },
+  "metadata_sha256": "37117db27909a17b1b78035528472922c98c479a54619ac398dc256a7d2fef09",
+  "max_actions": 10,
+  "seconds_per_episode": 120,
+  "repeats": 5,
+  "standard_repeats": 5,
+  "cases": [
+    {
+      "task": "miniwob.copy-paste",
+      "seed": 17,
+      "repeat": 0,
+      "arm": "playwright",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste",
+      "seed": 17,
+      "repeat": 0,
+      "arm": "umbra",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste",
+      "seed": 17,
+      "repeat": 1,
+      "arm": "umbra",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste",
+      "seed": 17,
+      "repeat": 1,
+      "arm": "playwright",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste",
+      "seed": 1,
+      "repeat": 2,
+      "arm": "umbra",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste",
+      "seed": 1,
+      "repeat": 2,
+      "arm": "playwright",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste",
+      "seed": 15,
+      "repeat": 3,
+      "arm": "umbra",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste",
+      "seed": 15,
+      "repeat": 3,
+      "arm": "playwright",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste",
+      "seed": 32,
+      "repeat": 4,
+      "arm": "playwright",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste",
+      "seed": 32,
+      "repeat": 4,
+      "arm": "umbra",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste-2",
+      "seed": 3,
+      "repeat": 0,
+      "arm": "umbra",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste-2",
+      "seed": 3,
+      "repeat": 0,
+      "arm": "playwright",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste-2",
+      "seed": 32,
+      "repeat": 1,
+      "arm": "umbra",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste-2",
+      "seed": 32,
+      "repeat": 1,
+      "arm": "playwright",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste-2",
+      "seed": 13,
+      "repeat": 2,
+      "arm": "playwright",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste-2",
+      "seed": 13,
+      "repeat": 2,
+      "arm": "umbra",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste-2",
+      "seed": 20,
+      "repeat": 3,
+      "arm": "playwright",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste-2",
+      "seed": 20,
+      "repeat": 3,
+      "arm": "umbra",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste-2",
+      "seed": 19,
+      "repeat": 4,
+      "arm": "umbra",
+      "split": "test"
+    },
+    {
+      "task": "miniwob.copy-paste-2",
+      "seed": 19,
+      "repeat": 4,
+      "arm": "playwright",
+      "split": "test"
+    }
+  ],
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "high",
+  "agent": "codex-cli 0.162.1",
+  "python": "3.12.13 (main, Mar 10 2026, 18:18:07) [Clang 21.1.4 ]",
+  "dependencies": {
+    "browsergym-core": "0.14.3",
+    "browsergym-miniwob": "0.14.3",
+    "numpy": "2.5.4",
+    "playwright": "1.63.0"
+  },
+  "playwright_mcp_version": "0.0.83",
+  "chromium_sha256": "a596b1cfc6353e987fcec8d71a23a28cd6a9e7a6b4e20b908e4c4fcffe51158e",
+  "mcp_source_sha256": "70dab09ab9a5bc1943fb78e2655f00af7349f9931073833919f19c5d7d786ad6",
+  "system": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434",
+  "limitations": [
+    "Adapted MCP action surface, not BrowserGym HighLevelActionSet",
+    "No arbitrary JavaScript or source/file access in either arm",
+    "No claim of published-leaderboard comparability",
+    "Timing includes model inference; tool latency logged separately",
+    "BrowserGym screenshot scale annotation is not applied by these MCP servers",
+    "Upstream WebKit rendering can differ from recommended Chromium",
+    "One episode at a time; host clipboard is still shared with the user."
+  ],
+  "concurrency": 1,
+  "purpose": "Supplementary serialized clipboard diagnostic; original main scores remain primary"
+}

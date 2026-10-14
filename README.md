@@ -8,22 +8,110 @@
 </p>
 
 <p align="center">
-  <strong>14 of 14</strong> eval tasks in all 5 agent setups, Claude Code and Codex (70 of 70 runs) ·
-  snapshot in <strong>0.9 ms</strong> and click in <strong>1.5 ms</strong> over the MCP socket ·
+  <strong>517/625 full-reward outcomes</strong> on external MiniWoB++ tasks ·
+  local-fixture medians: snapshot <strong>0.9 ms</strong>, click <strong>1.5 ms</strong> over the daemon socket ·
   a window only when you're needed
 </p>
 
 <p align="center">
+  <a href="#agent-eval">Agent eval</a> ·
+  <a href="#benchmarks">Benchmarks</a> ·
   <a href="#the-loop">The loop</a> ·
   <a href="#install">Install</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#commands">Commands</a> ·
   <a href="docs/mcp.md">MCP</a> ·
-  <a href="#agent-eval">Agent eval</a> ·
-  <a href="#benchmarks">Benchmarks</a> ·
   <a href="#security-model">Security</a> ·
   <a href="#limitations">Limitations</a>
 </p>
+
+## Why choose Umbra
+
+- **Fast page reads and actions.** On the same local fixture, socket snapshots took 0.9 ms versus Playwright Chromium's 3.6 ms; clicks took 1.5 ms versus 16 ms. [Measured comparison below](#benchmarks).
+- **No browser download.** Umbra uses the WebKit already on your Mac. Sign in once in its own window; agents reuse that session without opening your everyday browser.
+- **Your screen stays yours.** Background tabs leave your focus alone. Bring a tab on screen when a sign-in or human step needs you, then send it back to the agent.
+- **One session, shell and MCP.** Scripts and agents share the same live tabs, history and sign-ins. Use your existing model and agent; Umbra supplies the browser.
+
+## Agent eval
+
+### External tasks: MiniWoB++ vs Playwright MCP
+
+**125 upstream task types, five repetitions each, 1,250 total episodes.** Fresh Codex sessions used the same model (`gpt-6.1-sol`, high effort), paired seeds and the unchanged BrowserGym task setup and reward grader. Tasks and graders came from [MiniWoB++ and BrowserGym](bench/external/README.md), rather than this project's own test app.
+
+| Measured outcome | Umbra MCP · native WebKit | Playwright MCP · Chromium |
+|---|---:|---:|
+| Full reward | **517/625 · 82.7%** | 489/625 · 78.2% |
+| BrowserGym success (includes partial reward) | **524/625 · 83.8%** | 494/625 · 79.0% |
+| Median episode time | **21.0 s** | 25.2 s |
+| Episode p95 | 83.7 s | **71.6 s** |
+
+Umbra's observed full-reward score was 4.48 percentage points higher. **The comparison is inconclusive:** the paired 95% task-bootstrap interval is −0.64 to +9.60 points. This is an adapted MCP protocol, not an official leaderboard run. Native key arrays counted as one interaction unit; expanding those keys in a conservative post-hoc sensitivity calculation gives **494/625 (79.0%) for Umbra versus 489/625 (78.2%) for Playwright**. Timing includes model inference, shared load and different tool/control paths; it does not establish an engine speedup.
+
+Every frozen case stayed in the denominator, including one Playwright case with missing outcome evidence. Concurrent clipboard tasks share host state; a separate serialized diagnostic earned full reward on **10/10 cases for each tool**, without replacing the primary scores.
+
+[Full results and per-task breakdown](bench/external/results/2026-10-13/RESULTS.md) · [Protocol and reproduction](bench/external/README.md) · [Verification receipt](bench/external/results/2026-10-13/VERIFICATION.md) · [Serialized clipboard diagnostic](bench/external/results/2026-10-13/clipboard-serial/RESULTS.md)
+
+### Project regression: 70/70 completed
+
+Five Claude Code and Codex setups each completed all 14 unattended Northwind Ops tasks. These project-authored tasks exercise signed-in workflows, exports, uploads, forms and browser edge cases; they are regression evidence, separate from the external evaluation above.
+
+<details>
+<summary>Agent setups, task coverage and regression methodology</summary>
+
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/eval-mobile.svg">
+    <img src="assets/eval.svg" width="100%" alt="Five agent setups each completed all 14 tasks, 70 of 70, with zero critical failures: Claude Opus 5.5 with the skill (median 8 tool calls per task), Claude Opus 5.5 with only umbra help (9), Claude Sonnet 5.5 with the skill (6.5), GPT-6 Sol in Codex with the skill (14.5), and GPT-6 Sol in Codex as installed, with its own skill and no help in the prompt (17).">
+  </picture>
+</p>
+
+Can a fresh agent get real work done with Umbra? The harness, [`bench/eval/eval.py`](bench/eval/eval.py), gives each of the proving ground's 14 unattended tasks to a fresh, isolated agent: a Claude Code subagent, or a `codex exec` run. Each one gets its own instance of the site, its own working directory and its own Umbra profile, and never sees the graders. The tasks include password and one-time-code sign-in, paginated and filtered tables, a refund behind `confirm()`, a CSV export, a hidden file input, a validated wizard, infinite scroll, a React-controlled input, a contenteditable, shadow DOM, an iframe, a pop-up and late-loading content. Each is graded from the site's server-side state, the answer and any output files.
+
+| Agent | Guidance | Passed | Median tool calls | `umbra help` lookups, all runs | Runs that used `sleep` | Median time per task |
+|---|---|:-:|:-:|:-:|:-:|:-:|
+| Claude Opus 5.5 | the skill, in the prompt | 14/14 | 8 | 2 | 0 | 28 s |
+| Claude Opus 5.5 | only `umbra help` | 14/14 | 9 | 21 | 2 | 29.5 s |
+| Claude Sonnet 5.5 | the skill, in the prompt | 14/14 | 6.5 | 1 | 2 | 21.5 s |
+| GPT-6 Sol in Codex | the skill, in the prompt | 14/14 | 14.5 | 3 | 0 | 41 s |
+| GPT-6 Sol in Codex | as installed: nothing in the prompt | 14/14 | 17 | 17 | 0 | 43 s |
+
+None of the 70 runs had a critical failure: no Safari or AppleScript, no leaving its own profile, no reading the repository's graders, and no other browser or screen tool. For Codex, [`bench/eval/process.py`](bench/eval/process.py) checks every command and tool call in each run's transcript.
+
+What the runs showed:
+
+- **Both model families do the whole job.** Claude and GPT-6 Sol each passed every task, with and without the skill pasted into the prompt: 14 tasks in 5 setups, 70 of 70 runs.
+- **An installed skill gets used.** With nothing about the skill in the task prompt, only the standing `AGENTS.md` rule that names it, Codex read its installed `umbra` skill in all 14 runs, and none used `sleep` instead of `wait`. The skill's value is economy: with it in the prompt, agents look things up far less (3 `umbra help` lookups across 14 Codex runs, against 17 without).
+- **The skill was fixed by the eval.** An early draft told agents to get the user's OK before refunds and similar actions, so one agent stopped and asked before a refund the user had explicitly requested. The rule now covers only consequential actions that are the agent's own idea, and the rerun passed.
+
+Each agent ran each task once, the tasks were written by this project, and everything ran on one Mac. The 15th task, a CAPTCHA handoff, needs a person at the screen and wasn't run. Every agent ran with this Mac's own setup, where the skill is installed and the global instructions name it, so "only `umbra help`" and "nothing in the prompt" mean nothing about the skill in the task prompt. Codex ran with its usual setup except where isolation required otherwise: its Umbra MCP server pinned to the run's profile, its own browser tool off, and no session history kept. The Claude arms ran an earlier build (0eecdd3) than the Codex arms (30c0835). In between came 12 source changes, including download-aware click, navigation reports for form submits, the `wait --idle` timeout and new help pages, so call counts and times across the two families aren't like for like. The [full report](bench/eval/RESULTS.md) has every task and the process numbers.
+
+</details>
+
+## Benchmarks
+
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/speed-mobile.svg">
+    <img src="assets/speed.svg" width="100%" alt="Median milliseconds per action, log scale, Umbra over its socket against Playwright Chromium and WebKit: accessibility snapshot 0.9 against 3.6 and 4.4; click 1.5 against 16 and 66; fill a React field 1.3 against 2.1 and 3.0; eval round trip 0.2 against 0.3 and 0.4; viewport screenshot 50 against 85 and 57; warm navigate 13 against 6.5 and 13, the one action where Chromium is faster.">
+  </picture>
+</p>
+
+Umbra against Playwright 1.62 on the same local pages of the proving site. Each cell is the median over 20 runs, in milliseconds. Measured on an M1 Pro MacBook Pro with macOS 27; results.md notes the machine's load during the run. The p95s, the method and every check are in [bench/results.md](bench/results.md).
+
+| | Umbra CLI | Umbra socket | Playwright Chromium | Playwright WebKit |
+|---|---:|---:|---:|---:|
+| Accessibility snapshot | 14 | **0.9** | 3.6 | 4.4 |
+| Click + DOM update | 15 | **1.5** | 16 | 66 |
+| Fill a React-controlled field | 15 | **1.3** | 2.1 | 3.0 |
+| Eval round trip | 12 | **0.2** | 0.3 | 0.4 |
+| Viewport screenshot to a file | 64 | **50** | 85 | 57 |
+| Warm navigate (local page) | 27 | 13 | **6.5** | 13 |
+| 200-image page | 175 | 163 | **83** | 147 |
+| 200-image page, images blocked | 42 | **29** | 76 | 60 |
+| Cold start to first page | 408 | | **153** | 718 |
+| One-shot `read`, no daemon | 385 | | | |
+
+On these local fixtures, Umbra’s socket path had the lowest median for snapshots, clicks, field fills, eval round trips and screenshots. This is a project-authored command microbenchmark, separate from the external agent evaluation above. Each CLI command adds about 12 ms of process start-up, which is still small next to an agent's thinking time. Chromium starts faster: its figure leaves out Node's own start-up, while Umbra's includes spawning the daemon and WebKit. Chromium also loads a page full of uncached images faster unless you `block images`.
 
 ## The loop
 
@@ -84,7 +172,7 @@ In the project's [agent eval](#agent-eval), fresh Claude Code and Codex agents c
 
 ## Why native WebKit, and why invisible
 
-Umbra drives the same WebKit that Safari uses, through Apple's own `WKWebView`. Every tab lives in a transparent, click-through window placed far off screen, with WebKit's occlusion detection turned off. That gives agents three things a headless browser usually can't:
+Umbra drives the same WebKit that Safari uses, through Apple's own `WKWebView`. Every tab lives in a transparent, click-through window placed far off screen, with WebKit's occlusion detection turned off. This configuration gives agents:
 
 <p align="center">
   <picture>
@@ -353,61 +441,6 @@ Snapshot, refs and actions run in an isolated JavaScript world. They share the p
 - No passkeys or Touch ID in the sign-in window. Use a password with a push approval or a code.
 - One daemon per profile. Runs of the one-shot commands without a daemon take turns on the profile's lock.
 - It's not a scraper or an anti-bot tool. It's for your own accounts at a human pace. It doesn't hide automation, rotate identities or solve CAPTCHAs, and site terms still apply.
-
-## Agent eval
-
-<p align="center">
-  <picture>
-    <source media="(max-width: 600px)" srcset="assets/eval-mobile.svg">
-    <img src="assets/eval.svg" width="100%" alt="Five agent setups each completed all 14 tasks, 70 of 70, with zero critical failures: Claude Opus 5.5 with the skill (median 8 tool calls per task), Claude Opus 5.5 with only umbra help (9), Claude Sonnet 5.5 with the skill (6.5), GPT-6 Sol in Codex with the skill (14.5), and GPT-6 Sol in Codex as installed, with its own skill and no help in the prompt (17).">
-  </picture>
-</p>
-
-Can a fresh agent get real work done with Umbra? The harness, [`bench/eval/eval.py`](bench/eval/eval.py), gives each of the proving ground's 14 unattended tasks to a fresh, isolated agent: a Claude Code subagent, or a `codex exec` run. Each one gets its own instance of the site, its own working directory and its own Umbra profile, and never sees the graders. The tasks include password and one-time-code sign-in, paginated and filtered tables, a refund behind `confirm()`, a CSV export, a hidden file input, a validated wizard, infinite scroll, a React-controlled input, a contenteditable, shadow DOM, an iframe, a pop-up and late-loading content. Each is graded from the site's server-side state, the answer and any output files.
-
-| Agent | Guidance | Passed | Median tool calls | `umbra help` lookups, all runs | Runs that used `sleep` | Median time per task |
-|---|---|:-:|:-:|:-:|:-:|:-:|
-| Claude Opus 5.5 | the skill, in the prompt | 14/14 | 8 | 2 | 0 | 28 s |
-| Claude Opus 5.5 | only `umbra help` | 14/14 | 9 | 21 | 2 | 29.5 s |
-| Claude Sonnet 5.5 | the skill, in the prompt | 14/14 | 6.5 | 1 | 2 | 21.5 s |
-| GPT-6 Sol in Codex | the skill, in the prompt | 14/14 | 14.5 | 3 | 0 | 41 s |
-| GPT-6 Sol in Codex | as installed: nothing in the prompt | 14/14 | 17 | 17 | 0 | 43 s |
-
-None of the 70 runs had a critical failure: no Safari or AppleScript, no leaving its own profile, no reading the repository's graders, and no other browser or screen tool. For Codex, [`bench/eval/process.py`](bench/eval/process.py) checks every command and tool call in each run's transcript.
-
-What the runs showed:
-
-- **Both model families do the whole job.** Claude and GPT-6 Sol each passed every task, with and without the skill pasted into the prompt: 14 tasks in 5 setups, 70 of 70 runs.
-- **An installed skill gets used.** With nothing about the skill in the task prompt, only the standing `AGENTS.md` rule that names it, Codex read its installed `umbra` skill in all 14 runs, and none used `sleep` instead of `wait`. The skill's value is economy: with it in the prompt, agents look things up far less (3 `umbra help` lookups across 14 Codex runs, against 17 without).
-- **The skill was fixed by the eval.** An early draft told agents to get the user's OK before refunds and similar actions, so one agent stopped and asked before a refund the user had explicitly requested. The rule now covers only consequential actions that are the agent's own idea, and the rerun passed.
-
-Each agent ran each task once, the tasks were written by this project, and everything ran on one Mac. The 15th task, a CAPTCHA handoff, needs a person at the screen and wasn't run. Every agent ran with this Mac's own setup, where the skill is installed and the global instructions name it, so "only `umbra help`" and "nothing in the prompt" mean nothing about the skill in the task prompt. Codex ran with its usual setup except where isolation required otherwise: its Umbra MCP server pinned to the run's profile, its own browser tool off, and no session history kept. The Claude arms ran an earlier build (0eecdd3) than the Codex arms (30c0835). In between came 12 source changes, including download-aware click, navigation reports for form submits, the `wait --idle` timeout and new help pages, so call counts and times across the two families aren't like for like. The [full report](bench/eval/RESULTS.md) has every task and the process numbers.
-
-## Benchmarks
-
-<p align="center">
-  <picture>
-    <source media="(max-width: 600px)" srcset="assets/speed-mobile.svg">
-    <img src="assets/speed.svg" width="100%" alt="Median milliseconds per action, log scale, Umbra over its socket against Playwright Chromium and WebKit: accessibility snapshot 0.9 against 3.6 and 4.4; click 1.5 against 16 and 66; fill a React field 1.3 against 2.1 and 3.0; eval round trip 0.2 against 0.3 and 0.4; viewport screenshot 50 against 85 and 57; warm navigate 13 against 6.5 and 13, the one action where Chromium is faster.">
-  </picture>
-</p>
-
-Umbra against Playwright 1.62 on the same local pages of the proving site. Each cell is the median over 20 runs, in milliseconds. Measured on an M1 Pro MacBook Pro with macOS 27; results.md notes the machine's load during the run. The p95s, the method and every check are in [bench/results.md](bench/results.md).
-
-| | Umbra CLI | Umbra socket (MCP) | Playwright Chromium | Playwright WebKit |
-|---|---:|---:|---:|---:|
-| Accessibility snapshot | 14 | **0.9** | 3.6 | 4.4 |
-| Click + DOM update | 15 | **1.5** | 16 | 66 |
-| Fill a React-controlled field | 15 | **1.3** | 2.1 | 3.0 |
-| Eval round trip | 12 | **0.2** | 0.3 | 0.4 |
-| Viewport screenshot to a file | 64 | **50** | 85 | 57 |
-| Warm navigate (local page) | 27 | 13 | **6.5** | 13 |
-| 200-image page | 175 | 163 | **83** | 147 |
-| 200-image page, images blocked | 42 | **29** | 76 | 60 |
-| Cold start to first page | 408 | | **153** | 718 |
-| One-shot `read`, no daemon | 385 | | | |
-
-Through its socket, which is how `umbra mcp` talks to it, Umbra is the fastest of the four at reading and acting on a page. Each CLI command adds about 12 ms of process start-up, which is still small next to an agent's thinking time. Chromium starts faster: its figure leaves out Node's own start-up, while Umbra's includes spawning the daemon and WebKit. Chromium also loads a page full of uncached images faster unless you `block images`.
 
 ## FAQ
 

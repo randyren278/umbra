@@ -1,0 +1,9 @@
+{
+  "episodes": true,
+  "harness_hash": true,
+  "binary_hash": true,
+  "source_hashes": true,
+  "paired_goals": true,
+  "cleanup_receipts": true,
+  "controller_json": true
+}

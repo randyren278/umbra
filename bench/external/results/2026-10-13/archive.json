@@ -1,0 +1,26 @@
+{
+  "archive": "bench/external/evidence/2026-10-13.tar.gz",
+  "sha256": "9d7cb38c4f6ba618026bb1d7cfe1c0dcdb54d58e080aa845c2cf833dc045d2e3",
+  "bytes": 21642720,
+  "files": 16689,
+  "contents": [
+    "campaign",
+    "clipboard-serial",
+    "pilot",
+    "upstream/miniwob",
+    "upstream/browsergym",
+    "umbra/Sources",
+    "published-results",
+    "umbra/tested-binary",
+    "umbra/README.md",
+    "protocol"
+  ],
+  "excluded": [
+    ".git",
+    "chrome",
+    "__pycache__",
+    "dependency installations"
+  ],
+  "note": "Local ignored archive; campaign evidence-hashes.json keys map to campaign/ entries; serial hashes map to clipboard-serial/.",
+  "raw_files_verified": 15965
+}
