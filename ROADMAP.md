@@ -22,9 +22,9 @@ live state.
 |---|---|
 | 1 | 41 MCP tools and the same commands on the CLI, sharing live tabs (mcp_conformance 32, test_daemon 102) |
 | 2 | Invisibility guard after every session command in the test suite; zero violations. Daemon runs with the prohibited activation policy; focus regression test fails before 16c35ab |
-| 3 | All speed targets met at p50 and p95 (bench/results.md): snapshot 0.9 ms socket / 14 ms CLI, click 1.5 / 15 ms, navigate 13 / 27 ms, cold start 408 ms, one-shot read 385 ms |
+| 3 | All speed targets met at p50 and p95 (docs/evaluation/latency/RESULTS.md): snapshot 0.9 ms socket / 14 ms CLI, click 1.5 / 15 ms, navigate 13 / 27 ms, cold start 408 ms, one-shot read 385 ms |
 | 4 | Lifecycle tests: auto-spawn, idle exit, stale socket, racing spawns, concurrent clients, SIGTERM, one-shots through a live daemon |
-| 5 | Agent eval 14/14 in each of five arms (Claude Opus and Sonnet in Claude Code, GPT-6 Sol in Codex), zero critical failures (bench/eval/RESULTS.md) |
+| 5 | Agent eval 14/14 in each of five arms (Claude Opus and Sonnet in Claude Code, GPT-6 Sol in Codex), zero critical failures (docs/evaluation/regression/RESULTS.md) |
 | 6 | FIRST (110 tests; live Instagram and LinkedIn reads) and UBC (Canvas pulls, downloads, Kaltura, ubccheck) verified on the installed build |
 | 7 | README, docs, llms.txt, skill, CI, Homebrew head formula, release zip target |
 
@@ -77,4 +77,4 @@ umbra mcp ─┘   per profile         ├─ Tab …
 - 2026-10-13: the sign-in window became a way to sign in, never a way to browse (opening Umbra showed signed-in Instagram and LinkedIn, which are distracting). The daemon shows it, with a Dock icon while it is open; signed-in sites are checked without loading, and a login page closes the moment its sign-in lands.
 - 2026-10-13: after the fix the five-concurrent test passed 96 of 96 isolated runs on the runner (19 of 96 failed before). The account's GitHub Actions minutes then ran out (macOS jobs count ten times on a private repo, and the two probes used most of them), so both workflows are disabled (`gh workflow enable CI` turns CI back on). Until then, tests run locally: `make test`, about five minutes, never touching the default profile.
 - 2026-10-13: Add Account. A pasted login link becomes a site in sites.json; during its first sign-in Umbra learns the cookie it set, so the site is then checked like the others and agents can use it. `umbra sign-in <url> --save NAME` does the same from a shell.
-- 2026-10-13: the agent eval with Codex (`eval.py run-codex`, GPT-6 Sol at high effort): 14/14 with the skill in the prompt and 14/14 as installed, zero critical failures by `process.py`; in every as-installed run Codex read its installed skill unprompted. README diagrams for the loop, WebKit, sign-in, handoff, profiles, the eval and speed, each with a phone layout; `assets/charts.py` draws the data ones from bench/results.json and bench/eval/scores.json.
+- 2026-10-13: the agent eval with Codex (`eval.py run-codex`, GPT-6 Sol at high effort): 14/14 with the skill in the prompt and 14/14 as installed, zero critical failures by `process.py`; in every as-installed run Codex read its installed skill unprompted. README diagrams for the loop, WebKit, sign-in, handoff, profiles, the eval and speed, each with a phone layout; `assets/charts.py` draws the data ones from docs/evaluation/latency/results.json and docs/evaluation/regression/scores.json.

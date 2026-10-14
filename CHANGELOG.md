@@ -16,7 +16,7 @@ All notable changes to Umbra are recorded here. Versions follow [Semantic Versio
 
 - `umbra sign-out <site>`, and a Sign Out button in the window: deletes the site's cookies from the profile's store.
 - Add Account in the window, and `umbra sign-in <login URL> --save NAME`: a pasted login link becomes a site in `sites.json`. During its first sign-in Umbra learns the cookie it sets (a session-like one that appeared after the login page loaded), so from then on the site is checked like the others, and agents can use it.
-- The agent eval runs Codex too (`eval.py run-codex`, with `process.py` reading each run's transcript): GPT-6 Sol in Codex completed 14 of 14 tasks with the skill in its prompt and 14 of 14 as installed, with zero critical failures. Results are in `bench/eval/RESULTS.md` and `bench/eval/scores.json`.
+- The agent eval runs Codex too (`eval.py run-codex`, with `process.py` reading each run's transcript): GPT-6 Sol in Codex completed 14 of 14 tasks with the skill in its prompt and 14 of 14 as installed, with zero critical failures. Results are in `docs/evaluation/regression/RESULTS.md` and `docs/evaluation/regression/scores.json`.
 - `umbra mcp --print-config` prints the line for Codex.
 - README diagrams in the artwork's style, each with a phone layout: the loop, why WebKit, the sign-in window, handoff, profiles, how it works, and two drawn from data by `assets/charts.py` (the eval scoreboard and the speed chart).
 

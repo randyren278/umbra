@@ -2,6 +2,11 @@
 
 Umbra is a Swift program, in [Sources/](../Sources/), compiled into a small macOS app bundle. This page covers the daemon and its socket, the tabs, input, the cookie store, profiles and the one-shot commands. [AGENTS.md](../AGENTS.md) has the same architecture from a contributor's side.
 
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/how-it-works-mobile.svg">
+  <img src="../assets/how-it-works.svg" width="100%" alt="The CLI and MCP share a per-profile daemon, live WebKit tabs and an Umbra-owned cookie store. Sign-in and handoff show a window for human steps.">
+</picture>
+
 ## The app
 
 `make build` compiles the sources with `swiftc` into `build/Umbra.app` and signs it ad hoc. `Info.plist` is linked into the binary itself (`-sectcreate __TEXT __info_plist`), so the bundle identifier `com.randyren.umbra` holds however you launch it: from the app, through the `~/.local/bin/umbra` symlink, or from a copy of the binary. That matters because the identifier decides where WebKit keeps the cookie store.

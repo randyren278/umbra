@@ -5,8 +5,8 @@
 
 Umbra is timed two ways: through the CLI, one process per command as an agent's shell runs it, and
 through one persistent connection to the daemon's socket. Playwright runs as one persistent Node
-process per browser (bench/pw.js), its best case. Results go to bench/results.md and
-bench/results.json. A metric whose Umbra command isn't built yet shows "n/a (not built)".
+process per browser (bench/pw.js), its best case. Results go to docs/evaluation/latency/RESULTS.md and
+docs/evaluation/latency/results.json. A metric whose Umbra command isn't built yet shows "n/a (not built)".
 
 Uses a throwaway UMBRA_PROFILE=bench-<random> with UMBRA_IDLE=60, and stops its daemon and deletes
 the profile's store, socket, lock, log and downloads when it finishes.
@@ -368,7 +368,9 @@ def machine():
 
 
 def write_results(data):
-    (BENCH / 'results.json').write_text(json.dumps(data, indent=1) + '\n')
+    destination = REPO / 'docs/evaluation/latency'
+    destination.mkdir(parents=True, exist_ok=True)
+    (destination / 'results.json').write_text(json.dumps(data, indent=1) + '\n')
     m = data['machine']
     lines = ['# Umbra vs Playwright on Northwind Ops', '',
              f"Measured {data['date']} on a {m['model']} ({m['cpu']}, {m['cores']} cores, {m['memory_gb']} GB), "
@@ -420,7 +422,7 @@ def write_results(data):
               '- "n/a (not built)" means the Umbra build lacks a command that metric needs; rerun once it lands.']
     if data.get('errors'):
         lines += ['', '## Errors', ''] + [f'- {k}: {v}' for k, v in data['errors'].items()]
-    (BENCH / 'results.md').write_text('\n'.join(lines) + '\n')
+    (destination / 'RESULTS.md').write_text('\n'.join(lines) + '\n')
 
 
 def start_site():

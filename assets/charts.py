@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Regenerates the README's data pictures from the repository's own numbers, in the artwork's style:
+"""Regenerates the data pictures from the recorded measurements, in the artwork's style:
 
-  speed.svg, speed-mobile.svg      from bench/results.json (Umbra vs Playwright, median ms)
-  eval.svg, eval-mobile.svg        from bench/eval/scores.json (every agent arm, task by task)
+  showcase-v1.svg, showcase-mobile-v1.svg  the README highlights, derived from docs/evaluation
+
+  speed.svg, speed-mobile.svg      from docs/evaluation/latency/results.json (Umbra vs Playwright, median ms)
+  eval.svg, eval-mobile.svg        from docs/evaluation/regression/scores.json (every agent arm, task by task)
   sign-in.svg, sign-in-mobile.svg  the sign-in window's rules (words defined below)
 
 Run from anywhere: python3 assets/charts.py. Writes beside this file.
@@ -14,7 +16,7 @@ from pathlib import Path
 from build import AMBER, DIM, GREEN, INK, MONO, MUTED, ORCHID, PAPER, SANS, card, stars, svg
 
 HERE = Path(__file__).resolve().parent
-BENCH = HERE.parent / "bench"
+EVAL = HERE.parent / "docs/evaluation"
 RED = "#ff7a7a"
 
 
@@ -29,6 +31,84 @@ def heading(title, subtitle, width):
             + stars(width, 150, 14, 21, avoid=[(width / 2, 90, width / 2 - 140)]))
 
 
+# MARK: Showcase
+
+def showcase_data():
+    latency = json.loads((EVAL / 'latency/results.json').read_text())
+    external = json.loads((EVAL / 'miniwob/2026-10-13/summary.json').read_text())['umbra']
+    regression = eval_data()['arms']
+    metrics = latency['metrics']
+    return metrics, external, sum(a['passed'] for a in regression), sum(a['total'] for a in regression)
+
+
+def proof_panel(x, y, width, metric, label, caption, color):
+    native, baseline = metric['umbra_socket']['p50'], metric['chromium']['p50']
+    ratio = baseline / native
+    body = [f'<rect x="{x}" y="{y}" width="{width}" height="260" rx="18" fill="#07060d" fill-opacity="0.52" stroke="{color}" stroke-opacity="0.25"/>',
+            text(x + 24, y + 34, label, 20, color, 600),
+            text(x + 24, y + 118, f'{ratio:.1f}×', 78, PAPER, 700),
+            text(x + 24, y + 151, caption, 23, MUTED)]
+    for offset, name, value, fill in [(190, 'Umbra', native, color), (234, 'Playwright Chromium', baseline, DIM)]:
+        body += [text(x + 24, y + offset - 8, name, 18, MUTED),
+                 text(x + width - 24, y + offset - 8, f'{value:.2f} ms', 18, PAPER, anchor='end'),
+                 f'<rect x="{x + 24}" y="{y + offset}" width="{width - 48}" height="6" rx="3" fill="#ffffff" fill-opacity="0.08"/>',
+                 f'<rect x="{x + 24}" y="{y + offset}" width="{(width - 48) * value / baseline:.2f}" height="6" rx="3" fill="{fill}"/>']
+    return ''.join(body)
+
+
+def reward_panel(x, y, width, result):
+    rate = result['strict_rate']
+    cx, cy, radius = x + width - 65, y + 215, 33
+    perimeter = math.tau * radius
+    return (f'<rect x="{x}" y="{y}" width="{width}" height="260" rx="18" fill="#07060d" fill-opacity="0.52" stroke="{GREEN}" stroke-opacity="0.25"/>'
+            + text(x + 24, y + 34, 'EXTERNAL AGENT TASKS', 20, GREEN, 600)
+            + text(x + 24, y + 118, f'{rate:.1%}', 74, PAPER, 700)
+            + text(x + 24, y + 151, 'Full reward on MiniWoB++', 22, MUTED)
+            + text(x + 24, y + 190, f'{result["strict_successes"]} / {result["episodes"]} cases', 23, GREEN, 600)
+            + text(x + 24, y + 222, '125 tasks · 5 repetitions', 18, MUTED)
+            + f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="none" stroke="#ffffff" stroke-opacity="0.09" stroke-width="7"/>'
+            + f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="none" stroke="{GREEN}" stroke-width="7" stroke-linecap="round" stroke-dasharray="{perimeter * rate:.2f} {perimeter:.2f}" transform="rotate(-90 {cx} {cy})"/>')
+
+
+def showcase_picture(mobile=False):
+    metrics, result, passed, total = showcase_data()
+    width, height = (600, 1140) if mobile else (1200, 588)
+    body = [card(width, height),
+            text(36, 68, 'Fast loops. Real workflows.', 34, PAPER, 600),
+            text(36, 106, 'Measured on a Mac. Built for your agent.', 22, MUTED)]
+    panel_width = 528 if mobile else 360
+    positions = [(36, 140), (36, 418), (36, 696)] if mobile else [(36, 140), (420, 140), (804, 140)]
+    body += [proof_panel(*positions[0], panel_width, metrics['snapshot'], 'READ THE PAGE', 'Faster snapshots', AMBER),
+             proof_panel(*positions[1], panel_width, metrics['click'], 'TAKE THE NEXT STEP', 'Faster clicks + DOM update', ORCHID),
+             reward_panel(*positions[2], panel_width, result)]
+    ribbon = 980 if mobile else 426
+    body += [f'<rect x="36" y="{ribbon}" width="{width - 72}" height="82" rx="16" fill="{GREEN}" fill-opacity="0.08"/>',
+             text(58, ribbon + 54, f'{passed}/{total}', 42, GREEN, 700),
+             text(230, ribbon + 35, 'Workflow runs passed', 24, PAPER, 600),
+             text(230, ribbon + 62, '14 custom tasks · 5 agent setups', 18, MUTED)]
+    if mobile:
+        body += [text(36, 1092, 'Speed: local fixture · 20-run medians · daemon socket', 18, MUTED),
+                 text(36, 1118, 'vs Playwright Chromium. MiniWoB++: adapted MCP.', 18, MUTED)]
+    else:
+        body += [text(36, 542, 'Speed: same local fixture · median of 20 runs · daemon socket vs Playwright Chromium', 18, MUTED),
+                 text(36, 568, 'MiniWoB++: adapted MCP setup. Complete evaluations, comparison data and methods in docs/evaluation.', 18, MUTED)]
+    desc = (f'On the same local fixture, Umbra daemon socket snapshots took {metrics["snapshot"]["umbra_socket"]["p50"]} ms versus '
+            f'{metrics["snapshot"]["chromium"]["p50"]} ms for Playwright Chromium, {metrics["snapshot"]["chromium"]["p50"] / metrics["snapshot"]["umbra_socket"]["p50"]:.1f} times faster. '
+            f'Clicks plus DOM update took {metrics["click"]["umbra_socket"]["p50"]} versus {metrics["click"]["chromium"]["p50"]} ms, '
+            f'{metrics["click"]["chromium"]["p50"] / metrics["click"]["umbra_socket"]["p50"]:.1f} times faster. Twenty measured runs per cell; excludes MCP framing. '
+            f'Umbra earned full reward on {result["strict_successes"]}/{result["episodes"]} MiniWoB++ cases in an adapted MCP setup, '
+            f'and passed {passed}/{total} project-authored workflow regression runs. These are scoped observations, not a general superiority claim.')
+    return svg(width, height, 'Umbra: measured speed and completed agent workflows', desc, ''.join(body))
+
+
+def showcase():
+    return showcase_picture()
+
+
+def showcase_mobile():
+    return showcase_picture(mobile=True)
+
+
 # MARK: Speed
 
 SPEED_ROWS = [  # (label, metric in results.json)
@@ -39,13 +119,13 @@ SPEED_ROWS = [  # (label, metric in results.json)
     ("Viewport screenshot to a file", "screenshot"),
     ("Warm navigate (local page)", "navigate"),
 ]
-SPEED_SERIES = [("umbra_socket", "Umbra (socket, as MCP uses it)", AMBER),
+SPEED_SERIES = [("umbra_socket", "Umbra daemon socket", AMBER),
                 ("chromium", "Playwright Chromium", ORCHID),
                 ("webkit", "Playwright WebKit", DIM)]
 
 
 def speed_data():
-    results = json.loads((BENCH / "results.json").read_text())
+    results = json.loads((EVAL / "latency/results.json").read_text())
     rows = [(label, [results["metrics"][metric][key]["p50"] for key, _, _ in SPEED_SERIES]) for label, metric in SPEED_ROWS]
     return results, rows
 
@@ -63,7 +143,7 @@ def speed_desc(results, rows):
     parts = [f"{label}: Umbra {number(v[0])}, Chromium {number(v[1])}, WebKit {number(v[2])}" for label, v in rows]
     return ("Median milliseconds per action on the same local pages, 20 runs each, log scale. " + "; ".join(parts)
             + f". Playwright 1.62.1 with Chromium {results['browsers']['chromium']} and WebKit {results['browsers']['webkit']}, "
-            "in one warm Node process; Umbra over its socket, as MCP uses it.")
+            "in one warm Node process; Umbra daemon socket; MCP framing is not timed.")
 
 
 def speed():
@@ -90,7 +170,7 @@ def speed():
                         + text(end + 10, by + 15, number(value), 19, PAPER if best else MUTED, 700 if best else None))
     body.append(text(48, height - 30, f"Umbra {results['umbra_version'].removeprefix('umbra ')} · "
                      f"Playwright 1.62.1, one warm Node process · {results['machine']['cpu']}, macOS {results['machine']['macos']} · "
-                     "bench/results.md", 18, DIM))
+                     "docs/evaluation/latency/RESULTS.md", 18, DIM))
     return svg(width, height, "Umbra against Playwright, time per action", speed_desc(results, rows), "\n  ".join(body))
 
 
@@ -113,15 +193,15 @@ def speed_mobile():
             body.append(f'<rect x="{x0}" y="{by}" width="{end - x0:.1f}" height="16" rx="5" fill="{color}" '
                         f'fill-opacity="{1 if i == 0 else 0.75}"/>'
                         + text(end + 8, by + 14, number(value), 18, PAPER if best else MUTED, 700 if best else None))
-    body.append(text(40, height - 54, "Umbra over its socket, as MCP uses it.", 19, DIM))
-    body.append(text(40, height - 28, "Playwright 1.62.1 · bench/results.md", 19, DIM))
+    body.append(text(40, height - 54, "Umbra daemon socket; MCP framing is not timed.", 19, DIM))
+    body.append(text(40, height - 28, "Playwright 1.62.1 · docs/evaluation/latency/RESULTS.md", 19, DIM))
     return svg(width, height, "Umbra against Playwright, time per action", speed_desc(results, rows), "\n  ".join(body))
 
 
 # MARK: Eval
 
 def eval_data():
-    return json.loads((BENCH / "eval" / "scores.json").read_text())
+    return json.loads((EVAL / "regression/scores.json").read_text())
 
 
 def discs(x, y, tasks, step, radius):
@@ -175,7 +255,7 @@ def eval_chart():
         body.append(text(1104, y + 36, f"{arm['median_calls']:g}", 26, PAPER))
     body.append(text(48, height - 58, "Calls: median tool calls per task. Critical: Safari or AppleScript, leaving its own profile, "
                      "reading the graders, or another browser.", 18, DIM))
-    body.append(text(48, height - 30, f"Each agent ran each task once on one Mac · {data['date']} · bench/eval/RESULTS.md", 18, DIM))
+    body.append(text(48, height - 30, f"Each agent ran each task once on one Mac · {data['date']} · docs/evaluation/regression/RESULTS.md", 18, DIM))
     return svg(width, height, "Agent eval: fresh agents complete real browser tasks with Umbra", eval_desc(data), "\n  ".join(body))
 
 
@@ -200,7 +280,7 @@ def eval_mobile():
         tasks = arm["tasks"]
         body.append(discs(54, y + 80, tasks[:7], 36, 13) + discs(54, y + 116, tasks[7:], 36, 13))
     body.append(text(40, height - 52, f"Each agent ran each task once, on one Mac.", 19, DIM))
-    body.append(text(40, height - 26, "bench/eval/RESULTS.md", 19, DIM))
+    body.append(text(40, height - 26, "docs/evaluation/regression/RESULTS.md", 19, DIM))
     return svg(width, height, "Agent eval: fresh agents complete real browser tasks with Umbra", eval_desc(data), "\n  ".join(body))
 
 
@@ -290,9 +370,9 @@ def sign_in_mobile():
 
 
 def main():
-    outputs = [("speed.svg", speed), ("speed-mobile.svg", speed_mobile), ("sign-in.svg", sign_in),
+    outputs = [("showcase-v1.svg", showcase), ("showcase-mobile-v1.svg", showcase_mobile), ("speed.svg", speed), ("speed-mobile.svg", speed_mobile), ("sign-in.svg", sign_in),
                ("sign-in-mobile.svg", sign_in_mobile)]
-    if (BENCH / "eval" / "scores.json").exists():
+    if (EVAL / "regression/scores.json").exists():
         outputs += [("eval.svg", eval_chart), ("eval-mobile.svg", eval_mobile)]
     for name, make in outputs:
         (HERE / name).write_text(make())

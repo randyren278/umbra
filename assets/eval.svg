@@ -71,5 +71,5 @@
   <text x="1000" y="618" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" fill="#5fd38d" font-weight="700">14/14</text>
   <text x="1104" y="618" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="26" fill="#f4efe6">17</text>
   <text x="48" y="708" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="18" fill="#9a93b3">Calls: median tool calls per task. Critical: Safari or AppleScript, leaving its own profile, reading the graders, or another browser.</text>
-  <text x="48" y="736" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="18" fill="#9a93b3">Each agent ran each task once on one Mac · 2026-10-13 · bench/eval/RESULTS.md</text>
+  <text x="48" y="736" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="18" fill="#9a93b3">Each agent ran each task once on one Mac · 2026-10-13 · docs/evaluation/regression/RESULTS.md</text>
 </svg>
