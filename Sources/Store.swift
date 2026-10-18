@@ -48,6 +48,7 @@ struct Site: Decodable {
     var cookie: String? = nil     // signed in while this cookie is set (HttpOnly ones included)
     var probe: String? = nil      // or while this same-origin path answers 2xx
     var keepSession: Bool? = nil  // persist session-only cookies, which WebKit drops when a run ends
+    var keepSignedIn: Bool? = nil // visited every ten minutes so the session never idles out; implies keepSession
 }
 
 let sitesFile = environment["UMBRA_SITES"].map { URL(fileURLWithPath: $0) }
@@ -88,7 +89,7 @@ func keepSessions(then done: @escaping () -> Void) {
     let kept = ((try? readSites()) ?? sites) + requestSitesFiles.flatMap { (try? readSites($0)) ?? [] }
     store.httpCookieStore.getAllCookies { cookies in
         let lasting = cookies.filter { cookie in
-            cookie.isSessionOnly && kept.contains { $0.keepSession == true && cookie.within($0.domain) }
+            cookie.isSessionOnly && kept.contains { ($0.keepSession == true || $0.keepSignedIn == true) && cookie.within($0.domain) }
         }.compactMap { cookie -> HTTPCookie? in
             var properties = cookie.properties ?? [:]
             properties[.discard] = nil
@@ -134,13 +135,19 @@ func profileFile(_ kind: String, _ ext: String) -> String {
     return "\(kind)-\(safe).\(ext)"
 }
 
+private var held: [String: Int32] = [:]
+
 /// Opens a lock file and takes it; nil when `wait` is false and someone else holds it. The
-/// descriptor stays open, so the lock lasts until the process exits.
+/// descriptor stays open, so the lock lasts until the process exits; taking it again is a no-op.
 @discardableResult
 func takeLock(_ kind: String = "store", wait: Bool = true) -> Int32? {
+    if let fd = held[kind] { return fd }
     let fd = open(supportDir.appendingPathComponent(profileFile(kind, "lock")).path, O_RDWR | O_CREAT, 0o600)
     if fd < 0 { fail(1, "could not open Umbra's \(kind) lock") }
-    if flock(fd, wait ? LOCK_EX : LOCK_EX | LOCK_NB) == 0 { return fd }
+    if flock(fd, wait ? LOCK_EX : LOCK_EX | LOCK_NB) == 0 {
+        held[kind] = fd
+        return fd
+    }
     close(fd)
     if wait { fail(1, "could not lock Umbra's cookie store") }
     return nil

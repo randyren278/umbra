@@ -57,6 +57,25 @@ def press(pid, title):
     return answer['pressed'] if answer['trusted'] else None
 
 
+def texts(pid):
+    """The static texts and buttons of the app's windows, in order, as (role, text); None without the Accessibility permission."""
+    window_report([])
+    lister.stdin.write(f'texts {pid}\n')
+    lister.stdin.flush()
+    answer = json.loads(lister.stdout.readline())
+    return [tuple(item) for item in answer['items']] if answer['trusted'] else None
+
+
+def pick(pid, label, item):
+    """Opens the pull-down button with this accessibility label and picks the menu item, as a person
+    would: (picked, whether the item had a checkmark), or None without the Accessibility permission."""
+    window_report([])
+    lister.stdin.write(f'pick {pid} {label}\t{item}\n')
+    lister.stdin.flush()
+    answer = json.loads(lister.stdout.readline())
+    return (answer['picked'], answer['checked']) if answer['trusted'] else None
+
+
 def front_pid():
     """The frontmost app's pid, as LaunchServices reports it."""
     asn = subprocess.run(['lsappinfo', 'front'], capture_output=True, text=True, timeout=10).stdout.strip()
@@ -672,8 +691,19 @@ class SignInWindowTests(SessionCase):
 
     @classmethod
     def setUpClass(cls):
+        # Logos are cached for every profile: start without the test hosts' entries, so each run asks afresh.
+        for host in ['127.0.0.1', 'localhost']:
+            (base.LOCKS / 'Logos' / host).unlink(missing_ok=True)
         cls.srv = srv = Server()
         signed = [('Set-Cookie', 'sess=on; Path=/; Max-Age=3600')]
+        # A single-page app with no cookie or probe in the sites file: signed in, its login page moves on to
+        # /app/home by script; signed out, it asks for a password. /app-signin signs in by script, but only
+        # where a person can see the page, as only a person would.
+        srv.route('/app')(lambda h: h.reply(200, '<title>App</title><script>setTimeout(() => location.replace("/app/home"), 300)</script>'
+                                            if h.req.cookies.get('sess') == 'on' else '<title>Log in</title><input type=password>'))
+        srv.page('/app/home', '<title>Home</title>')
+        srv.page('/app-signin', '<title>Log in</title><input type=password><script>if (document.visibilityState == "visible")'
+                                ' setTimeout(async () => { await fetch("/set"); location = "/app/home" }, 800)</script>')
         srv.page('/set', '<title>set</title>', headers=signed)
         # A sign-in by script (XHR), then the site moves on to its feed four seconds later.
         srv.page('/login-xhr', '<title>Log in</title><script>setTimeout(async () => { await fetch("/set");'
@@ -697,6 +727,14 @@ class SignInWindowTests(SessionCase):
         srv.route('/api/flaky')(lambda h: h.reply(503, 'busy', 'text/plain'))
         srv.page('/do-auth', 'ok', headers=[('Set-Cookie', 'app_session=yes; Path=/; Max-Age=3600; HttpOnly'),
                                             ('Set-Cookie', 'csrftoken=t; Path=/; Max-Age=3600')])
+        # Sign-ins whose cookie is session-only (no expiry): by script, as /login-xhr and /login-learn sign in.
+        srv.page('/login-brief', '<title>Log in</title><script>setTimeout(() => fetch("/set-brief"), 300)</script>')
+        srv.page('/set-brief', 'ok', headers=[('Set-Cookie', 'sess=on; Path=/')])
+        srv.page('/login-plain', '<title>Log in</title><script>setTimeout(() => fetch("/do-auth-brief").then(() => location = "/home-plain"), 1000)</script>',
+                 headers=[('Set-Cookie', 'visitor_session=anon; Path=/; Max-Age=3600')])
+        srv.page('/do-auth-brief', 'ok', headers=[('Set-Cookie', 'app_session=yes; Path=/; HttpOnly'),
+                                                  ('Set-Cookie', 'csrftoken=t; Path=/; Max-Age=3600')])
+        srv.page('/home-plain', '<title>Welcome</title>')
 
     @classmethod
     def tearDownClass(cls):
@@ -720,6 +758,34 @@ class SignInWindowTests(SessionCase):
 
     def logins(self):
         return [r.path for r in self.requests() if r.path.startswith('/login')]
+
+    STATUSES = {'Signed in', 'Signed out', 'Not checked', "Couldn't check", 'Checking…'}
+
+    def row(self, pid, name):
+        """What the window shows for a site: (its status, whether its Sign In button shows), or None while it isn't listed."""
+        items = texts(pid)
+        if items is None:
+            self.skipTest('reading the window needs the Accessibility permission for this terminal')
+        if ('AXStaticText', name) not in items:
+            return None
+        start = items.index(('AXStaticText', name))
+        end = next((i for i in range(start, len(items)) if items[i][1] == f'More for {name}'), len(items))
+        cells = items[start:end]
+        statuses = [text for role, text in cells if role == 'AXStaticText' and text in self.STATUSES]
+        self.assertEqual(len(statuses), 1, f'{name} should show one status: {cells}')
+        return statuses[0], ('AXButton', 'Sign In') in cells
+
+    def assertShows(self, pid, name, status, sign_in, timeout=10):
+        wait_for(lambda: self.row(pid, name) == (status, sign_in), timeout, step=0.2)
+        self.assertEqual(self.row(pid, name), (status, sign_in), f'{name} in the window: (status, Sign In shows)')
+
+    def pick(self, pid, label, item):
+        """Whether the menu item had a checkmark when picked."""
+        picked = pick(pid, label, item)
+        if picked is None:
+            self.skipTest('the menu needs the Accessibility permission for this terminal')
+        self.assertTrue(picked[0], f'no {item} in the menu {label}')
+        return picked[1]
 
     def test_a_sign_in_by_script_closes_the_page_before_the_site_moves_on(self):
         r = self.run_umbra('sign-in', 'Xhr')
@@ -760,7 +826,9 @@ class SignInWindowTests(SessionCase):
         self.assertTrue(shown, 'the sign-in window never showed')
         time.sleep(2)
         self.assertEqual(self.logins(), [], 'a login page was loaded for a signed-in site')
-        self.assertEqual({r.path for r in self.requests()[before:]} - {'/api/me'}, set(),
+        # Only the probe reaches a signed-in site with its session; the window's logo lookup goes without cookies.
+        icons = {'/apple-touch-icon.png', '/favicon.ico'}
+        self.assertEqual({r.path for r in self.requests()[before:] if not (r.path in icons and not r.cookies)} - {'/api/me'}, set(),
                          'only the probe may reach a signed-in site')
         self.assertExit(self.run_umbra('tabs'), 0)  # agents keep working while the window is up
 
@@ -890,6 +958,73 @@ class SignInWindowTests(SessionCase):
         self.assertEqual(r.text, 'signed out of Xhr (1 cookie removed)\n')
         self.assertEqual(self.run_umbra('cookies', '127.0.0.1').text, '')
         self.assertIn('sess\tlocalhost', self.run_umbra('cookies', 'localhost').text)
+
+    def test_showing_the_window_again_checks_every_site_again(self):
+        self.assertExit(self.run_umbra('sign-in'), 0)
+        [pid] = daemon_pids(self.profile)
+        for name in ['Xhr', 'Probe', 'Never', 'Both']:
+            self.assertShows(pid, name, 'Signed out', True)
+        # Signed in outside the window, by an agent: the window can't know until it checks again.
+        for host in ['127.0.0.1', 'localhost']:
+            self.assertExit(self.run_umbra('open', self.srv.url('/set', host)), 0)
+        self.assertExit(self.run_umbra('sign-in'), 0)
+        for name in ['Xhr', 'Probe', 'Both']:
+            self.assertShows(pid, name, 'Signed in', False)
+        self.assertShows(pid, 'Never', 'Signed out', True)
+
+    def test_a_site_with_no_check_is_asked_through_its_login_page(self):
+        self.sites = base.write_sites([{'name': 'App', 'domain': '127.0.0.1', 'login': self.srv.url('/app')}])
+        self.assertExit(self.run_umbra('sign-in'), 0)
+        [pid] = daemon_pids(self.profile)
+        self.assertShows(pid, 'App', 'Signed out', True)
+        self.assertExit(self.run_umbra('open', self.srv.url('/set')), 0)
+        self.assertExit(self.run_umbra('sign-in'), 0)  # shown again: checked again
+        self.assertShows(pid, 'App', 'Signed in', False)
+
+    def test_a_signed_in_site_with_no_check_never_opens(self):
+        # The window said such a site wasn't signed in, and its Sign In showed the site, signed in.
+        self.sites = base.write_sites([{'name': 'App', 'domain': '127.0.0.1', 'login': self.srv.url('/app')}])
+        self.assertExit(self.run_umbra('open', self.srv.url('/set')), 0)
+        r = self.run_umbra('sign-in', 'App')
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'App: signed in\n')
+        self.assertInvisible(self.profile, 'already signed in')  # no window at all
+
+    def test_a_site_with_no_check_closes_its_page_once_it_lets_the_person_in(self):
+        self.sites = base.write_sites([{'name': 'App', 'domain': '127.0.0.1', 'login': self.srv.url('/app-signin')}])
+        r = self.run_umbra('sign-in', 'App')  # no Done: the page moves on to /app/home and closes
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'App: signed in\n')
+        self.assertTrue(self.requests('/app/home'))
+        self.assertInvisible(self.profile, 'window closed', settle=3)
+
+    def test_a_session_only_sign_in_cookie_gets_keep_session(self):
+        site = {'name': 'Brief', 'domain': '127.0.0.1', 'login': self.srv.url('/login-brief'), 'cookie': 'sess'}
+        self.sites = base.write_sites([site])
+        r = self.run_umbra('sign-in', 'Brief')
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'Brief: signed in\n')
+        self.assertEqual(json.loads(self.sites.read_text()), [{**site, 'keepSession': True}], 'saved by the time sign-in answers')
+
+    def test_keep_signed_in_from_the_more_menu(self):
+        site = {'name': 'Kept', 'domain': '127.0.0.1', 'login': self.srv.url('/login-never'), 'cookie': 'sess'}
+        self.sites = base.write_sites([site])
+        self.addCleanup(base.bootout, self.profile)
+        plist = base.AGENTS / f'{base.agent_label(self.profile)}.plist'
+        self.assertExit(self.run_umbra('sign-in'), 0)
+        [pid] = daemon_pids(self.profile)
+        command = subprocess.run(['ps', '-E', '-ww', '-o', 'command=', '-p', str(pid)], capture_output=True, text=True).stdout
+        agents = re.findall(r' UMBRA_AGENTS=(\S+)', command)  # only this variable: the rest of the environment stays out of the log
+        self.assertEqual(agents, [str(base.AGENTS)], 'the daemon installs the agent: it must have the test folder')
+        self.assertShows(pid, 'Kept', 'Signed out', True)
+        self.assertFalse(self.pick(pid, 'More for Kept', 'Keep Signed In'), 'not kept yet: no checkmark')
+        self.assertTrue(wait_for(lambda: plist.exists() and base.agent_loaded(self.profile), 10), 'the launch agent never loaded')
+        self.assertEqual(json.loads(self.sites.read_text()), [{**site, 'keepSignedIn': True}])
+        self.assertFalse((Path.home() / 'Library/LaunchAgents' / plist.name).exists(), 'UMBRA_AGENTS was ignored')
+        self.assertTrue(self.pick(pid, 'More for Kept', 'Keep Signed In'), 'kept: the item has a checkmark')
+        self.assertTrue(wait_for(lambda: not plist.exists(), 10), 'the launch agent stayed')
+        self.assertFalse(base.agent_loaded(self.profile))
+        self.assertEqual(json.loads(self.sites.read_text()), [site])
 
 
 if __name__ == '__main__':

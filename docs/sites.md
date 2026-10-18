@@ -17,7 +17,8 @@ A JSON array with one object per site. [examples/sites.example.json](../examples
     "domain": "canvas.example.edu",
     "login": "https://canvas.example.edu/login",
     "probe": "/api/v1/users/self",
-    "keepSession": true
+    "keepSession": true,
+    "keepSignedIn": true
   },
   {
     "name": "LinkedIn",
@@ -44,14 +45,16 @@ A JSON array with one object per site. [examples/sites.example.json](../examples
 | `cookie` | one or both | The name of a cookie that exists only while you're signed in. HttpOnly cookies count. |
 | `probe` | one or both | A path on the site that answers 2xx, without a redirect, only while you're signed in. |
 | `keepSession` | no | `true` keeps this domain's session-only cookies between runs. Defaults to `false`. |
+| `keepSignedIn` | no | `true` visits the site every 10 minutes so its session never sits idle, and implies `keepSession`. Defaults to `false`. |
 
-If a site has both `cookie` and `probe`, it counts as signed in when the cookie is set and the probe passes: the cookie answers "signed out" without a request, and the probe catches a session the site ended while its cookie stayed. With neither, its login page still works for signing in, but Umbra can't tell when you're done: you click Done.
+If a site has both `cookie` and `probe`, it counts as signed in when the cookie is set and the probe passes: the cookie answers "signed out" without a request, and the probe catches a session the site ended while its cookie stayed. With neither, Umbra asks the site itself, by its login page (below).
 
 ## Signed-in checks: `cookie` or `probe`
 
 The sign-in window checks each site when it lists it, and checks the site you're signing in to before each page it would show; once the site passes, that page is never loaded. A site passes when:
 
 - **`cookie`:** a cookie with that name is set on `domain` or one of its subdomains.
+- **Neither:** the site moves its login page on into itself. Umbra loads the login page in a view that is never shown and watches it: a site you're signed in to takes you off its login page, onto one of its own pages that isn't a sign-in step (no `login`, `sso`, `auth`, `verify`, `2fa` and the like in the path) and asks for no password, and the page stays there for a second. A site you're not signed in to keeps you at a password, on a sign-in path or on another host, for two and a half seconds. This works for single-page apps that answer every path with the same page, which a `probe` can't tell apart, such as Wealthsimple's. Umbra never counts a site as signed in unless it moved you off the login page, so a site whose login form lives at `/` still opens for you to sign in. While you sign in to such a site in the window, the same watch closes its page once the site lets you in; Done works too.
 - **`probe`:** a request for the probe path on the site answers 2xx without a redirect. Umbra makes it in a view that is never shown, on the login page's origin when that is on `domain`, otherwise `https://<domain>`. API endpoints that need a session work well here. Canvas's `/api/v1/users/self` answers 401 until you sign in.
 
 Use `cookie` when the site has one clearly named session cookie. Use `probe` when cookie names are generic or change, or when you'd rather ask the site directly. Use both when the site can end a session without clearing its cookie: a page that answers 200 when you're signed in and redirects to the login page when you're not (Instagram's `/accounts/edit/`, LinkedIn's `/feed/`) makes a good probe. When the window opens a login page for such a site, the old cookie stays (the check may only have failed for a moment), and a sign-in counts once the cookie gets a new value. If the probe answers anything other than 2xx, a redirect, 401 or 403 (a 503, a 429, a bot check), Umbra can't tell: `umbra sign-in <site>` exits 4 and opens nothing.
@@ -86,6 +89,64 @@ With `"keepSession": true`, Umbra rewrites that site's session-only cookies as o
 
 **Matching:** a cookie is kept when its domain is the site's `domain` or a subdomain of it. If your sign-in passes through a separate identity provider (say `login.example.edu` for `canvas.example.edu`) and you also want that provider's session kept, add it as its own entry with `keepSession: true`.
 
+## keepSignedIn
+
+`keepSession` keeps the cookies, but the site also keeps the session on its own side, and many sites end a session that goes unused for a while. Canvas does. Between your uses nothing visits the site, so its server times the session out and you're signed out, though the cookie is still in the store.
+
+With `"keepSignedIn": true`, Umbra visits the site every 10 minutes, so the session is never idle long enough to end. It implies `keepSession`: the site's session-only cookies are kept for 30 days whether or not `keepSession` is set.
+
+**Signs you need it:** `keepSession` is on and `umbra cookies <domain>` shows the cookies with 30-day expiry dates, yet the site still signs you out after some time without use.
+
+**What a visit does:** Umbra goes to the site in a view that is never shown, on the same origin as the signed-in checks:
+
+- **`probe`:** a request for the probe path. 2xx without a redirect means signed in; a redirect, 401 or 403 means signed out; anything else, Umbra can't tell. If the site also has a `cookie` and it's missing, that counts as signed out, with no request.
+- **`cookie` only:** the site's root page (`/`), then the cookie decides.
+- **Neither:** the login page, watched as in [the signed-in checks](#signed-in-checks-cookie-or-probe): loading it is the visit, and where it lands says whether you're signed in.
+
+Cookies the site sets in its answer are kept, so a session cookie the site renews on each request stays current. After the visits, Umbra rewrites the session-only cookies of `keepSession` and `keepSignedIn` sites to expire 30 days later and writes everything to disk.
+
+**The launch agent:** the visits come from a launchd job in your login session (a LaunchAgent). It runs `umbra keep-signed-in` once when it's installed, at each login, and every 10 minutes by the clock (on the hour, ten past, and so on).
+
+- **Label:** `com.randyren.umbra.keep-signed-in`, or `com.randyren.umbra.keep-signed-in.<profile>` for a profile.
+- **Job file:** `~/Library/LaunchAgents/<label>.plist`.
+- **Log:** `~/Library/Application Support/Umbra/keep-signed-in.log`, or `keep-signed-in-<profile>.log` for a profile.
+
+The job file names the Umbra binary (with symlinks resolved), the sites file and the profile. Each profile has one agent, and it reads the sites file it was installed with. If you move Umbra, run `umbra keep-signed-in <site>` again to point the agent at the new copy. To see that the agent is loaded and how its last run exited (add `.<profile>` for a profile):
+
+```sh
+launchctl print gui/$(id -u)/com.randyren.umbra.keep-signed-in
+```
+
+Each run goes through the profile's daemon when one is running, and otherwise works on its own, with no window and no Dock icon. It never starts the daemon.
+
+**Turning it on:** choose **Keep Signed In** from the site's **…** menu in the sign-in window, or run `umbra keep-signed-in <site>`. Either one sets the field in the sites file and installs the launch agent; the command also visits the site at once and prints the result. The agent visits every site marked in the file, so a field you add by hand counts too, but only the menu item and `keep-signed-in <site>` install the agent.
+
+**Turning it off:** choose **Keep Signed In** again, or run `umbra keep-signed-in <site> --off`. That removes the field from the site's entry and, once no site in the file has it, removes the launch agent. Cookies that were already rewritten keep their 30-day expiry. To drop them now, `umbra sign-out <site>`.
+
+**Reading the log:** each run adds one line per visited site, in the order of the sites file, with the time in UTC:
+
+```
+2026-10-18T14:20:03Z Canvas: signed in
+2026-10-18T14:30:03Z Canvas: couldn't check (the site didn't answer as expected)
+2026-10-18T14:40:04Z Canvas: signed out; `umbra sign-in Canvas` signs in again
+```
+
+`signed in` means the visit found the session alive, which keeps it going. `signed out` means the session had already ended. A visit can't sign you in, so run `umbra sign-in <site>`, and the next visit finds you signed in. `couldn't check` means the site answered something else, such as a 503 or a bot check; the next visit tries again. To watch it:
+
+```sh
+tail -f ~/Library/Application\ Support/Umbra/keep-signed-in.log
+```
+
+**The command:** `umbra keep-signed-in` with no sites visits every marked site once and prints those lines. That's what the agent runs. With no site marked it says so and does nothing. It exits 0 when every site is signed in, 3 when any is signed out, and otherwise 4 when any couldn't be checked. On exit 0 the lines go to stdout, otherwise to stderr; the agent sends both to its log. `--json` gives the time and each site's state. Sites are named as in the sites file, never by URL.
+
+**The trade-off:** every 10 minutes Umbra sends the site a request with your cookies, for as long as the agent runs, and the site sees a session that is never idle. The cookies sit on disk as they do with `keepSession`. Turn it on only for the sites that sign you out too soon, and only on a Mac you trust.
+
+**Limits:**
+
+- It can't outlast a session the site caps. Some sites end every session after a fixed time, however busy it is; then you sign in again.
+- It visits only while you're logged in and the Mac is awake. A visit that fell due while the Mac slept runs as soon as it wakes (`StartCalendarInterval` in `man launchd.plist`), but if the Mac slept longer than the site lets a session sit idle, the session has already ended.
+- Signing out of the site yourself, in any browser, can end every session the site has for you, Umbra's included. Canvas does this.
+
 ## Using sites from the command line
 
 ```sh
@@ -94,6 +155,9 @@ umbra sign-in canvas linkedin      # chosen sites, by name: returns once both ar
 umbra sign-in https://example.com/login   # a one-off page, named after the host, with no check
 umbra                              # the same as `umbra sign-in`, and so is opening Umbra.app
 umbra sign-out canvas              # delete the site's cookies from the store
+umbra keep-signed-in canvas        # visit it every 10 minutes from now on (see keepSignedIn)
+umbra keep-signed-in               # visit every kept site now and report
+umbra keep-signed-in canvas --off  # stop visiting it
 umbra sign-in https://github.com/login --save GitHub   # add an account (see below)
 ```
 

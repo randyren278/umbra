@@ -70,6 +70,7 @@ These keep their original contract for scheduled scripts: one process, a result 
 | `read <url> < script.js` | Load a page in a scratch tab, run the script (or print the HTML when it's empty) and close the tab. `--cookie NAME` exits 3 when signed out; `--until`, `--wait`. |
 | `fetch <url>` | GET a URL with the browser's session, from a page on the same site (`--from`, default `/robots.txt`). |
 | `download <url> <file>` | Download with the session, replacing `<file>` once complete. |
+| `keep-signed-in [site…]` | Visit the sites marked `keepSignedIn` and report whether each is still signed in. Naming sites marks them and installs the launch agent that visits every 10 minutes; `--off` unmarks them. Exits 3 when any is signed out, otherwise 4 when any couldn't be checked. See [sites.md](sites.md#keepsignedin). |
 
 [docs/recipes.md](recipes.md) has worked examples for both styles.
 
@@ -83,7 +84,7 @@ Results go to stdout and messages to stderr. Over MCP, a failure comes back as a
 | `0` | Done | |
 | `1` | Umbra itself failed | Read stderr; the next command starts the daemon again |
 | `2` | Timed out, or a script threw | Wait for a specific condition, raise `--timeout`, or fix the script |
-| `3` | Signed out (`read --cookie`) | Run `umbra sign-in <site>` |
+| `3` | Signed out (`read --cookie`, `keep-signed-in`) | Run `umbra sign-in <site>` |
 | `4` | The page or download failed to load | Check the URL and that the site is up |
 | `5` | HTTP error status (`fetch`, `download`) | Check the URL and your access |
 | `64` | Usage error | Fix the command; `umbra help <command>` |

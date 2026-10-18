@@ -99,6 +99,9 @@ final class Daemon {
             let busy = self.inFlight > 0 || SignInWindow.handingOff() || SignInWindow.shown != nil
             if !busy, Date().timeIntervalSince(self.lastUsed) > idleLimit { self.shutdown() }
         }
+        // Cookies reach the disk on the network process's own schedule, and kept session cookies only
+        // when persisted: a daemon that crashes or is killed would lose a day's sign-ins.
+        Timer.scheduledTimer(withTimeInterval: 300, repeats: true) { _ in persist {} }
         signal(SIGTERM, SIG_IGN)
         let terminate = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
         terminate.setEventHandler { self.shutdown() }
@@ -141,11 +144,12 @@ final class Daemon {
     }
 
     func handle(_ request: Data, reply: @escaping ([String: Any]) -> Void) {
-        lastUsed = Date()
         guard let object = try? JSONSerialization.jsonObject(with: request) as? [String: Any],
               let name = object["command"] as? String else {
             return reply(["ok": false, "error": ["code": 64, "message": "malformed request"]])
         }
+        let used = name != "keep-signed-in"  // the launch agent's visits don't keep an idle daemon up
+        if used { lastUsed = Date() }
         let id = object["id"] ?? NSNull()
         guard let command = lookup(name) else {
             return reply(["id": id, "ok": false, "error": ["code": 64, "message": "unknown command: \(name)"]])
@@ -158,7 +162,7 @@ final class Daemon {
             guard !answered else { return }
             answered = true
             inFlight -= 1
-            lastUsed = Date()
+            if used { lastUsed = Date() }
             switch result {
             case .success(let value): reply(["id": id, "ok": true, "result": value])
             case .failure(let error): reply(["id": id, "ok": false, "error": ["code": Int(error.code), "message": error.message]])

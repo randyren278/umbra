@@ -29,7 +29,7 @@ Commands:
 - Act: `click <t>`, `fill <t> <value>`, `type <text> [--target t]`, `press <keys…>`, `select <t> <values…>`, `check <t>`, `uncheck <t>`, `hover <t>`, `focus <t>`, `scroll [--dy n|--to bottom|--target t]`, `drag <from> <to>`, `upload <t> <files…>`, `dialog accept|dismiss`
 - Capture: `screenshot [path] [--full] [--target t]`, `pdf <path>`
 - Observe: `console [--level error]`, `network [--failed] [--filter s]`, `downloads`, `cookies [domain]` (names only, never values)
-- One-shot: `read <url> < script.js` (`--cookie NAME`, `--until`, `--wait`), `fetch <url> [--from page]`, `download <url> <file>`
+- One-shot: `read <url> < script.js` (`--cookie NAME`, `--until`, `--wait`), `fetch <url> [--from page]`, `download <url> <file>`, `keep-signed-in [site…] [--off]` (a launch agent visits the marked sites every 10 minutes so their sessions don't idle out; exit 3 if any is signed out)
 - Humans: `sign-in [site|url]` opens Umbra's window on the login page and returns once the user is signed in (a signed-in site is never shown; `--save NAME` adds a login URL as a new site); `handoff` shows a tab for 2FA, a CAPTCHA or consent, then hides it again
 
 Exit codes: 0 done; 1 Umbra itself failed; 2 timed out or a script threw; 3 signed out (run `umbra sign-in <site>` and the user signs in in a window); 4 the page or download failed to load; 5 HTTP error status; 64 usage error; 78 `sites.json` can't be parsed.
@@ -41,7 +41,7 @@ Exit codes: 0 done; 1 Umbra itself failed; 2 timed out or a script threw; 3 sign
 - [MCP](https://raw.githubusercontent.com/randyren278/umbra/main/docs/mcp.md): `umbra mcp` setup for Claude Code, Codex, Claude Desktop and Cursor, tools, images, progress and errors
 - [Agents](https://raw.githubusercontent.com/randyren278/umbra/main/docs/agents.md): instructions to paste into AGENTS.md, working habits, profiles for agents
 - [Recipes](https://raw.githubusercontent.com/randyren278/umbra/main/docs/recipes.md): paginated tables, forms, downloads, uploads, pop-ups, screenshots, the socket protocol, and callers for scripts
-- [Sites and sign-in](https://raw.githubusercontent.com/randyren278/umbra/main/docs/sites.md): `sites.json`, signed-in checks and `keepSession`
+- [Sites and sign-in](https://raw.githubusercontent.com/randyren278/umbra/main/docs/sites.md): `sites.json`, signed-in checks, `keepSession` and `keepSignedIn`
 
 ## Optional
 

@@ -18,7 +18,7 @@ if let index = args.firstIndex(of: "--profile"), index + 1 < args.count {
     args.removeSubrange(index...index + 1)
 }
 
-registry = coreCommands() + interactCommands() + captureCommands() + signInCommands()
+registry = coreCommands() + interactCommands() + captureCommands() + signInCommands() + keepSignedInCommands()
 _ = sites  // a malformed sites file stops every command (exit 78), before anything else runs
 let json = args.contains("--json")
 args.removeAll { $0 == "--json" }
@@ -37,6 +37,7 @@ let oneShots = """
            umbra download <url> <file> [--timeout SECONDS]
            umbra sign-in [site or URL ...] [--save NAME]
            umbra cookies [domain]
+           umbra keep-signed-in [site ...] [--off]
            umbra --version
            umbra <command> [args]  (session commands below; `umbra help <command>` for details)
     """
@@ -176,6 +177,25 @@ case "sign-in":
     var values: [String: Any] = ["sites": args, "timeout": timeout, "sitesFile": sitesFile.path]
     values["save"] = save
     show(call("sign-in", values))
+
+case "keep-signed-in":
+    // Through the daemon when one runs, else here: the launch agent never starts one.
+    var values: [String: Any] = [:]
+    switch parseArguments(lookup(command)!, args) {
+    case .failure(let error): fail(error.code, error.message)
+    case .success(let parsed): values = parsed
+    }
+    values["sitesFile"] = sitesFile.path
+    // The store, or a daemon to ask, whichever comes first: a daemon starting meanwhile takes the store
+    // for its whole life, and the agent's runs would wait behind it.
+    while takeLock(wait: false) == nil {
+        if connectDaemon().map({ close($0) }) != nil { show(call(command, values, spawn: false)) }
+        usleep(100_000)
+    }
+    headless(timeout: values["timeout"] as? Double ?? 60) {
+        keepSignedIn(Args(values: values)) { show($0) }
+        return NSNull()
+    }
 
 case "status" where connectDaemon().map({ close($0) }) == nil:
     print("no daemon running for profile \(profile ?? "default")")

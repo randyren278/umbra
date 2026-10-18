@@ -23,7 +23,7 @@ The first session command for a profile (`open`, `snapshot`, anything but the on
 | `daemon.log` (`daemon-<profile>.log`) | The daemon's log. |
 | `daemon.lock`, `store.lock` (with `-<profile>`) | One daemon per profile; one owner of the store at a time. |
 
-The daemon exits after 15 minutes without a command (`UMBRA_IDLE` sets the limit in seconds). It never exits while a call is in flight or a handoff is open. `umbra status` shows its process, profile, uptime and tabs, and `umbra stop` closes every tab and ends it. On the way out it saves the session cookies of `keepSession` sites (see [sites.md](sites.md#keepsession)).
+The daemon exits after 15 minutes without a command (`UMBRA_IDLE` sets the limit in seconds). It never exits while a call is in flight or a handoff is open. The `keepSignedIn` agent's visits don't count as commands here, so they never keep an idle daemon up. `umbra status` shows its process, profile, uptime and tabs, and `umbra stop` closes every tab and ends it. On the way out it saves the session cookies of `keepSession` and `keepSignedIn` sites (see [sites.md](sites.md#keepsession)).
 
 ### The protocol
 
@@ -76,7 +76,7 @@ Umbra uses a persistent `WKWebsiteDataStore(forIdentifier:)`. That API arrived i
 
 The default store's identifier is the fixed UUID `6F1C7A52-3D0B-4E8F-9A61-F1A57C0DE001`. It was carried over from FIRST's earlier helper so that tool's signed-in store moved to Umbra intact. Safari's data lives elsewhere, so neither browser can see the other's cookies. All of a profile's tabs share its store.
 
-Session-only cookies (those without an expiry date) live in the daemon's memory, so they last as long as the daemon does. `keepSession` re-saves them with a 30-day expiry whenever a run or the daemon ends, which is what keeps single sign-on sessions alive between days.
+Session-only cookies (those without an expiry date) live in the daemon's memory, so they last as long as the daemon does. `keepSession` re-saves them with a 30-day expiry whenever a run or the daemon ends, which is what keeps single sign-on sessions alive between days. A site can still end a session on its side once it has gone unused for a while. For such a site `keepSignedIn` adds a launch agent that visits it every 10 minutes and then writes the cookies to disk (see [sites.md](sites.md#keepsignedin)).
 
 Changing either the bundle identifier or the store identifier gives you a new, empty store, which signs every site out. If you fork Umbra under your own identifier, expect to sign in again.
 
@@ -86,10 +86,12 @@ Changing either the bundle identifier or the store identifier gives you a new, e
 
 The [profile lanes diagram](../assets/profile-lanes.svg) shows why parallel agents should use different profiles: each lane has its own current tab and signed-in state.
 
-To delete a profile, stop its daemon and remove its files:
+To delete a profile, stop its daemon, remove its `keepSignedIn` launch agent if it has one, and remove its files:
 
 ```sh
 umbra --profile work stop
+launchctl bootout gui/$(id -u)/com.randyren.umbra.keep-signed-in.work 2>/dev/null
+rm -f ~/Library/LaunchAgents/com.randyren.umbra.keep-signed-in.work.plist
 id=$(python3 -c 'import hashlib, sys; h = hashlib.sha256(("umbra profile " + sys.argv[1]).encode()).hexdigest()[:32]; print("-".join([h[:8], h[8:12], h[12:16], h[16:20], h[20:]]))' work)
 rm -rf ~/Library/WebKit/com.randyren.umbra/WebsiteDataStore/$id
 rm -f ~/Library/Application\ Support/Umbra/*-work.*
@@ -111,6 +113,8 @@ Only one process at a time works with a profile's store, through an exclusive `f
 - **`read`** loads the URL in a scratch tab and waits for the first finished navigation. It then waits out `--wait`, checks `--until` until it holds, checks `--cookie` against the page's current host (exit 3 if it's missing), and runs stdin as the body of an async function in the page's world. With an empty script it prints `document.documentElement.outerHTML`. A string prints as is, an object or array as JSON with sorted keys, a number or boolean as text, and `null` or `undefined` prints nothing.
 - **`fetch`** loads the `--from` page (by default `/robots.txt` on the URL's own origin), runs `fetch(url, {credentials: 'include'})` inside it, and prints the body as text. A non-2xx status prints the body anyway and exits 5. Because the request comes from the page, the browser's rules apply: the right cookies are attached, and a cross-origin URL needs CORS. Use `download` for binary files.
 - **`download`** loads the URL as a top-level navigation and turns the response into a download, as a click in Safari would, so the site's cookies are sent and redirects to storage hosts are followed. A non-2xx response exits 5 without writing anything. Otherwise the bytes go to `.<name>.umbra-part` beside the target and are renamed over it once complete, so readers never see half a file.
+
+`keep-signed-in` runs the same way: through the daemon when one is running, otherwise on its own. It never starts a daemon. For each site marked `keepSignedIn` it requests the probe path, or loads the root page, in a view that is never shown, keeps any cookies the answer sets, and then writes the store's cookies to disk. The `keepSignedIn` launch agent runs it every 10 minutes and logs to `keep-signed-in.log` in `~/Library/Application Support/Umbra/`.
 
 | Command | Default `--timeout` |
 |---|---|
@@ -136,10 +140,13 @@ The daemon shows the sign-in window, for `umbra sign-in`, for an MCP client call
 
 The window is a way to sign in, never a way to browse a site:
 
-- **The list** shows each site in the sites file and whether it is signed in. It checks without loading any page: a cookie site by its cookie in the store, a probe site by a request for its probe path in a view that is never shown, cancelled as soon as the status is known (a redirect counts as signed out).
+- **The list** shows each site in the sites file and whether it is signed in: Signed in, Signed out, or Couldn't check (its tooltip gives the reason, such as `HTTP 503`). It checks without showing any page: a cookie site by its cookie in the store, a probe site by a request for its probe path in a view that is never shown, cancelled as soon as the status is known (a redirect counts as signed out), and a site with neither by its login page, loaded in such a view and watched until the site moves it on into itself or keeps it at a sign-in step ([sites.md](sites.md#signed-in-checks-cookie-or-probe)). Sign In asks the same way first, so a site you're signed in to never opens. It checks again each time the window is shown, and when the window comes to the front more than 30 seconds after the last check.
+- **Logos** are each site's own icon, found as Safari finds one: the icons its home page names (a home-screen icon first), else `/apple-touch-icon.png`, else `/favicon.ico`. They are fetched without cookies, never from the login page, and kept in `~/Library/Application Support/Umbra/Logos/` for a week; a site without one gets a letter tile.
 - **A login page** appears only when the person clicks Sign In, or when `umbra sign-in <site>` names a site that is signed out. Every main-frame response in it is checked before it is shown: once the site counts as signed in, that response is cancelled and the page is closed, so the signed-in site never renders. A cookie site is also checked whenever the store's cookies change, which catches sign-ins made by a script. A probe site is checked once the flow is back on its domain, since single sign-on pages often live elsewhere.
 - **`umbra sign-in <sites>`** answers once every named site is signed in, then closes the window unless the person had opened it. Sites already signed in answer at once and open nothing. Closing the window first exits 3; `--timeout` (default 900 seconds) exits 2 and hides the window again.
-- **Sign Out** (and `umbra sign-out <site>`) deletes the cookies within the site's domain from the profile's store.
+- **Sign Out…** in a row's **…** menu (and `umbra sign-out <site>`) deletes the cookies within the site's domain from the profile's store.
+- **Keep Signed In** in the same menu sets or removes the site's `keepSignedIn` in the sites file and installs or removes the launch agent, as `umbra keep-signed-in` does; a kept row says so under its domain. If that fails, an alert says why and nothing changes. **Check Again** checks that site now.
 - **Add Account** (and `umbra sign-in <login URL> --save NAME`) adds a site to the sites file and opens its login page. Umbra records the domain's cookie names once that page has loaded; when the person clicks Done, and a page has loaded since the login page, the session-like cookie that appeared since becomes the site's `cookie` (closing the window learns nothing), so later checks and sign-ins work as for any listed site.
+- **Session-only sign-ins are kept.** When the cookie a site's sign-in rests on has no expiry date (it would be gone when the daemon next exits), Umbra sets `keepSession` on that site in the sites file before it answers.
 
-While the window is open the daemon has a Dock icon and a menu bar with an Edit menu, so Command-V can paste a password and Command-W can close the window. Quit, from the menu or the Dock, closes the sign-in window and ends any handoff, and leaves the daemon running for agents; logging out, restarting or shutting down quits it after the cookies are on disk. Every sign-in writes the store's cookies to disk at once, keeping the session cookies of `keepSession` sites. Passkeys and Touch ID prompts don't work in this window; sign in with a password and a push approval or a one-time code.
+While the window is open the daemon has a Dock icon and a menu bar with an Edit menu, so Command-V can paste a password and Command-W can close the window. Quit, from the menu or the Dock, closes the sign-in window and ends any handoff, and leaves the daemon running for agents; logging out, restarting or shutting down quits it after the cookies are on disk. Every sign-in writes the store's cookies to disk at once, keeping the session cookies of `keepSession` and `keepSignedIn` sites, and the daemon does the same every five minutes, so a daemon that crashes or is killed loses little. Passkeys and Touch ID prompts don't work in this window; sign in with a password and a push approval or a one-time code.

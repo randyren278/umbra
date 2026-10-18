@@ -9,6 +9,7 @@ Read ROADMAP.md for the goal and the acceptance checks.
    - `~/Library/WebKit/com.randyren.umbra/WebsiteDataStore/<uuid>`, where `<uuid>` is SHA-256 of `"umbra profile " + name`: uppercase hex, first 32 characters split 8-4-4-4-12, then lowercased
    - `~/Library/Application Support/Umbra/*-<name>.*` (lock, socket, log)
    - `~/Downloads/Umbra/<name>/`
+   - a keep-signed-in launch agent, if the profile marked a site: `launchctl bootout gui/$(id -u)/com.randyren.umbra.keep-signed-in.<name>`, and its plist (set `UMBRA_AGENTS` to a temporary folder so it never lands in `~/Library/LaunchAgents`)
 2. **Never run `make install`**, and never touch `~/Applications/Umbra.app` or `~/.local/bin/umbra`; live jobs run them. Build with `make build` and run `build/Umbra.app/Contents/MacOS/umbra`.
 3. **Never use Safari, AppleScript or osascript.** Tests visit only 127.0.0.1 servers. A real public site is allowed only for a manual check (example.com).
 4. **Stop the daemons you start**: `UMBRA_PROFILE=… umbra stop`. An idle daemon exits after `UMBRA_IDLE` seconds (default 900); tests should set `UMBRA_IDLE=60`.

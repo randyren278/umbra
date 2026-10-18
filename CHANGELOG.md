@@ -14,6 +14,8 @@ All notable changes to Umbra are recorded here. Versions follow [Semantic Versio
 
 ### Added
 
+- The sign-in window, redrawn for macOS 26: one Liquid Glass card of sites with each site's own logo, a status column (Signed in, Signed out, or Couldn't check with its reason), and Keep Signed In, Check Again and Sign Out… in each row's … menu. A login page opens under a toolbar with Done or a back button. On macOS 14 and 15 the same layout draws without glass.
+- `keepSignedIn` in `sites.json`, Keep Signed In in each site's … menu in the window, and `umbra keep-signed-in [site ...] [--off]`: a launch agent (`com.randyren.umbra.keep-signed-in`) visits the marked sites every 10 minutes, and on wake for a visit missed while the Mac slept, so a site that ends idle sessions on its side, like Canvas, keeps you signed in. It implies `keepSession`, and each run logs one line per site to `~/Library/Application Support/Umbra/keep-signed-in.log`.
 - `umbra sign-out <site>`, and a Sign Out button in the window: deletes the site's cookies from the profile's store.
 - Add Account in the window, and `umbra sign-in <login URL> --save NAME`: a pasted login link becomes a site in `sites.json`. During its first sign-in Umbra learns the cookie it sets (a session-like one that appeared after the login page loaded), so from then on the site is checked like the others, and agents can use it.
 - The agent eval runs Codex too (`eval.py run-codex`, with `process.py` reading each run's transcript): GPT-6 Sol in Codex completed 14 of 14 tasks with the skill in its prompt and 14 of 14 as installed, with zero critical failures. Results are in `docs/evaluation/regression/RESULTS.md` and `docs/evaluation/regression/scores.json`.
@@ -22,6 +24,10 @@ All notable changes to Umbra are recorded here. Versions follow [Semantic Versio
 
 ### Fixed
 
+- The sign-in window showed sites as signed out when they were signed in: a site with no cookie or probe, such as Wealthsimple, had no status and its Sign In opened the site signed in (it is now asked by its login page, loaded out of sight: a site that moves it on into itself is signed in, and never opens), and a window left open or shown again kept its first results (it now checks every time it is shown).
+- A sign-in that rested on a session-only cookie was gone after the daemon next exited, unless the site had `keepSession`: the window now sets `keepSession` for it, before `umbra sign-in` answers, and the daemon writes cookies to disk every five minutes.
+- A named `umbra sign-in` used the daemon's sites file rather than the caller's for what it learned or kept.
+- `keep-signed-in` and the window say why a check couldn't tell (`HTTP 503`, no answer in 20 seconds, offline).
 - A load whose web process stops answering (seen on GitHub's runners when several tabs start at once: the request never left and scripts got no answer) no longer hangs until the command's timeout. After two silent checks the watchdog ends that process and retries the load in a new one, up to twice, then reports exit 4.
 
 ## 0.2.0 - 2026-10-13

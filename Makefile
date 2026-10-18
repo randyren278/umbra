@@ -56,10 +56,13 @@ install: build
 	rm -rf "$(INSTALLED).old"
 	ln -sfn "$(INSTALLED)/Contents/MacOS/umbra" "$(LINK)"
 
-# Removes the app and the link it made, nothing else: the cookie stores stay signed in. First it
-# stops the daemon (UMBRA_PROFILE's, or the default one) so none keeps running from a deleted app.
+# Removes the app, the link and the keep-signed-in launch agents it made, nothing else: the cookie
+# stores stay signed in. First it stops the daemon (UMBRA_PROFILE's, or the default one) so none
+# keeps running from a deleted app.
 uninstall:
 	if [ -x "$(INSTALLED)/Contents/MacOS/umbra" ]; then "$(INSTALLED)/Contents/MacOS/umbra" stop || true; fi
+	for agent in $(HOME)/Library/LaunchAgents/$(ID).keep-signed-in*.plist; do \
+		[ -f "$$agent" ] || continue; launchctl bootout gui/$$(id -u)/$$(basename "$$agent" .plist) 2>/dev/null; rm -f "$$agent"; done
 	rm -rf "$(INSTALLED)" "$(INSTALLED).new" "$(INSTALLED).old"
 	if [ "$$(readlink "$(LINK)")" = "$(INSTALLED)/Contents/MacOS/umbra" ]; then rm "$(LINK)"; fi
 	@echo 'Kept the cookie stores in $(HOME)/Library/WebKit/$(ID)/ (delete that folder to sign out everywhere).'

@@ -95,13 +95,14 @@ class Server:
     def requests(self, path=None):
         return [r for r in list(self.log) if path is None or r.path == path]
 
-    def wait_for(self, path, timeout=20):
+    def wait_for(self, path, timeout=20, count=1):
+        """The count-th request for path, once it arrives."""
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
-            if self.requests(path):
-                return self.requests(path)[0]
+            if len(self.requests(path)) >= count:
+                return self.requests(path)[count - 1]
             time.sleep(0.02)
-        raise AssertionError(f'no request for {path} within {timeout}s')
+        raise AssertionError(f'{len(self.requests(path))} of {count} requests for {path} within {timeout}s')
 
     def close(self):
         self.closing.set()

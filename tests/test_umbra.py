@@ -38,6 +38,9 @@ REAL_STORE = '6f1c7a52-3d0b-4e8f-9a61-f1a57c0de001'
 RUN = 'test-' + secrets.token_hex(4)
 TMP = Path(tempfile.mkdtemp(prefix='umbra-tests-'))
 NO_SITES = TMP / 'no-sites.json'  # never created: no sites at all
+AGENTS = TMP / 'agents'  # UMBRA_AGENTS for every run: no launch agent ever lands in ~/Library/LaunchAgents
+AGENTS.mkdir()
+AGENT = 'com.randyren.umbra.keep-signed-in'  # the default profile's label: tests only ever use AGENT.<profile>
 
 profiles = []
 children = []
@@ -95,11 +98,34 @@ def new_profile():
     return name
 
 
+def agent_label(name):
+    """A test profile's keep-signed-in launch agent label (never the default profile's)."""
+    assert name in profiles and name.startswith('test-')
+    return f'{AGENT}.{name}'
+
+
+def launchctl(*args):
+    try:
+        return subprocess.run(['launchctl', *args], capture_output=True, timeout=10).returncode
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def agent_loaded(name):
+    return launchctl('print', f'gui/{os.getuid()}/{agent_label(name)}') == 0
+
+
+def bootout(name):
+    launchctl('bootout', f'gui/{os.getuid()}/{agent_label(name)}')
+
+
 def cleanup():
     for child in children:
         if child.poll() is None:
             child.kill()
             child.wait()
+    for name in profiles:  # before the stores go: a loaded agent would run umbra against them again
+        bootout(name)
     stop_daemons(profiles)
     # A WebKit helper can outlive its umbra by a moment, so check the stores stay gone.
     for _ in range(3):
@@ -138,9 +164,11 @@ class Result:
 
 
 def environment(profile, sites, env=None):
-    """A test run's environment: its own profile and sites file; a daemon it starts idles out in a minute."""
+    """A test run's environment: its own profile, sites file and launch agents folder; a daemon it
+    starts idles out in a minute."""
     assert profile in profiles, 'tests must use new_profile(): never the default store, always cleaned up'
-    return {**os.environ, 'UMBRA_PROFILE': profile, 'UMBRA_SITES': str(sites or NO_SITES), 'UMBRA_IDLE': '60', **(env or {})}
+    return {**os.environ, 'UMBRA_PROFILE': profile, 'UMBRA_SITES': str(sites or NO_SITES), 'UMBRA_IDLE': '60',
+            'UMBRA_AGENTS': str(AGENTS), **(env or {})}
 
 
 def spawn(*args, profile, input=None, sites=None, stdin=subprocess.DEVNULL, binary=UMBRA, cwd=None, env=None):
@@ -1009,7 +1037,7 @@ class SignInTests(UmbraCase):
         empty.write_text('')
         commands = [['read', 'http://127.0.0.1:9/'], ['fetch', 'http://127.0.0.1:9/x'],
                     ['download', 'http://127.0.0.1:9/x', str(self.tmp / 'x')], ['cookies'], ['sign-in'],
-                    ['sign-in', 'x'], ['--version'], ['help']]
+                    ['sign-in', 'x'], ['keep-signed-in'], ['--version'], ['help']]
         for sites in [broken, wrong, empty]:
             for args in commands:
                 with self.subTest(sites=sites.name, args=args):
@@ -1033,6 +1061,363 @@ class SignInTests(UmbraCase):
         finally:
             umbra('stop', profile=self.profile)  # the daemon shows the window
             srv.close()
+
+
+class KeepSignedInTests(UmbraCase):
+    """`umbra keep-signed-in`: visits the sites marked keepSignedIn and reports whether each is still
+    signed in; naming sites marks them and installs the launch agent that runs it every 10 minutes.
+    Agents are written to a temporary UMBRA_AGENTS under this profile's own label, and booted out
+    after each test and again when the suite exits."""
+
+    SIGNED_OUT = '{0}: signed out; `umbra sign-in {0}` signs in again'
+    UNKNOWN = "{0}: couldn't check (HTTP 503)"
+    NONE_KEPT = 'no site is kept signed in; `umbra keep-signed-in <site>` turns it on\n'
+
+    def setUp(self):
+        super().setUp()
+        self.agents = self.tmp / 'agents'
+        self.agents.mkdir()
+        # A server per test, so a launch agent's late visit can't land in another test's requests.
+        self.srv = srv = Server()
+        srv.page('/', '<title>home</title>')
+        srv.page('/login', '<title>Log in</title><form><input name=user></form>')
+        srv.page('/set', '<title>in</title>', headers=[('Set-Cookie', 'sess=on; Path=/; Max-Age=3600')])
+        srv.page('/set-session', '<title>in</title>', headers=[('Set-Cookie', 'sess=on; Path=/')])
+        srv.page('/echo', '<title>echo</title>')
+        # A login page that sends someone signed in on into the site, and asks anyone else for a password.
+        srv.route('/enter')(lambda h: h.redirect('/home') if h.req.cookies.get('sess') == 'on'
+                            else h.reply(200, '<title>Log in</title><form><input type=password name=p></form>'))
+        srv.page('/home', '<title>home</title>')
+        srv.route('/api/me')(lambda h: h.reply(200 if h.req.cookies.get('sess') == 'on' else 401, '{}', 'application/json'))
+        srv.page('/api/forbidden', '{}', status=403, ctype='application/json')
+        srv.route('/api/moved')(lambda h: h.redirect('/login'))
+        srv.page('/api/flaky', 'busy', status=503, ctype='text/plain')
+        # A rolling session: each answer renews the cookie with a new value and no expiry.
+        srv.page('/seed-roll', '<title>in</title>', headers=[('Set-Cookie', 'roll=r0; Path=/; Max-Age=3600')])
+        self.rolled = rolled = []
+
+        @srv.route('/api/roll')
+        def roll(h):
+            if 'roll' not in h.req.cookies:
+                return h.reply(401, '{}', 'application/json')
+            rolled.append(f'r{len(rolled) + 1}-{secrets.token_hex(3)}')
+            h.reply(200, '{}', 'application/json', [('Set-Cookie', f'roll={rolled[-1]}; Path=/')])
+
+    def tearDown(self):
+        bootout(self.profile)
+        self.srv.close()
+        super().tearDown()
+
+    def umbra(self, *args, env=None, **kwargs):
+        return super().umbra(*args, env={'UMBRA_AGENTS': str(self.agents), **(env or {})}, **kwargs)
+
+    def keep(self, *args, sites, **kwargs):
+        kwargs.setdefault('timeout', 90)
+        return self.umbra('keep-signed-in', *args, sites=sites, **kwargs)
+
+    def site(self, name, **fields):
+        return {'name': name, 'domain': '127.0.0.1', 'login': self.srv.url('/login'), **fields}
+
+    def kept(self, *entries):
+        """A sites file with these sites marked keepSignedIn by hand: what `keep-signed-in` alone visits."""
+        return write_sites([{**entry, 'keepSignedIn': True} for entry in entries])
+
+    def sign_in(self, path='/set', profile=None):
+        self.assertExit(self.umbra('read', self.srv.url(path), input='return 1', profile=profile or self.profile), 0)
+
+    def plist(self):
+        return self.agents / f'{agent_label(self.profile)}.plist'
+
+    def log(self):
+        path = LOCKS / f'keep-signed-in-{self.profile}.log'
+        return path.read_text(errors='replace') if path.exists() else ''
+
+    def eventually(self, condition, timeout):
+        deadline = time.monotonic() + timeout
+        while not condition() and time.monotonic() < deadline:
+            time.sleep(0.1)
+        return condition()
+
+    def assertAt(self, stamp):
+        """An ISO-8601 time in UTC, about now."""
+        self.assertRegex(stamp, r'^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(Z|\+00:00)$')
+        now = datetime.datetime.now(datetime.timezone.utc)
+        self.assertLess(abs((expiry(stamp) - now).total_seconds()), 300)
+
+    def assertReport(self, text, *lines):
+        """The report is exactly these lines, in this order, each after the time of the visit."""
+        got = text.splitlines()
+        self.assertEqual([line.partition(' ')[2] for line in got], list(lines), text)
+        for line in got:
+            self.assertAt(line.partition(' ')[0])
+
+    def assertNothingInstalled(self):
+        self.assertEqual(list(self.agents.iterdir()), [])
+        self.assertFalse(agent_loaded(self.profile))
+
+    def test_a_probe_that_answers_2xx_is_signed_in(self):
+        self.sign_in()
+        r = self.keep(sites=self.kept(self.site('Probe', probe='/api/me')))
+        self.assertExit(r, 0)
+        self.assertReport(r.text, 'Probe: signed in')
+        probes = self.srv.requests('/api/me')
+        self.assertTrue(probes, 'the probe was never requested')
+        self.assertEqual({q.cookies.get('sess') for q in probes}, {'on'}, 'the probe goes with the session cookie')
+
+    def test_a_probe_that_refuses_or_redirects_is_signed_out(self):
+        names = ['Refused', 'Forbidden', 'Moved']
+        sites = self.kept(self.site('Refused', probe='/api/me'), self.site('Forbidden', probe='/api/forbidden'),
+                          self.site('Moved', probe='/api/moved'))
+        r = self.keep(sites=sites)
+        self.assertExit(r, 3)
+        self.assertEqual(r.out, b'')
+        self.assertReport(r.err, *[self.SIGNED_OUT.format(name) for name in names])
+        for path in ['/api/me', '/api/forbidden', '/api/moved']:
+            self.assertTrue(self.srv.requests(path), f'{path} was never requested')
+
+    def test_a_probe_that_cant_tell_exits_4(self):
+        r = self.keep(sites=self.kept(self.site('Flaky', probe='/api/flaky')))
+        self.assertExit(r, 4)
+        self.assertEqual(r.out, b'')
+        self.assertReport(r.err, self.UNKNOWN.format('Flaky'))
+
+    def test_a_cookie_site_is_visited_at_its_root_and_its_cookie_decides(self):
+        sites = self.kept(self.site('Cookie', cookie='sess'))
+        self.sign_in()
+        r = self.keep(sites=sites)
+        self.assertExit(r, 0)
+        self.assertReport(r.text, 'Cookie: signed in')
+        roots = self.srv.requests('/')
+        self.assertTrue(roots, 'the root page was never loaded')
+        self.assertEqual({q.cookies.get('sess') for q in roots}, {'on'})
+        r = self.keep(sites=sites, profile=new_profile())  # a store without the cookie
+        self.assertExit(r, 3)
+        self.assertEqual(r.out, b'')
+        self.assertReport(r.err, self.SIGNED_OUT.format('Cookie'))
+
+    def test_a_missing_cookie_is_signed_out_without_asking_the_probe(self):
+        sites = self.kept(self.site('Both', cookie='sess', probe='/api/me'))
+        r = self.keep(sites=sites)
+        self.assertExit(r, 3)
+        self.assertReport(r.err, self.SIGNED_OUT.format('Both'))
+        self.assertEqual(self.srv.requests('/api/me'), [], 'no cookie: no probe request')
+        self.sign_in()
+        r = self.keep(sites=sites)
+        self.assertExit(r, 0)
+        self.assertReport(r.text, 'Both: signed in')
+        self.assertEqual([q.cookies.get('sess') for q in self.srv.requests('/api/me')][-1:], ['on'])
+
+    def test_sites_are_reported_in_file_order_and_the_worst_state_sets_the_exit_code(self):
+        self.sign_in()
+        said = {'Out': self.SIGNED_OUT.format('Out'), 'Flaky': self.UNKNOWN.format('Flaky'),
+                'In': 'In: signed in', 'Plain': 'Plain: signed in'}
+        out, flaky, signed, plain = (self.site('Out', probe='/api/moved'), self.site('Flaky', probe='/api/flaky'),
+                                     self.site('In', probe='/api/me'), self.site('Plain', login=self.srv.url('/enter')))
+        for entries, code in [([flaky, out, signed], 3), ([signed, flaky], 4), ([plain, signed], 0)]:
+            names = [entry['name'] for entry in entries]
+            with self.subTest(names):
+                r = self.keep(sites=self.kept(*entries))
+                self.assertExit(r, code)
+                self.assertReport(r.err if code else r.text, *[said[name] for name in names])
+                if code:
+                    self.assertEqual(r.out, b'')
+        self.assertTrue(self.srv.requests('/enter'), 'a site with neither cookie nor probe is asked through its login page')
+
+    def test_a_site_with_neither_cookie_nor_probe_is_asked_through_its_login_page(self):
+        sites = self.kept(self.site('Plain', login=self.srv.url('/enter')))
+        r = self.keep(sites=sites)
+        self.assertExit(r, 3)
+        self.assertReport(r.err, self.SIGNED_OUT.format('Plain'))  # it stayed at the password
+        self.sign_in()
+        r = self.keep(sites=sites)
+        self.assertExit(r, 0)
+        self.assertReport(r.text, 'Plain: signed in')  # it moved on to /home
+
+    def test_a_renewed_session_cookie_is_kept_for_the_next_request(self):
+        # keepSignedIn implies keepSession: the entry has no keepSession, yet the renewed
+        # session-only cookie must outlive the run.
+        sites = self.kept(self.site('Roll', probe='/api/roll'))
+        self.assertNotIn('keepSession', json.loads(sites.read_text())[0])
+        self.sign_in('/seed-roll')
+        for _ in range(2):
+            r = self.keep(sites=sites)
+            self.assertExit(r, 0)
+            self.assertReport(r.text, 'Roll: signed in')
+        sent = [q.cookies.get('roll') for q in self.srv.requests('/api/roll')]
+        self.assertEqual(sent[0], 'r0')
+        self.assertEqual(sent[-1], self.rolled[-2], 'the second visit sends the value the first one was given')
+        token = secrets.token_hex(4)
+        self.assertExit(self.umbra('read', self.srv.url(f'/echo?k={token}'), input='return 1', sites=sites), 0)
+        [echo] = [q for q in self.srv.requests('/echo') if q.query.get('k') == token]
+        self.assertEqual(echo.cookies.get('roll'), self.rolled[-1], 'a fresh process sends the renewed value')
+        now = datetime.datetime.now(datetime.timezone.utc)
+        listed = self.umbra('cookies', '127.0.0.1', sites=sites)
+        self.assertExit(listed, 0)
+        rows = {line.split('\t')[0]: line.split('\t') for line in listed.text.splitlines()}
+        self.assertAlmostEqual((expiry(rows['roll'][2]) - now).total_seconds(), 30 * 86400, delta=3600)
+
+    @unittest.skipUnless(window_server(), 'no window server (not in an Aqua session): no gui launchd domain')
+    def test_naming_a_site_marks_it_and_installs_a_launch_agent_that_runs_at_once(self):
+        self.sign_in()
+        sites = write_sites([self.site('Kept', cookie='sess', probe='/api/me'),
+                             self.site('Other', domain='localhost', login=self.srv.url('/login', 'localhost'),
+                                       cookie='c', keepSession=True)])
+        before = json.loads(sites.read_text())
+        r = self.keep('kept', sites=sites)  # names are case-insensitive
+        self.assertExit(r, 0)
+        self.assertReport(r.text, 'Kept: signed in')
+        text = sites.read_text()
+        self.assertEqual(json.loads(text), [{**before[0], 'keepSignedIn': True}, before[1]])
+        lines = text.splitlines()
+        self.assertEqual(len(lines), 4, f'one site per line:\n{text}')
+        self.assertEqual(list(json.loads(lines[1].rstrip(','))),
+                         ['name', 'domain', 'login', 'cookie', 'probe', 'keepSignedIn'])
+
+        plist = self.plist()
+        self.assertEqual(list(self.agents.iterdir()), [plist])
+        self.assertFalse((Path.home() / 'Library/LaunchAgents' / plist.name).exists(), 'UMBRA_AGENTS was ignored')
+        with open(plist, 'rb') as f:
+            agent = plistlib.load(f)
+        self.assertEqual(agent['Label'], agent_label(self.profile))
+        program, *rest = agent['ProgramArguments']
+        self.assertEqual(rest, ['keep-signed-in'])
+        self.assertTrue(os.path.isabs(program) and os.path.samefile(program, UMBRA), program)
+        self.assertEqual(str(Path(program).resolve()), program, 'the executable with symlinks resolved')
+        env = agent['EnvironmentVariables']
+        self.assertEqual(set(env), {'UMBRA_SITES', 'UMBRA_PROFILE'})
+        self.assertEqual(env['UMBRA_PROFILE'], self.profile)
+        self.assertTrue(os.path.isabs(env['UMBRA_SITES']) and os.path.samefile(env['UMBRA_SITES'], sites), env)
+        self.assertEqual((agent['StartCalendarInterval'], agent['RunAtLoad']), ([{'Minute': m} for m in range(0, 60, 10)], True))
+        log = str(LOCKS / f'keep-signed-in-{self.profile}.log')
+        self.assertEqual((agent['StandardOutPath'], agent['StandardErrorPath']), (log, log))
+        self.assertTrue(agent_loaded(self.profile), 'launchctl print: the agent is not loaded')
+
+        # RunAtLoad: launchd runs `umbra keep-signed-in` at once, which visits Kept again and logs it.
+        self.srv.wait_for('/api/me', timeout=30, count=2)
+        self.assertTrue(self.eventually(lambda: 'Kept: signed in' in self.log(), 30), self.log())
+        logged = [line for line in self.log().splitlines() if line.endswith(' Kept: signed in')]
+        self.assertTrue(logged, self.log())
+        self.assertAt(logged[-1].partition(' ')[0])
+
+        visits = len(self.srv.requests())
+        r = self.keep('Kept', '--off', sites=sites)
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'Kept: no longer kept signed in\n')
+        self.assertEqual(json.loads(sites.read_text()), before, 'the key goes; everything else stays')
+        self.assertFalse(plist.exists())
+        self.assertFalse(agent_loaded(self.profile), 'launchctl print: the agent is still loaded')
+        self.assertEqual(len(self.srv.requests()), visits, '--off visits nothing')
+
+    @unittest.skipUnless(window_server(), 'no window server (not in an Aqua session): no gui launchd domain')
+    def test_the_agent_stays_while_any_site_is_kept(self):
+        self.sign_in()
+        first, second = self.site('First', probe='/api/me'), self.site('Second', cookie='sess')
+        sites = write_sites([first, second])
+        r = self.keep('Second', 'First', sites=sites)
+        self.assertExit(r, 0)
+        self.assertReport(r.text, 'First: signed in', 'Second: signed in')  # the sites file's order
+        self.assertTrue(self.plist().exists())
+        self.assertTrue(agent_loaded(self.profile))
+        # Let the run at load finish, so it can't race the changes below.
+        self.assertTrue(self.eventually(lambda: 'Second: signed in' in self.log(), 30), self.log())
+        r = self.keep('first', '--off', sites=sites)
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'First: no longer kept signed in\n')
+        self.assertEqual(json.loads(sites.read_text()), [first, {**second, 'keepSignedIn': True}])
+        self.assertTrue(self.plist().exists(), 'Second is still kept: the agent stays')
+        self.assertTrue(agent_loaded(self.profile))
+        r = self.keep('Second', '--off', sites=sites)
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'Second: no longer kept signed in\n')
+        self.assertEqual(json.loads(sites.read_text()), [first, second])
+        self.assertFalse(self.plist().exists())
+        self.assertFalse(agent_loaded(self.profile))
+
+    def test_with_no_site_kept_it_says_so_and_does_nothing(self):
+        unmarked = write_sites([self.site('Plain', cookie='sess', probe='/api/me', keepSession=True)])
+        before = unmarked.read_text()
+        for sites in [NO_SITES, write_sites([]), unmarked]:
+            with self.subTest(sites=sites.name):
+                r = self.keep(sites=sites)
+                self.assertExit(r, 0)
+                self.assertEqual(r.text, self.NONE_KEPT)
+        self.assertEqual(unmarked.read_text(), before)
+        self.assertFalse(NO_SITES.exists())
+        self.assertEqual(self.srv.requests(), [], 'nothing is visited')
+        self.assertNothingInstalled()
+
+    def test_bad_usage_exits_64(self):
+        sites = write_sites([self.site('Kept', cookie='sess'), self.site('Other', probe='/api/me')])
+        before = sites.read_text()
+        for args, facts in [(['--off'], []), (['Nosuch'], ['Nosuch', 'Kept', 'Other']),
+                            (['Nosuch', '--off'], ['Nosuch', 'Kept', 'Other']), ([self.srv.url('/login')], [])]:
+            with self.subTest(args):
+                r = self.keep(*args, sites=sites)
+                self.assertExit(r, 64)
+                self.assertSays(r, *facts)
+                self.assertEqual(r.out, b'')
+        self.assertEqual(sites.read_text(), before)
+        self.assertEqual(self.srv.requests(), [])
+        self.assertNothingInstalled()
+
+    def test_a_failed_install_leaves_the_sites_file_as_it_was(self):
+        blocked = self.tmp / 'not-a-folder'
+        blocked.write_text('')
+        sites = write_sites([self.site('Kept', cookie='sess'), self.site('Other', probe='/api/me', keepSignedIn=True)])
+        before = json.loads(sites.read_text())
+        r = self.keep('Kept', sites=sites, env={'UMBRA_AGENTS': str(blocked)})
+        self.assertExit(r, 1)
+        self.assertSays(r, str(blocked))
+        self.assertEqual(json.loads(sites.read_text()), before)
+        self.assertEqual(blocked.read_text(), '')
+        self.assertFalse(agent_loaded(self.profile))
+
+    def test_json_gives_the_time_and_each_sites_state(self):
+        self.sign_in()
+        r = self.keep('--json', sites=self.kept(self.site('In', probe='/api/me'), self.site('Plain', login=self.srv.url('/enter'))))
+        self.assertExit(r, 0)
+        data = json.loads(r.out)
+        self.assertEqual(sorted(data), ['at', 'sites'])
+        self.assertAt(data['at'])
+        self.assertEqual(data['sites'], [{'site': 'In', 'state': 'signedIn'}, {'site': 'Plain', 'state': 'signedIn'}])
+
+    def test_it_runs_through_a_running_daemon_and_never_starts_one(self):
+        sites = self.kept(self.site('Kept', cookie='sess', probe='/api/me'))
+
+        def running():
+            return [pid for pid, name in daemons().items() if name == self.profile]
+        r = self.keep(sites=sites)
+        self.assertExit(r, 3)  # on its own: the store has no cookie yet
+        self.assertEqual(running(), [], 'a daemon was left running')
+        self.assertFalse((LOCKS / f'daemon-{self.profile}.log').exists(), 'a daemon was started')
+        try:
+            # The daemon holds a session-only cookie no other process has (and the store lock), so
+            # only a visit made by the daemon can find the site signed in.
+            self.assertExit(self.umbra('open', self.srv.url('/set-session'), sites=sites), 0)
+            daemon = running()
+            self.assertEqual(len(daemon), 1)
+            r = self.keep(sites=sites, timeout=45)
+            self.assertExit(r, 0)
+            self.assertReport(r.text, 'Kept: signed in')
+            self.assertEqual([q.cookies.get('sess') for q in self.srv.requests('/api/me')][-1:], ['on'])
+            r = self.keep('--json', sites=sites, timeout=45)
+            self.assertExit(r, 0)
+            data = json.loads(r.out)
+            self.assertEqual(sorted(data), ['at', 'sites'])
+            self.assertAt(data['at'])
+            self.assertEqual(data['sites'], [{'site': 'Kept', 'state': 'signedIn'}])
+            self.assertEqual(running(), daemon, 'the same daemon served both runs')
+        finally:
+            umbra('stop', profile=self.profile)
+
+    def test_it_is_a_command_but_not_an_mcp_tool(self):
+        r = self.umbra('help', 'keep-signed-in')
+        self.assertExit(r, 0)
+        self.assertIn('keep-signed-in', r.text)
+        r = self.umbra('schema')
+        self.assertExit(r, 0)
+        [command] = [c for c in json.loads(r.out)['commands'] if c['name'] == 'keep-signed-in']
+        self.assertIs(command['mcp'], False)
 
 
 class CliTests(UmbraCase):
@@ -1083,6 +1468,7 @@ def main(module='__main__'):
         cleanup()
     left = [str(path) for name in profiles for path in profile_files(name) if path.exists()]
     left += [f'daemon pid {pid} ({name})' for pid, name in daemons().items() if name in profiles]
+    left += [f'launch agent {agent_label(name)}' for name in profiles if agent_loaded(name)]
     if left:
         print('left behind:\n  ' + '\n  '.join(left), file=sys.stderr)
     sys.exit(0 if passed and not left else 1)

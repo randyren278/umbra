@@ -8,11 +8,15 @@ import WebKit
 enum Signed { case checking, yes, no, unknown }
 
 extension Site {
-    /// The probe on the site itself: the login page's origin when that is on the site's domain
-    /// (keeping its scheme and port), else https on the domain.
+    /// The site itself: the login page's origin when that is on the site's domain (keeping its
+    /// scheme and port), else https on the domain. Probes and visits go there.
+    var base: URL? {
+        guard let login = URL(string: login) else { return nil }
+        return owns(login) ? login : URL(string: "https://" + domain)
+    }
+
     var probeURL: URL? {
-        guard let probe, let login = URL(string: login) else { return nil }
-        let base = login.host.map { $0 == domain || $0.hasSuffix("." + domain) } == true ? login : URL(string: "https://" + domain)!
+        guard let probe, let base else { return nil }
         return URL(string: probe, relativeTo: base)?.absoluteURL
     }
 
@@ -77,12 +81,14 @@ func saveSite(_ site: Site, to file: URL = sitesFile) throws {
     entry["cookie"] = site.cookie
     entry["probe"] = site.probe
     entry["keepSession"] = site.keepSession
+    entry["keepSignedIn"] = site.keepSignedIn == true ? true : nil
     if let index = list.firstIndex(where: { ($0["name"] as? String)?.caseInsensitiveCompare(site.name) == .orderedSame }) {
         list[index].merge(entry) { $1 }
+        if site.keepSignedIn == false { list[index]["keepSignedIn"] = nil }  // turned off: the key goes
     } else {
         list.append(entry)
     }
-    let order = ["name", "domain", "login", "cookie", "probe", "keepSession"]
+    let order = ["name", "domain", "login", "cookie", "probe", "keepSession", "keepSignedIn"]
     let lines = try list.map { item -> String in
         let keys = order.filter { item[$0] != nil } + item.keys.filter { !order.contains($0) }.sorted()
         let fields = try keys.map { key -> String in
@@ -117,39 +123,58 @@ func learnedCookie(_ cookies: [HTTPCookie], _ site: Site, since baseline: Set<St
 /// while its cookie stayed.
 final class Check: NSObject, WKNavigationDelegate {
     private static var running: Set<Check> = []
+    /// Why the latest check of each site couldn't tell ("HTTP 503"), for the window and the log.
+    static var why: [String: String] = [:]
     private let web = WKWebView(frame: .zero, configuration: configuration())
     private let target: URL
+    private let site: String?
     private var done: ((Signed) -> Void)?
 
     static func run(_ site: Site, done: @escaping (Signed) -> Void) {
+        let done = { (result: Signed) in
+            if result != .unknown { why[site.name] = nil }
+            done(result)
+        }
         guard let url = site.probeURL else {
-            guard let name = site.cookie else { return done(.unknown) }
+            guard let name = site.cookie else {
+                return Arrival.run(site) { result, reason in
+                    if result == .unknown { why[site.name] = reason }
+                    done(result)
+                }
+            }
             return store.httpCookieStore.getAllCookies { cookies in
                 done(cookies.contains { $0.name == name && $0.within(site.domain) } ? .yes : .no)
             }
         }
         guard let name = site.cookie else {
-            running.insert(Check(url, done))
+            running.insert(Check(url, site.name, done))
             return
         }
         store.httpCookieStore.getAllCookies { cookies in
             guard cookies.contains(where: { $0.name == name && $0.within(site.domain) }) else { return done(.no) }
-            running.insert(Check(url, done))
+            running.insert(Check(url, site.name, done))
         }
     }
 
-    private init(_ url: URL, _ done: @escaping (Signed) -> Void) {
+    /// A request for the URL, cancelled once the site answers, whatever it answers.
+    static func visit(_ url: URL, done: @escaping () -> Void) {
+        running.insert(Check(url, nil) { _ in done() })
+    }
+
+    private init(_ url: URL, _ site: String?, _ done: @escaping (Signed) -> Void) {
         target = url
+        self.site = site
         self.done = done
         super.init()
         web.navigationDelegate = self
         web.load(URLRequest(url: url))
-        DispatchQueue.main.asyncAfter(deadline: .now() + 20) { [weak self] in self?.finish(.unknown) }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 20) { [weak self] in self?.finish(.unknown, "no answer in 20 seconds") }
     }
 
-    private func finish(_ result: Signed) {
+    private func finish(_ result: Signed, _ reason: String? = nil) {
         guard let done else { return }
         self.done = nil
+        if let site, result == .unknown { Check.why[site] = reason }
         web.stopLoading()
         // Released on the next turn: freeing a web view inside its own policy callback crashes WebKit.
         DispatchQueue.main.async { Check.running.remove(self) }
@@ -163,11 +188,81 @@ final class Check: NSObject, WKNavigationDelegate {
         // Redirected (to a login page, say) or refused means signed out, whatever that page answered;
         // any other answer (a 503, a 429, a bot check) can't tell.
         let redirected = navigationResponse.response.url?.path != target.path
-        finish(redirected || [401, 403].contains(status) ? .no : (200..<300).contains(status) ? .yes : .unknown)
+        finish(redirected || [401, 403].contains(status) ? .no : (200..<300).contains(status) ? .yes : .unknown, "HTTP \(status)")
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        finish(.unknown)
+        finish(.unknown, error.localizedDescription)
+    }
+}
+
+/// How a site's page looks to someone who may already be signed in: a site takes a signed-in
+/// person off its login page into itself, and keeps anyone else at a sign-in step.
+enum Landing {
+    private static let steps = #/log-?[io]n|sign-?in|sign_in|sso|saml|oauth|openid|auth|session|password|verif|mfa|2fa|two-?factor|otp|challenge|checkpoint|consent|captcha/#.ignoresCase()
+    private static let script = "[location.href, document.readyState == 'complete', "
+        + "[...document.querySelectorAll('input[type=password]')].some(e => e.getClientRects().length > 0)]"
+
+    /// .yes on one of the site's own pages, off its login page, that isn't a sign-in step and asks
+    /// for no password; .no on anything else; nil while the page is still loading.
+    static func look(_ web: WKWebView, _ site: Site, done: @escaping (Signed?) -> Void) {
+        web.evaluateJavaScript(script, in: nil, in: .defaultClient) { result in
+            guard case .success(let value) = result, let parts = value as? [Any], parts.count == 3, parts[1] as? Bool == true,
+                  let url = (parts[0] as? String).flatMap(URL.init(string:)) else { return done(nil) }
+            let login = URL(string: site.login)?.path ?? ""
+            let moved = url.path.trimmingCharacters(in: ["/"]) != login.trimmingCharacters(in: ["/"])
+            done(parts[2] as? Bool != true && site.owns(url) && moved && url.path.firstMatch(of: steps) == nil ? .yes : .no)
+        }
+    }
+}
+
+/// Whether a site with no cookie or probe is signed in, asked as a person would: its login page,
+/// loaded where nobody sees it, watched until it moves on into the site (a second) or stays at a
+/// sign-in step (two and a half).
+final class Arrival: NSObject, WKNavigationDelegate {
+    private static var running: Set<Arrival> = []
+    private let web = WKWebView(frame: NSRect(x: 0, y: 0, width: 1280, height: 900), configuration: configuration())
+    private let site: Site
+    private var done: ((Signed, String?) -> Void)?
+    private var seen: (look: Signed, times: Int)?
+    private var timer: Timer?
+
+    static func run(_ site: Site, done: @escaping (Signed, String?) -> Void) {
+        guard let url = URL(string: site.login) else { return done(.unknown, "its login page isn't a link") }
+        running.insert(Arrival(site, url, done))
+    }
+
+    private init(_ site: Site, _ url: URL, _ done: @escaping (Signed, String?) -> Void) {
+        self.site = site
+        self.done = done
+        super.init()
+        web.navigationDelegate = self
+        web.load(URLRequest(url: url))
+        timer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in self?.watch() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 15) { [weak self] in self?.finish(.unknown, "no answer in 15 seconds") }
+    }
+
+    private func watch() {
+        Landing.look(web, site) { [weak self] look in
+            guard let self else { return }
+            guard let look else { return self.seen = nil }
+            let times = self.seen?.look == look ? self.seen!.times + 1 : 1
+            self.seen = (look, times)
+            if times >= (look == .yes ? 4 : 10) { self.finish(look) }
+        }
+    }
+
+    private func finish(_ result: Signed, _ reason: String? = nil) {
+        guard let done else { return }
+        self.done = nil
+        timer?.invalidate()
+        web.stopLoading()
+        DispatchQueue.main.async { Arrival.running.remove(self) }  // not inside a WebKit callback
+        done(result, reason)
+    }
+
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        if (error as NSError).code != NSURLErrorCancelled { finish(.unknown, error.localizedDescription) }
     }
 }
 
@@ -182,8 +277,8 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         let reply: Reply
     }
 
-    private let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 320),
-                                  styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
+    private let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 400),
+                                  styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView], backing: .buffered, defer: false)
     private var sites: [Site] = []
     private var states: [String: Signed] = [:]
     private var pending: [String] = []         // named sites still to sign in, in order
@@ -197,8 +292,10 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     private var finished: Set<String> = []     // sites whose page ended with Done (or the window closing)
     private var navigated = false              // a page loaded after the baseline: a sign-in, not just the login page
     private var learning: Set<String> = []     // added accounts whose sign-in cookie isn't known yet
+    private var arrived = 0                    // looks in a row at a page a site with no check moved on to
+    private var refreshed = Date.distantPast
     private var baseline: Set<String>?         // their domain's cookie names once the login page loaded
-    private var rows: [String: (icon: NSImageView, label: NSTextField, spinner: NSProgressIndicator, button: NSButton)] = [:]
+    private var rows: [String: (dot: NSImageView, spinner: NSProgressIndicator, label: NSTextField, column: NSView, button: NSButton)] = [:]
 
     // MARK: Requests
 
@@ -218,10 +315,11 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
                 (shown ?? SignInWindow()).learning.insert(site.name)
             }
         }
-        if !named || save != nil { (shown ?? SignInWindow()).file = file }
+        (shown ?? SignInWindow()).file = file  // the caller's: what it learns or keeps is saved there
         if !named {
             let sign = shown ?? SignInWindow()
             sign.add(chosen)
+            sign.refresh()
             sign.pinned = true
             sign.present()
             return reply(.success(["text": "Umbra's sign-in window is open"]))
@@ -229,6 +327,11 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         let group = DispatchGroup()
         var found: [String: Signed] = [:]
         for site in chosen {
+            // An account being added opens its login page: its sign-in is what Umbra learns from.
+            if shown?.learning.contains(site.name) == true {
+                found[site.name] = .no
+                continue
+            }
             group.enter()
             Check.run(site) { found[site.name] = $0; group.leave() }
         }
@@ -271,6 +374,9 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         window.isReleasedWhenClosed = false
         window.delegate = self
         window.title = "Umbra"
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.isMovableByWindowBackground = true
         window.center()
         store.httpCookieStore.add(self)
     }
@@ -279,9 +385,25 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         for site in chosen where !sites.contains(where: { $0.name == site.name }) {
             sites.append(site)
             states[site.name] = known[site.name] ?? .checking
-            if known[site.name] == nil { Check.run(site) { self.update([site.name: $0]) } }
+            if known[site.name] == nil { check(site) }
         }
         if page == nil { showList() }
+    }
+
+    /// Checks every listed site again: a window left open, or opened again, shows what is true now.
+    func refresh() {
+        refreshed = Date()
+        for site in sites where states[site.name] != .checking && site.name != current?.name { check(site) }
+    }
+
+    private func check(_ site: Site) {
+        states[site.name] = .checking
+        paint(site)
+        Check.run(site) { self.update([site.name: $0]) }
+    }
+
+    func windowDidBecomeKey(_ notification: Notification) {
+        if page == nil, Date().timeIntervalSince(refreshed) > 30 { refresh() }
     }
 
     func close() {
@@ -319,6 +441,12 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         // have failed: it stays, and only a new value counts as a sign-in.
         guard let name = site.cookie else {
             web.load(URLRequest(url: url))
+            // No cookie or probe: the page says when the site has let the person in. An account being
+            // added waits for Done instead, which is when its cookie is learned.
+            if !site.checkable, !learning.contains(site.name) {
+                arrived = 0
+                poll = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in self?.arriving(site, web) }
+            }
             return
         }
         store.httpCookieStore.getAllCookies { cookies in
@@ -336,9 +464,30 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         states[site.name] = .yes
         closePage()
         paint(site)
-        persist {}  // keep a session-only sign-in, and write it to disk now rather than at exit
-        answer(closing: false)
-        advance()
+        // Keep a session-only sign-in, and write it to disk now rather than at exit, before anyone hears of it.
+        keepIfSessionOnly(site) {
+            persist {
+                self.answer(closing: false)
+                self.advance()
+            }
+        }
+    }
+
+    /// A site whose sign-in cookie is session-only would be signed out when the daemon next exits:
+    /// it gets keepSession, in the file and here.
+    private func keepIfSessionOnly(_ site: Site, then done: @escaping () -> Void) {
+        guard let name = site.cookie, site.keepSession != true, site.keepSignedIn != true,
+              ((try? readSites(file)) ?? []).contains(where: { $0.name == site.name }) else { return done() }
+        store.httpCookieStore.getAllCookies { cookies in
+            if cookies.contains(where: { $0.name == name && $0.within(site.domain) && $0.isSessionOnly }),
+               let index = self.sites.firstIndex(where: { $0.name == site.name }) {
+                self.sites[index].keepSession = true
+                var kept = self.sites[index]
+                kept.keepSignedIn = nil
+                try? saveSite(kept, to: self.file)
+            }
+            done()
+        }
     }
 
     /// Answers each waiter whose sites are all signed in, or settled without a sign-in: closing the
@@ -389,6 +538,14 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         DispatchQueue.main.async { _ = page }  // freed after any WebKit callback under way returns
         self.page = nil
         current = nil
+    }
+
+    private func arriving(_ site: Site, _ web: WKWebView) {
+        Landing.look(web, site) { look in
+            guard web === self.page else { return }
+            self.arrived = look == .yes ? self.arrived + 1 : 0
+            if self.arrived == 4 { self.signedIn(site) }
+        }
     }
 
     func cookiesDidChange(in cookieStore: WKHTTPCookieStore) {
@@ -443,10 +600,15 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         store.httpCookieStore.getAllCookies { cookies in
             if let name = learnedCookie(cookies, site, since: baseline), let index = self.sites.firstIndex(where: { $0.name == site.name }) {
                 self.sites[index].cookie = name
+                // A session-only cookie dies with the daemon: keep it, or the sign-in is gone by tomorrow.
+                if cookies.contains(where: { $0.name == name && $0.within(site.domain) && $0.isSessionOnly }) { self.sites[index].keepSession = true }
                 self.learning.remove(site.name)
                 self.states[site.name] = .yes
-                try? saveSite(self.sites[index], to: self.file)
+                var learned = self.sites[index]
+                learned.keepSignedIn = nil  // the file's own, which the checkbox or command line may have set since
+                try? saveSite(learned, to: self.file)
                 self.paint(self.sites[index])
+                persist {}
             }
             done()
         }
@@ -486,8 +648,14 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
             finished.insert(site.name)
             closePage()
             return learn(site) {
-                self.answer(closing: false)
-                self.advance()
+                let now = self.sites.first { $0.name == site.name } ?? site  // with the cookie just learned, if any
+                self.states[site.name] = .checking
+                self.paint(now)
+                Check.run(now) { state in
+                    self.update([site.name: state])
+                    self.answer(closing: false)
+                    self.advance()
+                }
             }
         }
         if let site = current { pending.removeAll { $0 == site.name } }  // backed out of this one; others still wait
@@ -537,11 +705,21 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     @objc private func signIn(_ sender: NSButton) {
         guard let site = sites.first(where: { $0.name == sender.identifier?.rawValue }) else { return }
         pinned = true  // the person is using the window now: an agent's request ending won't close it
-        begin(site)
+        guard !site.checkable else { return begin(site) }
+        states[site.name] = .checking
+        paint(site)
+        Check.run(site) { state in
+            self.update([site.name: state])
+            if state != .yes { self.begin(site) }
+        }
     }
 
-    @objc private func signOut(_ sender: NSButton) {
-        guard let site = sites.first(where: { $0.name == sender.identifier?.rawValue }) else { return }
+    private func site(_ item: NSMenuItem) -> Site? {
+        sites.first { $0.name == item.representedObject as? String }
+    }
+
+    @objc private func signOut(_ sender: NSMenuItem) {
+        guard let site = site(sender) else { return }
         let alert = NSAlert()
         alert.messageText = "Sign out of \(site.name)?"
         alert.informativeText = "Agents and scripts that use \(site.name) will stop working until you sign in again."
@@ -556,182 +734,323 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         }
     }
 
+    /// Saves the choice to the sites file, and installs or removes the launch agent that visits.
+    @objc private func keepSignedIn(_ sender: NSMenuItem) {
+        guard let site = site(sender) else { return }
+        if case .failure(let error) = keep([site.name], sender.state != .on, file: file) {
+            let problem = NSAlert()
+            problem.messageText = "Couldn't change \(site.name)"
+            problem.informativeText = error.message
+            return problem.beginSheetModal(for: window)
+        }
+        if page == nil { showList() }
+    }
+
+    @objc private func checkAgain(_ sender: NSMenuItem) {
+        if let site = site(sender) { check(site) }
+    }
+
     // MARK: Layout
+
+    private let width: CGFloat = 600
+    private var titlebar: CGFloat { window.frame.height - window.contentLayoutRect.height }
 
     private func showList() {
         rows = [:]
-        let icon = NSImageView(image: NSApp.applicationIconImage)
+        window.toolbar = nil
+        window.styleMask.insert(.fullSizeContentView)
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.subtitle = ""
+        let icon = Artwork(image: NSApp.applicationIconImage)
         icon.imageScaling = .scaleProportionallyUpOrDown
-        let title = NSTextField(labelWithString: "Umbra")
-        title.font = .systemFont(ofSize: 22, weight: .semibold)
-        let blurb = NSTextField(wrappingLabelWithString: "Sign in to each site once. Agents use these sign-ins in the background, and this window never opens a site you're signed in to.")
-        blurb.textColor = .secondaryLabelColor
+        let title = NSTextField(labelWithString: "Accounts")
+        title.font = .systemFont(ofSize: 20, weight: .bold)
+        let blurb = NSTextField(labelWithString: "Agents use these sign-ins in the background.")
         blurb.font = .systemFont(ofSize: 12)
-        blurb.preferredMaxLayoutWidth = 520 - 48 - 64 - 14
+        blurb.textColor = .secondaryLabelColor
         let heading = NSStackView(views: [title, blurb])
         heading.orientation = .vertical
         heading.alignment = .leading
-        heading.spacing = 3
+        heading.spacing = 2
         let top = NSStackView(views: [icon, heading])
         top.alignment = .centerY
-        top.spacing = 14
+        top.spacing = 15  // 24 + 45 + 15: the title starts where the names do
 
         let list = NSStackView()
         list.orientation = .vertical
-        list.alignment = .leading
-        list.spacing = 8
+        list.spacing = 0
+        // The file says which sites are kept (the command line may have changed it); a one-off URL can't be.
+        let listed = Dictionary(((try? readSites(file)) ?? []).map { ($0.name, $0.keepSignedIn == true) }, uniquingKeysWith: { first, _ in first })
         for (index, site) in sites.enumerated() {
-            if index > 0 { list.addArrangedSubview(separator()) }
-            list.addArrangedSubview(row(site))
+            if index > 0 { list.addArrangedSubview(hairline(inset: 60)) }
+            list.addArrangedSubview(row(site, kept: listed[site.name]))
         }
         if sites.isEmpty {
             let empty = NSTextField(wrappingLabelWithString: "No sites yet. Click Add Account to sign in to one; Umbra keeps it in the file below.")
             empty.textColor = .secondaryLabelColor
-            empty.preferredMaxLayoutWidth = 520 - 48
-            list.addArrangedSubview(empty)
-        }
-        let path = file.path.replacingOccurrences(of: FileManager.default.homeDirectoryForCurrentUser.path, with: "~")
-        let file = NSTextField(labelWithString: "Sites come from \(path)")
-        file.font = .systemFont(ofSize: 11)
-        file.textColor = .tertiaryLabelColor
-        file.lineBreakMode = .byTruncatingMiddle
-        file.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        let add = NSButton(title: "Add Account…", image: NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!,
-                           target: self, action: #selector(addAccount(_:)))
-        add.bezelStyle = .push
-        add.imagePosition = .imageLeading
-        add.setContentCompressionResistancePriority(.required, for: .horizontal)
-        let gap = NSView()
-        gap.setContentHuggingPriority(.init(1), for: .horizontal)
-        let footer = NSStackView(views: [add, gap, file])
-        footer.alignment = .centerY
-
-        let root = NSStackView(views: [top, separator(), list, separator(), footer])
-        root.orientation = .vertical
-        root.alignment = .leading
-        root.spacing = 14
-        root.edgeInsets = NSEdgeInsets(top: 22, left: 24, bottom: 18, right: 24)
-        for view in [top, list, footer] + root.arrangedSubviews.filter({ $0 is NSBox }) {
-            view.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -48).isActive = true
+            empty.alignment = .center
+            empty.preferredMaxLayoutWidth = width - 48 - 48
+            let holder = NSStackView(views: [empty])
+            holder.edgeInsets = NSEdgeInsets(top: 28, left: 24, bottom: 28, right: 24)
+            list.addArrangedSubview(holder)
         }
         for view in list.arrangedSubviews {
             view.widthAnchor.constraint(equalTo: list.widthAnchor).isActive = true
         }
-        NSLayoutConstraint.activate([icon.widthAnchor.constraint(equalToConstant: 64), icon.heightAnchor.constraint(equalToConstant: 64),
-                                     root.widthAnchor.constraint(equalToConstant: 520)])
+
+        let add = NSButton(title: "Add Account…", image: NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!,
+                           target: self, action: #selector(addAccount(_:)))
+        add.imagePosition = .imageLeading
+        glass(add)
+        let path = NSTextField(labelWithString: file.path.replacingOccurrences(of: FileManager.default.homeDirectoryForCurrentUser.path, with: "~"))
+        path.font = .systemFont(ofSize: 11)
+        path.textColor = .tertiaryLabelColor
+        path.lineBreakMode = .byTruncatingMiddle
+        path.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        path.toolTip = "Umbra reads your sites from this file"
+        let gap = NSView()
+        gap.setContentHuggingPriority(.init(1), for: .horizontal)
+        let footer = NSStackView(views: [add, gap, path])
+        footer.alignment = .centerY
+
+        let card = group(list)
+        let root = NSStackView(views: [top, card, footer])
+        root.orientation = .vertical
+        root.alignment = .leading
+        root.spacing = 20
+        root.setCustomSpacing(16, after: card)
+        root.edgeInsets = NSEdgeInsets(top: titlebar + 4, left: 24, bottom: 20, right: 24)
+        for view in root.arrangedSubviews {
+            view.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -48).isActive = true
+        }
+        NSLayoutConstraint.activate([icon.widthAnchor.constraint(equalToConstant: 45), icon.heightAnchor.constraint(equalToConstant: 45),
+                                     root.widthAnchor.constraint(equalToConstant: width)])
         window.title = "Umbra"
         window.styleMask.remove(.resizable)
-        window.contentView = root
+        window.contentView = Backdrop(root)
         resize(to: root.fittingSize)
         for site in sites { paint(site) }
     }
 
-    private func row(_ site: Site) -> NSView {
-        let badge = NSTextField(labelWithString: String(site.name.prefix(1)).uppercased())
-        badge.font = .systemFont(ofSize: 15, weight: .semibold)
-        badge.textColor = .controlAccentColor
-        badge.alignment = .center
-        let disc = NSView()
-        disc.wantsLayer = true
-        disc.layer?.cornerRadius = 8
-        disc.layer?.backgroundColor = NSColor.controlAccentColor.withAlphaComponent(0.14).cgColor
-        badge.translatesAutoresizingMaskIntoConstraints = false
-        disc.addSubview(badge)
-        NSLayoutConstraint.activate([disc.widthAnchor.constraint(equalToConstant: 34), disc.heightAnchor.constraint(equalToConstant: 34),
-                                     badge.centerXAnchor.constraint(equalTo: disc.centerXAnchor),
-                                     badge.centerYAnchor.constraint(equalTo: disc.centerYAnchor)])
+    private func row(_ site: Site, kept: Bool?) -> NSView {
+        let tile = Fill(.systemGray, radius: 8)
+        let letter = NSTextField(labelWithString: String(site.name.prefix(1)).uppercased())
+        let rounded = NSFont.systemFont(ofSize: 14, weight: .semibold).fontDescriptor.withDesign(.rounded)
+        letter.font = rounded.flatMap { NSFont(descriptor: $0, size: 14) } ?? .systemFont(ofSize: 14, weight: .semibold)
+        letter.textColor = .white
+        let logo = NSImageView()
+        logo.imageScaling = .scaleProportionallyUpOrDown
+        logo.isHidden = true
+        for view in [letter, logo] {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            tile.addSubview(view)
+        }
+        let side = logo.widthAnchor.constraint(equalToConstant: 32)
+        NSLayoutConstraint.activate([tile.widthAnchor.constraint(equalToConstant: 32), tile.heightAnchor.constraint(equalToConstant: 32),
+                                     letter.centerXAnchor.constraint(equalTo: tile.centerXAnchor),
+                                     letter.centerYAnchor.constraint(equalTo: tile.centerYAnchor),
+                                     logo.centerXAnchor.constraint(equalTo: tile.centerXAnchor),
+                                     logo.centerYAnchor.constraint(equalTo: tile.centerYAnchor),
+                                     side, logo.heightAnchor.constraint(equalTo: logo.widthAnchor)])
+        Logo.of(site) { image in
+            // A home-screen icon goes edge to edge; a glyph sits on white; a tiny one stays small rather than blur.
+            let fit = Logo.fit(image)
+            logo.image = fit.image
+            logo.isHidden = false
+            letter.isHidden = true
+            side.constant = fit.small ? 16 : fit.fills ? 32 : 26
+            tile.color = fit.fills && !fit.small ? .clear : .white
+            tile.border = !(fit.fills && !fit.small)
+        }
+
         let name = NSTextField(labelWithString: site.name)
-        name.font = .systemFont(ofSize: 13, weight: .semibold)
-        let domain = NSTextField(labelWithString: site.domain)
-        domain.font = .systemFont(ofSize: 11)
-        domain.textColor = .secondaryLabelColor
-        let names = NSStackView(views: [name, domain])
+        name.font = .systemFont(ofSize: 13, weight: .medium)
+        let detail = NSStackView(views: [quiet(site.domain)])
+        detail.spacing = 4
+        if kept == true {
+            let loop = NSImageView(image: NSImage(systemSymbolName: "arrow.triangle.2.circlepath", accessibilityDescription: nil)!)
+            loop.symbolConfiguration = .init(pointSize: 9, weight: .semibold)
+            loop.contentTintColor = .secondaryLabelColor
+            for view in [quiet("·"), loop, quiet("Kept signed in")] { detail.addArrangedSubview(view) }
+            detail.setCustomSpacing(3, after: loop)
+        }
+        let names = NSStackView(views: [name, detail])
         names.orientation = .vertical
         names.alignment = .leading
         names.spacing = 1
-        let icon = NSImageView()
-        let label = NSTextField(labelWithString: "")
-        label.font = .systemFont(ofSize: 12)
+
+        // The status: a dot (or a spinner in its place) and a word, in a column of its own.
+        let dot = NSImageView(image: NSImage(systemSymbolName: "circle.fill", accessibilityDescription: nil)!)
+        dot.symbolConfiguration = .init(pointSize: 7, weight: .regular)
         let spinner = NSProgressIndicator()
         spinner.style = .spinning
-        spinner.controlSize = .small
+        spinner.controlSize = .mini
+        let mark = NSView()
+        for view in [dot, spinner] {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            mark.addSubview(view)
+            NSLayoutConstraint.activate([view.centerXAnchor.constraint(equalTo: mark.centerXAnchor), view.centerYAnchor.constraint(equalTo: mark.centerYAnchor)])
+        }
+        NSLayoutConstraint.activate([mark.widthAnchor.constraint(equalToConstant: 12), mark.heightAnchor.constraint(equalToConstant: 12)])
+        let label = NSTextField(labelWithString: "")
+        label.font = .systemFont(ofSize: 11)
+        let status = NSStackView(views: [mark, label])
+        status.spacing = 5
+        let column = NSView()
+        status.translatesAutoresizingMaskIntoConstraints = false
+        column.addSubview(status)
+        NSLayoutConstraint.activate([column.widthAnchor.constraint(equalToConstant: 100), column.heightAnchor.constraint(equalToConstant: 20),
+                                     status.leadingAnchor.constraint(equalTo: column.leadingAnchor),
+                                     status.centerYAnchor.constraint(equalTo: column.centerYAnchor)])
+
         let button = NSButton(title: "Sign In", target: self, action: #selector(signIn(_:)))
         button.identifier = NSUserInterfaceItemIdentifier(site.name)
-        button.bezelStyle = .push
-        button.widthAnchor.constraint(greaterThanOrEqualToConstant: 92).isActive = true
+        button.bezelStyle = .push  // on the glass card: a standard button, not glass on glass
+        if #available(macOS 26, *) { button.borderShape = .capsule }  // one shape for every action
+        button.widthAnchor.constraint(equalToConstant: 76).isActive = true
+
+        let more = NSPopUpButton(frame: .zero, pullsDown: true)
+        more.menu = menu(site, kept: kept)
+        more.isBordered = false
+        more.imagePosition = .imageOnly
+        (more.cell as? NSPopUpButtonCell)?.arrowPosition = .noArrow
+        more.toolTip = "More"
+        more.setAccessibilityLabel("More for \(site.name)")
+        NSLayoutConstraint.activate([more.widthAnchor.constraint(equalToConstant: 24), more.heightAnchor.constraint(equalToConstant: 24)])
+
         let spacer = NSView()
         spacer.setContentHuggingPriority(.init(1), for: .horizontal)
-        let row = NSStackView(views: [disc, names, spacer, spinner, icon, label, button])
+        let row = NSStackView(views: [tile, names, spacer, column, button, more])
         row.alignment = .centerY
-        row.spacing = 10
-        row.setCustomSpacing(12, after: disc)
-        row.setCustomSpacing(5, after: icon)
-        row.setCustomSpacing(14, after: label)
-        row.edgeInsets = NSEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
-        rows[site.name] = (icon, label, spinner, button)
+        row.spacing = 8
+        row.setCustomSpacing(12, after: tile)
+        row.setCustomSpacing(12, after: button)
+        row.detachesHiddenViews = false  // a hidden Sign In keeps its place, so the statuses line up
+        row.edgeInsets = NSEdgeInsets(top: 0, left: 16, bottom: 0, right: 14)
+        row.heightAnchor.constraint(equalToConstant: 52).isActive = true  // a stack's cross-axis insets give way inside the glass
+        rows[site.name] = (dot, spinner, label, column, button)
         return row
+    }
+
+    private func menu(_ site: Site, kept: Bool?) -> NSMenu {
+        let menu = NSMenu()
+        let image = NSImage(systemSymbolName: "ellipsis.circle", accessibilityDescription: "More")?
+            .withSymbolConfiguration(NSImage.SymbolConfiguration(pointSize: 15, weight: .regular).applying(.init(hierarchicalColor: .secondaryLabelColor)))
+        menu.addItem(withTitle: "", action: nil, keyEquivalent: "").image = image
+        let keep = menu.addItem(withTitle: "Keep Signed In", action: kept == nil ? nil : #selector(keepSignedIn(_:)), keyEquivalent: "")
+        keep.state = kept == true ? .on : .off
+        keep.toolTip = "Umbra visits \(site.name) every ten minutes, so it never signs you out for being idle."
+        menu.addItem(withTitle: "Check Again", action: #selector(checkAgain(_:)), keyEquivalent: "")
+        menu.addItem(.separator())
+        menu.addItem(withTitle: "Sign Out…", action: #selector(signOut(_:)), keyEquivalent: "")
+        for item in menu.items.dropFirst() {
+            item.target = self
+            item.representedObject = site.name
+        }
+        return menu
     }
 
     private func paint(_ site: Site) {
         guard let row = rows[site.name] else { return }
         let state = states[site.name] ?? .unknown
-        var symbol: String? = nil
-        var text = ""
-        var color = NSColor.secondaryLabelColor
+        var (text, color, tip): (String, NSColor, String?) = ("", .tertiaryLabelColor, nil)
         switch state {
         case .checking: text = "Checking…"
-        case .yes: (symbol, text, color) = ("checkmark.circle.fill", "Signed in", .systemGreen)
-        case .no: (symbol, text) = ("circle", "Signed out")
-        case .unknown where site.checkable: (symbol, text, color) = ("exclamationmark.triangle.fill", "Couldn't check", .systemOrange)
-        case .unknown: break
+        case .yes: (text, color) = ("Signed in", .systemGreen)
+        case .no: text = "Signed out"
+        case .unknown:
+            (text, color) = ("Couldn't check", .systemOrange)
+            tip = "The site didn't answer as expected" + (Check.why[site.name].map { ": \($0)" } ?? "") + ". Check Again in the … menu tries now."
         }
-        row.icon.image = symbol.flatMap { NSImage(systemSymbolName: $0, accessibilityDescription: text) }
-        row.icon.contentTintColor = color
-        row.icon.isHidden = symbol == nil
-        row.label.stringValue = text
-        row.label.textColor = state == .yes ? .labelColor : color
+        row.dot.contentTintColor = color
+        row.dot.isHidden = state == .checking
         row.spinner.isHidden = state != .checking
         state == .checking ? row.spinner.startAnimation(nil) : row.spinner.stopAnimation(nil)
-        row.button.isHidden = state == .checking
-        row.button.title = state == .yes ? "Sign Out" : "Sign In"
-        row.button.action = state == .yes ? #selector(signOut(_:)) : #selector(signIn(_:))
+        row.label.stringValue = text
+        row.label.textColor = state == .yes || color == .systemOrange ? .labelColor : .secondaryLabelColor
+        row.label.toolTip = tip
+        row.column.toolTip = tip
+        row.button.isHidden = state == .yes || state == .checking
     }
 
     private func showPage(_ site: Site, _ web: WKWebView) {
-        let back = NSButton(title: "Sites", image: NSImage(systemSymbolName: "chevron.left", accessibilityDescription: "Back")!,
-                            target: self, action: #selector(back(_:)))
-        back.bezelStyle = .push
-        back.imagePosition = .imageLeading
-        if !site.checkable { back.title = "Done"; back.image = nil }
-        let title = NSTextField(labelWithString: "Sign in to \(site.name)")
-        title.font = .systemFont(ofSize: 13, weight: .semibold)
-        let note = NSTextField(labelWithString: site.checkable ? "This page closes as soon as you're signed in."
-                               : learning.contains(site.name) ? "Sign in, then click Done. Umbra remembers this account." : "Click Done when you're signed in.")
-        note.font = .systemFont(ofSize: 11)
-        note.textColor = .secondaryLabelColor
-        let spacer = NSView()
-        spacer.setContentHuggingPriority(.init(1), for: .horizontal)
-        let bar = NSStackView(views: [back, title, spacer, note])
-        bar.alignment = .centerY
-        bar.spacing = 12
-        bar.edgeInsets = NSEdgeInsets(top: 8, left: 12, bottom: 8, right: 16)
-        let root = NSStackView(views: [bar, separator(), web])
-        root.orientation = .vertical
-        root.spacing = 0
-        for view in root.arrangedSubviews {
-            view.widthAnchor.constraint(equalTo: root.widthAnchor).isActive = true
-        }
-        web.setContentHuggingPriority(.init(1), for: .vertical)
-        window.title = "Sign in to \(site.name)"
+        if #unavailable(macOS 26) { window.styleMask.remove(.fullSizeContentView) }
         window.styleMask.insert(.resizable)
-        window.contentView = root
+        window.titlebarAppearsTransparent = false
+        window.titleVisibility = .visible
+        window.title = "Sign in to \(site.name)"
+        window.subtitle = site.checkable ? "This page closes as soon as you're signed in."
+            : learning.contains(site.name) ? "Sign in, then click Done. Umbra remembers this account."
+            : "This page closes once you're signed in, or click Done."
+        let toolbar = NSToolbar(identifier: "page")
+        toolbar.delegate = self
+        toolbar.displayMode = .iconOnly
+        toolbar.allowsUserCustomization = false
+        window.toolbar = toolbar
+        window.toolbarStyle = .unified
+        window.contentView = web
         resize(to: NSSize(width: 1040, height: 780))
+        if #available(macOS 26, *) { web.obscuredContentInsets = NSEdgeInsets(top: titlebar, left: 0, bottom: 0, right: 0) }
     }
 
-    private func separator() -> NSBox {
-        let line = NSBox()
-        line.boxType = .separator
-        return line
+    /// One grouped card: glass from macOS 26, a rounded box before.
+    private func group(_ content: NSView) -> NSView {
+        let card: NSView
+        if #available(macOS 26, *) {
+            let glass = NSGlassEffectView()
+            glass.cornerRadius = 18
+            glass.contentView = content
+            card = glass
+        } else {
+            let box = NSBox()
+            box.boxType = .custom
+            box.cornerRadius = 12
+            box.borderColor = .separatorColor
+            box.fillColor = .controlBackgroundColor.withAlphaComponent(0.6)
+            box.contentViewMargins = .zero
+            box.contentView = content
+            card = box
+        }
+        pin(content, to: card)
+        return card
+    }
+
+    private func glass(_ button: NSButton, prominent: Bool = false, circle: Bool = false) {
+        if #available(macOS 26, *) {
+            button.bezelStyle = .glass
+            button.borderShape = circle ? .circle : .capsule
+            button.tintProminence = prominent ? .primary : .automatic
+        } else {
+            button.bezelStyle = .push
+            button.bezelColor = prominent ? .controlAccentColor : nil
+        }
+    }
+
+    private func hairline(inset: CGFloat) -> NSView {
+        let line = Fill(.separatorColor, radius: 0)
+        let holder = NSView()
+        line.translatesAutoresizingMaskIntoConstraints = false
+        holder.addSubview(line)
+        NSLayoutConstraint.activate([line.leadingAnchor.constraint(equalTo: holder.leadingAnchor, constant: inset),
+                                     line.trailingAnchor.constraint(equalTo: holder.trailingAnchor, constant: inset > 0 ? -16 : 0),
+                                     line.topAnchor.constraint(equalTo: holder.topAnchor),
+                                     line.bottomAnchor.constraint(equalTo: holder.bottomAnchor),
+                                     line.heightAnchor.constraint(equalToConstant: 1 / (NSScreen.main?.backingScaleFactor ?? 2))])
+        return holder
+    }
+
+    private func quiet(_ text: String) -> NSTextField {
+        let label = NSTextField(labelWithString: text)
+        label.font = .systemFont(ofSize: 11)
+        label.textColor = .secondaryLabelColor
+        return label
+    }
+
+    private func pin(_ view: NSView, to box: NSView) {
+        view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([view.leadingAnchor.constraint(equalTo: box.leadingAnchor), view.trailingAnchor.constraint(equalTo: box.trailingAnchor),
+                                     view.topAnchor.constraint(equalTo: box.topAnchor), view.bottomAnchor.constraint(equalTo: box.bottomAnchor)])
     }
 
     /// Keeps the window's center where it was, and on screen.
@@ -744,6 +1063,56 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
             frame.origin.y = min(max(frame.origin.y, screen.minY), screen.maxY - frame.height)
         }
         window.setFrame(frame, display: true, animate: window.isVisible)
+    }
+}
+
+/// A rounded fill in a color that follows the appearance, with an optional hairline edge.
+private final class Fill: NSView {
+    var color: NSColor { didSet { needsDisplay = true } }
+    var border = false { didSet { needsDisplay = true } }
+
+    init(_ color: NSColor, radius: CGFloat) {
+        self.color = color
+        super.init(frame: .zero)
+        wantsLayer = true
+        layer?.cornerRadius = radius
+        layer?.cornerCurve = .continuous
+        layer?.masksToBounds = true
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+    override var wantsUpdateLayer: Bool { true }
+    override func updateLayer() {
+        layer?.backgroundColor = color.cgColor
+        layer?.borderWidth = border ? 1 / (window?.backingScaleFactor ?? 2) : 0
+        layer?.borderColor = NSColor.separatorColor.cgColor
+    }
+}
+
+/// The app icon, aligned by its art: the icon file has a transparent margin around it.
+private final class Artwork: NSImageView {
+    override var alignmentRectInsets: NSEdgeInsets { NSEdgeInsets(top: 5.5, left: 5.5, bottom: 5.5, right: 5.5) }
+}
+
+/// The window's backdrop: one soft glow, so the glass has something to refract.
+private final class Backdrop: NSView {
+    init(_ content: NSView) {
+        super.init(frame: .zero)
+        addSubview(content)
+        content.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([content.leadingAnchor.constraint(equalTo: leadingAnchor), content.trailingAnchor.constraint(equalTo: trailingAnchor),
+                                     content.topAnchor.constraint(equalTo: topAnchor), content.bottomAnchor.constraint(equalTo: bottomAnchor)])
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    override func draw(_ dirtyRect: NSRect) {
+        let dark = effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+        NSColor.windowBackgroundColor.setFill()
+        bounds.fill()
+        let corner = NSPoint(x: 0, y: bounds.height)
+        NSGradient(colors: [NSColor.systemIndigo.withAlphaComponent(dark ? 0.12 : 0.07), NSColor.systemIndigo.withAlphaComponent(0)])!
+            .draw(fromCenter: corner, radius: 0, toCenter: corner, radius: max(bounds.width, bounds.height) * 0.5, options: [])
     }
 }
 
@@ -811,4 +1180,30 @@ func printCookies(_ domain: String?) {
         }
         exit(0)
     }
+}
+
+extension SignInWindow: NSToolbarDelegate {
+    private static let leave = NSToolbarItem.Identifier("leave")
+
+    func toolbar(_ toolbar: NSToolbar, itemForItemIdentifier identifier: NSToolbarItem.Identifier,
+                 willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
+        let item = NSToolbarItem(itemIdentifier: identifier)
+        item.target = self
+        item.action = #selector(back(_:))
+        item.isBordered = true
+        if let site = current, !site.checkable {  // nothing to check: the person says when they're done
+            item.title = "Done"
+            item.label = "Done"
+            if #available(macOS 26, *) { item.style = .prominent }
+        } else {
+            item.image = NSImage(systemSymbolName: "chevron.backward", accessibilityDescription: "Sites")
+            item.label = "Sites"
+            item.toolTip = "Back to your sites"
+            item.isNavigational = true
+        }
+        return item
+    }
+
+    func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] { [SignInWindow.leave] }
+    func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] { [SignInWindow.leave] }
 }
