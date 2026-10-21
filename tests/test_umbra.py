@@ -1088,6 +1088,13 @@ class KeepSignedInTests(UmbraCase):
         srv.route('/enter')(lambda h: h.redirect('/home') if h.req.cookies.get('sess') == 'on'
                             else h.reply(200, '<title>Log in</title><form><input type=password name=p></form>'))
         srv.page('/home', '<title>home</title>')
+        # Login pages that keep someone signed in where they are, as WRDS's does, offering a way out:
+        # a POST form, a link, or a scripted button. Anyone else is asked for an email, then a password.
+        stays = {'form': '<form method=post action="/accounts/logout/"><button>Logout</button></form>',
+                 'link': '<a href="/sign_out">Your account</a>', 'button': '<button onclick="leave()">Log out</button>'}
+        srv.route('/stay')(lambda h: h.reply(200, '<title>Login</title><p>You are logged in as Pat.</p>' + stays[h.req.query['kind']]
+                                             if h.req.cookies.get('sess') == 'on' else
+                                             '<title>Login</title><form><input type=email name=e><button>Next</button></form>'))
         srv.route('/api/me')(lambda h: h.reply(200 if h.req.cookies.get('sess') == 'on' else 401, '{}', 'application/json'))
         srv.page('/api/forbidden', '{}', status=403, ctype='application/json')
         srv.route('/api/moved')(lambda h: h.redirect('/login'))
@@ -1232,6 +1239,17 @@ class KeepSignedInTests(UmbraCase):
         r = self.keep(sites=sites)
         self.assertExit(r, 0)
         self.assertReport(r.text, 'Plain: signed in')  # it moved on to /home
+
+    def test_a_login_page_that_keeps_someone_signed_in_where_they_are_says_so(self):
+        # Regression: WRDS kept a signed-in person on its login page, with a Logout form, so it always read signed out.
+        sites = self.kept(*[self.site(kind.title(), login=self.srv.url(f'/stay?kind={kind}')) for kind in ['form', 'link', 'button']])
+        r = self.keep(sites=sites)
+        self.assertExit(r, 3)
+        self.assertReport(r.err, *[self.SIGNED_OUT.format(name) for name in ['Form', 'Link', 'Button']])  # no password asked yet, still out
+        self.sign_in()
+        r = self.keep(sites=sites)
+        self.assertExit(r, 0)
+        self.assertReport(r.text, 'Form: signed in', 'Link: signed in', 'Button: signed in')
 
     def test_a_renewed_session_cookie_is_kept_for_the_next_request(self):
         # keepSignedIn implies keepSession: the entry has no keepSession, yet the renewed

@@ -197,27 +197,41 @@ final class Check: NSObject, WKNavigationDelegate {
 }
 
 /// How a site's page looks to someone who may already be signed in: a site takes a signed-in
-/// person off its login page into itself, and keeps anyone else at a sign-in step.
+/// person off its login page into itself, or offers them a way to sign out, and keeps anyone else
+/// at a sign-in step.
 enum Landing {
     private static let steps = #/log-?[io]n|sign-?in|sign_in|sso|saml|oauth|openid|auth|session|password|verif|mfa|2fa|two-?factor|otp|challenge|checkpoint|consent|captcha/#.ignoresCase()
-    private static let script = "[location.href, document.readyState == 'complete', "
-        + "[...document.querySelectorAll('input[type=password]')].some(e => e.getClientRects().length > 0)]"
+    // Run every quarter second in the same page, so nothing it declares may outlive the call.
+    private static let script = #"""
+        (() => {
+          const shown = e => e.getClientRects().length > 0;
+          const path = u => { try { return new URL(u, location.href).pathname } catch { return '' } };
+          const exit = /(^|[/_.-])(log|sign)[-_]?(out|off)\b/i;
+          return [location.href, document.readyState == 'complete',
+            [...document.querySelectorAll('input[type=password]')].some(shown),
+            [...document.querySelectorAll('a[href], form[action]')].some(e => shown(e) && exit.test(path(e.getAttribute('href') ?? e.getAttribute('action'))))
+              || [...document.querySelectorAll('a, button, input[type=submit], [role=button], [role=menuitem]')]
+                   .some(e => shown(e) && /^(log|sign) ?-?(out|off)$/i.test((e.innerText || e.value || '').trim()))];
+        })()
+        """#
 
-    /// .yes on one of the site's own pages, off its login page, that isn't a sign-in step and asks
-    /// for no password; .no on anything else; nil while the page is still loading.
+    /// .yes on one of the site's own pages that asks for no password and either offers to sign out
+    /// (a site may keep someone signed in on its login page, as WRDS does) or has moved off the login
+    /// page to one that isn't a sign-in step; .no on anything else; nil while the page is still loading.
     static func look(_ web: WKWebView, _ site: Site, done: @escaping (Signed?) -> Void) {
         web.evaluateJavaScript(script, in: nil, in: .defaultClient) { result in
-            guard case .success(let value) = result, let parts = value as? [Any], parts.count == 3, parts[1] as? Bool == true,
+            guard case .success(let value) = result, let parts = value as? [Any], parts.count == 4, parts[1] as? Bool == true,
                   let url = (parts[0] as? String).flatMap(URL.init(string:)) else { return done(nil) }
             let login = URL(string: site.login)?.path ?? ""
             let moved = url.path.trimmingCharacters(in: ["/"]) != login.trimmingCharacters(in: ["/"])
-            done(parts[2] as? Bool != true && site.owns(url) && moved && url.path.firstMatch(of: steps) == nil ? .yes : .no)
+            let inside = parts[3] as? Bool == true || moved && url.path.firstMatch(of: steps) == nil
+            done(parts[2] as? Bool != true && site.owns(url) && inside ? .yes : .no)
         }
     }
 }
 
 /// Whether a site with no cookie or probe is signed in, asked as a person would: its login page,
-/// loaded where nobody sees it, watched until it moves on into the site (a second) or stays at a
+/// loaded where nobody sees it, watched until it lets the person in (a second) or stays at a
 /// sign-in step (two and a half).
 final class Arrival: NSObject, WKNavigationDelegate {
     private static var running: Set<Arrival> = []
