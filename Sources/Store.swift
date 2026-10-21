@@ -78,6 +78,12 @@ func configuration() -> WKWebViewConfiguration {
     config.websiteDataStore = store
     // WebKit writes the rest of Safari's user agent around this, so sites see Safari.
     config.applicationNameForUserAgent = "Version/\(safariVersion) Safari/605.1.15"
+    // No back-forward cache: it keeps each page a tab leaves frozen in memory, often in a process of
+    // its own, in case the tab goes back (4 tabs after 6 pages each held 3.4 GB with it, 1.3 GB
+    // without). Going back loads the page again instead, from the HTTP cache where it can.
+    if config.preferences.responds(to: NSSelectorFromString("_setUsesPageCache:")) {
+        config.preferences.setValue(false, forKey: "usesPageCache")
+    }
     return config
 }
 

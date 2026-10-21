@@ -25,6 +25,12 @@ The showcase ratios use the recorded medians, before rounding:
 
 Twenty measured runs per cell on one M1 Pro Mac. These project-authored fixtures measure direct daemon socket commands, without MCP framing. Playwright clicks include its actionability checks. They do not establish a general website or end-to-end agent speedup. The full table retains metrics where Chromium is faster.
 
+## Memory: the tabs agents leave behind
+
+[Findings, method and limits](memory/README.md) · [every sample](memory/results.json)
+
+On a real Mac, the daemon had run 67 hours with 49 tabs agents had opened and never closed: 17.4 GB and 90% of a CPU core. Tabs now rest when unused (hidden after 5 minutes, closed after 15) and the back-forward cache is off. With one agent still working and ten others gone, memory once they had left fell from **2,756 to 331 MB** (8.3×) and their CPU from **15.3 to 1.9 seconds a minute**. When each of six tabs had visited four pages, memory fell from **3,863 to 312 MB** (12.4×). The pages are synthetic and local; command latency was unchanged.
+
 ## Project workflow regression
 
 [Agent setups and coverage](regression/README.md) · [full report](regression/RESULTS.md) · [scores](regression/scores.json) · [fixture and graders](proving-ground.md)

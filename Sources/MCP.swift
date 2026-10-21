@@ -12,7 +12,9 @@ let mcpInstructions = """
     `fill`, `type`, `press` or `select`. Refs go stale when the page changes: snapshot again after \
     navigating or after any action that changes the page. `wait` for a selector, text, URL, JavaScript \
     condition or network idle instead of sleeping. For 2FA, a CAPTCHA or a consent screen, call `handoff` \
-    with a short message; the person finishes it in a window and the call returns. Use `screenshot` \
+    with a short message; the person finishes it in a window and the call returns. Give your work its \
+    own `tab` name and close it with `tab` when you are done: each open tab holds a web process, and one \
+    unused for 15 minutes closes by itself. Use `screenshot` \
     only when visual layout matters; `text` and `markdown` are cheaper for reading. For a JSON API on \
     a signed-in site, `fetch` the URL directly: one request with the browser's cookies, no tab needed.
     """

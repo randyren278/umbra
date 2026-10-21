@@ -68,6 +68,7 @@ func scratch(_ engine: Engine, _ kind: String, _ args: Args, timeout fallback: D
              _ reply: @escaping Reply) -> (Tab, Reply) {
     let tab = engine.open(name: "\(kind)-\(UUID().uuidString.prefix(6))", select: false)
     if engine.current === tab { engine.current = nil }  // never the tab a session command lands on
+    tab.busy += 1  // closed here, never for being idle
     var answered = false
     let finish: Reply = { result in
         guard !answered else { return }
@@ -102,15 +103,15 @@ func coreCommands() -> [Command] {
             }
         },
         Command(name: "back", help: "Go back in the tab's history.", timeout: 60) { args, engine, reply in
-            guard case .success(let tab) = engine.tab(args) else { return reply(.failure(UmbraError(64, "no open tab"))) }
+            guard let tab = pick(args, engine, reply) else { return }
             tab.go({ $0.goBack() }, done: settle(tab, args, reply))
         },
         Command(name: "forward", help: "Go forward in the tab's history.", timeout: 60) { args, engine, reply in
-            guard case .success(let tab) = engine.tab(args) else { return reply(.failure(UmbraError(64, "no open tab"))) }
+            guard let tab = pick(args, engine, reply) else { return }
             tab.go({ $0.goForward() }, done: settle(tab, args, reply))
         },
         Command(name: "reload", help: "Reload the page.", timeout: 60) { args, engine, reply in
-            guard case .success(let tab) = engine.tab(args) else { return reply(.failure(UmbraError(64, "no open tab"))) }
+            guard let tab = pick(args, engine, reply) else { return }
             tab.go({ $0.reload() }, done: settle(tab, args, reply))
         },
         Command(name: "tabs", help: "List open tabs; * marks the current one.", usesTab: false) { _, engine, reply in
@@ -130,6 +131,7 @@ func coreCommands() -> [Command] {
             case "select":
                 guard let tab = engine.tabs.first(where: { $0.name == name }) else { return reply(.failure(UmbraError(64, "no tab named \(name ?? "")"))) }
                 engine.current = tab
+                tab.lastUsed = Date()
                 reply(.success(pageInfo(tab)))
             case "close":
                 if let name, !engine.tabs.contains(where: { $0.name == name }) { return reply(.failure(UmbraError(64, "no tab named \(name)"))) }
@@ -145,7 +147,7 @@ func coreCommands() -> [Command] {
         Command(name: "eval", help: "Run JavaScript in the page as the body of an async function; prints what it returns. Sees the page's own globals.",
                 params: [Param(name: "script", kind: .string, help: "JavaScript (use `return`); `-` or omitted reads stdin on the CLI", positional: true)],
                 timeout: 60) { args, engine, reply in
-            guard case .success(let tab) = engine.tab(args) else { return reply(.failure(UmbraError(64, "no open tab; start with `umbra open <url>`"))) }
+            guard let tab = pick(args, engine, reply) else { return }
             tab.run(args.string("script") ?? "return document.title") { result in
                 switch result {
                 case .success(let value): reply(.success(["value": value.map(jsonSafe) ?? NSNull(), "text": rendered(value) ?? ""]))
@@ -162,7 +164,7 @@ func coreCommands() -> [Command] {
                          Param(name: "idle", kind: .boolean, help: "No new network requests for 500 ms"),
                          Param(name: "ms", kind: .number, help: "Just wait this many milliseconds")],
                 timeout: 120) { args, engine, reply in
-            guard case .success(let tab) = engine.tab(args) else { return reply(.failure(UmbraError(64, "no open tab"))) }
+            guard let tab = pick(args, engine, reply) else { return }
             let timeout = args.number("timeout") ?? 30
             let done: (Result<Void, UmbraError>) -> Void = { result in
                 switch result { case .success: report(tab, reply); case .failure(let error): reply(.failure(error)) }
@@ -191,7 +193,7 @@ func coreCommands() -> [Command] {
             tab.wait(until: conditions.joined(separator: " && "), values, timeout: timeout, done: done)
         },
         Command(name: "downloads", help: "Files the page downloaded in this tab, with where they were saved.") { args, engine, reply in
-            guard case .success(let tab) = engine.tab(args) else { return reply(.failure(UmbraError(64, "no open tab"))) }
+            guard let tab = pick(args, engine, reply) else { return }
             let text = tab.downloads.map { "\($0["state"] ?? "")\t\($0["path"] ?? $0["error"] ?? "")" }
             reply(.success(["downloads": tab.downloads, "text": text.isEmpty ? "no downloads" : text.joined(separator: "\n")]))
         },
@@ -199,7 +201,7 @@ func coreCommands() -> [Command] {
                 params: [Param(name: "message", kind: .string, help: "What the person should do", positional: true),
                          Param(name: "until", kind: .string, help: "JavaScript condition that ends the handoff by itself")],
                 timeout: 900) { args, engine, reply in
-            guard case .success(let tab) = engine.tab(args) else { return reply(.failure(UmbraError(64, "no open tab"))) }
+            guard let tab = pick(args, engine, reply) else { return }
             let timeout = args.number("timeout") ?? 900
             let begin = {
                 tab.handoff = { report(tab, reply) }

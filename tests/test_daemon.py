@@ -508,6 +508,15 @@ class SessionCommandTests(SessionCase):
         self.assertEqual(self.json('reload')['title'], 'count 2')
         self.assertEqual(self.visits[k], 2)
 
+    def test_a_page_left_behind_is_not_kept_frozen_in_memory(self):
+        # No back-forward cache: going back loads the page again (from the HTTP cache) rather than
+        # thawing the old one, which would have stayed in memory all along.
+        self.open(self.srv.url('/b'))
+        self.eval('window.left = "still here"')
+        self.open(self.srv.url('/a'))
+        self.json('back')
+        self.assertEqual(self.eval('return String(window.left)'), 'undefined')
+
     def test_back_with_nowhere_to_go_exits_4(self):
         self.open(self.srv.url('/b'))
         r = self.umbra('back')
@@ -671,6 +680,77 @@ class SessionCommandTests(SessionCase):
         self.assertEqual((status['profile'], status['idleLimit']), (self.profile, 60))
         self.assertEqual([t['title'] for t in status['tabs']], ['Page A'])
         self.assertIn(f'profile {self.profile}', self.umbra('status').text)
+
+
+class RestingTabTests(SessionCase):
+    """A tab no command uses rests: hidden after a third of UMBRA_IDLE, as a background tab is, and
+    closed after all of it, so the tabs agents leave behind don't pile up in a daemon that never idles."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.srv = srv = Server()
+        srv.page('/a', '<title>A</title><h1>Resting</h1><p style="color:#c03">text that must render</p>'
+                       '<script>window.seen = []; addEventListener("visibilitychange", () => seen.push(document.visibilityState))</script>')
+        srv.page('/b', '<title>B</title>')
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.srv.close()
+
+    def tabs(self):
+        return [t['tab'] for t in self.status()['tabs']]  # status keeps the daemon in use, not any tab
+
+    def test_a_tab_left_unused_closes_and_says_so(self):
+        self.assertExit(self.umbra('open', self.srv.url('/a'), env={'UMBRA_IDLE': '4'}), 0)
+        self.assertExit(self.umbra('--tab', 'kept', 'open', self.srv.url('/b')), 0)
+        self.assertExit(self.umbra('tab', 'select', 'main'), 0)
+
+        def only_kept():
+            self.assertExit(self.umbra('--tab', 'kept', 'eval', 'return 1'), 0)
+            return self.tabs() == ['kept']
+        self.assertTrue(wait_for(only_kept, 15, step=0.5), self.tabs())
+        r = self.umbra('eval', 'return 1')
+        self.assertExit(r, 64)
+        self.assertSays(r, 'no open tab')  # the current tab closed: commands never fall to another agent's tab
+        r = self.umbra('--tab', 'main', 'eval', 'return 1')
+        self.assertExit(r, 64)
+        self.assertSays(r, 'main closed after 4 seconds unused')
+        self.assertEqual(self.json('--tab', 'main', 'open', self.srv.url('/b'))['title'], 'B')
+
+    def test_a_tab_stays_open_while_a_command_runs_on_it(self):
+        self.assertExit(self.umbra('--tab', 'slow', 'open', self.srv.url('/a'), env={'UMBRA_IDLE': '2'}), 0)
+        r = self.umbra('--tab', 'slow', 'wait', '--ms', '6000')
+        self.assertExit(r, 0)
+        self.assertEqual(self.tabs(), ['slow'])
+
+    def test_popups_rest_too(self):
+        self.assertExit(self.umbra('open', self.srv.url('/a'), env={'UMBRA_IDLE': '4'}), 0)
+        self.assertExit(self.umbra('eval', 'window.open("/b")'), 0)
+        self.assertEqual(len(wait_for(lambda: len(self.tabs()) == 2 and self.tabs(), 5, 0.2)), 2)
+
+        def popup_gone():
+            self.assertExit(self.umbra('eval', 'return 1'), 0)
+            return self.tabs() == ['main']
+        self.assertTrue(wait_for(popup_gone, 15, step=0.5), self.tabs())
+
+    @unittest.skipUnless(base.window_server(), 'no window server (not in an Aqua session)')
+    def test_a_resting_tab_is_hidden_until_the_next_command(self):
+        self.assertExit(self.umbra('open', self.srv.url('/a'), env={'UMBRA_IDLE': '9'}), 0)
+        before, after = self.tmp / 'before.png', self.tmp / 'after.png'
+        self.assertExit(self.umbra('screenshot', str(before)), 0)
+        pids = daemon_of(self.profile)
+        hidden = wait_for(lambda: self.tabs() and not [w for w in window_report(pids)['windows'] if w['onscreen']], 8, 0.5)
+        self.assertTrue(hidden, 'the unused tab was never hidden')
+        self.assertEqual(self.eval_text('return [document.visibilityState, seen]'), '["visible",["hidden","visible"]]',
+                         'the page saw itself hidden, and visible again before the command ran')
+        self.assertEqual(self.eval_text(VISIBLE), '["visible",true]', 'animation frames come again')
+        self.assertExit(self.umbra('screenshot', str(after)), 0)
+        self.assertEqual(after.read_bytes(), before.read_bytes(), 'the woken tab renders as before')
+
+    def eval_text(self, script):
+        r = self.umbra('eval', script)
+        self.assertExit(r, 0)
+        return r.text.rstrip('\n')
 
 
 # MARK: The sign-in window

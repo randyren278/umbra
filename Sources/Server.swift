@@ -95,7 +95,8 @@ final class Daemon {
                 if client >= 0 { self.serve(client) }
             }
         }
-        Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
+        Timer.scheduledTimer(withTimeInterval: min(15, max(1, idleLimit / 4)), repeats: true) { _ in
+            self.engine.rest(after: idleLimit)
             let busy = self.inFlight > 0 || SignInWindow.handingOff() || SignInWindow.shown != nil
             if !busy, Date().timeIntervalSince(self.lastUsed) > idleLimit { self.shutdown() }
         }
@@ -158,11 +159,17 @@ final class Daemon {
         let timeout = args.number("timeout") ?? command.timeout
         var answered = false
         inFlight += 1
+        // The tab it acts on stays open and shown while it runs (Engine.rest).
+        let target = { command.usesTab ? try? self.engine.tab(args).get() : nil }
+        let tab = target()
+        tab?.busy += 1
         func finish(_ result: Result<[String: Any], UmbraError>) {
             guard !answered else { return }
             answered = true
             inFlight -= 1
             if used { lastUsed = Date() }
+            tab?.busy -= 1
+            target()?.lastUsed = Date()
             switch result {
             case .success(let value): reply(["id": id, "ok": true, "result": value])
             case .failure(let error): reply(["id": id, "ok": false, "error": ["code": Int(error.code), "message": error.message]])
@@ -171,7 +178,8 @@ final class Daemon {
         DispatchQueue.main.asyncAfter(deadline: .now() + timeout + 0.5) {
             finish(.failure(UmbraError(2, "\(name) gave no answer in \(duration(timeout))")))
         }
-        command.run(args, engine, finish)
+        guard let tab else { return command.run(args, engine, finish) }
+        tab.wake { command.run(args, self.engine, finish) }
     }
 }
 

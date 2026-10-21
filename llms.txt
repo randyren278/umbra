@@ -5,7 +5,8 @@
 Facts an agent needs:
 
 - A per-profile daemon keeps tabs alive between commands. It starts on the first command and exits after 15 idle minutes. The CLI and `umbra mcp` drive the same tabs.
-- Tabs are invisible but pages see themselves as visible (`visibilityState`, `requestAnimationFrame` and `IntersectionObserver` work). Input is native, so events are trusted (`isTrusted == true`). While agents work, Umbra never takes focus or shows a Dock icon; only the sign-in window (with a Dock icon) and handoff (without) appear, when a person is needed.
+- A tab no command has used for 5 minutes rests hidden (timers slow, animations pause) until the next command on it; after 15 minutes unused it closes. Close your own tab when done: `umbra tab close NAME`.
+- Tabs are invisible but pages in use see themselves as visible (`visibilityState`, `requestAnimationFrame` and `IntersectionObserver` work). Input is native, so events are trusted (`isTrusted == true`). While agents work, Umbra never takes focus or shows a Dock icon; only the sign-in window (with a Dock icon) and handoff (without) appear, when a person is needed.
 - Never drive Safari with AppleScript, and never type the user's passwords. Do the actions the request asks for; ask first before a consequential action (purchase, post, message, submission, refund, deletion) that is your own idea.
 - `--profile NAME` (or `UMBRA_PROFILE`) selects a separate cookie store and daemon. Use one for experiments. The current tab and cookies belong to the profile, so parallel agents each need their own profile (or at least their own `--tab`); cookies on 127.0.0.1 are shared across ports.
 - Dialogs never block: alerts, confirms and prompts are accepted by default and reported in the reply of the action that raised them. Run `umbra dialog dismiss` before an action to decline the next one.

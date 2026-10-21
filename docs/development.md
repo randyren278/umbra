@@ -22,7 +22,7 @@ make build     # build/Umbra.app (BUILD=dir builds elsewhere), signed ad hoc as 
 make icon      # regenerate the logo, icon, banner and how-it-works diagram (assets/build.py)
 make release   # dist/Umbra-<version>.zip and its .sha256
 make help      # list targets and overrides
-python3 assets/charts.py   # redraw the eval, speed and sign-in pictures from docs/evaluation data
+python3 assets/charts.py   # redraw the eval, speed, memory and sign-in pictures from docs/evaluation data
 ```
 
 The loop, WebKit, handoff and profile diagrams are hand-drawn SVGs in the same style; edit them directly.

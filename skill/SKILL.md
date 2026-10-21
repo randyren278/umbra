@@ -48,6 +48,7 @@ Every command has `umbra help <command>`. Add `--json` for structured output. `u
 - If an action with consequences (purchases, posts, messages, submissions, refunds, deletions) is your own idea and not in the request, ask first.
 - Never print or save cookie values or tokens. `umbra cookies` shows names only.
 - Respect the site's pace. Use one tab per task, and don't hammer accounts (LinkedIn and Instagram reads are rate-limited in FIRST).
+- Close your tab when the task is done: `umbra tab close NAME`. Every open tab holds a web process (hundreds of MB for a busy site). A tab nothing has used for 15 minutes closes by itself; after that, `open --tab NAME <url>` opens it again.
 - For experiments and tests, use `--profile scratch-<name>` so the real signed-in store is untouched. Run `umbra --profile scratch-<name> stop` when done.
 
 ## Common mistakes

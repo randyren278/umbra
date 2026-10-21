@@ -23,6 +23,13 @@
   </picture>
 </a>
 
+<a href="docs/evaluation/memory/README.md">
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/memory-mobile.svg">
+    <img src="assets/memory.svg" width="100%" alt="Memory of Umbra and its WebKit processes while one agent keeps working and ten others have each left a heavy page open. Before, the abandoned tabs stayed open at about 2.7 GB. Now each tab closes once unused and memory falls to 331 MB, 8.3 times less; their CPU fell from 15.3 to 1.9 seconds a minute. With four pages per tab, memory fell from 3,863 to 312 MB, 12.4 times less.">
+  </picture>
+</a>
+
 [Explore the complete evaluations, comparisons, methods and data →](docs/evaluation/README.md)
 
 ## Why Umbra

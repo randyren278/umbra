@@ -28,6 +28,8 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     var downloads: [[String: Any]] = []
     var handoff: (() -> Void)?
     var navigations = 0                              // main-frame navigations started; actions compare before and after
+    var lastUsed = Date()                            // when a command on it last finished (Engine.rest)
+    var busy = 0                                     // commands on it still running
     private var watchdog = 0                         // the live load watch; older timers and late answers stand down
     private var restarting = false                   // the web process was killed on purpose: not a crash
     private var saving: [ObjectIdentifier: (url: String, path: URL)] = [:]
@@ -62,6 +64,13 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         window.collectionBehavior = [.transient, .ignoresCycle, .stationary]
         window.setFrameOrigin(NSPoint(x: -30000, y: -30000))
         window.orderFrontRegardless()
+    }
+
+    /// Shows a tab that was resting hidden, and goes on once its page knows it is visible again.
+    func wake(then go: @escaping () -> Void) {
+        guard !window.isVisible else { return go() }
+        window.orderFrontRegardless()
+        wait(until: "document.visibilityState == 'visible'", in: umbraWorld, timeout: 2) { _ in go() }
     }
 
     var summary: [String: Any] {
@@ -325,6 +334,7 @@ final class Engine {
     var current: Tab?
     var size = NSSize(width: 1280, height: 900)
     private var counter = 0
+    private var closedIdle: Set<String> = []  // so a command naming one hears why it is gone
 
     @discardableResult
     func open(name: String?, config: WKWebViewConfiguration? = nil, select: Bool = true) -> Tab {
@@ -332,8 +342,27 @@ final class Engine {
         let tab = Tab(name: name ?? (tabs.isEmpty ? "main" : "tab-\(counter)"),
                       configuration: config ?? configuration(), engine: self)
         tabs.append(tab)
+        closedIdle.remove(tab.name)
         if select || current == nil { current = tab }
         return tab
+    }
+
+    /// What becomes of a tab no command has used for a while. After a third of `limit` it is hidden,
+    /// so its timers slow down and its animations pause as in a background tab in Safari (the next
+    /// command shows it again). After `limit` it closes, as the daemon itself exits when unused: a
+    /// tab an agent left behind doesn't keep a web process going for days.
+    func rest(after limit: Double) {
+        for tab in tabs where tab.busy == 0 && tab.handoff == nil {
+            let idle = Date().timeIntervalSince(tab.lastUsed)
+            if idle > limit, tab.loading.isEmpty {
+                let wasCurrent = current === tab
+                close(tab)
+                if wasCurrent { current = nil }  // never some other agent's tab
+                closedIdle.insert(tab.name)
+            } else if idle > limit / 3, tab.window.isVisible {
+                tab.window.orderOut(nil)
+            }
+        }
     }
 
     func close(_ tab: Tab) {
@@ -350,7 +379,11 @@ final class Engine {
     func tab(_ args: Args, create: Bool = false) -> Result<Tab, UmbraError> {
         if let name = args.string("tab") {
             if let tab = tabs.first(where: { $0.name == name }) { return .success(tab) }
-            return create ? .success(open(name: name)) : .failure(UmbraError(64, "no tab named \(name); see `umbra tabs`"))
+            if create { return .success(open(name: name)) }
+            if closedIdle.contains(name) {
+                return .failure(UmbraError(64, "tab \(name) closed after \(duration(idleLimit)) unused; `umbra --tab \(name) open <url>` opens it again"))
+            }
+            return .failure(UmbraError(64, "no tab named \(name); see `umbra tabs`"))
         }
         if let current { return .success(current) }
         return create ? .success(open(name: nil)) : .failure(UmbraError(64, "no open tab; start with `umbra open <url>`"))

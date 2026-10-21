@@ -5,6 +5,7 @@
 
   speed.svg, speed-mobile.svg      from docs/evaluation/latency/results.json (Umbra vs Playwright, median ms)
   eval.svg, eval-mobile.svg        from docs/evaluation/regression/scores.json (every agent arm, task by task)
+  memory.svg, memory-mobile.svg    from docs/evaluation/memory/results.json (tabs agents leave behind, before and after)
   sign-in.svg, sign-in-mobile.svg  the sign-in window's rules (words defined below)
 
 Run from anywhere: python3 assets/charts.py. Writes beside this file.
@@ -284,6 +285,105 @@ def eval_mobile():
     return svg(width, height, "Agent eval: fresh agents complete real browser tasks with Umbra", eval_desc(data), "\n  ".join(body))
 
 
+# MARK: Memory
+
+MEMORY_SERIES = [("before", "Before", ORCHID), ("after", "Now", AMBER)]
+
+
+def memory_data():
+    return json.loads((EVAL / "memory/results.json").read_text())
+
+
+def memory_tiles(data):
+    """(headline, what it compares, the numbers) for each stat tile."""
+    runs = {label: {name: run["summary"] for name, run in data["runs"][label].items()} for label in ("before", "after")}
+    one, four = (runs["before"]["one_page"], runs["after"]["one_page"]), (runs["before"]["four_pages"], runs["after"]["four_pages"])
+    return [(f"{one[0]['end_mb'] / one[1]['end_mb']:.1f}× less memory", "after 10 agents leave a tab each",
+             f"{one[0]['end_mb']:,} → {one[1]['end_mb']:,} MB", AMBER),
+            (f"{one[0]['idle_cpu_s_per_min'] / one[1]['idle_cpu_s_per_min']:.1f}× less CPU", "while those tabs sit unused",
+             f"{one[0]['idle_cpu_s_per_min']:.1f} → {one[1]['idle_cpu_s_per_min']:.1f} CPU s / min", GREEN),
+            (f"{four[0]['end_mb'] / four[1]['end_mb']:.1f}× less memory", "when each tab visited 4 pages",
+             f"{four[0]['end_mb']:,} → {four[1]['end_mb']:,} MB · peak {four[0]['peak_mb']:,} → {four[1]['peak_mb']:,}", AMBER)]
+
+
+def memory_desc(data):
+    tiles = memory_tiles(data)
+    idle = data["runs"]["after"]["one_page"]["options"]["idle"]
+    return ("Physical memory of Umbra and its WebKit processes while one agent keeps working and ten others have each "
+            f"left a heavy page open. Before, the abandoned tabs stayed open: about 2.7 GB the whole time. Now each tab "
+            f"closes once unused for UMBRA_IDLE ({idle} s in this run, 15 minutes by default), and memory falls to one tab's worth. "
+            + "; ".join(f"{head} {what}, {numbers}" for head, what, numbers, _ in tiles)
+            + f". bench/memory.py on synthetic pages, {data['machine']['cpu']}, macOS {data['machine']['macos']}.")
+
+
+def memory_plot(data, x0, y0, width, height, size=19):
+    """Memory over time after the agents leave, before and now, with the idle limit marked."""
+    runs = {label: data["runs"][label]["one_page"] for label, _, _ in MEMORY_SERIES}
+    idle, watch = runs["after"]["options"]["idle"], runs["after"]["options"]["watch"]
+    top_mb = 3000
+    def px(t): return x0 + width * t / watch
+    def py(mb): return y0 + height * (1 - mb / top_mb)
+    out = []
+    for gb in range(4):
+        y = py(gb * 1000)
+        out.append(f'<line x1="{x0}" y1="{y:.1f}" x2="{x0 + width}" y2="{y:.1f}" stroke="#ffffff" stroke-opacity="{0.16 if gb == 0 else 0.07}" stroke-width="1.5"/>'
+                   + text(x0 - 12, y + 6, f"{gb} GB", size - 1, DIM, anchor="end"))
+    for t in range(0, watch + 1, 30):
+        out.append(text(px(t), y0 + height + 30, f"{t} s", size - 1, DIM, anchor="middle"))
+    out.append(f'<line x1="{px(idle):.1f}" y1="{y0 - 6}" x2="{px(idle):.1f}" y2="{y0 + height}" stroke="{PAPER}" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="5 6"/>'
+               + text(px(idle) + 10, y0 + 12, "idle limit", size - 1, MUTED))
+    for label, name, color in MEMORY_SERIES:
+        samples = runs[label]["samples"]
+        points = " ".join(f"{px(s['t']):.1f},{py(s['total']):.1f}" for s in samples)
+        end = samples[-1]
+        out.append(f'<polyline points="{points}" fill="none" stroke="{color}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">'
+                   f'<title>{name}: {round(samples[0]["total"]):,} MB when the agents left, {round(end["total"]):,} MB {end["t"]} s later</title></polyline>'
+                   f'<circle cx="{px(end["t"]):.1f}" cy="{py(end["total"]):.1f}" r="5" fill="{color}"/>'
+                   + text(px(end["t"]) - 4, py(end["total"]) - 16, f"{name} {round(end['total']):,} MB", size, PAPER, 600, anchor="end"))
+    out.append(text(x0, y0 + height + 58, "Seconds after the agents left their tabs", size - 1, DIM))
+    return "".join(out)
+
+
+def memory_tile(x, y, width, head, what, numbers, color, size=1.0):
+    return (f'<rect x="{x}" y="{y}" width="{width}" height="{round(112 * size)}" rx="16" fill="#07060d" fill-opacity="0.52" stroke="{color}" stroke-opacity="0.25"/>'
+            + text(x + 22, y + round(42 * size), head, round(30 * size), PAPER, 700)
+            + text(x + 22, y + round(72 * size), what, round(19 * size), MUTED)
+            + text(x + 22, y + round(98 * size), numbers, round(19 * size), color, 600))
+
+
+def memory():
+    data = memory_data()
+    width, height = 1200, 620
+    body = [card(width, height), heading("Tabs agents leave behind let go",
+                                         "Umbra and its WebKit processes while one agent works and ten others have left", width)]
+    for (label, name, color), x in zip(MEMORY_SERIES, (48, 360)):
+        body.append(f'<rect x="{x}" y="138" width="22" height="14" rx="4" fill="{color}"/>'
+                    + text(x + 32, 151, "Before (tabs never closed)" if label == "before" else "Now", 20, MUTED))
+    body.append(memory_plot(data, 120, 200, 600, 300))
+    for i, (head, what, numbers, color) in enumerate(memory_tiles(data)):
+        body.append(memory_tile(780, 186 + i * 128, 372, head, what, numbers, color))
+    m = data["machine"]
+    body.append(text(48, height - 30, f"Idle limit {data['runs']['after']['one_page']['options']['idle']} s in this run (15 minutes by default) · "
+                     f"bench/memory.py, synthetic pages · {m['cpu']}, macOS {m['macos']} · docs/evaluation/memory", 18, DIM))
+    return svg(width, height, "Umbra's memory after agents leave their tabs, before and now", memory_desc(data), "\n  ".join(body))
+
+
+def memory_mobile():
+    data = memory_data()
+    width, height = 600, 1150
+    body = [card(width, height), text(40, 70, "Tabs agents leave", 32, PAPER, 600), text(40, 108, "behind let go", 32, PAPER, 600),
+            text(40, 146, "Memory while one agent works on", 21, MUTED), text(40, 172, "and ten others have left a tab", 21, MUTED)]
+    for (label, name, color), x in zip(MEMORY_SERIES, (40, 300)):
+        body.append(f'<rect x="{x}" y="196" width="20" height="13" rx="4" fill="{color}"/>'
+                    + text(x + 28, 208, "Before" if label == "before" else "Now", 19, MUTED))
+    body.append(memory_plot(data, 100, 258, 450, 280, size=18))
+    for i, (head, what, numbers, color) in enumerate(memory_tiles(data)):
+        body.append(memory_tile(40, 646 + i * 140, 520, head, what, numbers, color, size=1.08))
+    body.append(text(40, height - 52, f"Idle limit {data['runs']['after']['one_page']['options']['idle']} s here, 15 minutes by default.", 19, DIM))
+    body.append(text(40, height - 26, "bench/memory.py · docs/evaluation/memory", 19, DIM))
+    return svg(width, height, "Umbra's memory after agents leave their tabs, before and now", memory_desc(data), "\n  ".join(body))
+
+
 # MARK: Sign-in
 
 SIGN_IN = {
@@ -374,6 +474,8 @@ def main():
                ("sign-in-mobile.svg", sign_in_mobile)]
     if (EVAL / "regression/scores.json").exists():
         outputs += [("eval.svg", eval_chart), ("eval-mobile.svg", eval_mobile)]
+    if (EVAL / "memory/results.json").exists():
+        outputs += [("memory.svg", memory), ("memory-mobile.svg", memory_mobile)]
     for name, make in outputs:
         (HERE / name).write_text(make())
         print("wrote", name)
