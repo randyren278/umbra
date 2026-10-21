@@ -47,6 +47,7 @@ struct Site: Decodable {
     let name, domain, login: String
     var cookie: String? = nil     // signed in while this cookie is set (HttpOnly ones included)
     var probe: String? = nil      // or while this same-origin path answers 2xx
+    var probeScript: String? = nil // render probe (or login), then await this JS body returning a signed-in boolean
     var keepSession: Bool? = nil  // persist session-only cookies, which WebKit drops when a run ends
     var keepSignedIn: Bool? = nil // visited every ten minutes so the session never idles out; implies keepSession
 }

@@ -20,7 +20,7 @@ extension Site {
         return URL(string: probe, relativeTo: base)?.absoluteURL
     }
 
-    var checkable: Bool { cookie != nil || probe != nil }
+    var checkable: Bool { cookie != nil || probe != nil || probeScript != nil }
 
     func owns(_ url: URL?) -> Bool {
         url?.host.map { $0 == domain || $0.hasSuffix("." + domain) } ?? false
@@ -80,6 +80,7 @@ func saveSite(_ site: Site, to file: URL = sitesFile) throws {
     var entry: [String: Any] = ["name": site.name, "domain": site.domain, "login": site.login]
     entry["cookie"] = site.cookie
     entry["probe"] = site.probe
+    entry["probeScript"] = site.probeScript
     entry["keepSession"] = site.keepSession
     entry["keepSignedIn"] = site.keepSignedIn == true ? true : nil
     if let index = list.firstIndex(where: { ($0["name"] as? String)?.caseInsensitiveCompare(site.name) == .orderedSame }) {
@@ -88,7 +89,7 @@ func saveSite(_ site: Site, to file: URL = sitesFile) throws {
     } else {
         list.append(entry)
     }
-    let order = ["name", "domain", "login", "cookie", "probe", "keepSession", "keepSignedIn"]
+    let order = ["name", "domain", "login", "cookie", "probe", "probeScript", "keepSession", "keepSignedIn"]
     let lines = try list.map { item -> String in
         let keys = order.filter { item[$0] != nil } + item.keys.filter { !order.contains($0) }.sorted()
         let fields = try keys.map { key -> String in
@@ -134,6 +135,12 @@ final class Check: NSObject, WKNavigationDelegate {
         let done = { (result: Signed) in
             if result != .unknown { why[site.name] = nil }
             done(result)
+        }
+        if site.probeScript != nil {
+            return Arrival.run(site) { result, reason in
+                if result == .unknown { why[site.name] = reason }
+                done(result)
+            }
         }
         guard let url = site.probeURL else {
             guard let name = site.cookie else {
@@ -240,9 +247,12 @@ final class Arrival: NSObject, WKNavigationDelegate {
     private var done: ((Signed, String?) -> Void)?
     private var seen: (look: Signed, times: Int)?
     private var timer: Timer?
+    private var probing = false
 
     static func run(_ site: Site, done: @escaping (Signed, String?) -> Void) {
-        guard let url = URL(string: site.login) else { return done(.unknown, "its login page isn't a link") }
+        guard let url = site.probeScript == nil ? URL(string: site.login) : site.probeURL ?? URL(string: site.login) else {
+            return done(.unknown, "its login page isn't a link")
+        }
         running.insert(Arrival(site, url, done))
     }
 
@@ -253,10 +263,32 @@ final class Arrival: NSObject, WKNavigationDelegate {
         web.navigationDelegate = self
         web.load(URLRequest(url: url))
         timer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in self?.watch() }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 15) { [weak self] in self?.finish(.unknown, "no answer in 15 seconds") }
+        let timeout = site.probeScript == nil ? 15 : 30
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(timeout)) { [weak self] in
+            self?.finish(.unknown, "no answer in \(timeout) seconds")
+        }
     }
 
     private func watch() {
+        if let script = site.probeScript {
+            guard !probing else { return }
+            probing = true
+            return web.evaluateJavaScript("document.readyState === 'complete'", in: nil, in: .defaultClient) { [weak self] result in
+                guard let self, self.done != nil else { return }
+                guard case .success(let ready) = result, ready as? Bool == true else {
+                    self.probing = false
+                    return
+                }
+                self.web.callAsyncJavaScript(script, arguments: [:], in: nil, in: .page) { [weak self] result in
+                    guard let self, self.done != nil else { return }
+                    guard case .success(let value) = result, let signedIn = value as? NSNumber,
+                          CFGetTypeID(signedIn) == CFBooleanGetTypeID() else {
+                        return self.finish(.unknown, "the signed-in script failed or didn't return a boolean")
+                    }
+                    self.finish(signedIn.boolValue ? .yes : .no)
+                }
+            }
+        }
         Landing.look(web, site) { [weak self] look in
             guard let self else { return }
             guard let look else { return self.seen = nil }
@@ -307,6 +339,8 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     private var navigated = false              // a page loaded after the baseline: a sign-in, not just the login page
     private var learning: Set<String> = []     // added accounts whose sign-in cookie isn't known yet
     private var arrived = 0                    // looks in a row at a page a site with no check moved on to
+    private var verifying = false
+    private var verifiedAt = Date.distantPast
     private var refreshed = Date.distantPast
     private var baseline: Set<String>?         // their domain's cookie names once the login page loaded
     private var rows: [String: (dot: NSImageView, spinner: NSProgressIndicator, label: NSTextField, column: NSView, button: NSButton)] = [:]
@@ -450,9 +484,16 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         navigated = false
         stale = nil
         finished.remove(site.name)
+        verifying = false
+        verifiedAt = .distantPast
         showPage(site, web)
         // A session cookie still here may belong to a session the site ended, or the check may just
         // have failed: it stays, and only a new value counts as a sign-in.
+        if site.probeScript != nil {
+            web.load(URLRequest(url: url))
+            poll = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in self?.cookiesChanged() }
+            return
+        }
         guard let name = site.cookie else {
             web.load(URLRequest(url: url))
             // No cookie or probe: the page says when the site has let the person in. An account being
@@ -567,7 +608,18 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     }
 
     private func cookiesChanged() {
-        guard let site = current, site.cookie != nil, let web = page, web.url != nil else { return }
+        guard let site = current, let web = page, web.url != nil else { return }
+        if site.probeScript != nil {
+            guard site.owns(web.url), !verifying, Date().timeIntervalSince(verifiedAt) >= 5 else { return }
+            verifying = true
+            verifiedAt = Date()
+            return Check.run(site) { result in
+                guard web === self.page else { return }
+                self.verifying = false
+                if result == .yes { self.signedIn(site) }
+            }
+        }
+        guard site.cookie != nil else { return }
         freshSignIn(site) { if $0, web === self.page { self.signedIn(site) } }
     }
 
@@ -587,6 +639,8 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
                  decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
         guard navigationResponse.isForMainFrame, webView === page, let site = current, site.checkable,
               site.cookie != nil || site.owns(navigationResponse.response.url) else { return decisionHandler(.allow) }
+        // A script needs the app to finish initializing; a changed cookie alone is not its session.
+        if site.probeScript != nil { return decisionHandler(.allow) }
         let decide = { (signed: Bool) in
             guard webView === self.page, signed else { return decisionHandler(webView === self.page ? .allow : .cancel) }
             decisionHandler(.cancel)

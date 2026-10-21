@@ -927,6 +927,28 @@ class SignInWindowTests(SessionCase):
         time.sleep(5)
         self.assertEqual(self.requests('/feed'), [])
 
+    def test_a_script_checked_session_waits_for_real_auth_after_the_cookie_changes(self):
+        self.srv.page('/login-rendered', '''<title>Log in</title><script>
+          setTimeout(() => fetch('/set'), 200);
+          setTimeout(() => fetch('/set-verified'), 1500);
+        </script>''')
+        self.srv.page('/set-verified', 'ok', headers=[('Set-Cookie', 'verified=on; Path=/; Max-Age=3600')])
+        self.srv.route('/api/verified')(lambda h: h.reply(200 if h.req.cookies.get('verified') == 'on' else 401,
+                                                       '{}', 'application/json'))
+        self.sites = base.write_sites([{'name': 'Rendered', 'domain': '127.0.0.1',
+                                      'login': self.srv.url('/login-rendered'), 'cookie': 'sess',
+                                      'probe': '/home', 'probeScript': "return (await fetch('/api/verified')).ok;"}])
+        self.assertExit(self.run_umbra('open', self.srv.url('/set-stale')), 0)
+        r = self.run_umbra('sign-in', 'Rendered')
+        self.assertExit(r, 0)
+        self.assertEqual(r.text, 'Rendered: signed in\n')
+        self.assertTrue(self.requests('/login-rendered'), 'a stale cookie must not skip sign-in')
+        checks = self.requests('/api/verified')
+        self.assertTrue(any(q.cookies.get('sess') == 'on' and q.cookies.get('verified') != 'on' for q in checks),
+                        'a fresh cookie must not close the page before authenticated verification')
+        self.assertEqual(checks[-1].cookies.get('verified'), 'on')
+        self.assertInvisible(self.profile, 'script-checked sign-in done', settle=3)
+
     def test_an_added_account_learns_its_sign_in_cookie(self):
         self.sites = base.write_sites([{'name': 'Xhr', 'domain': '127.0.0.1', 'login': self.srv.url('/login-xhr'), 'cookie': 'sess'}])
         r = self.run_umbra('sign-in', self.srv.url('/login-learn', 'localhost'), '--save', 'Xhr')

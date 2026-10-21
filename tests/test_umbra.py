@@ -1188,6 +1188,48 @@ class KeepSignedInTests(UmbraCase):
         self.assertEqual(r.out, b'')
         self.assertReport(r.err, self.UNKNOWN.format('Flaky'))
 
+    def test_a_rendered_probe_refreshes_the_app_session_and_awaits_its_check_once(self):
+        self.srv.page('/app', '''<title>Account</title><script>
+          window.heartbeat = fetch('/api/roll').then(r => { if (!r.ok) throw Error('expired'); });
+        </script>''')
+        self.sign_in()
+        self.sign_in('/seed-roll')
+        script = "await window.heartbeat; return (await fetch('/api/me')).ok;"
+        sites = self.kept(self.site('App', cookie='sess', probe='/app', probeScript=script))
+        r = self.keep(sites=sites)
+        self.assertExit(r, 0)
+        self.assertReport(r.text, 'App: signed in')
+        self.assertEqual(len(self.srv.requests('/api/roll')), 1, 'the rendered app refreshes once')
+        self.assertEqual(len(self.srv.requests('/api/me')), 1, 'await the script without repeating its requests')
+        self.assertExit(self.umbra('read', self.srv.url('/echo'), input='return 1', sites=sites), 0)
+        self.assertEqual(self.srv.requests('/echo')[-1].cookies.get('roll'), self.rolled[-1],
+                         'the refreshed session cookie survives a fresh process')
+
+    def test_a_rendered_probe_rejects_a_stale_cookie_and_a_public_200_shell(self):
+        self.sign_in()
+        self.srv.page('/app', '<title>Public app shell</title>')
+        sites = self.kept(self.site('App', cookie='sess', probe='/app',
+                                   probeScript="return (await fetch('/api/forbidden')).ok;"))
+        r = self.keep(sites=sites)
+        self.assertExit(r, 3)
+        self.assertReport(r.err, self.SIGNED_OUT.format('App'))
+        self.assertEqual(len(self.srv.requests('/api/forbidden')), 1)
+
+    def test_a_rendered_probe_error_is_unknown_and_does_not_expose_script_errors(self):
+        sites = self.kept(self.site('App', probe='/home', probeScript="throw Error('private-token-value');"))
+        r = self.keep(sites=sites)
+        self.assertExit(r, 4)
+        self.assertReport(r.err, "App: couldn't check (the signed-in script failed or didn't return a boolean)")
+        self.assertNotIn('private-token-value', r.err)
+
+    def test_a_rendered_probe_requires_a_boolean_instead_of_a_numeric_truth_value(self):
+        for value in ['1', '0']:
+            with self.subTest(value=value):
+                sites = self.kept(self.site('App', probe='/home', probeScript=f'return {value};'))
+                r = self.keep(sites=sites)
+                self.assertExit(r, 4)
+                self.assertReport(r.err, "App: couldn't check (the signed-in script failed or didn't return a boolean)")
+
     def test_a_cookie_site_is_visited_at_its_root_and_its_cookie_decides(self):
         sites = self.kept(self.site('Cookie', cookie='sess'))
         self.sign_in()

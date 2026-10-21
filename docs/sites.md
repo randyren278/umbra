@@ -44,6 +44,7 @@ A JSON array with one object per site. [examples/sites.example.json](../examples
 | `login` | yes | The login page the window opens. |
 | `cookie` | one or both | The name of a cookie that exists only while you're signed in. HttpOnly cookies count. |
 | `probe` | one or both | A path on the site that answers 2xx, without a redirect, only while you're signed in. |
+| `probeScript` | no | For a JavaScript app: render `probe` (or `login`), then run this async JavaScript body in the page. Return `true` only after verifying the authenticated session, or `false` when signed out. Overrides cookie and HTTP-status checks. |
 | `keepSession` | no | `true` keeps this domain's session-only cookies between runs. Defaults to `false`. |
 | `keepSignedIn` | no | `true` visits the site every 10 minutes so its session never sits idle, and implies `keepSession`. Defaults to `false`. |
 
@@ -56,6 +57,7 @@ The sign-in window checks each site when it lists it, and checks the site you're
 - **`cookie`:** a cookie with that name is set on `domain` or one of its subdomains.
 - **Neither:** the site moves its login page on into itself. Umbra loads the login page in a view that is never shown and watches it: a site you're signed in to takes you off its login page, onto one of its own pages that isn't a sign-in step (no `login`, `sso`, `auth`, `verify`, `2fa` and the like in the path) and asks for no password, and the page stays there for a second. A site you're not signed in to keeps you at a password, on a sign-in path or on another host, for two and a half seconds. This works for single-page apps that answer every path with the same page, which a `probe` can't tell apart, such as Wealthsimple's. Umbra never counts a site as signed in unless it moved you off the login page, so a site whose login form lives at `/` still opens for you to sign in. While you sign in to such a site in the window, the same watch closes its page once the site lets you in; Done works too.
 - **`probe`:** a request for the probe path on the site answers 2xx without a redirect. Umbra makes it in a view that is never shown, on the login page's origin when that is on `domain`, otherwise `https://<domain>`. API endpoints that need a session work well here. Canvas's `/api/v1/users/self` answers 401 until you sign in.
+- **`probeScript`:** Umbra fully loads `probe` (or `login`) so the app can refresh its tokens, then awaits the script once. The script can wait for app initialization and make a read-only authenticated request, returning a boolean. Tokens stay in the page; script exceptions, a non-boolean result or no answer within 30 seconds mean "couldn't check". A public app shell returning 200 or a stale cookie alone proves nothing. For example, `"probeScript": "return (await fetch('/api/me')).ok;"` checks a cookie-authenticated app. Bearer-token apps need their own authenticated request. Keep script code and site URLs trusted, and never return credentials.
 
 Use `cookie` when the site has one clearly named session cookie. Use `probe` when cookie names are generic or change, or when you'd rather ask the site directly. Use both when the site can end a session without clearing its cookie: a page that answers 200 when you're signed in and redirects to the login page when you're not (Instagram's `/accounts/edit/`, LinkedIn's `/feed/`) makes a good probe. When the window opens a login page for such a site, the old cookie stays (the check may only have failed for a moment), and a sign-in counts once the cookie gets a new value. If the probe answers anything other than 2xx, a redirect, 401 or 403 (a 503, a 429, a bot check), Umbra can't tell: `umbra sign-in <site>` exits 4 and opens nothing.
 
@@ -100,6 +102,7 @@ With `"keepSignedIn": true`, Umbra visits the site every 10 minutes, so the sess
 **What a visit does:** Umbra goes to the site in a view that is never shown, on the same origin as the signed-in checks:
 
 - **`probe`:** a request for the probe path. 2xx without a redirect means signed in; a redirect, 401 or 403 means signed out; anything else, Umbra can't tell. If the site also has a `cookie` and it's missing, that counts as signed out, with no request.
+- **`probeScript`:** render the app and await its signed-in script, as above. This runs the app's JavaScript session refresh instead of canceling the page as soon as its response headers arrive.
 - **`cookie` only:** the site's root page (`/`), then the cookie decides.
 - **Neither:** the login page, watched as in [the signed-in checks](#signed-in-checks-cookie-or-probe): loading it is the visit, and where it lands says whether you're signed in.
 

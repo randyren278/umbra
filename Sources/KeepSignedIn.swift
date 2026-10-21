@@ -100,7 +100,7 @@ func keep(_ names: [String], _ on: Bool, file: URL) -> Result<[Site], UmbraError
 /// in: the probe, or the login page loaded for a site with neither probe nor cookie. A site with only
 /// a cookie is visited at its root, then its cookie decides.
 func visit(_ site: Site, done: @escaping (Signed) -> Void) {
-    guard site.probeURL == nil, site.cookie != nil, let root = site.base.flatMap({ URL(string: "/", relativeTo: $0)?.absoluteURL }) else {
+    guard site.probeScript == nil, site.probeURL == nil, site.cookie != nil, let root = site.base.flatMap({ URL(string: "/", relativeTo: $0)?.absoluteURL }) else {
         return Check.run(site, done: done)
     }
     Check.visit(root) { Check.run(site, done: done) }
