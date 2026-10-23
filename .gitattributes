@@ -1,0 +1,2 @@
+# Retained process output is byte-for-byte evidence.
+docs/evaluation/runtime/verification/**/*.log -whitespace
