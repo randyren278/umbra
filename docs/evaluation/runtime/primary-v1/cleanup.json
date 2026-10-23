@@ -1,0 +1,537 @@
+{
+  "verifiedUTC": "2026-10-23T08:42:11.788525+00:00",
+  "cleanupReceipts": 66,
+  "badCleanupReceipts": [],
+  "remainingProfileFiles": [],
+  "receipts": [
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-32-1-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-ecd43295ee",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-1-2-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-10e3c891fb",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-16-2-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-438ebe98b5",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-4-1-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-8ff81e9e22",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-32-2-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-17e9d6dcc6",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-4-0-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-746df10b2a",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-32-0-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-1e380a30f6",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-1-0-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-0e4b936e29",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-1-1-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-83b9d26f7f",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-16-0-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-423db91ed5",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-8-0-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-8739a5bcfa",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-4-2-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-cab4e0aef2",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-16-1-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-943127b8df",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-8-0-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-29e003476b",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-8-1-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-cec14fa5eb",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-8-1-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-45fbd66812",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-16-2-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-8f506efbc1",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-32-0-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-4cb084481b",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-4-1-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-189ca60d47",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-32-2-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-b1c18ea9d0",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-4-0-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-6d25c35df5",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-32-1-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-a9fe113c5c",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-1-2-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-a701ceab72",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-1-0-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-5b0d1edb5b",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-1-1-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-50395f17f7",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-16-1-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-7d94cbc2e2",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-8-1-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-c2d7767e4d",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-8-0-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-70acf03e56",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-4-2-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-aaf21c24da",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-8-0-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-df7dd35b27",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-8-1-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-fb4ac5ddb3",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-16-0-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-cc2820174f",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-4-1-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-11e7c4012a",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-4-0-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-bedf60d413",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-8-2-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-f2bfcfe37b",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-32-2-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-20285711bc",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-4-2-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-d21068025b",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-32-1-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-db7b952def",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-32-0-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-780a083a64",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-16-2-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-0cdb5211ca",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-1-2-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-54b33ba715",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-1-1-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-7aa84c7b5b",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-1-0-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-c56184a71e",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-16-1-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-8754124bf6",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-16-0-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-1f70e2ab60",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-8-2-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-2f4bc09374",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-32-2-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-b3c6326f22",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-8-2-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-38d33638db",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-4-0-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-f2769fd8ca",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-4-1-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-4c1a46bd97",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-4-2-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-7bcbea50d2",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-32-1-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-41e9c79de2",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-32-0-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-ff9d6b4a53",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-1-2-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-063f0695c5",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-1-0-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-d2aff78a5b",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-1-1-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-eaa55967f2",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-16-1-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-86aab082ac",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-16-0-baseline/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-f20bc5d85f",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/public_http-8-2-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-73e7bbda45",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/matched-16-2-candidate/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-1af86a200d",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/runtime-semantics-32/browser/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-43a6f6de96",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/runtime-semantics-1/browser/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-560c4d6c56",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/runtime-semantics-8/browser/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-080ff7790b",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/runtime-semantics-16/browser/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-3aad0d53ca",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/runtime-semantics-4/browser/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-815dbce12b",
+        "profileFilesGone": true
+      }
+    },
+    {
+      "path": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/runtime/docs/evaluation/runtime/primary-official-v1/observation-journey/browser/cleanup.json",
+      "receipt": {
+        "daemonGone": true,
+        "profile": "runtime-bench-d05c3537e4",
+        "profileFilesGone": true
+      }
+    }
+  ],
+  "candidateSha256": "b3cab7cfd178ffc10613ec83ae42499148bd4704892491fcad5342a4dd7f5cab"
+}

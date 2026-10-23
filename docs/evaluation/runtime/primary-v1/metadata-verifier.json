@@ -1,0 +1,22 @@
+{
+  "harnessSha256": "5d019177f6bb75c84b89f97c4f6b79c4eaa8f37d0d5393dfeeaba30d4fb07a49",
+  "checks": [
+    {
+      "name": "48 raw transport states with all baseline-equal delta metadata omitted",
+      "passed": true
+    },
+    {
+      "name": "changed metadata-only delta inherits other five fields",
+      "passed": true
+    },
+    {
+      "name": "omitting any changed metadata fails fidelity comparison",
+      "passed": true
+    },
+    {
+      "name": "full reset cannot inherit missing metadata",
+      "passed": true
+    }
+  ],
+  "scope": "offline fidelity checks only, no final candidate run"
+}

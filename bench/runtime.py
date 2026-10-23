@@ -587,7 +587,7 @@ def runtime_phase(binary, concurrency, out, budget_bytes):
         deadline = time.monotonic()+8
         while time.monotonic()<deadline:
             value = admin.call('tasks')
-            result['metrics'].append({'phase':'cancellation','time':time.monotonic(),'runtime':value})
+            result['metrics'].append({'phase':'cancellation','time':time.monotonic(),'runtime':admin.call('runtime'),'tasks':value})
             if any(row.get('request')==request and row.get('state')==state for row in value['pending']): return
             time.sleep(.02)
         raise Failure(f'{request} was never observed {state}')
@@ -658,8 +658,9 @@ def runtime_phase(binary, concurrency, out, budget_bytes):
                 'runningCancel':running_cancel,'runningReply':running_reply,'runningCancelCompletionMs':cancel_elapsed,'after':state,'ok':valid})
             if not valid: raise Failure(f'cancellation failed actor {index}')
             drain_connections()
-        final=admin.call('tasks');result['finalRuntime']=final
-        if final['active'] or final['queued']: raise Failure('runtime did not drain after semantic phase')
+        result['finalTasks']=admin.call('tasks')
+        final=admin.call('runtime');result['finalRuntime']=final
+        if result['finalTasks']['pending'] or final['active'] or final['queued']: raise Failure('runtime did not drain after semantic phase')
         result['connectionAccounting']={'configuredWorkerLoad':concurrency,'fairnessBound':concurrency+1,'cancellationBound':3,
             'fairnessMaxObserved':max((row['runtime']['connections'] for row in result['metrics'] if row['phase']=='fairness'),default=0),
             'cancellationMaxObserved':max((row['runtime']['connections'] for row in result['metrics'] if row['phase']=='cancellation'),default=0),
@@ -772,17 +773,19 @@ def observation_journey(binary, sdk_path, out, budget_bytes):
                 reconstructed='\n'.join(lines)
             else: reconstructed=text_of(delta)
             fields=['refs','url','title','truncated','depthLimited','doc']
-            matches=reconstructed==full_text and all(delta.get(k)==full.get(k) for k in fields)
+            metadata=dict(old['metadata']) if old and delta.get('mode')=='delta' else {}
+            metadata.update({k:delta[k] for k in fields if k in delta})
+            matches=reconstructed==full_text and all(k in full and k in metadata and metadata[k]==full[k] for k in fields)
             ref_ids=re.findall(r'\[ref=([^] ]+)\]',reconstructed)
             matches=matches and ref_ids==re.findall(r'\[ref=([^] ]+)\]',full_text)
             if reset and (delta.get('mode')!='full' or not delta.get('reset')): matches=False
             row['transports'][transport]={'wire':wire,'full':full_payload,'delta':delta_payload,'fullCounts':count(full_payload),
                 'deltaCounts':count(delta_payload),'fullTextTokens':len(TOKENIZER.encode(full_text)),
                 'deltaTextTokens':len(TOKENIZER.encode(text_of(delta))),'reconstructionMatches':matches,
-                'reconstructedText':reconstructed,'reconstructedRefIDs':ref_ids,'mode':delta.get('mode'),'reset':delta.get('reset'),
+                'reconstructedText':reconstructed,'reconstructedMetadata':metadata,'reconstructedRefIDs':ref_ids,'mode':delta.get('mode'),'reset':delta.get('reset'),
                 'changed':delta.get('changed')}
             if not matches: raise Failure(f'observation reconstruction/reset mismatch {label} {transport}')
-            previous[transport]={'baseline':delta['baseline'],'text':reconstructed}
+            previous[transport]={'baseline':delta['baseline'],'text':reconstructed,'metadata':metadata}
         write(out/'partial.json',result)
     try:
         if TOKENIZER is None: raise Failure('observation journey requires pinned actual tokenizer')

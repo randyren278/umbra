@@ -1,0 +1,174 @@
+{
+  "verifiedUTC": "2026-10-23T08:45:23.469383+00:00",
+  "harnessSha256": "1b4e889aefcfe4cb74320c193e3f19f623f8af16df41b1afb85bf18c8f7d6a53",
+  "badCleanup": [],
+  "leftovers": [],
+  "levels": [
+    {
+      "concurrency": 1,
+      "ok": true,
+      "errors": [],
+      "connectionAccounting": {
+        "cancellationBound": 3,
+        "cancellationMaxObserved": 3,
+        "configuredWorkerLoad": 1,
+        "fairnessBound": 2,
+        "fairnessMaxObserved": 2,
+        "productConnectionLimit": 64
+      },
+      "fairness": {
+        "counts": [
+          3
+        ],
+        "maxSecondsWithoutOwnProgress": 0.09351629100274295,
+        "maxStarvationCounter": 0,
+        "seconds": 0.20646287500858307
+      },
+      "peakWholeFamilyMiB": 113.39435577392578
+    },
+    {
+      "concurrency": 4,
+      "ok": true,
+      "errors": [],
+      "connectionAccounting": {
+        "cancellationBound": 3,
+        "cancellationMaxObserved": 3,
+        "configuredWorkerLoad": 4,
+        "fairnessBound": 5,
+        "fairnessMaxObserved": 5,
+        "productConnectionLimit": 64
+      },
+      "fairness": {
+        "counts": [
+          3,
+          3,
+          3,
+          3
+        ],
+        "maxSecondsWithoutOwnProgress": 0.05654804105870426,
+        "maxStarvationCounter": 1,
+        "seconds": 0.16277395805809647
+      },
+      "peakWholeFamilyMiB": 251.91226959228516
+    },
+    {
+      "concurrency": 8,
+      "ok": true,
+      "errors": [],
+      "connectionAccounting": {
+        "cancellationBound": 3,
+        "cancellationMaxObserved": 3,
+        "configuredWorkerLoad": 8,
+        "fairnessBound": 9,
+        "fairnessMaxObserved": 9,
+        "productConnectionLimit": 64
+      },
+      "fairness": {
+        "counts": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "maxSecondsWithoutOwnProgress": 0.061822667019441724,
+        "maxStarvationCounter": 1,
+        "seconds": 0.19866325007751584
+      },
+      "peakWholeFamilyMiB": 364.0556869506836
+    },
+    {
+      "concurrency": 16,
+      "ok": true,
+      "errors": [],
+      "connectionAccounting": {
+        "cancellationBound": 3,
+        "cancellationMaxObserved": 3,
+        "configuredWorkerLoad": 16,
+        "fairnessBound": 17,
+        "fairnessMaxObserved": 17,
+        "productConnectionLimit": 64
+      },
+      "fairness": {
+        "counts": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "maxSecondsWithoutOwnProgress": 0.06443162495270371,
+        "maxStarvationCounter": 1,
+        "seconds": 0.1840952499769628
+      },
+      "peakWholeFamilyMiB": 710.0933685302734
+    },
+    {
+      "concurrency": 32,
+      "ok": true,
+      "errors": [],
+      "connectionAccounting": {
+        "cancellationBound": 3,
+        "cancellationMaxObserved": 3,
+        "configuredWorkerLoad": 32,
+        "fairnessBound": 33,
+        "fairnessMaxObserved": 33,
+        "productConnectionLimit": 64
+      },
+      "fairness": {
+        "counts": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "maxSecondsWithoutOwnProgress": 0.11445404100231826,
+        "maxStarvationCounter": 2,
+        "seconds": 0.2297028750181198
+      },
+      "peakWholeFamilyMiB": 1231.1525802612305
+    }
+  ]
+}

@@ -1,0 +1,401 @@
+{
+  "createdUTC": "2026-10-23T08:43:06.610848+00:00",
+  "candidate": "b3cab7cfd178ffc10613ec83ae42499148bd4704892491fcad5342a4dd7f5cab",
+  "terminal": {
+    "budgetAbortedCells": 35,
+    "cellErrors": 14,
+    "cells": 60,
+    "controlFailures": 9,
+    "failures": 40254,
+    "observationJourneyValid": true,
+    "observationToken50PercentGates": {
+      "cli-json-without-human-text": false,
+      "mcp-tool-result": false,
+      "python-sdk-raw-result": true
+    },
+    "out": "docs/evaluation/runtime/primary-official-v1",
+    "performanceRouteGates": [
+      {
+        "eligiblePairs": 3,
+        "expectedPairs": 15,
+        "fullSelectedGridEligible": false,
+        "memory30PercentEverySelectedCellGate": false,
+        "noP95RegressionEverySelectedCellGate": false,
+        "observedPairs": 15,
+        "route": "matched",
+        "twofoldEverySelectedCellGate": false
+      },
+      {
+        "eligiblePairs": 3,
+        "expectedPairs": 15,
+        "fullSelectedGridEligible": false,
+        "memory30PercentEverySelectedCellGate": false,
+        "noP95RegressionEverySelectedCellGate": false,
+        "observedPairs": 15,
+        "route": "public_http",
+        "twofoldEverySelectedCellGate": false
+      }
+    ],
+    "runnerPid": 46605,
+    "runtimeGridFailures": 5,
+    "runtimeGridLevels": 5,
+    "terminal": true
+  },
+  "exitReceipt": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/primary-official-v1-terminal.json",
+  "cleanupReceipt": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/primary-official-v1-cleanup-verified.json",
+  "eligiblePairsDescriptiveOnly": [
+    {
+      "route": "matched",
+      "concurrency": 1,
+      "repeat": 0,
+      "throughputRatio": 1.0623319314791877,
+      "loadedControlRatio": 1.3054131096954853,
+      "absolute": {
+        "baseline": {
+          "tasks": 80,
+          "successes": 80,
+          "seconds": 7.9808849160326645,
+          "tasksPerSecond": 10.02395108333029,
+          "peakWholeFamilyMiB": 1102.8170700073242,
+          "loadedControlP95Ms": 72.07437499891967
+        },
+        "candidate": {
+          "tasks": 80,
+          "successes": 80,
+          "seconds": 7.512609458062798,
+          "tasksPerSecond": 10.648763315407162,
+          "peakWholeFamilyMiB": 162.89513397216797,
+          "loadedControlP95Ms": 94.08683399669826
+        }
+      }
+    },
+    {
+      "route": "matched",
+      "concurrency": 1,
+      "repeat": 1,
+      "throughputRatio": 1.080007119039323,
+      "loadedControlRatio": 1.3792990324640637,
+      "absolute": {
+        "baseline": {
+          "tasks": 80,
+          "successes": 80,
+          "seconds": 8.079213125049137,
+          "tasksPerSecond": 9.901954405926562,
+          "peakWholeFamilyMiB": 1135.222885131836,
+          "loadedControlP95Ms": 67.80479196459055
+        },
+        "candidate": {
+          "tasks": 80,
+          "successes": 80,
+          "seconds": 7.480703582987189,
+          "tasksPerSecond": 10.694181250803478,
+          "peakWholeFamilyMiB": 163.97328186035156,
+          "loadedControlP95Ms": 93.52308395318687
+        }
+      }
+    },
+    {
+      "route": "matched",
+      "concurrency": 1,
+      "repeat": 2,
+      "throughputRatio": 0.9897289932845238,
+      "loadedControlRatio": 1.641722487575564,
+      "absolute": {
+        "baseline": {
+          "tasks": 80,
+          "successes": 80,
+          "seconds": 7.948738749953918,
+          "tasksPerSecond": 10.064489790970145,
+          "peakWholeFamilyMiB": 1157.7700119018555,
+          "loadedControlP95Ms": 59.852583915926516
+        },
+        "candidate": {
+          "tasks": 80,
+          "successes": 80,
+          "seconds": 8.03122754197102,
+          "tasksPerSecond": 9.961117348739249,
+          "peakWholeFamilyMiB": 164.27017974853516,
+          "loadedControlP95Ms": 98.26133295428008
+        }
+      }
+    },
+    {
+      "route": "public_http",
+      "concurrency": 1,
+      "repeat": 0,
+      "throughputRatio": 2.828236312709131,
+      "loadedControlRatio": 1.7903770709645739,
+      "absolute": {
+        "baseline": {
+          "tasks": 80,
+          "successes": 80,
+          "seconds": 7.086591291008517,
+          "tasksPerSecond": 11.28892534010028,
+          "peakWholeFamilyMiB": 937.3003234863281,
+          "loadedControlP95Ms": 54.11541601642966
+        },
+        "candidate": {
+          "tasks": 80,
+          "successes": 80,
+          "seconds": 2.505657415953465,
+          "tasksPerSecond": 31.927748578333887,
+          "peakWholeFamilyMiB": 132.0818328857422,
+          "loadedControlP95Ms": 96.88700002152473
+        }
+      }
+    },
+    {
+      "route": "public_http",
+      "concurrency": 1,
+      "repeat": 1,
+      "throughputRatio": 3.0677722308037967,
+      "loadedControlRatio": 1.6054981272245248,
+      "absolute": {
+        "baseline": {
+          "tasks": 80,
+          "successes": 80,
+          "seconds": 7.31120016600471,
+          "tasksPerSecond": 10.9421159568275,
+          "peakWholeFamilyMiB": 851.2853393554688,
+          "loadedControlP95Ms": 51.43712507560849
+        },
+        "candidate": {
+          "tasks": 80,
+          "successes": 80,
+          "seconds": 2.383227833081037,
+          "tasksPerSecond": 33.56791947859052,
+          "peakWholeFamilyMiB": 133.91000366210938,
+          "loadedControlP95Ms": 82.58220797870308
+        }
+      }
+    },
+    {
+      "route": "public_http",
+      "concurrency": 1,
+      "repeat": 2,
+      "throughputRatio": 3.001420097528689,
+      "loadedControlRatio": 2.1231102571231375,
+      "absolute": {
+        "baseline": {
+          "tasks": 80,
+          "successes": 80,
+          "seconds": 7.3888158339541405,
+          "tasksPerSecond": 10.827174718900501,
+          "peakWholeFamilyMiB": 831.5037460327148,
+          "loadedControlP95Ms": 47.118666931055486
+        },
+        "candidate": {
+          "tasks": 80,
+          "successes": 80,
+          "seconds": 2.4617732919286937,
+          "tasksPerSecond": 32.4968998007625,
+          "peakWholeFamilyMiB": 133.05062866210938,
+          "loadedControlP95Ms": 100.03812506329268
+        }
+      }
+    }
+  ],
+  "observationJourneySummary": {
+    "cli-json-without-human-text": {
+      "changedDeltas": 9,
+      "completeValidJourney": true,
+      "deltaCanonicalBytes": 8614,
+      "deltaTokens": 3413,
+      "expectedStates": 16,
+      "fiftyPercentGate": false,
+      "fullCanonicalBytes": 13019,
+      "fullFallbacks": 4,
+      "fullTokens": 5846,
+      "states": 16,
+      "tokenReduction": 0.41618200478959977,
+      "unchangedDeltas": 3
+    },
+    "mcp-tool-result": {
+      "changedDeltas": 9,
+      "completeValidJourney": true,
+      "deltaCanonicalBytes": 8566,
+      "deltaTokens": 3184,
+      "expectedStates": 16,
+      "fiftyPercentGate": false,
+      "fullCanonicalBytes": 12973,
+      "fullFallbacks": 4,
+      "fullTokens": 5620,
+      "states": 16,
+      "tokenReduction": 0.43345195729537367,
+      "unchangedDeltas": 3
+    },
+    "python-sdk-raw-result": {
+      "changedDeltas": 9,
+      "completeValidJourney": true,
+      "deltaCanonicalBytes": 11925,
+      "deltaTokens": 4892,
+      "expectedStates": 16,
+      "fiftyPercentGate": true,
+      "fullCanonicalBytes": 22311,
+      "fullFallbacks": 4,
+      "fullTokens": 10250,
+      "states": 16,
+      "tokenReduction": 0.5227317073170732,
+      "unchangedDeltas": 3
+    }
+  },
+  "runtimeSemantics": [
+    {
+      "concurrency": 1,
+      "ok": false,
+      "errors": [
+        "'active'"
+      ],
+      "ownershipChecks": 1,
+      "ownershipAll": true,
+      "cancellationChecks": 1,
+      "cancellationAll": true,
+      "fairness": {
+        "counts": [
+          3
+        ],
+        "maxSecondsWithoutOwnProgress": 0.05553550005424768,
+        "maxStarvationCounter": 0,
+        "seconds": 0.162449166062288
+      },
+      "budgetAbort": null
+    },
+    {
+      "concurrency": 4,
+      "ok": false,
+      "errors": [
+        "'active'"
+      ],
+      "ownershipChecks": 4,
+      "ownershipAll": true,
+      "cancellationChecks": 4,
+      "cancellationAll": true,
+      "fairness": {
+        "counts": [
+          3,
+          3,
+          3,
+          3
+        ],
+        "maxSecondsWithoutOwnProgress": 0.05625333299394697,
+        "maxStarvationCounter": 1,
+        "seconds": 0.15929300000425428
+      },
+      "budgetAbort": null
+    },
+    {
+      "concurrency": 8,
+      "ok": false,
+      "errors": [
+        "'active'"
+      ],
+      "ownershipChecks": 8,
+      "ownershipAll": true,
+      "cancellationChecks": 8,
+      "cancellationAll": true,
+      "fairness": {
+        "counts": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "maxSecondsWithoutOwnProgress": 0.055889499955810606,
+        "maxStarvationCounter": 1,
+        "seconds": 0.17225599999073893
+      },
+      "budgetAbort": null
+    },
+    {
+      "concurrency": 16,
+      "ok": false,
+      "errors": [
+        "'active'"
+      ],
+      "ownershipChecks": 16,
+      "ownershipAll": true,
+      "cancellationChecks": 16,
+      "cancellationAll": true,
+      "fairness": {
+        "counts": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "maxSecondsWithoutOwnProgress": 0.06251487496774644,
+        "maxStarvationCounter": 1,
+        "seconds": 0.19020258402451873
+      },
+      "budgetAbort": null
+    },
+    {
+      "concurrency": 32,
+      "ok": false,
+      "errors": [
+        "'active'"
+      ],
+      "ownershipChecks": 32,
+      "ownershipAll": true,
+      "cancellationChecks": 32,
+      "cancellationAll": true,
+      "fairness": {
+        "counts": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "maxSecondsWithoutOwnProgress": 0.11729149997700006,
+        "maxStarvationCounter": 2,
+        "seconds": 0.2572964169085026
+      },
+      "budgetAbort": null
+    }
+  ],
+  "remainingWork": "Secondary held by root; reproduce/fix scratch retention; repair proven semantic harness command mismatch without changing gates; new freeze/full matrices. No soak launched."
+}
