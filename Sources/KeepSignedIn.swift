@@ -44,9 +44,14 @@ func syncAgent(_ file: URL) throws {
     var variables = ["UMBRA_SITES": file.path]
     variables["UMBRA_PROFILE"] = profile
     let log = supportDir.appendingPathComponent(profileFile("keep-signed-in", "log")).path
+    var program = Bundle.main.executableURL?.path ?? CommandLine.arguments[0]
+    if let resolved = realpath(program, nil) {
+        program = String(cString: resolved)
+        free(resolved)
+    }
     let agent: [String: Any] = [
         "Label": agentLabel,
-        "ProgramArguments": [Bundle.main.executableURL?.resolvingSymlinksInPath().path ?? CommandLine.arguments[0], "keep-signed-in"],
+        "ProgramArguments": [program, "keep-signed-in"],
         "EnvironmentVariables": variables,
         // Every ten minutes by the clock: unlike StartInterval, a visit missed while the Mac slept runs on wake.
         "StartCalendarInterval": stride(from: 0, to: 60, by: 10).map { ["Minute": $0] },

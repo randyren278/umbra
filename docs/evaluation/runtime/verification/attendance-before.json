@@ -1,0 +1,48 @@
+[
+  {
+    "elapsed": 1.06,
+    "path": "/account",
+    "query": {}
+  },
+  {
+    "elapsed": 1.306,
+    "path": "/account",
+    "query": {}
+  },
+  {
+    "elapsed": 10.438,
+    "path": "/event",
+    "query": {
+      "kind": "keydown",
+      "key": "Shift",
+      "trusted": "true",
+      "host": "127.0.0.1",
+      "vis": "visible"
+    }
+  },
+  {
+    "elapsed": 10.44,
+    "path": "/event",
+    "query": {
+      "kind": "keyup",
+      "key": "Shift",
+      "trusted": "true",
+      "host": "127.0.0.1",
+      "vis": "visible"
+    }
+  },
+  {
+    "elapsed": 10.441,
+    "path": "/logout",
+    "query": {
+      "from": "localhost"
+    }
+  },
+  {
+    "elapsed": 10.442,
+    "path": "/logout",
+    "query": {
+      "from": "127.0.0.1"
+    }
+  }
+]

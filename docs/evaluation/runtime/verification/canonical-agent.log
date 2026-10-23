@@ -1,0 +1,6 @@
+test_naming_a_site_marks_it_and_installs_a_launch_agent_that_runs_at_once (__main__.KeepSignedInTests.test_naming_a_site_marks_it_and_installs_a_launch_agent_that_runs_at_once) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.062s
+
+OK

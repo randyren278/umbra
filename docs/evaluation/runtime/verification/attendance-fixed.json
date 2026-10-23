@@ -1,0 +1,96 @@
+[
+  {
+    "elapsed": 0.657,
+    "path": "/account",
+    "query": {}
+  },
+  {
+    "elapsed": 1.027,
+    "path": "/account",
+    "query": {}
+  },
+  {
+    "elapsed": 3.921,
+    "path": "/event",
+    "query": {
+      "kind": "keydown",
+      "key": "Shift",
+      "trusted": "true",
+      "host": "127.0.0.1",
+      "vis": "visible"
+    }
+  },
+  {
+    "elapsed": 3.926,
+    "path": "/event",
+    "query": {
+      "kind": "keyup",
+      "key": "Shift",
+      "trusted": "true",
+      "host": "127.0.0.1",
+      "vis": "visible"
+    }
+  },
+  {
+    "elapsed": 9.979,
+    "path": "/event",
+    "query": {
+      "kind": "keydown",
+      "key": "Shift",
+      "trusted": "true",
+      "host": "127.0.0.1",
+      "vis": "visible"
+    }
+  },
+  {
+    "elapsed": 9.98,
+    "path": "/event",
+    "query": {
+      "kind": "keyup",
+      "key": "Shift",
+      "trusted": "true",
+      "host": "127.0.0.1",
+      "vis": "visible"
+    }
+  },
+  {
+    "elapsed": 9.981,
+    "path": "/logout",
+    "query": {
+      "from": "localhost"
+    }
+  },
+  {
+    "elapsed": 11.422,
+    "path": "/event",
+    "query": {
+      "kind": "keydown",
+      "key": "Shift",
+      "trusted": "true",
+      "host": "127.0.0.1",
+      "vis": "visible"
+    }
+  },
+  {
+    "elapsed": 11.425,
+    "path": "/event",
+    "query": {
+      "kind": "keyup",
+      "key": "Shift",
+      "trusted": "true",
+      "host": "127.0.0.1",
+      "vis": "visible"
+    }
+  },
+  {
+    "elapsed": 11.427,
+    "path": "/event",
+    "query": {
+      "kind": "visibilitychange",
+      "key": "undefined",
+      "trusted": "true",
+      "host": "127.0.0.1",
+      "vis": "hidden"
+    }
+  }
+]

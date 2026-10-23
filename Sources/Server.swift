@@ -112,7 +112,7 @@ final class Daemon {
                 }
             }
         }
-        Timer.scheduledTimer(withTimeInterval: min(15, max(1, idleLimit / 4)), repeats: true) { _ in
+        Timer.scheduledTimer(withTimeInterval: min(15, max(1, idleLimit / 8)), repeats: true) { _ in
             self.engine.rest(after: idleLimit)
             if !self.engine.tabs.isEmpty { self.engine.attend(knownSites().filter { $0.keepSignedIn == true }) }
             let busy = self.inFlight > 0 || SignInWindow.handingOff() || SignInWindow.shown != nil || self.engine.tabs.contains { $0.dirty || $0.activeDownloads > 0 || self.engine.runtime.lease($0) != nil }

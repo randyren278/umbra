@@ -1,0 +1,16 @@
+{
+  "candidateSha256": "b3cab7cfd178ffc10613ec83ae42499148bd4704892491fcad5342a4dd7f5cab",
+  "supersededSha256": "d3168ba9c1d10c23a451b934feca6efd7a88b90865c8f6a0fdf2507ff34c13f1",
+  "checks": {
+    "unchangedAttendanceAndResting": 5,
+    "unchangedCanonicalLaunchAgent": 1
+  },
+  "files": {
+    "attendance-scheduler-delay.py": "9b3277dcb6178facadf25f65f78f9974bf0e047d4e3afe123ae4fb86c6831ec8",
+    "attendance-before.json": "6a6f1eaa24e304402cc388ab67fc705e322bdf50d185303a16d16baa905c3219",
+    "attendance-fixed.json": "9da89144031c2a9ad31d70eaef67d22d49b1a7aedb4ef2e9ed88b6032cbfb14a",
+    "attendance-lifecycle.log": "62d62590a9bf3703d718145a91d1342503173826eb2caa63ddc51d0681259bbc",
+    "canonical-agent.log": "9aa37dd3d79b9149be6c48bd51928715c113950380fe7792d53d0f4196ba8d34"
+  },
+  "scope": "Focused corrections, not a completed performance matrix or full combined suite"
+}

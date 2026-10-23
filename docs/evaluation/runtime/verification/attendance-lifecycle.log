@@ -1,0 +1,10 @@
+test_a_kept_sites_tab_never_idles_out_but_another_sites_does (__main__.AttendedTabTests.test_a_kept_sites_tab_never_idles_out_but_another_sites_does) ... ok
+test_a_resting_tab_is_hidden_until_the_next_command (__main__.RestingTabTests.test_a_resting_tab_is_hidden_until_the_next_command) ... ok
+test_a_tab_left_unused_closes_and_says_so (__main__.RestingTabTests.test_a_tab_left_unused_closes_and_says_so) ... ok
+test_a_tab_stays_open_while_a_command_runs_on_it (__main__.RestingTabTests.test_a_tab_stays_open_while_a_command_runs_on_it) ... ok
+test_popups_rest_too (__main__.RestingTabTests.test_popups_rest_too) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 56.694s
+
+OK
