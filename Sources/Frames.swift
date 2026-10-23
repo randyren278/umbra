@@ -233,6 +233,7 @@ private func frameOperation(_ frame: FrameDocument, _ tab: Tab, _ operation: Str
     }
     guard ["click", "fill", "check", "uncheck", "select"].contains(operation), let target = args.string("target") else { return reply(.failure(UmbraError(64, "unsupported frame operation or missing args.target"))) }
     if operation == "fill", args.string("value") == nil { return reply(.failure(UmbraError(64, "fill requires args.value"))) }
+    if operation == "select", options["values"] as? [String] == nil { return reply(.failure(UmbraError(64, "select requires args.values as an array of strings"))) }
     serial(tab, limit: 15, reply) { done in
         let done = formActionReply(tab, operation, done)
         frame.umbra(tab, "prepare", ["target": target, "action": operation, "arm": "click"]) { prepared in

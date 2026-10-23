@@ -1,0 +1,37 @@
+{
+  "createdUTC": "2026-10-23T18:26:24.512509+00:00",
+  "finding": "Malformed frame-select args.values could deselect options and emit events instead of failing",
+  "independentReviewer": "closeout_review",
+  "reviewScope": [
+    "runtime ownership/cancellation",
+    "server/MCP",
+    "inspector/recording/diagnostics",
+    "workflows/resources/observations",
+    "frames/native input",
+    "process metrics",
+    "Python/TypeScript/Swift SDKs"
+  ],
+  "findings": {
+    "P1": 0,
+    "P2": 1,
+    "resolved": 1
+  },
+  "fixReview": "Independent reviewer confirmed explicit [String] validation runs before serial/prepare/focus/mutation and explicit [] remains valid; no concrete regression risk found",
+  "before": {
+    "binarySha256": "0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9",
+    "tests": 2,
+    "failedSubcases": 7,
+    "exitCode": 1
+  },
+  "after": {
+    "binarySha256": "bace278786dd13901a428728c8dbc1e0ef542f78feaf7ba6c26df38ab212ad1e",
+    "tests": 2,
+    "exitCode": 0,
+    "assertions": "missing/null/boolean/number/string/mixed-array/object rejected with usage64 and unchanged values/input/change counts; valid selection and explicit [] clear succeed"
+  },
+  "sourceSha256": {
+    "Sources/Frames.swift": "0b556faca5b3a71b10bd299e83b29349e0307e981ac306b37991e0a5bef87ab7",
+    "tests/test_frames.py": "c750dd36a3ca27e8cac92ea62dc5f9bb56ba2fcb611961d8bab7f24c231a4bec"
+  },
+  "scope": "Real cross-origin localhost frame CLI; final full regression follows. Reviewer performed static review only."
+}

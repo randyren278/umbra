@@ -1,0 +1,9 @@
+mkdir -p build/Umbra.app/Contents/MacOS
+xcrun swiftc -O -swift-version 5 -target arm64-apple-macos14.0 \
+		-Xlinker -sectcreate -Xlinker __TEXT -Xlinker __info_plist -Xlinker Info.plist \
+		-o build/Umbra.app/Contents/MacOS/umbra.tmp Sources/Capture.swift Sources/CaptureObserve.swift Sources/CaptureText.swift Sources/CoreCommands.swift Sources/Engine.swift Sources/Events.swift Sources/Execution.swift Sources/Frames.swift Sources/Inspector.swift Sources/Interact.swift Sources/InteractJS.swift Sources/KeepSignedIn.swift Sources/Logo.swift Sources/MCP.swift Sources/Observe.swift Sources/OneShot.swift Sources/ProcessMetrics.swift Sources/Recording.swift Sources/Registry.swift Sources/Resources.swift Sources/Runtime.swift Sources/Server.swift Sources/SignIn.swift Sources/Store.swift Sources/main.swift
+mv build/Umbra.app/Contents/MacOS/umbra.tmp build/Umbra.app/Contents/MacOS/umbra
+codesign --force --sign - --identifier com.randyren.umbra build/Umbra.app
+build/Umbra.app: replacing existing signature
+codesign -dv build/Umbra.app 2>&1 | grep -qxF 'Identifier=com.randyren.umbra' || { echo 'codesign: identifier is not com.randyren.umbra' >&2; exit 1; }
+touch build/.signed

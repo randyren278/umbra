@@ -26,7 +26,9 @@ class FrameTests(base.UmbraCase):
         cls.outer.page('/grand', '''<!doctype html><title>Nested grandchild</title>
 <button id=button onclick="window.clicked=event.isTrusted">Grandchild button</button>
 <label>Ready<input id=ready type=checkbox></label><p id=status>Before</p>
-<table id=table><tr><td>Nested data</td></tr></table>''')
+<table id=table><tr><td>Nested data</td></tr></table>
+<select id=choice multiple oninput="window.selectInputs=(window.selectInputs||0)+1" onchange="window.selectChanges=(window.selectChanges||0)+1">
+<option value=a selected>A</option><option value=b>B</option></select>''')
         cls.inner.page('/other', '<title>Replacement</title><button>Replacement</button>')
 
     @classmethod
@@ -92,6 +94,26 @@ class FrameTests(base.UmbraCase):
         self.frame(grand, 'eval', script="setTimeout(()=>document.querySelector('#status').textContent='Later',600); true")
         watched = self.frame(grand, 'watch', target='#status', state='text', equals='Later', duration=2)
         self.assertTrue(watched['matched'])
+
+    def selection(self, frame_id):
+        return self.frame(frame_id, 'eval', script="return {values:[...document.querySelector('#choice').selectedOptions].map(o=>o.value),inputs:window.selectInputs||0,changes:window.selectChanges||0}")['value']
+
+    def test_frame_select_rejects_malformed_values_before_mutation(self):
+        grand = self.frame_id(self.outer.url('/grand'))
+        for options in ({}, {'values': None}, {'values': True}, {'values': 1},
+                        {'values': 'b'}, {'values': ['b', 1]}, {'values': {'value': 'b'}}):
+            with self.subTest(options=options):
+                result = self.umbra('frame', grand, 'select', '--args', json.dumps({'target': '#choice', **options}))
+                self.assertExit(result, 64)
+                self.assertIn('values', result.err)
+                self.assertEqual(self.selection(grand), {'values': ['a'], 'inputs': 0, 'changes': 0})
+
+    def test_frame_select_accepts_values_and_explicit_empty_clear(self):
+        grand = self.frame_id(self.outer.url('/grand'))
+        self.assertEqual(self.frame(grand, 'select', target='#choice', values=['b'])['values'], ['b'])
+        self.assertEqual(self.selection(grand), {'values': ['b'], 'inputs': 1, 'changes': 1})
+        self.assertEqual(self.frame(grand, 'select', target='#choice', values=[])['values'], [])
+        self.assertEqual(self.selection(grand), {'values': [], 'inputs': 2, 'changes': 2})
 
     def test_transformed_frame_and_unknown_operation_fail_explicitly(self):
         child = self.frame_id(self.inner.url('/child'))

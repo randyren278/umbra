@@ -1,0 +1,89 @@
+.FFFFFFF
+======================================================================
+FAIL: test_frame_select_rejects_malformed_values_before_mutation (__main__.FrameTests.test_frame_select_rejects_malformed_values_before_mutation) (options={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/randyren/Developer/umbra/tests/test_frames.py", line 107, in test_frame_select_rejects_malformed_values_before_mutation
+    self.assertExit(result, 64)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/randyren/Developer/umbra/tests/test_umbra.py", line 222, in assertExit
+    self.assertEqual(result.code, code, f'stderr: {result.err[-800:]!r} stdout: {result.out[:300]!r}')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 64 : stderr: '' stdout: b'{\n  "request" : "77357f3a-8e87-4265-aef4-ddd983f641c8",\n  "selected" : [\n\n  ],\n  "values" : [\n\n  ]\n}\n'
+
+======================================================================
+FAIL: test_frame_select_rejects_malformed_values_before_mutation (__main__.FrameTests.test_frame_select_rejects_malformed_values_before_mutation) (options={'values': None})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/randyren/Developer/umbra/tests/test_frames.py", line 107, in test_frame_select_rejects_malformed_values_before_mutation
+    self.assertExit(result, 64)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/randyren/Developer/umbra/tests/test_umbra.py", line 222, in assertExit
+    self.assertEqual(result.code, code, f'stderr: {result.err[-800:]!r} stdout: {result.out[:300]!r}')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 64 : stderr: '' stdout: b'{\n  "request" : "c4200d3b-e944-429a-90de-14c5f3651085",\n  "selected" : [\n\n  ],\n  "values" : [\n\n  ]\n}\n'
+
+======================================================================
+FAIL: test_frame_select_rejects_malformed_values_before_mutation (__main__.FrameTests.test_frame_select_rejects_malformed_values_before_mutation) (options={'values': True})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/randyren/Developer/umbra/tests/test_frames.py", line 107, in test_frame_select_rejects_malformed_values_before_mutation
+    self.assertExit(result, 64)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/randyren/Developer/umbra/tests/test_umbra.py", line 222, in assertExit
+    self.assertEqual(result.code, code, f'stderr: {result.err[-800:]!r} stdout: {result.out[:300]!r}')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 64 : stderr: '' stdout: b'{\n  "request" : "016361d2-ca7c-40f0-b3d6-782b3f6b29da",\n  "selected" : [\n\n  ],\n  "values" : [\n\n  ]\n}\n'
+
+======================================================================
+FAIL: test_frame_select_rejects_malformed_values_before_mutation (__main__.FrameTests.test_frame_select_rejects_malformed_values_before_mutation) (options={'values': 1})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/randyren/Developer/umbra/tests/test_frames.py", line 107, in test_frame_select_rejects_malformed_values_before_mutation
+    self.assertExit(result, 64)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/randyren/Developer/umbra/tests/test_umbra.py", line 222, in assertExit
+    self.assertEqual(result.code, code, f'stderr: {result.err[-800:]!r} stdout: {result.out[:300]!r}')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 64 : stderr: '' stdout: b'{\n  "request" : "d32fbee6-e7fb-4927-b0c8-b435d080051e",\n  "selected" : [\n\n  ],\n  "values" : [\n\n  ]\n}\n'
+
+======================================================================
+FAIL: test_frame_select_rejects_malformed_values_before_mutation (__main__.FrameTests.test_frame_select_rejects_malformed_values_before_mutation) (options={'values': 'b'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/randyren/Developer/umbra/tests/test_frames.py", line 107, in test_frame_select_rejects_malformed_values_before_mutation
+    self.assertExit(result, 64)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/randyren/Developer/umbra/tests/test_umbra.py", line 222, in assertExit
+    self.assertEqual(result.code, code, f'stderr: {result.err[-800:]!r} stdout: {result.out[:300]!r}')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 64 : stderr: '' stdout: b'{\n  "request" : "0b1ed954-2144-4535-bc72-138e2470484f",\n  "selected" : [\n    "B"\n  ],\n  "values" : [\n    "b"\n  ]\n}\n'
+
+======================================================================
+FAIL: test_frame_select_rejects_malformed_values_before_mutation (__main__.FrameTests.test_frame_select_rejects_malformed_values_before_mutation) (options={'values': ['b', 1]})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/randyren/Developer/umbra/tests/test_frames.py", line 107, in test_frame_select_rejects_malformed_values_before_mutation
+    self.assertExit(result, 64)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/randyren/Developer/umbra/tests/test_umbra.py", line 222, in assertExit
+    self.assertEqual(result.code, code, f'stderr: {result.err[-800:]!r} stdout: {result.out[:300]!r}')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 64 : stderr: 'no option "1" in listbox#choice; options: "A", "B"\n' stdout: b''
+
+======================================================================
+FAIL: test_frame_select_rejects_malformed_values_before_mutation (__main__.FrameTests.test_frame_select_rejects_malformed_values_before_mutation) (options={'values': {'value': 'b'}})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/randyren/Developer/umbra/tests/test_frames.py", line 107, in test_frame_select_rejects_malformed_values_before_mutation
+    self.assertExit(result, 64)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/randyren/Developer/umbra/tests/test_umbra.py", line 222, in assertExit
+    self.assertEqual(result.code, code, f'stderr: {result.err[-800:]!r} stdout: {result.out[:300]!r}')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 64 : stderr: '' stdout: b'{\n  "request" : "d52be195-9b4e-4622-8344-5ecd5f2733b9",\n  "selected" : [\n\n  ],\n  "values" : [\n\n  ]\n}\n'
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.601s
+
+FAILED (failures=7)
