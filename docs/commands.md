@@ -1,6 +1,6 @@
 # Commands
 
-Commands that work on a page take `--tab NAME` (default: the current tab). Every command takes `--timeout SECONDS`, `--json` and `--profile NAME`. Options can go before or after the command name: `umbra --tab work snapshot` works too. `umbra help <command>` has the details.
+Commands that work on a page take `--tab NAME` (default: the current tab). Daemon commands take `--timeout SECONDS`, `--agent`, `--task`, `--request` and an absolute Unix-second `--deadline`; `--json` and `--profile NAME` select output and identity. Options can go before or after the command name: `umbra --tab work snapshot` works too. `umbra help <command>` has the details, and `umbra schema` is the generated parameter reference. [Runtime guide](runtime/README.md) covers ownership, bounded concurrency, observations and recovery.
 
 ### Session
 
@@ -9,7 +9,7 @@ Commands that work on a page take `--tab NAME` (default: the current tab). Every
 | `open <url>` | Load a URL (a host name or file path works too) and wait for it. `--new` opens a new tab; `--until JS` waits for a condition across redirects. Alias `goto`. |
 | `back`, `forward`, `reload` | Move through the tab's history, or reload. |
 | `tabs`, `tab select <name>`, `tab new`, `tab close` | List tabs, or switch, open and close them. Pop-ups become tabs. |
-| `wait` | Wait for `--selector`, `--text`, `--url`, `--js`, `--gone`, `--idle` (network quiet for 500 ms), or `--ms`. |
+| `wait` | Wait for `--selector`, `--text`, `--url`, `--js`, `--gone`, `--idle` (complete document and unchanged resource-entry count for 500 ms), or `--ms`. |
 | `eval <script>` | Run JavaScript in the page as the body of an async function and print what it returns. |
 | `block <types>` | Stop loading images, fonts, media, stylesheets, scripts or trackers. `--none` clears. |
 | `viewport [w h]` | Set the viewport. `--mobile` sends iPhone Safari's user agent; `--scale` sets the pixel ratio. |
@@ -20,7 +20,11 @@ Commands that work on a page take `--tab NAME` (default: the current tab). Every
 
 | Command | What it does |
 |---|---|
-| `snapshot` | One line per element with role, name, state, value and ref. `--interactive` keeps only elements with refs plus headings; `--scope` narrows it to part of the page. |
+| `snapshot` | One line per element with role, name, state, value and ref. `--interactive`, `--scope`, `--max` (outline characters) and `--depth` bound output. |
+| `observe` | Full observation or ordered line replacement patch with `--since BASELINE`; retains at most eight document-local baselines. |
+| `extract <target>` | Typed table/form/list data and source refs; `--kind`, `--limit`, `--text-max`, `--schema`. Check `truncated`. |
+| `watch <target>` | Event-driven DOM condition: `--state`, `--equals`, `--duration` (0–25 seconds); returns `matched=false` on expiry. |
+| `capabilities` | Supported observation/input paths and explicit limitations. |
 | `text` | The visible text, as the browser lays it out. The cheapest way to read. |
 | `markdown` | The page as markdown with tables and absolute links. `--main` drops navigation and page chrome. |
 | `html`, `links` | The live DOM; every link as text and URL, with `--filter`. |
@@ -29,7 +33,7 @@ Commands that work on a page take `--tab NAME` (default: the current tab). Every
 
 ### Act
 
-All of these use trusted native input and wait until the target is visible, enabled and not covered.
+Native pointer and keyboard paths produce trusted input. Actions wait for actionability where supported; direct value setters, select events and HTML5 drag/drop have explicit untrusted fallbacks. Inspect the returned receipt and application state.
 
 | Command | What it does |
 |---|---|
@@ -51,6 +55,10 @@ All of these use trusted native input and wait until the target is visible, enab
 |---|---|
 | `screenshot [path]` | The viewport, the whole page with `--full`, or one element with `--target`. PNG or JPEG; base64 when no path is given. |
 | `pdf <path>` | The whole page as one tall PDF page, with selectable text and working links. |
+| `record start`, `record stop`, `record status` | Explicit bounded PNG-sequence recording; start requires a new `--path` directory. |
+| `processes` | Native physical footprint and cumulative CPU by unique owned or attributed PID; tab mapping and explicit coverage gaps. Samples may be cached for two seconds; CPU is not per-tab utilization. |
+| `inspector [--stop]` | Token-protected loopback dashboard, on-demand frames and human takeover. |
+| `diagnose --path <file>` | Metadata-only diagnostic bundle, at most 512 KiB, mode 0600. |
 
 ### Observe
 
@@ -60,6 +68,31 @@ All of these use trusted native input and wait until the target is visible, enab
 | `network` | Documents, fetch and XHR calls, and every loaded resource, with status, timing and size. `--failed`, `--filter`, `--clear`. |
 | `downloads` | Files the page downloaded, saved under `~/Downloads/Umbra/`. |
 | `cookies [domain]` | Cookie names, domains and expiry dates. Never values. |
+
+### Runtime and workflows
+
+| Command | What it does |
+|---|---|
+| `runtime [--reclaim]` | Scheduler/queue/admission/memory-pressure counters and ownership. Memory covers the daemon only. |
+| `tasks` | Pending jobs and last 128 completion records, without command arguments. |
+| `cancel <id>` | Interrupt a runtime request with matching agent/task; already-dispatched JavaScript can continue, and side effects cannot be undone. |
+| `lease [--seconds n] [--release]` | Acquire/renew/release a tab's cooperating agent/task ownership. Requires `--agent`. |
+| `batch <steps>` | Execute a JSON array of 1–64 steps with optional before/after conditions; stop on failure, no automatic retry. |
+| `workflow <file> --checkpoint <path>` | Parameterized JSON steps and atomic checkpoints; `--vars`, `--resume`, explicit `--resolve verified` or `retry` for uncertain steps. |
+| `resources <preset>` | `lean`, `balanced` or `visual`; tab rules persist until changed, including after task completion. `--reload --until JS` restores previous rules on readiness failure; interruption can leave applied rules in place. |
+| `http <url>` | Bounded public UTF-8 HTTP without a WebKit tab, JavaScript or profile cookies; `--max` is a byte budget. |
+
+`batch` and `workflow` carry agent/task/deadline at the coordinator level; put each target `tab` in the step's `args`. See [recovery and safety limits](runtime/README.md#batch-known-steps-and-checkpoint-a-workflow).
+
+### Frames and coordinates
+
+| Command | What it does |
+|---|---|
+| `frames` | List registered main/cross-origin frame document IDs; refresh after navigation. |
+| `frame <id> <operation> --args '<json>'` | Explicit frame-local snapshot/observe/extract/get/watch/eval/click/fill/check/uncheck/select; arguments at most 64 KiB. |
+| `pointer <action> --x n --y n` | Trusted left-button click/move/down/up at CSS viewport coordinates; no inferred canvas semantics or application-effect verification. |
+
+Native frame input refuses unavailable, hidden, covered, transformed, zoomed or offscreen geometry. Closed shadow roots remain unsupported. [Frame examples](runtime/README.md#reach-frames-and-canvas-carefully).
 
 ### One-shot
 
@@ -83,9 +116,9 @@ Results go to stdout and messages to stderr. Over MCP, a failure comes back as a
 |---|---|---|
 | `0` | Done | |
 | `1` | Umbra itself failed | Read stderr; the next command starts the daemon again |
-| `2` | Timed out, or a script threw | Wait for a specific condition, raise `--timeout`, or fix the script |
+| `2` | Deadline, cancellation, or a script error | Inspect actual state before retrying an action; use a condition or fix the script |
 | `3` | Signed out (`read --cookie`, `keep-signed-in`) | Run `umbra sign-in <site>` |
-| `4` | The page or download failed to load | Check the URL and that the site is up |
-| `5` | HTTP error status (`fetch`, `download`) | Check the URL and your access |
+| `4` | Page/download failure, output bound or uncertain workflow step | Read the message; verify actual state before resolving or repeating a step |
+| `5` | HTTP error status (`fetch`, `download`, `http`) | Check the URL and your access |
 | `64` | Usage error | Fix the command; `umbra help <command>` |
 | `78` | `sites.json` can't be parsed | Fix the file; the message names the problem |

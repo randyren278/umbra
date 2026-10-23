@@ -6,9 +6,13 @@ Facts an agent needs:
 
 - A per-profile daemon keeps tabs alive between commands. It starts on the first command and exits after 15 idle minutes. The CLI and `umbra mcp` drive the same tabs.
 - A tab no command has used for 5 minutes rests hidden (timers slow, animations pause) until the next command on it; after 15 minutes unused it closes. Close your own tab when done: `umbra tab close NAME`.
-- Tabs are invisible but pages in use see themselves as visible (`visibilityState`, `requestAnimationFrame` and `IntersectionObserver` work). Input is native, so events are trusted (`isTrusted == true`). While agents work, Umbra never takes focus or shows a Dock icon; only the sign-in window (with a Dock icon) and handoff (without) appear, when a person is needed.
+- Tabs are invisible but pages in use see themselves as visible (`visibilityState`, `requestAnimationFrame` and `IntersectionObserver` work). Native pointer and keyboard paths produce trusted events (`isTrusted == true`); value setters and HTML5 drag/drop have explicit untrusted fallbacks. While agents work, Umbra never takes focus or shows a Dock icon; only the sign-in window (with a Dock icon) and handoff (without) appear, when a person is needed.
 - Never drive Safari with AppleScript, and never type the user's passwords. Do the actions the request asks for; ask first before a consequential action (purchase, post, message, submission, refund, deletion) that is your own idea.
-- `--profile NAME` (or `UMBRA_PROFILE`) selects a separate cookie store and daemon. Use one for experiments. The current tab and cookies belong to the profile, so parallel agents each need their own profile (or at least their own `--tab`); cookies on 127.0.0.1 are shared across ports.
+- `--profile NAME` (or `UMBRA_PROFILE`) selects a separate cookie store and daemon. Use one for experiments. The current tab and cookies belong to the profile, so parallel agents use separate profiles for separate identities, or explicit named tabs and matching leases to share one profile; cookies on 127.0.0.1 are shared across ports.
+- Runtime: use named tabs and matching `agent`/`task` leases for cooperating clients; profiles separate signed-in identities. Leases are process-local labels, not security boundaries. `tasks` lists request IDs; `cancel ID` requires matching ownership. `deadline` is absolute Unix seconds. Already-dispatched JavaScript can continue after cancellation, including later side effects. Verify actual state before retrying timed-out or cancelled side effects.
+- Observations: `observe --since BASELINE` returns an ordered line patch; keep identical scope/max/depth and apply start/delete/lines. Missing/evicted/navigation baselines return full content. Budgets count characters, not model tokens. `extract` emits typed table/form/list records and refs; check truncated. `watch` is a one-result DOM-event wait, not a durable stream.
+- Frames: top-level snapshots mark cross-origin frames; use `frames`/`frame` for explicit document work. IDs become stale on navigation. Native frame input refuses transformed/zoomed/hidden/covered/offscreen targets. Closed shadow roots and canvas semantics are unsupported; `pointer` delivers left-button coordinates only.
+- Workflows: batch/workflow steps use explicit args.tab and inherit parent agent/task/deadline. Pending checkpoints require explicit resolution before repeating non-repeatable work. SDK repair callbacks observe and propose, without executing or proving prior dispatch.
 - Dialogs never block: alerts, confirms and prompts are accepted by default and reported in the reply of the action that raised them. Run `umbra dialog dismiss` before an action to decline the next one.
 
 The loop:
@@ -28,7 +32,11 @@ Commands:
 - Session: `open <url>` (`--new`, `--until JS`; alias `goto`), `back`, `forward`, `reload`, `tabs`, `tab select|new|close <name>`, `wait`, `eval <js>`, `block <types>`, `viewport [w h] [--mobile]`, `handoff "<message>" [--until JS]`, `status`, `stop`
 - See: `snapshot [--interactive] [--scope t]`, `text`, `markdown [--main]`, `html`, `links [--filter s]`, `get <t> [--attr name]`, `info`
 - Act: `click <t>`, `fill <t> <value>`, `type <text> [--target t]`, `press <keys…>`, `select <t> <values…>`, `check <t>`, `uncheck <t>`, `hover <t>`, `focus <t>`, `scroll [--dy n|--to bottom|--target t]`, `drag <from> <to>`, `upload <t> <files…>`, `dialog accept|dismiss`
-- Capture: `screenshot [path] [--full] [--target t]`, `pdf <path>`
+- Runtime: `runtime [--reclaim]`, `tasks`, `cancel <id>`, `lease [--seconds n] [--release]`, `batch <JSON steps>`, `workflow <file> --checkpoint <path> [--vars JSON] [--resume] [--resolve verified|retry]`
+- Observe/extract: `observe [--since baseline] [--scope target] [--max n] [--depth n]`, `extract <target> [--kind table|form|list] [--limit n] [--text-max n] [--schema JSON]`, `watch <target> [--state text] [--equals value] [--duration n]`, `capabilities`
+- Frame input: `frames`, `frame <id> <operation> --args JSON`, `pointer click|move|down|up --x n --y n`
+- Resources: `resources lean|balanced|visual [--reload --until JS]` replaces tab rules until changed, with no task-end restore; readiness failure restores previous rules, but interruption can leave applied rules in place. `http <url> [--max bytes]` sends no profile cookies and runs no JavaScript.
+- Capture: `screenshot [path] [--full] [--target t]`, `pdf <path>`, `record start|stop|status` (`start --path new-directory`), `inspector [--stop]`, `diagnose --path file`
 - Observe: `console [--level error]`, `network [--failed] [--filter s]`, `downloads`, `cookies [domain]` (names only, never values)
 - One-shot: `read <url> < script.js` (`--cookie NAME`, `--until`, `--wait`), `fetch <url> [--from page]`, `download <url> <file>`, `keep-signed-in [site…] [--off]` (a launch agent visits the marked sites every 10 minutes so their sessions don't idle out; exit 3 if any is signed out)
 - Humans: `sign-in [site|url]` opens Umbra's window on the login page and returns once the user is signed in (a signed-in site is never shown; `--save NAME` adds a login URL as a new site); `handoff` shows a tab for 2FA, a CAPTCHA or consent, then hides it again
@@ -44,8 +52,11 @@ Exit codes: 0 done; 1 Umbra itself failed; 2 timed out or a script threw; 3 sign
 - [Recipes](https://raw.githubusercontent.com/randyren278/umbra/main/docs/recipes.md): paginated tables, forms, downloads, uploads, pop-ups, screenshots, the socket protocol, and callers for scripts
 - [Sites and sign-in](https://raw.githubusercontent.com/randyren278/umbra/main/docs/sites.md): `sites.json`, signed-in checks, `keepSession` and `keepSignedIn`
 
+- [Runtime guide](https://raw.githubusercontent.com/randyren278/umbra/main/docs/runtime/README.md): ownership, admission, cancellation, deltas, extraction, workflows, resource presets, frames, inspection and limits
+- [Persistent SDKs](https://raw.githubusercontent.com/randyren278/umbra/main/sdk/README.md): dependency-free Python, TypeScript and Swift clients with explicit profiles, deadlines and independent cancellation
+
 ## Optional
 
 - [How it works](https://raw.githubusercontent.com/randyren278/umbra/main/docs/how-it-works.md): the daemon, socket protocol, tabs, native input, cookie store, profiles and locks
-- [Proving ground and benchmark](https://raw.githubusercontent.com/randyren278/umbra/main/bench/README.md): the Northwind Ops test app, 15 graded agent tasks, and the benchmark against Playwright
+- [Proving ground and benchmark](https://raw.githubusercontent.com/randyren278/umbra/main/bench/README.md): the Northwind Ops local test app and project-authored agent tasks
 - [Changelog](https://raw.githubusercontent.com/randyren278/umbra/main/CHANGELOG.md)

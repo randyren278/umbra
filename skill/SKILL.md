@@ -23,17 +23,37 @@ Targets are a ref from the latest snapshot (`e12`), `text=Visible text`, or a CS
 
 | Need | Command |
 |---|---|
-| Read the page | `snapshot`, `text`, `markdown --main`, `links`, `get <t>`, `info` |
+| Read the page | `snapshot --max N --depth N`, `observe --since BASELINE`, `text`, `markdown --main`, `links`, `get <t>`, `info` |
+| Structured records | `extract <target> --kind table\|form\|list --limit N --text-max N`; check `truncated` |
+| DOM event wait | `watch <target> --state text --equals Saved --duration 10` (matched=false on expiry) |
 | Act | `click`, `fill`, `type`, `press Enter`, `select`, `check`, `hover`, `scroll`, `drag`, `upload <t> <file>`, `dialog accept` |
 | See it | `screenshot [path] [--full] [--target t]`, `pdf <path>` |
 | Debug | `console --level error`, `network --failed` |
 | Script | `eval 'return …'` (page world, async) |
-| Tabs | `tabs`, `tab new|select|close <name>`, `--tab NAME` on any command |
-| Speed | `block images trackers`, `viewport 390 844 --mobile` |
+| Tabs | `tabs`, `tab new\|select\|close <name>`, `--tab NAME` on any command |
+| Resources | `resources lean\|balanced\|visual [--reload --until JS]`; cookie-free `http <url> --max BYTES` |
+| Coordinate work | `frames`, `frame <id> <operation> --args JSON`, `pointer click --x N --y N`; canvas semantics unavailable |
+| Shared runtime | `lease --agent A --task T --tab NAME`, `tasks`, `cancel ID --agent A --task T`, `runtime` |
+| Recovery | `batch JSON`, `workflow FILE --checkpoint FILE [--resume]`; no automatic uncertain-step retry |
+| Inspect explicitly | `inspector [--stop]`, `record start\|stop\|status`, `diagnose --path FILE` |
 | Files | `downloads` (page downloads land in ~/Downloads/Umbra/), `download <url> <file>` |
 | One-shot in scripts | `fetch <api-url>`, `read <url> < script.js` (exit codes, no session needed) |
 
-Every command has `umbra help <command>`. Add `--json` for structured output. `umbra mcp` serves the same commands as MCP tools.
+Every command has `umbra help <command>`. `umbra schema` is the parameter source; page commands accept `--tab`, all daemon commands accept agent/task/request/deadline metadata. `deadline` is absolute Unix seconds. [Runtime guide](../docs/runtime/README.md) and [persistent SDKs](../sdk/README.md) cover the details. Add `--json` for structured output. `umbra mcp` serves the same commands as MCP tools.
+
+## Parallel work and recovery
+
+Use a named tab for each task. With cooperating clients on one profile, acquire a lease and pass matching `--agent` and `--task` on every tab command. Different signed-in identities need separate profiles. Leases are daemon-local coordination labels, not authentication; same-user processes can supply them.
+
+Give cancellable work a unique `--request`. `tasks` lists actual runtime IDs; `cancel ID` requires matching ownership. A timeout, cancelled call or lost socket does not prove an action did not happen. Check real state before repeating a submission; already-dispatched JavaScript can continue after cancellation and produce later side effects, while earlier actions cannot be rolled back.
+
+For deltas, keep the returned `baseline`, apply `patch.start/delete/lines` to the previous snapshot lines and use identical scope/budgets. Navigation or eviction returns full content. Budgets count characters, not model tokens. `watch` needs observed DOM/input events; use `wait --js` for silent property changes.
+
+Put each target tab in a batch/workflow step’s `args`; coordinators do not take top-level CLI `--tab`. Checkpoint `pending` means outcome uncertain. Resume refuses non-repeatable pending steps until explicitly resolved; use verified postconditions or an authorized retry. SDK repair callbacks observe and propose only; they never auto-execute or prove earlier dispatch did not occur.
+
+Resource presets replace the tab’s blocked-resource rules until changed; task/lease completion does not restore them. With `--reload --until`, readiness failure restores prior rules, while cancellation can leave applied rules in place.
+
+Use `frames` then an explicit frame ID for cross-origin DOM. Handles change on navigation; native frame input refuses unsupported geometry. Closed shadow roots and semantic canvas extraction are unsupported. Coordinates alone do not prove application success.
 
 ## Sign-in and humans
 

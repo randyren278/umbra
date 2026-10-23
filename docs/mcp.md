@@ -51,15 +51,36 @@ Then sign that profile in to the sites the agent should reach: `UMBRA_PROFILE=ag
 
 ## What the agent gets
 
-- **41 tools**, one per command except `stop`, with the same parameters as the CLI. `umbra schema` prints them as JSON, and `umbra help <command>` describes each one.
+- **Tools generated from the command registry**, with the same parameters as the CLI for commands marked MCP-supported. `umbra schema` prints them as JSON, and `umbra help <command>` describes each one.
 - **Instructions** sent on `initialize`. They teach the loop (`open`, `snapshot`, act on refs, snapshot again), waiting instead of sleeping, `handoff` for human-only steps, and `fetch` for signed-in JSON APIs.
-- **Text plus structured results.** Every result has a short text line. The other fields arrive as `structuredContent`, the same fields `--json` prints on the CLI.
+- **Text plus structured results.** Successes put result text in `content` and remaining nonduplicate fields in `structuredContent`. MCP omits the runtime `request` field and binary data; screenshot data arrives as image content.
 - **Images.** `screenshot` without a path returns the image itself as MCP image content, alongside a text line such as `88×48 PNG (base64 in data)`.
 - **Tool hints.** Tools that only look (`snapshot`, `text`, `markdown`, `links`, `info`, `console`, `network`…) are marked read-only. `screenshot`, `pdf` and `download` are marked destructive because they can replace a file at the path given. Every tool is marked open-world.
 - **Errors the model can act on.** A failure comes back as a tool error with Umbra's message. Codes 1 to 4 also get a hint: a signed-out site, for example, says to call `sign-in` with the site's name, which shows the person Umbra's window and returns once they've signed in.
 - **Progress for long calls.** If the client sends a progress token, `open`, `wait`, `handoff` and other long calls report progress every 5 seconds, so the client's request timeout doesn't give up on them.
 
 Relative paths in arguments (`screenshot shot.png`, `upload … invoice.pdf`) are resolved against the directory the server was started in, unless the call passes `cwd`.
+
+## Ownership, observations and cancellation
+
+The same runtime controls are available as MCP tools. A minimal owned task uses separate `tools/call` requests with these argument objects:
+
+```json
+{"name":"open","arguments":{"url":"http://127.0.0.1:8765/","tab":"research","agent":"researcher","task":"lookup"}}
+{"name":"lease","arguments":{"tab":"research","agent":"researcher","task":"lookup","seconds":300}}
+{"name":"observe","arguments":{"tab":"research","agent":"researcher","task":"lookup","interactive":true,"max":4000}}
+```
+
+Use a returned `baseline` as `since` with identical scope/budgets for incremental observations. `max` limits outline characters, not model tokens. JSON-valued command parameters such as `batch.steps`, `workflow.vars`, `frame.args` and `extract.schema` are **JSON strings** in the MCP arguments, matching their generated schema; they are not nested objects at that parameter boundary.
+
+Assign a runtime `request` when you need explicit cancellation, then use `cancel` from another call with the same owner:
+
+```json
+{"name":"wait","arguments":{"selector":"#ready","tab":"research","agent":"researcher","task":"lookup","request":"wait-ready","timeout":30}}
+{"name":"cancel","arguments":{"id":"wait-ready","agent":"researcher","task":"lookup"}}
+```
+
+The JSON-RPC request ID and the runtime cancellation identifier are different protocol fields. `tasks` shows actual pending runtime IDs. `deadline` is an absolute Unix timestamp in seconds, and timeout includes runtime queueing. Already-dispatched JavaScript can continue after cancellation, including later side effects; cancellation does not undo earlier actions. Verify actual state before repeating a submission. [Full runtime guide](runtime/README.md).
 
 ## Handoff over MCP
 
@@ -72,4 +93,4 @@ When a page needs a person (a two-factor prompt, a CAPTCHA, a consent screen), t
 | The client lists no tools | Run the command from the config by hand: `…/umbra mcp` should wait silently on stdin. Check the path is absolute. |
 | Every page shows a sign-in screen | The server is on another profile than the one you signed in. Compare `UMBRA_PROFILE` in the config with your `umbra sign-in` run. |
 | Calls hang or fail after a crash | `umbra status` shows the daemon. `umbra stop` (with the same profile) resets it; the next call starts a new one. Its log is `~/Library/Application Support/Umbra/daemon.log` (`daemon-<profile>.log` for a profile). |
-| A call times out | Pass a larger `timeout`, or `wait` for a specific selector, text or URL first. |
+| A call times out | Inspect actual state before repeating an action. Use `tasks`/`cancel` with its request and owner, or wait for a specific condition. |

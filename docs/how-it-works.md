@@ -1,6 +1,6 @@
 # How Umbra works
 
-Umbra is a Swift program, in [Sources/](../Sources/), compiled into a small macOS app bundle. This page covers the daemon and its socket, the tabs, input, the cookie store, profiles and the one-shot commands. [AGENTS.md](../AGENTS.md) has the same architecture from a contributor's side.
+Umbra is a Swift program, in [Sources/](../Sources/), compiled into a small macOS app bundle. This page covers the daemon and socket, bounded scheduling, tabs, input, the cookie store and profiles. [Runtime usage](runtime/README.md) explains ownership, observations, workflows, resource presets and inspection. [AGENTS.md](../AGENTS.md) has the same architecture from a contributor's side.
 
 <picture>
   <source media="(max-width: 600px)" srcset="../assets/how-it-works-mobile.svg">
@@ -23,13 +23,13 @@ The first session command for a profile (`open`, `snapshot`, anything but the on
 | `daemon.log` (`daemon-<profile>.log`) | The daemon's log. |
 | `daemon.lock`, `store.lock` (with `-<profile>`) | One daemon per profile; one owner of the store at a time. |
 
-The daemon exits after 15 minutes without a command (`UMBRA_IDLE` sets the limit in seconds). It never exits while a call is in flight or a handoff is open. The `keepSignedIn` agent's visits don't count as commands here, so they never keep an idle daemon up. `umbra status` shows its process, profile, uptime and tabs, and `umbra stop` closes every tab and ends it.
+The daemon exits after 15 minutes without a command (`UMBRA_IDLE` sets the limit in seconds). It never exits while a call is in flight, a handoff/sign-in window is open, or a tab has tracked unsaved input, an active download or a live lease. The `keepSignedIn` agent's visits don't count as commands here, so they never keep an idle daemon up. `umbra status` shows its process, profile, uptime and tabs, and `umbra stop` closes every tab and ends it.
 
-Tabs follow the same rule, one by one, so that the tabs agents leave behind don't pile up in a daemon that other agents keep busy. A tab no command has used for a third of the limit (5 minutes) rests: Umbra hides its window, and the page slows its timers and pauses its animations as a background tab does in Safari. The next command on it shows it again and runs once the page knows it is visible. A tab unused for the whole limit closes, and its web process ends with it; a later command that names it says so, and `open --tab NAME <url>` opens it again. A tab never rests while a command runs on it or a handoff shows it, and a tab that closes while it was the current one leaves no current tab, so a command without `--tab` never lands in another agent's tab. On the way out it saves the session cookies of `keepSession` and `keepSignedIn` sites (see [sites.md](sites.md#keepsession)).
+Tabs follow the same rule, one by one, so that the tabs agents leave behind don't pile up in a daemon that other agents keep busy. A tab no command has used for a third of the limit (5 minutes) rests: Umbra hides its window, and the page slows its timers and pauses its animations as a background tab does in Safari. The next command on it shows it again and runs once the page knows it is visible. A tab unused for the whole limit closes, and its web process ends with it; a later command that names it says so, and `open --tab NAME <url>` opens it again. A tab never rests while active or queued work targets it, a handoff shows it, a download is active, a lease protects it, or trusted form input marked it dirty, and a tab that closes while it was the current one leaves no current tab, so a command without `--tab` never lands in another agent's tab. On the way out it saves the session cookies of `keepSession` and `keepSignedIn` sites (see [sites.md](sites.md#keepsession)).
 
 ### The protocol
 
-The socket takes one JSON object per line, and each connection gets its own thread:
+The socket takes one JSON object per line. Connections are persistent and serial within a connection; each accepted connection gets a thread, bounded by `UMBRA_CONNECTIONS` (default 64). Request buffers, admitted argument bytes, pending jobs and replies have separate bounds. The main-thread runtime admits jobs and serializes each tab’s operations while allowing independent tabs to progress:
 
 ```
 → {"id": 1, "command": "get", "args": {"target": "text=Save changes"}}
@@ -38,9 +38,17 @@ The socket takes one JSON object per line, and each connection gets its own thre
 ← {"id":2,"error":{"message":"timed out after 1 s: nothing matches #nope","code":2},"ok":false}
 ```
 
-A result has a short human `text`, which is what the CLI prints, plus structured fields, which `--json` prints. Binary data comes back base64 in `data` with a `mime` type, or is written to the `path` the caller gave. The error `code` is the exit code the CLI exits with.
+A result has a short human `text`, which is what the CLI prints, plus structured fields, which `--json` prints. Binary data comes back base64 in `data` with a `mime` type, or is written to the `path` the caller gave. The error `code` is the exit code the CLI exits with. The socket envelope `id` correlates a response; `args.request` identifies a scheduled request for `tasks` and `cancel`. They are separate fields. The [SDKs](../sdk/README.md) set them consistently by default, bound replies, enforce absolute deadlines and use separate cancellation connections.
 
 Commands are declared once in a registry: name, help, parameters, aliases, whether they use a tab, whether MCP exposes them, and a default timeout. The CLI's argument parser, `umbra help`, `umbra schema` and the MCP tool list are all generated from it, so the three surfaces can't disagree.
+
+## Scheduling and ownership
+
+[Runtime.swift](../Sources/Runtime.swift) owns the admitted jobs, tab leases, per-tab lanes, deadlines and a bounded metadata history. A tab is resolved before dispatch, and ownership is checked at admission and again before queued work starts. Coordinator jobs (`batch` and `workflow`) submit their individual child operations through the same scheduler and share the parent’s identity/deadline.
+
+`agent` and `task` are cooperating labels, not credentials. A profile’s macOS user can choose those labels or another profile. Leases live only in the daemon’s memory and end with it; workflow checkpoints persist separately on disk. Cancellation ends request scheduling/continuations but cannot undo already-dispatched page JavaScript or side effects.
+
+Memory pressure reduces admission capacity and reclaims clean abandoned tabs. Queued work, leases, handoffs, downloads and tracked dirty input protect a tab. The runtime’s memory counter is the daemon’s own footprint, excluding WebKit helpers; whole-browser measurements require separate process accounting. [Limits and environment variables](runtime/README.md#capacity-and-memory-pressure).
 
 ## Tabs
 
@@ -59,7 +67,7 @@ A tab also handles:
 
 Snapshot, refs and actions run in an isolated JavaScript world. They share the page's DOM but not its globals, so the page can't see them, and a page that replaces `document.querySelector` or `Element.prototype.click` can't break them. Only `eval` and `read` scripts run in the page's own world.
 
-`snapshot` walks the DOM, including open shadow roots and same-origin iframes, and writes one line per element: its role, name, state, value and, for anything interactive, a ref such as `e5`. Cross-origin iframes are marked, because their contents can't be reached. A ref stays attached to the same element until the page navigates; after that, refs are numbered afresh.
+`snapshot` walks the DOM, including open shadow roots and same-origin iframes, and writes one line per element: its role, name, state, value and, for anything interactive, a ref such as `e5`. Cross-origin iframes are marked in the top-level snapshot; `frames` and explicit `frame` operations reach registered documents through native WebKit frame evaluation. Their document handles become stale on navigation. A ref stays attached to the same element until the page navigates; after that, refs are numbered afresh. `observe` retains a bounded document-local baseline cache and returns ordered line patches. `extract` traverses tables/forms/lists into typed records with source refs; `watch` installs bounded, one-result DOM event observers.
 
 Actions resolve their target (a ref, `text=`, or a CSS selector), wait until it's visible, enabled, scrolled into view and not covered, and then act through native input:
 
@@ -67,6 +75,8 @@ Actions resolve their target (a ref, `text=`, or a CSS selector), wait until it'
 - **`fill` and `type`** focus the field with a native click and insert the text with `insertText`, the way an input method does. Framework-controlled inputs (React and friends) accept it. Date, time, color and range inputs are set directly.
 - **`press`** sends key events one by one, so each key fires its own `keydown`.
 - **HTML5 drag and drop** is dispatched as page events, because a native drag session would act on the real desktop.
+- **Frame input** maps through ancestor geometry and hit tests before native delivery; unavailable, transformed, zoomed, hidden or offscreen frame targets are refused.
+- **Coordinate pointer input** can reach canvas pixels, but provides no semantic interpretation or application-success proof.
 
 ## The cookie store
 
@@ -86,7 +96,7 @@ Changing either the bundle identifier or the store identifier gives you a new, e
 
 `--profile NAME` or `UMBRA_PROFILE=NAME` selects a different profile: its own store, daemon, socket, log, locks and download folder. The store's identifier is derived from the name: the first 32 hex digits of SHA-256 of `umbra profile <name>`, grouped 8-4-4-4-12 as a UUID. The same name always maps to the same store, so a profile persists between runs. Profile names longer than 24 characters get a hashed socket name, to stay under the system's path limit for sockets.
 
-The [profile lanes diagram](../assets/profile-lanes.svg) shows why parallel agents should use different profiles: each lane has its own current tab and signed-in state.
+The [profile lanes diagram](../assets/profile-lanes.svg) shows separate identities: each profile has its own current tab and signed-in state. Cooperating agents may also share a profile using explicit named tabs and leases; they still share cookies and require matching ownership labels.
 
 To delete a profile, stop its daemon, remove its `keepSignedIn` launch agent if it has one, and remove its files:
 

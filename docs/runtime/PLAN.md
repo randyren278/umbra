@@ -30,7 +30,7 @@ All entries start **pending**. Implementation, passing tests and a performance r
 | Observation budgets and deltas | Full/delta reconstruction, byte/token accounting, stale baseline rejection |
 | Cross-origin frames, virtualized interfaces, canvas | Separate fixture journeys; report unsupported capabilities explicitly until implemented |
 | Workflow replay, model assistance and recovery | Deterministic replay, explicit optional repair hook, checkpoint interruption tests |
-| Task resource profiles and fallback | Blocking profile applied/reverted around task; broken-page fallback measured |
+| Task resource profiles and fallback | Tab preset persists on success until explicitly changed; readiness-failure fallback restores prior rules, with no automatic task-end restore |
 | On-demand inspector and takeover | Live task/queue/resource view plus existing handoff journey |
 | Persistent SDKs with cancellation and deadlines | Python, TypeScript, Swift live socket tests |
 | Bounded redacted failure bundles | Bundle allowlist, size limit and injected secret-field checks |

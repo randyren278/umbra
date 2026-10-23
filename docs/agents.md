@@ -1,9 +1,10 @@
 # Using Umbra from an agent
 
-An agent can use Umbra in three ways. They all drive the same live tabs, so you can mix them:
+An agent can use Umbra through a skill, MCP, shell instructions or the [persistent SDKs](../sdk/README.md). They all drive the same live tabs, so you can mix them:
 
 - **Agent skill** (Claude Code and Codex). [`skill/SKILL.md`](../skill/SKILL.md) teaches the loop, targets, waiting, sign-in, handoff and the rules. The agent then works through its shell tool.
-- **MCP.** `umbra mcp` exposes every command as a tool. See [mcp.md](mcp.md).
+- **MCP.** `umbra mcp` exposes the registry’s MCP-supported commands as tools. See [mcp.md](mcp.md).
+- **SDKs.** Python, TypeScript and Swift reuse a bounded socket connection, enforce deadlines, preserve structured errors and use independent cancellation connections.
 - **Plain instructions.** For any agent with a shell, paste the block below into `AGENTS.md`, `CLAUDE.md` or the system prompt.
 
 ## Install the skill
@@ -39,10 +40,19 @@ Computer Use for anything on the web.
 - If the request asks for an action (refund it, submit the form), do it and report what
   happened. If a consequential action (purchase, post, message, submission, refund,
   deletion) is your own idea, ask first.
-- Add --json for structured output. `umbra help <command>` lists parameters.
+- Use a named tab and an explicit agent/task. Acquire `umbra lease --tab work --agent NAME
+  --task TASK`, then pass matching labels on every command for that tab. Separate profiles
+  separate signed-in identities; leases coordinate cooperating clients, not hostile processes.
+- Use `observe --since BASELINE` for deltas with identical scope/budgets; apply its line patch
+  to the previous snapshot. `--max` bounds characters, not model tokens. Use `extract` for
+  typed table/form/list records and `watch` for event-driven DOM conditions.
+- Give cancellable work a unique --request ID; `tasks` lists actual pending IDs. `cancel ID`
+  requires the same agent/task. After timeout/cancellation, verify actual state before retrying
+  side effects. Already-dispatched JavaScript can continue after cancellation; its actions cannot be rolled back.
+- Add --json for structured output. `umbra help <command>` and `umbra schema` list parameters.
 ```
 
-The commands in that block were checked against the Northwind Ops test app in [`bench/site`](../bench/README.md) while this page was written. The `sign-in` and `handoff` windows weren't opened.
+The [Northwind Ops fixture](../bench/README.md) supplies local workflow examples. The [runtime guide](runtime/README.md) explains limits, ownership, incremental observations and checkpoint recovery. Use [current test/evaluation evidence](evaluation/README.md) for claims about reliability or performance.
 
 ## Working well
 
@@ -50,8 +60,8 @@ The commands in that block were checked against the Northwind Ops test app in [`
 - **Read before you act.** `text` and `markdown --main` are much cheaper than a screenshot, and they include content that isn't interactive, such as prices, statuses and table cells.
 - **Trust the waits that are built in.** `open` waits for the page to load. `click` waits until its target is visible, enabled and not covered, and waits for any page it opens. Use `wait` only for content that arrives later, such as `wait --text "Settings saved"` after a save. `--text` matches case-sensitively.
 - **One tab per task.** `open <url> --tab NAME` opens a named tab (created if new), and `--tab NAME` on any later command addresses it. Pop-ups (`target=_blank`, `window.open`) become tabs of their own, and the click that opened one reports its name. Close a tab when its task is done (`tab close NAME`): each holds a web process, and one nothing uses closes by itself only after 15 minutes.
-- **Make pages lighter.** `block images trackers` speeds up heavy pages. `reload` applies it to the current page.
-- **Parallel agents need their own profiles.** The current tab and the cookies belong to the profile, so two agents on one profile change things under each other. Give each its own `--profile`, or at least its own `--tab`. Cookies on `127.0.0.1` are shared across ports.
+- **Choose resource limits deliberately.** `resources lean` blocks images/fonts/media/trackers; `balanced` blocks trackers; `visual` restores full resources. Preset rules persist on the tab until changed; task/lease completion does not restore them. `--reload --until JS` falls back to prior rules on readiness failure; interruption can leave applied rules in place. Use cookie-free `http` for public text/JSON; signed-in `fetch` or `open` for authenticated/rendered pages.
+- **Separate identity from task ownership.** Use different profiles for separate signed-in identities. Cooperating agents sharing a profile need explicit named tabs and matching leases; the current-tab pointer and cookies still belong to the profile. Cookies on `127.0.0.1` are shared across ports.
 - **Dialogs don't block.** Alerts, confirms and prompts are accepted by default, and the reply of the click that raised one reports it. Run `dialog dismiss` first to decline the next one.
 - **Debug with the page's own signals.** `console --level error` and `network --failed` show what went wrong on the page, not just that something did.
 
@@ -63,7 +73,7 @@ Mid-task steps that need a person, such as a two-factor prompt, a CAPTCHA or a c
 
 ## Give the agent its own profile
 
-A profile is a separate cookie store with its own daemon. An agent on its own profile can only reach the sites you signed it into, and it can't disturb the profile your scheduled jobs use:
+A profile is a separate cookie store with its own daemon. Keep agent work on its designated profile to avoid disturbing scheduled jobs. Any process running as your macOS user can choose another profile, so this is an operating convention rather than a sandbox:
 
 ```sh
 umbra --profile agent sign-in https://canvas.example.edu/login
@@ -76,4 +86,6 @@ Then tell the agent to pass `--profile agent` on every command, or set `UMBRA_PR
 - It acts as you. On a signed-in site the agent can read, click and submit as you would, so give it the profiles and sites you'd trust it with.
 - It never sees cookie values. `cookies` prints names and expiry dates only, and nothing in Umbra exports a value.
 - It can't sign in, pass two-factor prompts or solve CAPTCHAs on its own. Those stay with you, through `sign-in` and `handoff`.
-- It can't reach inside closed shadow roots or cross-origin iframes. `snapshot` marks cross-origin iframes so the agent knows they're there.
+- It cannot reach closed shadow roots. Use `frames`/`frame` for explicit cross-origin document work; IDs change on navigation. Transformed/zoomed/hidden/covered/offscreen native frame targets are refused.
+- Canvas has no inferred semantics. `pointer` only delivers trusted coordinates; verify the application effect separately.
+- Optional SDK repair callbacks return proposals after fresh observation. They do not execute a replacement or establish that a previous failed step was undispatched; never automatically repeat uncertain submissions.

@@ -5,7 +5,7 @@ Copy-paste patterns for driving Umbra from scripts and agents. There are two sty
 - **Session commands** (`open`, `snapshot`, `click`, `fill`…) talk to the profile's daemon, so a tab and its sign-in carry over from one command to the next. Use them to work through a site step by step.
 - **One-shot commands** (`read`, `fetch`, `download`) do one job and exit with a code. Scheduled scripts use them.
 
-Every recipe here was run against Northwind Ops, the test app in [`bench/site`](../bench/README.md) (`python3 bench/site/server.py --port 8765`), or against a local test server. Swap in your own URLs.
+The original page workflows use Northwind Ops, the test app in [`bench/site`](../bench/README.md) (`python3 bench/site/server.py --port 8765`), or a local test server. The runtime examples below use those same selector patterns; substitute your own URLs and verify each postcondition.
 
 **Session commands**
 
@@ -18,6 +18,9 @@ Every recipe here was run against Northwind Ops, the test app in [`bench/site`](
 - [Find out why a page misbehaves](#find-out-why-a-page-misbehaves)
 - [Structured output for scripts](#structured-output-for-scripts)
 - [A long-lived client on the socket](#a-long-lived-client-on-the-socket)
+- [Owned work and cancellation](#owned-work-and-cancellation)
+- [Incremental observations and typed records](#incremental-observations-and-typed-records)
+- [Checked batches and recoverable workflows](#checked-batches-and-recoverable-workflows)
 
 **One-shot commands**
 
@@ -44,7 +47,7 @@ while true; do
 done
 ```
 
-`wait --idle` returns once the network has been quiet for 500 ms, which here means the next page of rows has arrived. All 40 orders end up in `orders.md`.
+`wait --idle` checks for a complete document and an unchanged resource-entry count for 500 ms; it does not track outstanding requests. For sites that poll or render rows after that quiet period, wait for a row-count or loading-state condition instead.
 
 ## Fill in a form and confirm it saved
 
@@ -126,41 +129,76 @@ umbra links --json | jq -r '.links[].href'
 
 ## A long-lived client on the socket
 
-The CLI pays for a process start on every command. A program that sends many commands can keep one connection to the daemon instead. It's a unix socket that takes one JSON object per line: send `{id, command, args}` and get back `{id, ok, result}` or `{id, ok: false, error: {code, message}}`. Command and argument names are the same as the CLI's, and `umbra schema` lists them.
+Use the [Python, TypeScript or Swift SDK](../sdk/README.md) when a program sends many commands. Each client requires an explicit profile, reuses its socket, bounds replies and uses absolute deadlines. Start the daemon explicitly or connect to one already running:
 
 ```python
-import json
+# PYTHONPATH=/path/to/umbra/sdk/python python3 script.py
 import os
-import socket
+from umbra import Umbra
 
-profile = os.environ.get("UMBRA_PROFILE")
-name = f"daemon-{profile}.sock" if profile else "daemon.sock"
-path = os.path.expanduser(f"~/Library/Application Support/Umbra/{name}")
-
-with socket.socket(socket.AF_UNIX) as sock:
-    sock.connect(path)  # start the daemon first with any session command, e.g. `umbra tabs`
-    lines = sock.makefile("rw")
-
-    def call(command, **args):
-        lines.write(json.dumps({"id": 1, "command": command, "args": args}) + "\n")
-        lines.flush()
-        reply = json.loads(lines.readline())
-        if not reply["ok"]:
-            raise RuntimeError(f"{command}: exit {reply['error']['code']}: {reply['error']['message']}")
-        return reply["result"]
-
-    call("open", url="http://127.0.0.1:8765/app/orders")
-    print(call("get", target="text=Showing")["text"])   # Showing 1–10 of 40 orders
+with Umbra(os.environ["UMBRA_PROFILE"]) as browser:
+    browser.call("open", {"url": "http://127.0.0.1:8765/app/orders", "tab": "orders"})
+    print(browser.call("get", {"target": "text=Showing", "tab": "orders"})["text"])
 ```
 
-Profile names longer than 24 characters get a hashed socket name instead; keep them short to use this as written.
+`close()` closes the connection, not the daemon. For the raw JSON-lines protocol, see [how it works](how-it-works.md#the-protocol); keep wire correlation IDs distinct from runtime request IDs unless you explicitly set both. The SDK handles profile socket hashing too.
+
+## Owned work and cancellation
+
+Start the local fixture, then use a separate profile and named tab:
+
+```sh
+export UMBRA_PROFILE=recipe-runtime
+umbra open http://127.0.0.1:8765/app/settings --tab settings
+umbra lease --tab settings --agent writer --task settings
+umbra snapshot --tab settings --agent writer --task settings --interactive
+umbra wait --selector '#ready' --tab settings --agent writer --task settings --request ready-check --timeout 30
+# In another terminal with the same UMBRA_PROFILE, while that request is pending:
+umbra tasks --json
+umbra cancel ready-check --agent writer --task settings
+```
+
+Every operation on a leased tab needs matching labels. Already-dispatched JavaScript can keep running after cancellation, and earlier side effects cannot be undone. Check actual state before repeating an action. Finish by releasing the lease and closing the tab:
+
+```sh
+umbra lease --release --tab settings --agent writer --task settings
+umbra tab close settings
+```
+
+## Incremental observations and typed records
+
+On an unleased orders tab, keep the baseline token and the same observation options:
+
+```sh
+umbra open http://127.0.0.1:8765/app/orders --tab orders
+umbra observe --tab orders --interactive --max 4000 --json > first.json
+baseline=$(python3 -c 'import json; print(json.load(open("first.json"))["baseline"])')
+umbra observe --tab orders --interactive --max 4000 --since "$baseline" --json
+umbra extract table --tab orders --kind table --limit 10 --text-max 300 --json
+```
+
+A delta is a line replacement patch, not a complete snapshot: splice `patch.lines` at `patch.start`, removing `patch.delete` old lines. Navigation, cache eviction or changed options returns full content instead. Budgets count characters, not model tokens. Extraction gives records and source refs; check its `truncated` flag before assuming the table is complete.
+
+## Checked batches and recoverable workflows
+
+Use one batch to fill/save, with an explicit verification condition. Coordinator commands take each tab inside the step’s args:
+
+```sh
+umbra open http://127.0.0.1:8765/app/settings --tab settings
+umbra batch '[
+  {"command":"fill","args":{"tab":"settings","target":"text=Display name","value":"Jordan Lee"}},
+  {"command":"click","args":{"tab":"settings","target":"text=Save changes"},"after":{"text":"Settings saved"}}
+]' --agent writer --task settings --json
+```
+
+This stops on failure without rollback or automatic retry. For reusable variable binding and disk checkpoints, follow the [workflow recipe](runtime/README.md#batch-known-steps-and-checkpoint-a-workflow). A pending checkpoint records an uncertain outcome; inspect state and explicitly resolve it. Optional SDK model callbacks propose replacement args after fresh observation and never execute the proposal themselves.
 
 ## Exit codes in practice
 
 | Exit | Meaning | Retry? | Typical handling |
 |---|---|---|---|
 | `0` | Done | | Use stdout |
-| `2` | Timed out, or your script threw | Timeouts, yes | stderr starts with `no answer in` for a timeout and `the script failed:` for a thrown error |
+| `2` | Deadline, cancellation, or script error | Check state first | Read stderr; already-dispatched JavaScript and side effects may continue |
 | `3` | Signed out | No | Tell the person to run `umbra sign-in`, then skip this run |
 | `4` | The page or download failed to load | Yes, later | Network down, site down, or a bad host name |
 | `5` | HTTP error status | Rarely | stderr is `HTTP <status>`. `fetch` still prints the body, which often explains the error |
@@ -369,7 +407,7 @@ Run Umbra from a LaunchAgent: a job in your own login session. A LaunchDaemon ru
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.example.course-sync.plist
 ```
 
-Two jobs on the same profile simply take turns. Give a job its own profile only when it must not wait.
+Without a daemon, one-shot jobs on the same profile take turns on the store lock. Through a daemon, independent scratch tabs can run concurrently within runtime limits. Give a job its own profile when it needs a separate signed-in identity.
 
 ## Trying scripts on a separate profile
 
