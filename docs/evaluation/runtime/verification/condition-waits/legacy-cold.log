@@ -1,0 +1,23 @@
+test_wait (__main__.SessionCommandTests.test_wait) ... 
+  test_wait (__main__.SessionCommandTests.test_wait) [['--selector', '#late']] ... FAIL
+test_wait_times_out_and_needs_a_condition (__main__.SessionCommandTests.test_wait_times_out_and_needs_a_condition) ... ok
+test_wait_for_network_idle (__main__.SessionCommandTests.test_wait_for_network_idle) ... ok
+test_open_until (__main__.SessionCommandTests.test_open_until) ... ok
+test_until_waits_across_redirects_and_forms (__main__.ReadThroughDaemon.test_until_waits_across_redirects_and_forms) ... ok
+test_until_follows_a_late_hop_to_another_origin (__main__.ReadThroughDaemon.test_until_follows_a_late_hop_to_another_origin) ... ok
+test_an_invalid_until_expression_exits_2_at_the_timeout (__main__.ReadThroughDaemon.test_an_invalid_until_expression_exits_2_at_the_timeout) ... ok
+test_a_resting_tab_is_hidden_until_the_next_command (__main__.RestingTabTests.test_a_resting_tab_is_hidden_until_the_next_command) ... ok
+
+======================================================================
+FAIL: test_wait (__main__.SessionCommandTests.test_wait) [['--selector', '#late']]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/var/tmp/umbra-condition-wait/tests/test_daemon.py", line 594, in test_wait
+    self.assertGreater(time.monotonic() - start, 0.2, 'returned before the page changed')
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0.11354699998628348 not greater than 0.2 : returned before the page changed
+
+----------------------------------------------------------------------
+Ran 8 tests in 44.358s
+
+FAILED (failures=1)

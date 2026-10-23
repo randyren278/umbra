@@ -1,0 +1,24 @@
+test_active_limit_bounds_distinct_tabs (__main__.RuntimeTests.test_active_limit_bounds_distinct_tabs) ... ok
+test_admission_bounded_under_32_clients (__main__.RuntimeTests.test_admission_bounded_under_32_clients) ... ok
+test_cancel_queued_work_never_mutates (__main__.RuntimeTests.test_cancel_queued_work_never_mutates) ... ok
+test_cancel_running_wait_releases_tab_and_checks_owner (__main__.RuntimeTests.test_cancel_running_wait_releases_tab_and_checks_owner) ... ok
+test_cancelled_form_action_and_navigation_remain_reclaimable (__main__.RuntimeTests.test_cancelled_form_action_and_navigation_remain_reclaimable) ... ok
+test_connection_admission_is_bounded (__main__.RuntimeTests.test_connection_admission_is_bounded) ... ok
+test_expired_lease_becomes_available (__main__.RuntimeTests.test_expired_lease_becomes_available) ... ok
+test_lease_enforced_for_navigation_eval_and_close (__main__.RuntimeTests.test_lease_enforced_for_navigation_eval_and_close) ... ok
+test_parallel_tabs_run_at_the_same_time (__main__.RuntimeTests.test_parallel_tabs_run_at_the_same_time) ... ok
+test_parent_cancellation_stops_running_child_and_new_children (__main__.RuntimeTests.test_parent_cancellation_stops_running_child_and_new_children) ... ok
+test_popup_inherits_lease_and_shared_instrumentation_survives (__main__.RuntimeTests.test_popup_inherits_lease_and_shared_instrumentation_survives) ... ok
+test_queue_deadline_includes_waiting_time (__main__.RuntimeTests.test_queue_deadline_includes_waiting_time) ... ok
+test_queued_tab_creation_rechecks_admission_at_execution (__main__.RuntimeTests.test_queued_tab_creation_rechecks_admission_at_execution) ... ok
+test_reclaim_preserves_busy_leased_and_dirty_tabs (__main__.RuntimeTests.test_reclaim_preserves_busy_leased_and_dirty_tabs) ... ok
+test_reclaim_preserves_cross_origin_frame_form_edits (__main__.RuntimeTests.test_reclaim_preserves_cross_origin_frame_form_edits) ... ok
+test_reclaim_preserves_explicit_setter_and_select_edits (__main__.RuntimeTests.test_reclaim_preserves_explicit_setter_and_select_edits) ... ok
+test_request_id_and_deadline_validation (__main__.RuntimeTests.test_request_id_and_deadline_validation) ... ok
+test_request_size_bound_and_persistent_connection (__main__.RuntimeTests.test_request_size_bound_and_persistent_connection) ... ok
+test_tab_commands_serialize_and_other_tabs_progress (__main__.RuntimeTests.test_tab_commands_serialize_and_other_tabs_progress) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 59.825s
+
+OK

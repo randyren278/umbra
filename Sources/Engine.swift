@@ -14,6 +14,69 @@ let downloadsDir: URL = {
     return dir
 }()
 
+private let conditionWaitScript = #"""
+(() => {
+  if (globalThis.__umbraConditionWait) return;
+  const Promise0 = Promise, Observer = MutationObserver;
+  const later = setTimeout.bind(globalThis), clear = clearTimeout.bind(globalThis);
+  const add = Function.call.bind(EventTarget.prototype.addEventListener);
+  const remove = Function.call.bind(EventTarget.prototype.removeEventListener);
+  const observe = Function.call.bind(Observer.prototype.observe);
+  const disconnect = Function.call.bind(Observer.prototype.disconnect);
+  const entries = new Map(), get = entries.get.bind(entries), set = entries.set.bind(entries), drop = entries.delete.bind(entries);
+  const api = {
+    cancel(id) { get(id)?.(); },
+    slice(id, predicate, remaining) {
+      if (entries.size >= 16) return { state: 'budget' };
+      return new Promise0(resolve => {
+        let ended = false, checking = false, dirty = false, expired = false;
+        let sliceTimer, deadlineTimer, eventTimer, observer;
+        const listeners = [];
+        const finish = state => {
+          if (ended) return;
+          ended = true; drop(id);
+          clear(sliceTimer); clear(deadlineTimer); clear(eventTimer);
+          if (observer) disconnect(observer);
+          for (const [target, name, listener] of listeners) remove(target, name, listener, true);
+          resolve({ state });
+        };
+        const schedule = () => {
+          if (ended) return;
+          dirty = true;
+          if (checking || eventTimer !== undefined) return;
+          eventTimer = later(() => { eventTimer = undefined; check(); }, 0);
+        };
+        const check = async () => {
+          if (ended || checking) return;
+          checking = true; dirty = false;
+          let matched = false;
+          try { matched = await predicate(); } catch {}
+          checking = false;
+          if (ended) return;
+          if (matched) return finish('matched');
+          if (expired) return finish('slice');
+          if (dirty) schedule();
+        };
+        const listen = (target, name, listener) => {
+          add(target, name, listener, true);
+          listeners.push([target, name, listener]);
+        };
+        set(id, () => finish('cancelled'));
+        observer = new Observer(schedule);
+        observe(observer, document, { subtree: true, childList: true, attributes: true, characterData: true });
+        for (const name of ['input', 'change', 'load', 'readystatechange', 'visibilitychange', 'DOMContentLoaded', 'transitionend', 'animationend']) listen(document, name, schedule);
+        for (const name of ['pageshow', 'hashchange', 'popstate', 'resize']) listen(globalThis, name, schedule);
+        listen(globalThis, 'pagehide', () => finish('retry'));
+        sliceTimer = later(() => { expired = true; if (!checking) finish('slice'); }, 100);
+        deadlineTimer = later(() => finish('timeout'), remaining);
+        check();
+      });
+    }
+  };
+  Object.defineProperty(globalThis, '__umbraConditionWait', { value: Object.freeze(api) });
+})();
+"""#
+
 private final class FormState: NSObject, WKScriptMessageHandler {
     static let shared = FormState()
     let tabs = NSMapTable<WKWebView, Tab>.weakToWeakObjects()
@@ -52,6 +115,10 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     init(name: String, configuration: WKWebViewConfiguration, engine: Engine) {
         self.name = name
         self.engine = engine
+        let controller = configuration.userContentController
+        if !controller.userScripts.contains(where: { $0.source == conditionWaitScript }) {
+            controller.addUserScript(WKUserScript(source: conditionWaitScript, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .page))
+        }
         let frame = NSRect(origin: .zero, size: engine.size)
         web = WKWebView(frame: frame, configuration: configuration)
         // Ordered in but transparent, click-through and far off screen: WebKit then treats the
@@ -70,7 +137,6 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         web.navigationDelegate = self
         web.uiDelegate = self
         FormState.shared.tabs.setObject(self, forKey: web)
-        let controller = configuration.userContentController
         controller.removeScriptMessageHandler(forName: "umbraDirty", contentWorld: FormState.world)
         controller.add(FormState.shared, contentWorld: FormState.world, name: "umbraDirty")
         if !controller.userScripts.contains(where: { $0.source == FormState.script }) {
@@ -320,21 +386,44 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         }
     }
 
-    /// Polls `condition` every 100 ms in whatever document is current; errors count as false,
-    /// so redirects and half-loaded pages just mean not yet.
+    /// Events recheck a condition promptly; globals and time keep a 100 ms fallback. Errors and
+    /// navigation retry in the current document until the original deadline.
     func wait(until condition: String, _ arguments: [String: Any] = [:], in world: WKContentWorld = .page,
               timeout: Double, done: @escaping (Result<Void, UmbraError>) -> Void) {
-        let deadline = Date().addingTimeInterval(timeout)
+        let deadline = Date().addingTimeInterval(timeout), id = UUID().uuidString
         let generation = operation
+        var completed = false, retry: DispatchSourceTimer?
+        func finish(_ result: Result<Void, UmbraError>) {
+            guard !completed else { return }
+            completed = true
+            retry?.setEventHandler {}; retry?.cancel(); retry = nil
+            web.callAsyncJavaScript("globalThis.__umbraConditionWait?.cancel('\(id)')", arguments: [:], in: nil, in: world) { _ in }
+            done(result)
+        }
+        func timedOut() { finish(.failure(UmbraError(2, "timed out after \(duration(timeout)) waiting for \(condition)"))) }
         func check() {
-            guard generation == self.operation else { return done(.failure(UmbraError(2, "request interrupted"))) }
-            run("return Boolean(\(condition))", arguments, in: world) { result in
-                guard generation == self.operation else { return done(.failure(UmbraError(2, "request interrupted"))) }
-                if case .success(let value) = result, (value as? Bool) == true { return done(.success(())) }
-                if Date() > deadline { return done(.failure(UmbraError(2, "timed out after \(duration(timeout)) waiting for \(condition)"))) }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: check)
+            guard !completed else { return }
+            guard generation == self.operation else { return finish(.failure(UmbraError(2, "request interrupted"))) }
+            guard deadline > Date() else { return timedOut() }
+            let body = conditionWaitScript + "\nreturn globalThis.__umbraConditionWait.slice('\(id)', async () => !!(\(condition)), \(max(0, deadline.timeIntervalSinceNow * 1000)));"
+            run(body, arguments, in: world) { result in
+                guard !completed else { return }
+                guard generation == self.operation else { return finish(.failure(UmbraError(2, "request interrupted"))) }
+                if case .success(let raw) = result, let state = (raw as? [String: Any])?["state"] as? String {
+                    if state == "matched" { return finish(.success(())) }
+                    if state == "timeout" || Date() >= deadline { return timedOut() }
+                    if state == "budget" { return finish(.failure(UmbraError(2, "at most 16 condition waits per document"))) }
+                    if state == "slice" || state == "retry" { return check() }
+                }
+                guard deadline > Date() else { return timedOut() }
+                let timer = DispatchSource.makeTimerSource(queue: .main)
+                retry = timer
+                timer.schedule(deadline: .now() + 0.1)
+                timer.setEventHandler { timer.setEventHandler {}; timer.cancel(); retry = nil; check() }
+                timer.resume()
             }
         }
+        if let generation { engine.runtime.onFinish(generation) { finish(.failure(UmbraError(2, "request interrupted"))) } }
         check()
     }
 

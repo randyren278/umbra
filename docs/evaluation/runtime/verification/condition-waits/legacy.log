@@ -1,0 +1,13 @@
+test_wait (test_daemon.SessionCommandTests.test_wait) ... ok
+test_wait_times_out_and_needs_a_condition (test_daemon.SessionCommandTests.test_wait_times_out_and_needs_a_condition) ... ok
+test_wait_for_network_idle (test_daemon.SessionCommandTests.test_wait_for_network_idle) ... ok
+test_open_until (test_daemon.SessionCommandTests.test_open_until) ... ok
+test_until_waits_across_redirects_and_forms (test_daemon.ReadThroughDaemon.test_until_waits_across_redirects_and_forms) ... ok
+test_until_follows_a_late_hop_to_another_origin (test_daemon.ReadThroughDaemon.test_until_follows_a_late_hop_to_another_origin) ... ok
+test_an_invalid_until_expression_exits_2_at_the_timeout (test_daemon.ReadThroughDaemon.test_an_invalid_until_expression_exits_2_at_the_timeout) ... ok
+test_a_resting_tab_is_hidden_until_the_next_command (test_daemon.RestingTabTests.test_a_resting_tab_is_hidden_until_the_next_command) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 42.340s
+
+OK

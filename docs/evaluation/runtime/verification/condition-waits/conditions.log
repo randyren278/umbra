@@ -1,0 +1,15 @@
+test_async_predicates_do_not_overlap_between_slices (__main__.ConditionWaitTests.test_async_predicates_do_not_overlap_between_slices) ... ok
+test_cancelled_and_deadlined_async_waits_release_capacity_and_public_id (__main__.ConditionWaitTests.test_cancelled_and_deadlined_async_waits_release_capacity_and_public_id) ... ok
+test_dom_and_input_signals_beat_the_polling_interval (__main__.ConditionWaitTests.test_dom_and_input_signals_beat_the_polling_interval) ... ok
+test_false_throwing_and_malformed_conditions_keep_timeout (__main__.ConditionWaitTests.test_false_throwing_and_malformed_conditions_keep_timeout) ... ok
+test_global_and_time_conditions_keep_the_fallback (__main__.ConditionWaitTests.test_global_and_time_conditions_keep_the_fallback) ... ok
+test_native_predicate_works_under_restrictive_csp (__main__.ConditionWaitTests.test_native_predicate_works_under_restrictive_csp) ... ok
+test_navigation_retries_in_the_current_document (__main__.ConditionWaitTests.test_navigation_retries_in_the_current_document) ... ok
+test_original_apis_survive_page_overrides (__main__.ConditionWaitTests.test_original_apis_survive_page_overrides) ... ok
+test_page_boolean_and_global_names_do_not_shadow_the_predicate (__main__.ConditionWaitTests.test_page_boolean_and_global_names_do_not_shadow_the_predicate) ... ok
+test_self_mutating_throwing_predicate_yields_and_stops (__main__.ConditionWaitTests.test_self_mutating_throwing_predicate_yields_and_stops) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 17.177s
+
+OK
