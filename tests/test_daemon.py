@@ -1085,6 +1085,100 @@ class SignInWindowTests(SessionCase):
         self.assertEqual((xhr.returncode, out.decode()), (0, 'Xhr: signed in\n'), err)
         self.assertInvisible(self.profile, 'both done', settle=3)
 
+    def test_request_deadline_hides_its_named_sign_in_prompt(self):
+        self.assertExit(self.run_umbra('open', self.srv.url('/set')), 0)
+        r = self.run_umbra('sign-in', 'Never', '--timeout', '20',
+                           '--agent', 'auth-agent', '--task', 'auth-task', '--request', 'auth-deadline',
+                           '--deadline', str(time.time() + 2))
+        self.assertExit(r, 2)
+        self.assertSays(r, 'Never', 'request deadline')
+        self.assertEqual(self.logins(), ['/login-never'])
+        self.assertInvisible(self.profile, 'request deadline', settle=3)
+        self.assertIn('sess\t127.0.0.1', self.run_umbra('cookies', '127.0.0.1').text, 'cancellation keeps authentication')
+
+    def test_request_deadline_during_auth_check_never_opens_a_late_prompt(self):
+        def delayed(h):
+            time.sleep(2)
+            h.reply(401, '{}', 'application/json')
+        self.srv.route('/api/cancel-slow')(delayed)
+        self.sites = base.write_sites([{'name': 'Slow', 'domain': '127.0.0.1',
+                                        'login': self.srv.url('/login-never'), 'probe': '/api/cancel-slow'}])
+        self.assertExit(self.run_umbra('runtime'), 0)
+        r = self.run_umbra('sign-in', 'Slow', '--timeout', '20', '--request', 'auth-slow',
+                           '--deadline', str(time.time() + 0.5))
+        self.assertExit(r, 2)
+        self.assertSays(r, 'Slow', 'request deadline')
+        time.sleep(3)  # the asynchronous auth check has now answered
+        self.assertEqual(self.logins(), [], 'a finished request must never open its login page')
+        self.assertInvisible(self.profile, 'deadline during auth check', settle=3)
+
+    def test_cancel_named_sign_in_advances_only_its_waiter(self):
+        never = base.spawn('sign-in', 'Never', '--timeout', '20', '--request', 'auth-never',
+                           '--agent', 'auth-agent', '--task', 'auth-task', profile=self.profile, sites=self.sites)
+        self.assertTrue(wait_for(lambda: self.requests('/login-never'), 5))
+        xhr = base.spawn('sign-in', 'Xhr', '--timeout', '20', '--request', 'auth-xhr',
+                         profile=self.profile, sites=self.sites)
+        self.assertTrue(wait_for(lambda: any(item['request'] == 'auth-xhr'
+                                            for item in self.json('tasks', guard=False)['pending']), 5))
+        self.assertExit(self.run_umbra('cancel', 'auth-never', '--agent', 'auth-agent', '--task', 'auth-task'), 0)
+        out, err = never.communicate(timeout=5)
+        self.assertEqual(never.returncode, 2, err)
+        self.assertIn('cancelled', err.decode())
+        out, err = xhr.communicate(timeout=8)
+        self.assertEqual((xhr.returncode, out.decode()), (0, 'Xhr: signed in\n'), err)
+        self.assertInvisible(self.profile, 'cancelled waiter advanced', settle=3)
+
+    def test_cancel_one_of_two_waiters_preserves_the_shared_prompt(self):
+        first = base.spawn('sign-in', 'Never', '--timeout', '20', '--request', 'auth-first',
+                           profile=self.profile, sites=self.sites)
+        self.assertTrue(wait_for(lambda: self.requests('/login-never'), 5))
+        second = base.spawn('sign-in', 'Never', '--timeout', '20', '--request', 'auth-second',
+                            profile=self.profile, sites=self.sites)
+        self.assertTrue(wait_for(lambda: len(self.json('tasks', guard=False)['pending']) == 2, 5))
+        self.assertExit(self.run_umbra('cancel', 'auth-first'), 0)
+        first.communicate(timeout=5)
+        self.assertEqual(first.returncode, 2)
+        [pid] = daemon_pids(self.profile)
+        self.assertTrue(wait_for(lambda: shown([pid]), 5), 'the remaining waiter still needs the prompt')
+        self.assertIsNone(second.poll())
+        self.assertEqual([item['request'] for item in self.json('tasks', guard=False)['pending']], ['auth-second'])
+        self.assertExit(self.run_umbra('cancel', 'auth-second'), 0)
+        second.communicate(timeout=5)
+        self.assertEqual(second.returncode, 2)
+        self.assertInvisible(self.profile, 'last shared waiter cancelled', settle=3)
+
+    def test_mcp_cancellation_hides_only_its_named_sign_in_prompt(self):
+        mcp = base.spawn('mcp', profile=self.profile, sites=self.sites, stdin=subprocess.PIPE)
+        def send(message):
+            mcp.stdin.write((json.dumps(message) + '\n').encode())
+            mcp.stdin.flush()
+        send({'jsonrpc': '2.0', 'id': 'init', 'method': 'initialize',
+              'params': {'protocolVersion': '2025-06-18'}})
+        send({'jsonrpc': '2.0', 'id': 'sign-in', 'method': 'tools/call',
+              'params': {'name': 'sign-in', 'arguments': {'sites': ['Never'], 'timeout': 20,
+                        'request': 'auth-mcp', 'agent': 'mcp-agent', 'task': 'auth-task'}}})
+        self.assertTrue(wait_for(lambda: self.requests('/login-never'), 5))
+        send({'jsonrpc': '2.0', 'method': 'notifications/cancelled', 'params': {'requestId': 'sign-in'}})
+        self.assertTrue(wait_for(lambda: not self.json('tasks', guard=False)['pending'], 5))
+        self.assertInvisible(self.profile, 'MCP sign-in cancelled', settle=3)
+        mcp.stdin.close()
+        mcp.stdin = None
+        out, err = mcp.communicate(timeout=10)
+        self.assertEqual(mcp.returncode, 0, err)
+        self.assertEqual([json.loads(line)['id'] for line in out.splitlines()], ['init'],
+                         'a cancelled MCP call must not emit a late result')
+
+    def test_cancel_named_waiter_preserves_the_persons_account_window(self):
+        self.assertExit(self.run_umbra('sign-in'), 0)
+        never = base.spawn('sign-in', 'Never', '--timeout', '20', '--request', 'auth-pinned',
+                           profile=self.profile, sites=self.sites)
+        self.assertTrue(wait_for(lambda: self.requests('/login-never'), 5))
+        self.assertExit(self.run_umbra('cancel', 'auth-pinned'), 0)
+        never.communicate(timeout=5)
+        self.assertEqual(never.returncode, 2)
+        [pid] = daemon_pids(self.profile)
+        self.assertTrue(shown([pid]), 'the account window belongs to the person who opened it')
+
     def test_no_sign_in_in_time_hides_the_window_again(self):
         r = self.run_umbra('sign-in', 'Never', '--timeout', '3')
         self.assertExit(r, 2)

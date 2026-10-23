@@ -364,7 +364,7 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     /// signs in to each one still signed out and answers once all are; the window closes then
     /// unless the person had it open. Signed-in sites are never shown, and alone open nothing.
     static func request(_ chosen: [Site], named: Bool, save: String? = nil, file: URL = sitesFile, timeout: Double,
-                        reply: @escaping Reply) {
+                        onWaiter: ((UUID) -> Void)? = nil, reply: @escaping Reply) {
         var chosen = chosen
         if let save {  // a new account: remembered now, its cookie learned as the person signs in
             guard chosen.count == 1, !chosen[0].checkable else { return reply(.failure(UmbraError(64, "--save takes one login URL"))) }
@@ -415,6 +415,8 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
             let waiter = Waiter(names: chosen.map(\.name), reply: reply)
             sign.waiters.append(waiter)
             sign.pending += chosen.map(\.name).filter { found[$0] != .yes && !sign.pending.contains($0) }
+            onWaiter?(waiter.id)
+            guard sign.waiters.contains(where: { $0.id == waiter.id }) else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { [weak sign] in sign?.expire(waiter.id, after: timeout) }
             if sign.page == nil { sign.advance() }
             sign.present()
@@ -581,11 +583,21 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         }
     }
 
+    static func cancel(_ id: UUID) {
+        guard let sign = shown, let index = sign.waiters.firstIndex(where: { $0.id == id }) else { return }
+        sign.waiters.remove(at: index)
+        sign.prunePending()
+    }
+
     private func expire(_ id: UUID, after timeout: Double) {
         guard let index = waiters.firstIndex(where: { $0.id == id }) else { return }
         let waiter = waiters.remove(at: index)
         let missing = waiter.names.filter { states[$0] != .yes }
         waiter.reply(.failure(UmbraError(2, "no sign-in within \(duration(timeout)): still signed out of \(missing.joined(separator: ", "))")))
+        prunePending()
+    }
+
+    private func prunePending() {
         pending.removeAll { name in !waiters.contains { $0.names.contains(name) } }  // nobody waits for them now
         guard !pinned else { return }  // the person opened the window: what they see is theirs
         if waiters.isEmpty { return window.close() }
@@ -1221,7 +1233,12 @@ func signInCommands() -> [Command] {
         Command(name: "sign-in", help: "Show the person Umbra's sign-in window. With site names or login URLs, it opens each one still signed out and answers once all are signed in (exit 3 if the window is closed first); a site already signed in answers at once and is never shown. With no sites, the window lists every site.",
                 params: [Param(name: "sites", kind: .array, help: "Site names from the sites file, or login URLs", positional: true),
                          Param(name: "save", kind: .string, help: "Add a login URL to the sites file under this name, as the window's Add Account does: Umbra learns its sign-in cookie, and agents can use it")],
-                usesTab: false, timeout: 900) { args, _, reply in
+                usesTab: false, timeout: 900, deadlineError: { args in
+                    let names = args.strings("sites").map { name in
+                        name.contains("://") ? URL(string: name)?.host ?? "requested site" : String(name.prefix(128))
+                    }
+                    return UmbraError(2, "sign-in exceeded its request deadline while waiting for \(names.isEmpty ? "the requested sites" : names.joined(separator: ", "))")
+                }) { args, engine, reply in
             let names = args.strings("sites")
             let file = args.string("sitesFile").map { URL(fileURLWithPath: $0) } ?? sitesFile  // the caller's, like cwd
             requestSitesFiles.insert(file)  // its keepSession sites are kept too
@@ -1229,7 +1246,9 @@ func signInCommands() -> [Command] {
             case .failure(let error): reply(.failure(error))
             case .success(let chosen):
                 SignInWindow.request(chosen, named: !names.isEmpty, save: args.string("save"), file: file,
-                                     timeout: args.number("timeout") ?? 900, reply: reply)
+                                     timeout: args.number("timeout") ?? 900, onWaiter: { id in
+                    engine.runtime.onCancel(args.operation ?? "") { SignInWindow.cancel(id) }
+                }, reply: reply)
             }
         },
         Command(name: "sign-out", help: "Remove a site's cookies from this profile, so its next sign-in starts fresh. The person's sign-in is gone afterwards: ask them first.",

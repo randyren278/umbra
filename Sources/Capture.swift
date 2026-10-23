@@ -115,6 +115,10 @@ let pageSnapshots = WKSnapshotConfiguration().responds(to: NSSelectorFromString(
 /// 16384 px (which would make that bitmap huge), or a WebKit without whole-page snapshots, grows the tab's window and web view instead (still off
 /// screen and transparent), then shrinks them back and returns to the scroll position.
 func shoot(_ tab: Tab, full: Bool, target: String?, done: @escaping (Result<Shot, UmbraError>) -> Void) {
+    let operation = tab.operation
+    var cancelled = false
+    if let operation { tab.engine.runtime.onCancel(operation) { cancelled = true } }
+    let active = { !cancelled && (operation.map { tab.operation == $0 && tab.engine.runtime.isActive($0) } ?? true) }
     func locate(height: CGFloat?, then: @escaping (Result<[CGFloat], UmbraError>) -> Void) {
         tab.run(locateJS, ["target": target ?? NSNull(), "height": height.map { Double($0) } ?? NSNull()], in: umbraWorld) { result in
             switch result {
@@ -128,6 +132,7 @@ func shoot(_ tab: Tab, full: Bool, target: String?, done: @escaping (Result<Shot
     }
     /// The rect in view coordinates, or with `page`, the rect cut from a whole-page snapshot.
     func snap(_ rect: CGRect, page: Bool = false, scale: CGFloat, cut: Bool, then: @escaping (Result<Shot, UmbraError>) -> Void) {
+        guard active() else { return }
         guard rect.width >= 1, rect.height >= 1 else {
             return then(.failure(UmbraError(4, "\(target ?? "the page") has nothing visible to capture")))
         }
@@ -139,6 +144,7 @@ func shoot(_ tab: Tab, full: Bool, target: String?, done: @escaping (Result<Shot
             unsafeBitCast(config.method(for: selector), to: Setter.self)(config, selector, true)
         }
         tab.web.takeSnapshot(with: config) { image, error in
+            guard active() else { return }
             guard var cg = image?.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
                 return then(.failure(UmbraError(1, "screenshot failed: \(error?.localizedDescription ?? "no image")")))
             }
@@ -153,6 +159,7 @@ func shoot(_ tab: Tab, full: Bool, target: String?, done: @escaping (Result<Shot
         }
     }
     locate(height: nil) { located in
+        guard active() else { return }
         let m: [CGFloat]
         switch located {
         case .failure(let error): return done(.failure(error))
@@ -171,12 +178,24 @@ func shoot(_ tab: Tab, full: Bool, target: String?, done: @escaping (Result<Shot
         let saved = tab.window.frame
         let height = min(max(m[6], view.height), tallest)
         tab.window.setFrame(NSRect(x: saved.minX, y: saved.minY, width: saved.width, height: height), display: false)
+        if let operation {
+            tab.engine.runtime.onCancel(operation) {
+                guard tab.operation == operation, tab.engine.tabs.contains(where: { $0 === tab }) else { return }
+                tab.window.setFrame(saved, display: false)
+                tab.run("scrollTo({left: x, top: y, behavior: 'instant'});", ["x": Double(m[4]), "y": Double(m[5])], in: umbraWorld) { _ in }
+            }
+        }
         // The reply waits for the restore, so the next command sees the page as it was.
         let restore = { (result: Result<Shot, UmbraError>) in
+            guard active() else { return }
             tab.window.setFrame(saved, display: false)
-            tab.run(restoreJS, ["height": Double(view.height), "x": Double(m[4]), "y": Double(m[5])], in: umbraWorld) { _ in done(result) }
+            tab.run(restoreJS, ["height": Double(view.height), "x": Double(m[4]), "y": Double(m[5])], in: umbraWorld) { _ in
+                guard active() else { return }
+                done(result)
+            }
         }
         locate(height: height) { located in
+            guard active() else { return }
             switch located {
             case .failure(let error): restore(.failure(error))
             case .success(let g):
@@ -212,7 +231,9 @@ let screenshotCommand: Command = Command(
     guard ["png", "jpeg", "jpg"].contains(format) else { return reply(.failure(UmbraError(64, "--format takes png or jpeg"))) }
     let jpeg = format != "png"
     let quality = min(max(args.number("quality") ?? 0.8, 0), 1)
+    let operation = tab.operation
     shoot(tab, full: args.bool("full"), target: args.string("target")) { shot in
+        guard operation.map({ tab.operation == $0 && engine.runtime.isActive($0) }) ?? true else { return }
         switch shot {
         case .failure(let error): reply(.failure(error))
         case .success(let shot):
@@ -247,7 +268,11 @@ let pdfCommand: Command = Command(
 ) { args, engine, reply in
     guard let tab = pick(args, engine, reply) else { return }
     guard let file = args.path("path") else { return reply(.failure(UmbraError(64, "pdf needs a path"))) }
+    let operation = tab.operation
+    var cancelled = false
+    if let operation { engine.runtime.onCancel(operation) { cancelled = true } }
     tab.web.createPDF(configuration: WKPDFConfiguration()) { result in
+        guard !cancelled, operation.map({ tab.operation == $0 && engine.runtime.isActive($0) }) ?? true else { return }
         switch result {
         case .failure(let error): reply(.failure(UmbraError(1, "PDF failed: \(error.localizedDescription)")))
         case .success(let data):

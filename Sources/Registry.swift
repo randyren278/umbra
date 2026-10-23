@@ -6,7 +6,11 @@ import Foundation
 struct UmbraError: Error {
     let code: Int32
     let message: String
-    init(_ code: Int32, _ message: String) { self.code = code; self.message = message }
+    let details: [String: Any]
+    init(_ code: Int32, _ message: String, details: [String: Any] = [:]) {
+        self.code = code; self.message = message; self.details = details.filter { $0.key != "code" && $0.key != "message" }
+    }
+    var json: [String: Any] { details.merging(["code": Int(code), "message": message]) { _, reserved in reserved } }
 }
 
 /// A command's answer: JSON-ready values. "text" is what the CLI prints when present.
@@ -29,11 +33,13 @@ struct Command {
     var usesTab = true    // accepts --tab and acts on that tab (the current one by default)
     var mcp = true        // offered as an MCP tool
     var timeout: Double = 30
+    var deadlineError: ((Args) -> UmbraError)? = nil
     let run: (Args, Engine, @escaping Reply) -> Void
 }
 
 struct Args {
     let values: [String: Any]
+    var operation: String? { string("_operation") }
     func string(_ name: String) -> String? { values[name].map { "\($0)" } }
     func number(_ name: String) -> Double? {
         switch values[name] {
@@ -77,12 +83,22 @@ func lookup(_ name: String) -> Command? {
 let globalParams = [
     Param(name: "tab", kind: .string, help: "Tab to act on (default: the current tab)"),
     Param(name: "timeout", kind: .number, help: "Seconds before the command gives up"),
+    Param(name: "agent", kind: .string, help: "Agent owning the task and any tab lease"),
+    Param(name: "task", kind: .string, help: "Task owning the request and any tab lease"),
+    Param(name: "request", kind: .string, help: "Caller-chosen request ID for status and cancellation"),
+    Param(name: "deadline", kind: .number, help: "Absolute UNIX time after which the request must not start"),
 ]
+
+func parameters(_ command: Command) -> [Param] {
+    command.params + globalParams.filter { option in
+        (option.name != "tab" || command.usesTab) && !command.params.contains(where: { $0.name == option.name })
+    }
+}
 
 /// Turns `umbra <command> …` arguments into named values using the command's params.
 func parseArguments(_ command: Command, _ argv: [String]) -> Result<[String: Any], UmbraError> {
     var values: [String: Any] = [:]
-    let params = command.params + (command.usesTab ? globalParams : [globalParams[1]])
+    let params = parameters(command)
     var positionals = command.params.filter(\.positional)
     var index = 0
     func convert(_ param: Param, _ text: String) -> Any? {
@@ -155,7 +171,7 @@ func usageLine(_ command: Command) -> String {
 /// JSON Schema for a command's params, as MCP's tools/list and `umbra schema` present them.
 func inputSchema(_ command: Command) -> [String: Any] {
     var properties: [String: Any] = [:]
-    for param in command.params + (command.usesTab ? globalParams : [globalParams[1]]) {
+    for param in parameters(command) {
         var schema: [String: Any] = ["description": param.help]
         switch param.kind {
         case .array: schema["type"] = "array"; schema["items"] = ["type": "string"]

@@ -18,7 +18,16 @@ const ref = el => {
   return r;
 };
 const deref = r => { const el = refs.get(r)?.deref(); return el && el.isConnected ? el : null; };
-const norm = s => s ? String(s).replace(/[\s\u200b]+/g, ' ').trim() : '';
+let redactions = null;
+const clean = s => {
+  if (!redactions) return s;
+  for (const value of redactions) s = s.split(value).join('[redacted]');
+  return s.replace(/(?:[a-z][a-z0-9+.-]*:\/\/|www\.)[^\s<>"']+|(?:\/[^\s<>"'?]*)?\?[^\s<>"']+/gi, '[URL redacted]')
+    .replace(/\bBearer\s+[^\s"<>]+/gi, 'Bearer [redacted]')
+    .replace(/\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g, '[redacted]')
+    .replace(/\b((?:api[_-]?key|access[_-]?token|refresh[_-]?token|token|password|secret)\s*[:=]\s*)[^\s<>"']+/gi, '$1[redacted]');
+};
+const norm = s => s ? clean(String(s)).replace(/[\s\u200b]+/g, ' ').trim() : '';
 const clip = (s, n) => s.length > n ? s.slice(0, n - 1).trimEnd() + '…' : s;
 const quote = s => '"' + s.replace(/"/g, '\\"') + '"';
 const win = n => (n.ownerDocument || n).defaultView || window;
@@ -198,6 +207,7 @@ function states(el, role, active) {
 }
 
 function valueOf(el, role) {
+  if (redactions && (/^(input|textarea|select)$/.test(el.localName) || el.isContentEditable || el.hasAttribute('aria-valuenow') || el.hasAttribute('aria-valuetext'))) return '[redacted]';
   const t = el.localName;
   if (t === 'input') {
     if (/^(checkbox|radio|button|submit|reset|image|hidden)$/.test(el.type)) return '';
@@ -213,6 +223,7 @@ function valueOf(el, role) {
 }
 
 function hrefOf(el) {
+  if (redactions) return '[URL redacted]';
   const h = el.getAttribute('href');
   if (!h || /^\s*javascript:/i.test(h)) return '';
   try {
@@ -383,6 +394,7 @@ function emit(cx, depth, el, role, proxy) {
 
 function visit(el, depth, cx, ia, inl, pc, inside) {
   if (cx.full) return;
+  if (depth > cx.depth) { cx.depthLimited = true; return; }
   const tag = el.localName;
   if (SKIP.has(tag) || el.getAttribute('aria-hidden') === 'true' || el.inert) return;
   const st = style(el), disp = st.display;
@@ -452,7 +464,7 @@ function frame(el, depth, cx, ia) {
   const r = el.getBoundingClientRect();
   if (!r.width || !r.height || style(el).visibility !== 'visible') return;
   const doc = docOf(el), name = nameOf(el, 'iframe');
-  let src = el.src || '';
+  let src = redactions ? '' : el.src || '';
   try { const u = new URL(src); if (u.origin === location.origin) src = u.pathname + u.search; } catch {}
   if (!ia) push(cx, depth, `- iframe${name ? ' ' + quote(name) : ''}${doc ? '' : ' [cross-origin]'}${src && src !== 'about:blank' ? ' → ' + clip(src, 120) : ''}${doc && doc.body ? ':' : ''}`);
   if (doc && doc.body) visit(doc.body, ia ? depth : depth + 1, cx, ia, false, '', false);
@@ -468,6 +480,22 @@ function row(el, depth, cx, pc, inside) {
 }
 
 function snapshot(a) {
+  if (a._redact) {
+    redactions = [location.href];
+    for (const root of scopes(document)) for (const el of root.querySelectorAll('[href], [src], [action]')) {
+      for (const key of ['href', 'src', 'action']) { const value = el.getAttribute(key); if (value) redactions.push(value); }
+    }
+    for (const root of scopes(document)) for (const el of root.querySelectorAll('input, textarea, select, [contenteditable], [aria-valuenow], [aria-valuetext]')) {
+      for (const value of [el.value, el.isContentEditable ? el.textContent : '', el.getAttribute('aria-valuenow'), el.getAttribute('aria-valuetext')]) {
+        if (value != null && String(value)) redactions.push(String(value));
+      }
+    }
+    redactions = [...new Set(redactions)].sort((a, b) => b.length - a.length);
+  }
+  try { return outline(a); } finally { redactions = null; }
+}
+
+function outline(a) {
   fresh();
   let root = document.body || document.documentElement, note = '';
   if (a.scope) {
@@ -479,11 +507,12 @@ function snapshot(a) {
     const modal = [...document.querySelectorAll('dialog, [aria-modal="true"]')].reverse().find(d => (d.localName !== 'dialog' || d.matches(':modal')) && visible(d));
     if (modal) { root = modal; note = `- note: a modal dialog is open, so only it is shown (--scope body shows the page behind it)\n`; }
   }
-  const cx = { lines: [], size: 0, max: a.max || 25000, full: false, refs: 0, active: deepActive() };
+  const cx = { lines: [], size: 0, max: Math.max(1, Math.min(100000, a.max ?? 25000)), depth: Math.max(0, Math.min(100, a.depth ?? 100)), depthLimited: false, full: false, refs: 0, active: deepActive() };
   if (root) visit(root, 0, cx, !!a.interactive, false, '', false);
   let text = note + (cx.lines.join('\n') || (a.interactive ? '(nothing interactive is visible)' : '(nothing visible)'));
   if (cx.full) text += `\n… cut at ${cx.max} characters; narrow it with --scope <css>${a.interactive ? '' : ' or --interactive'}, or raise --max`;
-  return { text, refs: cx.refs, url: location.href, title: document.title, truncated: cx.full };
+  return a._redact ? { text: clean(text), refs: cx.refs, truncated: cx.full || cx.depthLimited, depthLimited: cx.depthLimited, redacted: true }
+    : { text, refs: cx.refs, url: location.href, title: document.title, truncated: cx.full || cx.depthLimited, depthLimited: cx.depthLimited, doc };
 }
 
 // MARK: Targets
@@ -549,6 +578,17 @@ function find(target) {
 
 // MARK: Actions
 
+function receiptState(el) {
+  if (!el) return null;
+  if (!el.isConnected) return { attached: false };
+  const out = { ref: ref(el), attached: true, focused: deepActive() === el };
+  if ('value' in el && el.type !== 'password') out.value = clip(String(el.value), 1000);
+  if ('checked' in el) out.checked = el.checked;
+  if (el.localName === 'select') out.selected = [...el.selectedOptions].map(o => clip(o.value, 200)).slice(0, 100);
+  out.text = clip(norm(el.innerText || el.textContent), 500);
+  return out;
+}
+
 const TEXTY = /^(text|search|email|password|tel|url|number)$/;
 const SETTER = /^(date|time|datetime-local|month|week|color|range)$/;
 const fillKind = el => el.localName === 'textarea' || el.isContentEditable || el.localName === 'input' && TEXTY.test(el.type) ? 'text'
@@ -556,7 +596,7 @@ const fillKind = el => el.localName === 'textarea' || el.isContentEditable || el
 
 function arm(el, kind) {
   if (obs) obs.off();
-  const o = { seen: {}, nav: null, link: '', submit: false, unloading: false, prevented: null, files: null, subs: [], from: location.href };
+  const o = { target: el, before: receiptState(el), seen: {}, nav: null, link: '', submit: false, unloading: false, prevented: null, files: null, subs: [], from: location.href };
   const on = (t, type, fn, capture = true) => { t.addEventListener(type, fn, capture); o.subs.push(() => t.removeEventListener(type, fn, capture)); };
   const log = e => { if (!(e.type in o.seen)) o.seen[e.type] = e.isTrusted; };
   for (const w of new Set([window, el ? win(el) : window])) {
@@ -587,6 +627,8 @@ function observed() {
   const out = { url: location.href, title: document.title };
   if (!o) return out;
   o.off();
+  out.receipt = { before: o.before, after: receiptState(o.target), document: doc, url: location.href };
+  out.receipt.changed = JSON.stringify(out.receipt.before) !== JSON.stringify(out.receipt.after);
   out.events = o.seen;
   out.files = o.files;
   out.download = !!o.download || !!(o.nav && o.nav.download);
@@ -822,8 +864,160 @@ function get(a) {
   return out;
 }
 
+
+// A fixed-size, document-local baseline cache; no DOM nodes or old documents are retained.
+const baselines = new Map();
+let baselineID = 0, baselineBytes = 0;
+function observe(a) {
+  const now = snapshot(a);
+  if (now.error) return now;
+  if (a._redact) return now;
+  const key = JSON.stringify([a.scope || '', !!a.interactive, a.max ?? 25000, a.depth ?? 100]);
+  const old = a.since && baselines.get(a.since), compatible = old && old.key === key;
+  const token = doc + ':' + ++baselineID;
+  const lines = now.text.split('\n');
+  const saved = { key, lines, bytes: now.text.length * 2 };
+  baselines.set(token, saved); baselineBytes += saved.bytes;
+  while (baselines.size > 8 || baselineBytes > 524288) {
+    const first = baselines.keys().next().value;
+    baselineBytes -= baselines.get(first).bytes; baselines.delete(first);
+  }
+  const out = { ...now, baseline: token, mode: compatible ? 'delta' : 'full' };
+  if (a.since && !compatible) out.reset = old ? 'options-changed' : 'baseline-unavailable';
+  if (compatible) {
+    // Prefix/suffix replacement preserves ordering and duplicate lines, unlike set subtraction.
+    let start = 0, end = 0;
+    while (start < old.lines.length && start < lines.length && old.lines[start] === lines[start]) start++;
+    while (end < old.lines.length - start && end < lines.length - start && old.lines[old.lines.length - 1 - end] === lines[lines.length - 1 - end]) end++;
+    const removed = old.lines.slice(start, old.lines.length - end), added = lines.slice(start, lines.length - end);
+    out.patch = { start, delete: removed.length, lines: added };
+    out.changed = removed.length > 0 || added.length > 0;
+    out.text = out.changed ? `@@ line ${start}, remove ${removed.length}, add ${added.length} @@\n` + added.join('\n') : '(unchanged)';
+  }
+  out.snapshot = out.text;
+  return out;
+}
+
+function extract(a) {
+  fresh();
+  const f = find(a.target);
+  if (!f.el) return { error: f.error };
+  const root = f.el, limit = a.limit ?? 100, textMax = a['text-max'] ?? 1000;
+  let kind = a.kind || (root.matches('table') ? 'table' : root.matches('form') ? 'form' : 'list');
+  let data, truncated = false, remaining = 100000, nodes = 0;
+  const bounded = raw => { const s = String(raw ?? ''); const n = Math.min(textMax, remaining); const value = n ? clip(s, n) : ''; remaining -= value.length; if (s.length > n) truncated = true; return value; };
+  const source = el => { nodes++; return { ref: ref(el), text: bounded(norm(el.innerText ?? el.textContent)) }; };
+  if (kind === 'table') {
+    const rows = root.matches('tr') ? [root] : [...root.querySelectorAll('tr, [role="row"]')];
+    truncated = rows.length > limit;
+    data = [];
+    for (const row of rows.slice(0, limit)) {
+      if (nodes >= 1000 || remaining <= 0) { truncated = true; break; }
+      const cells = [...row.children].filter(c => c.matches('td, th, [role="cell"], [role="columnheader"], [role="rowheader"]'));
+      const count = Math.min(cells.length, 100, 1000 - nodes);
+      if (count < cells.length) truncated = true;
+      data.push({ ref: ref(row), cells: cells.slice(0, count).map(c => ({ ...source(c), header: c.matches('th, [role="columnheader"], [role="rowheader"]') })) });
+    }
+  } else if (kind === 'form') {
+    const fields = [...root.querySelectorAll('input:not([type="hidden"]), textarea, select')];
+    truncated = fields.length > limit;
+    data = fields.slice(0, limit).map(el => {
+      const field = { ref: ref(el), name: clip(el.name || el.id || '', 200), label: nameOf(el, roleOf(el)), type: el.type || el.localName, required: el.required, disabled: el.disabled };
+      if (el.type === 'password') field.redacted = true;
+      else if (el.type === 'checkbox' || el.type === 'radio') field.value = el.checked;
+      else if (el.localName === 'select' && el.multiple) field.value = [...el.selectedOptions].slice(0, 100).map(o => bounded(o.value));
+      else if (el.type === 'number' || el.type === 'range') field.value = el.value !== '' && Number.isFinite(el.valueAsNumber) ? el.valueAsNumber : null;
+      else field.value = bounded(el.value);
+      return field;
+    });
+  } else if (kind === 'list') {
+    const items = [...root.children].filter(el => el.matches('li, [role="listitem"]'));
+    truncated = items.length > limit; data = items.slice(0, limit).map(source);
+  } else return { error: 'kind must be table, form or list' };
+  if (a.schema !== undefined) {
+    const error = schemaRules(a.schema) || schemaCheck(data, a.schema);
+    if (error) return { error };
+  }
+  return { data, kind, source: { ref: ref(root), url: location.href, document: doc }, truncated, text: JSON.stringify(data) };
+}
+
+// A deliberately explicit JSON Schema subset; unsupported constraints fail rather than silently pass.
+function schemaRules(schema, depth = 0) {
+  if (depth > 20) return 'schema nesting exceeds 20';
+  if (typeof schema === 'boolean') return null;
+  if (!schema || typeof schema !== 'object' || Array.isArray(schema)) return 'schema must be an object or boolean';
+  const allowed = new Set(['type', 'properties', 'required', 'additionalProperties', 'items', 'minItems', 'maxItems', 'minLength', 'maxLength', 'minimum', 'maximum', 'enum', 'const', 'description', 'title', '$schema']);
+  for (const key of Object.keys(schema)) if (!allowed.has(key)) return `unsupported schema keyword: ${key}`;
+  if (schema.type && ![schema.type].flat().every(t => ['null', 'boolean', 'object', 'array', 'number', 'integer', 'string'].includes(t))) return 'unsupported schema type';
+  if (schema.required && (!Array.isArray(schema.required) || !schema.required.every(k => typeof k === 'string'))) return 'required must be an array of strings';
+  if (schema.enum && !Array.isArray(schema.enum)) return 'enum must be an array';
+  for (const key of ['minItems', 'maxItems', 'minLength', 'maxLength', 'minimum', 'maximum']) if (key in schema && (typeof schema[key] !== 'number' || !Number.isFinite(schema[key]))) return `${key} must be a number`;
+  if (schema.properties && (typeof schema.properties !== 'object' || Array.isArray(schema.properties))) return 'properties must be an object';
+  const nested = Object.values(schema.properties || {});
+  for (const key of ['items', 'additionalProperties']) if (key in schema) nested.push(schema[key]);
+  for (const child of nested) { const error = schemaRules(child, depth + 1); if (error) return error; }
+  return null;
+}
+
+function schemaCheck(value, schema, path = '$', depth = 0) {
+  if (depth > 20) return 'schema nesting exceeds 20';
+  if (schema === true) return null;
+  if (schema === false) return `${path}: rejected by schema`;
+  if (!schema || typeof schema !== 'object' || Array.isArray(schema)) return `${path}: schema must be an object or boolean`;
+  const allowed = new Set(['type', 'properties', 'required', 'additionalProperties', 'items', 'minItems', 'maxItems', 'minLength', 'maxLength', 'minimum', 'maximum', 'enum', 'const', 'description', 'title', '$schema']);
+  for (const key of Object.keys(schema)) if (!allowed.has(key)) return `unsupported schema keyword: ${key}`;
+  const type = value === null ? 'null' : Array.isArray(value) ? 'array' : typeof value;
+  if (schema.type && ![schema.type].flat().some(t => t === type || t === 'integer' && Number.isInteger(value))) return `${path}: expected ${schema.type}, got ${type}`;
+  if (schema.enum && !schema.enum.some(v => JSON.stringify(v) === JSON.stringify(value))) return `${path}: outside enum`;
+  if ('const' in schema && JSON.stringify(schema.const) !== JSON.stringify(value)) return `${path}: differs from const`;
+  if (typeof value === 'number' && (value < (schema.minimum ?? -Infinity) || value > (schema.maximum ?? Infinity))) return `${path}: outside numeric bounds`;
+  if (typeof value === 'string' && (value.length < (schema.minLength ?? 0) || value.length > (schema.maxLength ?? Infinity))) return `${path}: outside length bounds`;
+  if (Array.isArray(value)) {
+    if (value.length < (schema.minItems ?? 0) || value.length > (schema.maxItems ?? Infinity)) return `${path}: outside item bounds`;
+    if ('items' in schema) for (let i = 0; i < value.length; i++) { const e = schemaCheck(value[i], schema.items, `${path}[${i}]`, depth + 1); if (e) return e; }
+  } else if (value && typeof value === 'object') {
+    if (schema.required && (!Array.isArray(schema.required) || schema.required.some(k => !Object.hasOwn(value, k)))) return `${path}: missing required property`;
+    for (const key of Object.keys(value)) {
+      const rule = schema.properties?.[key] ?? schema.additionalProperties;
+      if (rule !== undefined) { const e = schemaCheck(value[key], rule, `${path}.${key}`, depth + 1); if (e) return e; }
+    }
+  }
+  return null;
+}
+
+const watches = new Map();
+function cancelWatch(id) { watches.get(id)?.(); }
+function watch(a) {
+  if (watches.size >= 16) return { error: 'at most 16 condition watches per document' };
+  const id = a._watch || Symbol();
+  return new Promise(resolve => {
+    let ended = false, timer, observers = [], listeners = [], watched = new WeakSet();
+    const started = performance.now();
+    const finish = out => {
+      if (ended) return; ended = true; watches.delete(id);
+      clearTimeout(timer); observers.forEach(o => o.disconnect()); listeners.forEach(off => off());
+      resolve({ ...out, elapsed: Math.round(performance.now() - started), document: doc });
+    };
+    watches.set(id, () => finish({ matched: false, text: 'condition cancelled' }));
+    const check = () => {
+      if (ended) return;
+      fresh(); const f = find(a.target), el = f.el, state = a.state || 'visible';
+      const value = el ? (state === 'value' ? (el.type === 'password' ? null : current(el)) : clip(norm(el.innerText ?? el.textContent), 10000)) : null;
+      const matched = state === 'attached' ? !!el : state === 'detached' ? !el : state === 'hidden' ? !el || !visible(el) : state === 'text' || state === 'value' ? !!el && value === a.equals : !!el && visible(el);
+      if (matched) return finish({ matched: true, state, ref: el ? ref(el) : null, value, text: `condition ${state} matched` });
+      for (const root of scopes(document)) if (!watched.has(root)) {
+        watched.add(root); const observer = new MutationObserver(check);
+        observer.observe(root, { subtree: true, childList: true, attributes: true, characterData: true }); observers.push(observer);
+        for (const name of ['input', 'change', 'transitionend', 'animationend', 'load']) { root.addEventListener(name, check, true); listeners.push(() => root.removeEventListener(name, check, true)); }
+      }
+    };
+    timer = setTimeout(() => finish({ matched: false, text: 'condition timed out' }), a.duration * 1000);
+    check();
+  });
+}
+
 // find(target) → {el, count} or {error, fatal}: the Capture lane resolves --target with it too.
-globalThis.__umbra = { find: t => { fresh(); return find(t); }, where: () => ({ title: document.title, url: location.href, doc }), snapshot, prepare, observed, fillStart, fillCheck, setValue, focused, armKeys, keyPrevented, selectOptions, stateOf,
+globalThis.__umbra = { find: t => { fresh(); return find(t); }, where: () => ({ title: document.title, url: location.href, doc }), snapshot, observe, extract, watch, cancelWatch, receipt: a => { const f = a.document && a.document !== doc ? {} : a.target ? find(a.target) : { el: deepActive() }; let el = f.el; if (el?.localName === 'label' && el.control) el = el.control; return { state: receiptState(el), url: location.href, document: doc }; }, prepare, observed, fillStart, fillCheck, setValue, focused, armKeys, keyPrevented, selectOptions, stateOf,
   scrollState, syntheticDrag, setFiles, filesOf, get };
 })();
 """#

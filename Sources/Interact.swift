@@ -21,16 +21,23 @@ let navigateJS = """
 extension Tab {
     /// Calls `__umbra.<name>(a)` in umbraWorld, installing the library first if this document lacks it.
     func umbra(_ name: String, _ args: [String: Any] = [:], done: @escaping (Result<[String: Any], UmbraError>) -> Void) {
+        let operation = self.operation
         let body = "const u = globalThis.__umbra; return u ? u.\(name)(a) : 'missing'"
         let answer: (Result<Any?, UmbraError>) -> Void = { result in
+            guard operation == self.operation else { return }
             switch result {
             case .success(let value): done(.success(value as? [String: Any] ?? [:]))
             case .failure(let error): done(.failure(error))
             }
         }
         run(body, ["a": args], in: umbraWorld) { result in
+            guard operation == self.operation else { return }
             guard case .success(let value) = result, value as? String == "missing" else { return answer(result) }
-            self.run(interactLibrary, in: umbraWorld) { _ in self.run(body, ["a": args], in: umbraWorld, done: answer) }
+            self.run(interactLibrary, in: umbraWorld) { loaded in
+                guard operation == self.operation else { return }
+                if case .failure(let error) = loaded { return done(.failure(error)) }
+                self.run(body, ["a": args], in: umbraWorld, done: answer)
+            }
         }
     }
 
@@ -130,9 +137,11 @@ extension Tab {
 
     /// Runs `done` once WebKit has delivered every queued mouse or key event to the page.
     func afterInput(_ kind: String, _ done: @escaping () -> Void) {
+        let operation = self.operation
+        let guarded = { if operation == self.operation { done() } }
         let selector = NSSelectorFromString("_doAfterProcessingAllPending\(kind)Events:")
-        guard web.responds(to: selector) else { return DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: done) }
-        let block: @convention(block) () -> Void = done
+        guard web.responds(to: selector) else { return DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: guarded) }
+        let block: @convention(block) () -> Void = guarded
         web.perform(selector, with: block)
     }
 
@@ -254,9 +263,10 @@ private func withTab(_ engine: Engine, _ args: Args, _ reply: Reply) -> Tab? {
 /// Runs `then` once a main-frame navigation already under way has finished (at most `limit`), so a
 /// command never acts on a page that is about to go away.
 func settled(_ tab: Tab, limit: Double = 5, _ then: @escaping () -> Void) {
+    let operation = tab.operation
     guard tab.web.isLoading else { return then() }
     var done = false
-    let once = { if !done { done = true; then() } }
+    let once = { if !done, operation == tab.operation { done = true; then() } }
     tab.loading.append { _ in once() }
     DispatchQueue.main.asyncAfter(deadline: .now() + limit, execute: once)
 }
@@ -265,8 +275,9 @@ func settled(_ tab: Tab, limit: Double = 5, _ then: @escaping () -> Void) {
 /// covered) or the deadline passes, then answers with where to act.
 func locate(_ tab: Tab, _ args: [String: Any], until deadline: Date, done: @escaping (Result<[String: Any], UmbraError>) -> Void) {
     var tries = 0
-    let started = Date()
+    let started = Date(), operation = tab.operation
     func attempt() {
+        guard operation == tab.operation else { return }
         tab.umbra("prepare", args) { result in
             tries += 1
             var why = "the page was changing"
@@ -314,11 +325,13 @@ struct Before {
 /// After native input: reads what the page observed, then waits for a navigation, pop-up or download
 /// the input started (a navigate event, a new provisional load, a new tab), up to `deadline`.
 func aftermath(_ tab: Tab, _ engine: Engine, _ before: Before, deadline: Date, done: @escaping ([String: Any]) -> Void) {
+    let operation = tab.operation
     tab.umbra("observed") { result in
         var seen = (try? result.get()) ?? ["navigating": true]  // the call fails when the page is unloading
         var finished = false
         let started = Date()
         func finish(_ extra: [String: Any]) {
+            guard operation == tab.operation else { return }
             guard !finished else { return }
             finished = true
             seen.merge(extra) { $1 }
@@ -327,12 +340,14 @@ func aftermath(_ tab: Tab, _ engine: Engine, _ before: Before, deadline: Date, d
         // A download link, or a navigation that left the same document in place (an attachment):
         // wait up to 3 s for the download to finish or fail.
         func downloads(_ extra: [String: Any]) {
+            guard operation == tab.operation else { return }
             let stayed = extra["navigated"] as? Bool == true && extra["doc"] as? String == before.doc
             guard stayed || seen["download"] as? Bool == true || tab.downloads.count > before.downloads else { return finish(extra) }
             var extra = extra
             if stayed { extra["navigated"] = nil }
             let waited = Date()
             func check() {
+                guard operation == tab.operation else { return }
                 if tab.downloads.count > before.downloads {
                     return finish(extra.merging(["downloads": Array(tab.downloads.dropFirst(before.downloads))]) { $1 })
                 }
@@ -342,6 +357,7 @@ func aftermath(_ tab: Tab, _ engine: Engine, _ before: Before, deadline: Date, d
             check()
         }
         func page(_ t: Tab, _ extra: [String: Any]) {
+            guard operation == tab.operation else { return }
             t.umbra("where") { result in
                 let page = (try? result.get()) ?? [:]
                 downloads(extra.merging(["title": page["title"] as? String ?? t.web.title ?? "", "url": page["url"] as? String ?? t.web.url?.absoluteString ?? "",
@@ -349,6 +365,7 @@ func aftermath(_ tab: Tab, _ engine: Engine, _ before: Before, deadline: Date, d
             }
         }
         func follow(_ t: Tab, _ extra: [String: Any]) {
+            guard operation == tab.operation else { return }
             // A pop-up starts at about:blank before its own navigation begins.
             if !t.web.isLoading, t !== tab, (t.web.url?.absoluteString ?? "about:blank") == "about:blank",
                Date().timeIntervalSince(started) < 2, Date() < deadline {
@@ -364,6 +381,7 @@ func aftermath(_ tab: Tab, _ engine: Engine, _ before: Before, deadline: Date, d
             }
         }
         func poll() {
+            guard operation == tab.operation else { return }
             if tab.navigations != before.navigations { return follow(tab, ["navigated": true]) }
             if let opened = engine.tabs.first(where: { t in !before.tabs.contains { $0 === t } }) {
                 return follow(opened, ["newTab": opened.name])
@@ -406,6 +424,14 @@ func outcome(_ tab: Tab, _ before: Before, _ did: String, _ fields: [String: Any
     if let events = fields["events"] as? [String: Any], !events.isEmpty {
         result["trusted"] = events.values.allSatisfy { ($0 as? Bool) == true }
     }
+    var receipt = fields["receipt"] as? [String: Any] ?? [:]
+    receipt["urlBefore"] = before.url
+    receipt["urlAfter"] = url.isEmpty ? tab.web.url?.absoluteString ?? "" : url
+    receipt["navigation"] = fields["navigated"] as? Bool ?? false
+    receipt["dialogs"] = dialogs.count
+    receipt["downloads"] = (fields["downloads"] as? [Any])?.count ?? 0
+    receipt["complete"] = fields["error"] == nil && fields["loading"] as? Bool != true && fields["downloading"] as? Bool != true
+    result["receipt"] = receipt
     result["navigating"] = nil
     result["download"] = nil
     result["doc"] = nil
@@ -431,7 +457,9 @@ func modifierFlags(_ text: String?) -> Result<NSEvent.ModifierFlags, UmbraError>
 func enter(_ text: String, _ tab: Tab, _ info: [String: Any], clear: Bool, clicked: Bool, done: @escaping (Result<[String: Any], UmbraError>) -> Void) {
     let ref = info["ref"] as? String ?? ""
     var start = ""  // what the field held, which type keeps
+    let operation = tab.operation
     func check(_ method: String, retry: Bool, next: @escaping () -> Void) {
+        guard operation == tab.operation else { return }
         tab.umbra("fillCheck", ["ref": ref]) { result in
             guard case .success(let state) = result, state["error"] == nil else {
                 return done(.failure(UmbraError(2, (try? result.get())?["error"] as? String ?? "the field left the page")))
@@ -444,6 +472,7 @@ func enter(_ text: String, _ tab: Tab, _ info: [String: Any], clear: Bool, click
         }
     }
     func setter() {
+        guard operation == tab.operation else { return }
         tab.umbra("setValue", ["ref": ref, "value": clear ? text : start + text]) { result in
             switch result {
             case .success(let state): done(.success(["method": "setter", "value": state["value"] ?? "", "trusted": false]))
@@ -452,6 +481,7 @@ func enter(_ text: String, _ tab: Tab, _ info: [String: Any], clear: Bool, click
         }
     }
     func keys() {
+        guard operation == tab.operation else { return }
         tab.umbra("fillStart", ["ref": ref, "clear": clear]) { _ in
             if text.isEmpty { tab.press(parseKey("Backspace")!) } else { text.forEach { tab.press(characterKey($0)) } }
             tab.afterInput("Key") { check("keys", retry: true, next: setter) }
@@ -511,7 +541,13 @@ final class ActionQueue {
 func serial(_ tab: Tab, limit: Double, _ reply: @escaping Reply, _ body: @escaping (@escaping Reply) -> Void) {
     let queue = tab.extras["actions"] as? ActionQueue ?? ActionQueue()
     tab.extras["actions"] = queue
+    let operation = tab.operation
     let start = {
+        guard operation == tab.operation, operation.map(tab.engine.runtime.isActive) ?? true else {
+            reply(.failure(UmbraError(2, "request interrupted")))
+            if !queue.waiting.isEmpty { queue.waiting.removeFirst()() }
+            return
+        }
         queue.busy = true
         var finished = false
         let next = {
@@ -521,9 +557,28 @@ func serial(_ tab: Tab, limit: Double, _ reply: @escaping Reply, _ body: @escapi
             if !queue.waiting.isEmpty { queue.waiting.removeFirst()() }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + limit, execute: next)
-        body { result in reply(result); next() }
+        if let operation = tab.operation { tab.engine.runtime.onCancel(operation, next) }
+        body { result in
+            guard !finished else { return }
+            reply(result); next()
+        }
     }
     if queue.busy { queue.waiting.append(start) } else { start() }
+}
+
+/// Explicit form edits also include setter paths whose DOM events cannot be trusted input.
+func formActionReply(_ tab: Tab, _ action: String, _ reply: @escaping Reply) -> Reply {
+    guard ["fill", "type", "select", "check", "uncheck"].contains(action) else { return reply }
+    let operation = tab.operation, navigations = tab.navigations
+    return { result in
+        guard operation == tab.operation else { return }
+        if case .success(let fields) = result, fields["error"] == nil,
+           action != "type" || fields["value"] != nil,
+           tab.navigations == navigations, !tab.web.isLoading {
+            tab.dirty = true
+        }
+        reply(result)
+    }
 }
 
 // MARK: Commands
@@ -548,10 +603,14 @@ func interactCommands() -> [Command] {
             """,
                 params: [Param(name: "interactive", kind: .boolean, help: "Only elements with refs, plus headings: compact"),
                          Param(name: "scope", kind: .string, help: "Only this part of the page: a ref, text=…, or CSS selector"),
-                         Param(name: "max", kind: .number, help: "Cut the outline at this many characters (default 25000)")]) { args, engine, reply in
+                         Param(name: "max", kind: .number, help: "Outline character budget, 1–100000 (default 25000)"),
+                         Param(name: "depth", kind: .number, help: "Maximum outline nesting depth, 0–100 (default 100)")]) { args, engine, reply in
             guard let tab = withTab(engine, args, reply) else { return }
-            var a: [String: Any] = ["interactive": args.bool("interactive"), "max": args.number("max") ?? 25000]
-            a["scope"] = args.string("scope")
+            let a: [String: Any]
+            switch observationOptions(args) {
+            case .success(let options): a = options
+            case .failure(let error): return reply(.failure(error))
+            }
             settled(tab) { tab.umbra("snapshot", a) { result in
                 switch result {
                 case .success(let value):
@@ -559,7 +618,7 @@ func interactCommands() -> [Command] {
                     let title = value["title"] as? String ?? "", url = value["url"] as? String ?? ""
                     reply(.success(["text": "\(title.isEmpty ? "(no title)" : title) · \(url)\n\(value["text"] as? String ?? "")",
                                     "snapshot": value["text"] ?? "", "refs": value["refs"] ?? 0, "url": url, "title": title,
-                                    "truncated": value["truncated"] ?? false]))
+                                    "truncated": value["truncated"] ?? false, "depthLimited": value["depthLimited"] ?? false]))
                 case .failure(let error): reply(.failure(error))
                 }
             } }
@@ -779,7 +838,8 @@ func interactCommands() -> [Command] {
                             last = now
                             // Done once it holds still after moving, or never moves (already at the end).
                             if still >= 2 && (now != (startY, startX) || polls > 8) || polls > 40 { return report(state, "scrolled") }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.015, execute: watch)
+                            let operation = tab.operation
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.015) { if operation == tab.operation { watch() } }
                         }
                     }
                     watch()
@@ -896,7 +956,8 @@ func interactCommands() -> [Command] {
                                 tab.uploads = []
                                 return opened ? reply(.failure(UmbraError(2, "the file chooser opened but the page received no files"))) : direct()
                             }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + (tab.uploads.isEmpty ? 0.02 : 0.03), execute: watch)
+                            let operation = tab.operation
+                            DispatchQueue.main.asyncAfter(deadline: .now() + (tab.uploads.isEmpty ? 0.02 : 0.03)) { if operation == tab.operation { watch() } }
                         }
                     }
                     watch()
@@ -945,8 +1006,9 @@ func interactCommands() -> [Command] {
             let attr = args.string("attr")
             var a: [String: Any] = ["target": args.string("target") ?? ""]
             if let attr, attr != "box" { a["attr"] = attr }
-            let deadline = deadlines(args).act
+            let deadline = deadlines(args).act, operation = tab.operation
             func attempt() {
+                guard operation == tab.operation else { return }
                 tab.umbra("get", a) { result in
                     let info = (try? result.get()) ?? [:]
                     switch info["status"] as? String {
@@ -972,10 +1034,43 @@ func interactCommands() -> [Command] {
     ]
     return commands.map { c in
         guard actions.contains(c.name) else { return c }
-        return Command(name: c.name, help: c.help, params: c.params, aliases: c.aliases, usesTab: c.usesTab, mcp: c.mcp, timeout: c.timeout) { args, engine, reply in
+        return Command(name: c.name, help: c.help, params: c.params + [Param(name: "receipt", kind: .boolean, help: "Capture detailed target state before and after (two additional script calls)")], aliases: c.aliases, usesTab: c.usesTab, mcp: c.mcp, timeout: c.timeout) { args, engine, reply in
             guard case .success(let tab) = engine.tab(args) else { return c.run(args, engine, reply) }
             let limit = args.number("timeout").flatMap { $0.isFinite ? max(0, $0) : nil } ?? c.timeout
-            serial(tab, limit: limit + 1, reply) { done in c.run(args, engine, done) }
+            serial(tab, limit: limit + 1, reply) { done in
+                let done = formActionReply(tab, c.name, done)
+                if !args.bool("receipt") {
+                    return c.run(args, engine) { result in
+                        guard case .success(var value) = result else { return done(result) }
+                        if value["receipt"] == nil {
+                            var receipt: [String: Any] = ["action": c.name, "url": tab.web.url?.absoluteString ?? ""]
+                            for key in ["ref", "value", "checked", "selected", "files", "trusted", "focused", "method"] { receipt[key] = value[key] }
+                            value["receipt"] = receipt
+                        }
+                        done(.success(value))
+                    }
+                }
+                tab.umbra("receipt", ["target": args.string("target") ?? ""]) { captured in
+                    let before = (try? captured.get()) ?? [:]
+                    c.run(args, engine) { result in
+                        guard case .success(var value) = result else { return done(result) }
+                        let state = before["state"] as? [String: Any] ?? [:]
+                        tab.umbra("receipt", ["target": state["ref"] as? String ?? args.string("target") ?? "", "document": before["document"] as? String ?? ""]) { captured in
+                            let after = (try? captured.get()) ?? [:]
+                            var receipt = value["receipt"] as? [String: Any] ?? [:]
+                            receipt["before"] = before["state"] ?? NSNull()
+                            receipt["after"] = after["state"] ?? NSNull()
+                            receipt["urlBefore"] = before["url"] ?? ""
+                            receipt["urlAfter"] = after["url"] ?? ""
+                            receipt["documentChanged"] = (before["document"] as? String) != (after["document"] as? String)
+                            receipt["changed"] = !NSDictionary(dictionary: before).isEqual(to: after)
+                            receipt["observed"] = !before.isEmpty && !after.isEmpty
+                            value["receipt"] = receipt
+                            done(.success(value))
+                        }
+                    }
+                }
+            }
         }
     }
 }

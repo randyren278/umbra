@@ -19,12 +19,16 @@ if let index = args.firstIndex(of: "--profile"), index + 1 < args.count {
 }
 
 registry = coreCommands() + interactCommands() + captureCommands() + signInCommands() + keepSignedInCommands()
+registry += runtimeCommands() + observeCommands() + resourceCommands()
+registry += frameCommands()
+registry += eventCommands()
+registry += processCommands()
 _ = sites  // a malformed sites file stops every command (exit 78), before anything else runs
 let json = args.contains("--json")
 args.removeAll { $0 == "--json" }
 // Global options may come before the command too: `umbra --tab work snapshot`.
 var leading: [String] = []
-while args.count >= 2, ["--tab", "--timeout"].contains(args[0]) {
+while args.count >= 2, globalParams.map({ "--" + $0.name }).contains(args[0]) {
     leading += args.prefix(2)
     args.removeFirst(2)
 }
@@ -55,7 +59,8 @@ let overview = """
       schema     Every command and its parameters, as JSON
       serve      Run the daemon in the foreground
 
-    Options: --tab NAME, --timeout SECONDS, --json, --profile NAME (a separate store).
+    Options: --tab NAME, --timeout SECONDS, --agent NAME, --task NAME, --request ID,
+             --deadline UNIX_SECONDS, --json, --profile NAME (a separate store).
     `umbra help <command>` shows a command's parameters.
     """
 
@@ -69,6 +74,16 @@ func seconds(_ name: String, default value: Double) -> Double {
     guard let text = option(name) else { return value }
     guard let number = Double(text), number >= 0 else { fail(64, "\(name) takes a number of seconds\n\n\(oneShots)") }
     return number
+}
+
+func requestContext() -> [String: Any] {
+    var values: [String: Any] = [:]
+    for name in ["agent", "task", "request"] { values[name] = option("--" + name) }
+    if let text = option("--deadline") {
+        guard let deadline = Double(text), deadline.isFinite else { fail(64, "deadline must be finite UNIX seconds") }
+        values["deadline"] = deadline
+    }
+    return values
 }
 
 func stdinText() -> String {
@@ -89,6 +104,11 @@ func show(_ result: Result<[String: Any], UmbraError>) -> Never {
         }
         exit(0)
     case .failure(let error):
+        if json {
+            let data = try! JSONSerialization.data(withJSONObject: jsonSafe(["error": error.json]), options: [.sortedKeys, .withoutEscapingSlashes])
+            say(String(decoding: data, as: UTF8.self))
+            exit(error.code)
+        }
         fail(error.code, error.message)
     }
 }
@@ -105,7 +125,7 @@ case "help", "-h", "--help":
         print(text)
     } else if let name = args.first, let found = lookup(name) {
         print(usageLine(found) + "\n\n" + found.help + "\n")
-        for param in found.params + (found.usesTab ? globalParams : [globalParams[1]]) {
+        for param in parameters(found) {
             print("  " + (param.positional ? param.name : "--\(param.name)").padding(toLength: 14, withPad: " ", startingAt: 0) + param.help)
         }
     } else {
@@ -123,31 +143,35 @@ case "mcp":
 
 // One-shots keep their original contract (raw output, exit codes) whether or not a daemon runs.
 case "read":
+    let context = requestContext()
     let cookie = option("--cookie")
     let wait = seconds("--wait", default: 0)
     let until = option("--until")
     let timeout = seconds("--timeout", default: 90)
     guard args.count == 1, let url = URL(string: args[0]) else { fail(64, usageLine(lookup("read")!)) }
     let script = stdinText()
-    if connectDaemon().map({ close($0) }) != nil {
+    if !context.isEmpty || connectDaemon().map({ close($0) }) != nil {
         var values: [String: Any] = ["url": args[0], "script": script, "wait": wait, "timeout": timeout + wait]
+        values.merge(context) { _, new in new }
         values["cookie"] = cookie
         values["until"] = until
-        switch call("read", values, spawn: false) {
+        switch call("read", values, spawn: !context.isEmpty) {
         case .success(let value): emit(value["output"]); exit(0)
         case .failure(let error): fail(error.code, error.message)
         }
     }
     headless(timeout: timeout + wait) { read(url, script: script, cookie: cookie, wait: wait, until: until) }
 case "fetch":
+    let context = requestContext()
     let from = option("--from")
     let timeout = seconds("--timeout", default: 90)
     guard args.count == 1, let url = URL(string: args[0]), url.host != nil,
           let page = URL(string: from ?? "/robots.txt", relativeTo: url)?.absoluteURL else { fail(64, usageLine(lookup("fetch")!)) }
-    if connectDaemon().map({ close($0) }) != nil {
+    if !context.isEmpty || connectDaemon().map({ close($0) }) != nil {
         var values: [String: Any] = ["url": args[0], "timeout": timeout]
+        values.merge(context) { _, new in new }
         values["from"] = from
-        switch call("fetch", values, spawn: false) {
+        switch call("fetch", values, spawn: !context.isEmpty) {
         case .success(let value):
             FileHandle.standardOutput.write(Data((value["body"] as? String ?? "").utf8))
             let status = value["status"] as? Int ?? 0
@@ -157,11 +181,13 @@ case "fetch":
     }
     headless(timeout: timeout) { fetch(url, from: page) }
 case "download":
+    let context = requestContext()
     let timeout = seconds("--timeout", default: 300)
     guard args.count == 2, let url = URL(string: args[0]) else { fail(64, usageLine(lookup("download")!)) }
     let file = URL(fileURLWithPath: args[1]).standardizedFileURL
-    if connectDaemon().map({ close($0) }) != nil {
-        switch call("download", ["url": args[0], "file": file.path, "timeout": timeout], spawn: false) {
+    if !context.isEmpty || connectDaemon().map({ close($0) }) != nil {
+        let values = ["url": args[0], "file": file.path, "timeout": timeout].merging(context) { _, new in new }
+        switch call("download", values, spawn: !context.isEmpty) {
         case .success: exit(0)
         case .failure(let error): fail(error.code, error.message)
         }
@@ -171,10 +197,12 @@ case "download":
 case "sign-in":
     // The daemon shows the window: it owns the store, so agents keep working while a person signs
     // in. Opening Umbra.app runs this with no arguments.
+    let context = requestContext()
     let timeout = seconds("--timeout", default: 900)
     let save = option("--save")
     if case .failure(let error) = resolveSites(args) { fail(error.code, error.message) }
     var values: [String: Any] = ["sites": args, "timeout": timeout, "sitesFile": sitesFile.path]
+    values.merge(context) { _, new in new }
     values["save"] = save
     show(call("sign-in", values))
 

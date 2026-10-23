@@ -51,22 +51,35 @@ let visibleJS = "(el => { if (!el) return false; const r = el.getBoundingClientR
 // Idle: the document is complete and no new resource has started for 500 ms, checked until the
 // deadline, so a page that polls forever fails at --timeout instead of hanging.
 let idleJS = """
-const end = Date.now() + seconds * 1000;
-let last = -1, since = Date.now();
-while (Date.now() < end) {
-  const count = performance.getEntriesByType('resource').length;
-  if (count !== last || document.readyState !== 'complete') { last = count; since = Date.now(); }
-  else if (Date.now() - since >= 500) return true;
-  await new Promise(r => setTimeout(r, 100));
-}
-return false
+const waits = globalThis.__umbraIdleWaits ||= new Map(), doc = document;
+if (waits.size >= 16) throw new Error('idle wait budget exhausted');
+return await new Promise(resolve => {
+  const end = Date.now() + seconds * 1000;
+  let last = -1, since = Date.now(), timer;
+  const finish = value => {
+    clearTimeout(timer);
+    waits.delete(token);
+    resolve(value);
+  };
+  waits.set(token, () => finish(false));
+  const check = () => {
+    if (Date.now() >= end) return finish(false);
+    const count = performance.getEntriesByType('resource').length;
+    if (count !== last || doc.readyState !== 'complete') { last = count; since = Date.now(); }
+    else if (Date.now() - since >= 500) return finish(true);
+    timer = setTimeout(check, 100);
+  };
+  check();
+});
 """
 
-/// A tab for one-shot work, closed when the command answers, its own timeout included, so a
-/// slow page never leaves a scratch tab behind.
-func scratch(_ engine: Engine, _ kind: String, _ args: Args, timeout fallback: Double,
-             _ reply: @escaping Reply) -> (Tab, Reply) {
+/// The runtime owns this scratch tab's lifetime and deadline.
+func scratch(_ engine: Engine, _ kind: String, _ args: Args, _ reply: @escaping Reply) -> (Tab, Reply)? {
+    if let error = engine.runtime.admissionError(newTab: true) { reply(.failure(error)); return nil }
     let tab = engine.open(name: "\(kind)-\(UUID().uuidString.prefix(6))", select: false)
+    guard engine.runtime.trackScratch(tab, operation: args.operation) else {
+        engine.close(tab); reply(.failure(UmbraError(2, "request is no longer active"))); return nil
+    }
     if engine.current === tab { engine.current = nil }  // never the tab a session command lands on
     tab.busy += 1  // closed here, never for being idle
     var answered = false
@@ -76,9 +89,20 @@ func scratch(_ engine: Engine, _ kind: String, _ args: Args, timeout fallback: D
         engine.close(tab)
         reply(result)
     }
-    let timeout = args.number("timeout") ?? fallback
-    DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { finish(.failure(UmbraError(2, "no answer in \(duration(timeout))"))) }
     return (tab, finish)
+}
+
+private func requestAfter(_ seconds: Double, _ engine: Engine, _ args: Args, _ body: @escaping () -> Void) {
+    guard let request = args.operation, engine.runtime.isActive(request) else { return }
+    let timer = DispatchSource.makeTimerSource(queue: .main)
+    timer.schedule(deadline: .now() + max(0, seconds))
+    timer.setEventHandler {
+        timer.setEventHandler {}; timer.cancel()
+        guard engine.runtime.isActive(request) else { return }
+        body()
+    }
+    timer.resume()
+    engine.runtime.onFinish(request) { timer.setEventHandler {}; timer.cancel() }
 }
 
 func coreCommands() -> [Command] {
@@ -126,6 +150,7 @@ func coreCommands() -> [Command] {
             let name = args.string("name")
             switch args.string("action") {
             case "new":
+                if let error = engine.runtime.admissionError(newTab: true) { return reply(.failure(error)) }
                 if let name, engine.tabs.contains(where: { $0.name == name }) { return reply(.failure(UmbraError(64, "a tab named \(name) is open"))) }
                 reply(.success(pageInfo(engine.open(name: name))))
             case "select":
@@ -170,10 +195,21 @@ func coreCommands() -> [Command] {
                 switch result { case .success: report(tab, reply); case .failure(let error): reply(.failure(error)) }
             }
             if let ms = args.number("ms") {
-                return DispatchQueue.main.asyncAfter(deadline: .now() + ms / 1000) { done(.success(())) }
+                guard ms.isFinite, ms >= 0 else { return reply(.failure(UmbraError(64, "ms must be finite and nonnegative"))) }
+                return requestAfter(ms / 1000, engine, args) { done(.success(())) }
             }
             if args.bool("idle") {
-                return tab.run(idleJS, ["seconds": timeout]) { result in
+                let token = UUID().uuidString
+                var completed = false
+                if let request = args.operation {
+                    engine.runtime.onFinish(request) {
+                        guard !completed else { return }
+                        tab.web.callAsyncJavaScript("globalThis.__umbraIdleWaits?.get(token)?.()", arguments: ["token": token], in: nil, in: umbraWorld) { _ in }
+                    }
+                }
+                return tab.run(idleJS, ["seconds": timeout, "token": token], in: umbraWorld) { result in
+                    completed = true
+                    if case .failure(let error) = result { return done(.failure(error)) }
                     if case .success(let value) = result, (value as? Bool) == true { return done(.success(())) }
                     done(.failure(UmbraError(2, "the network didn't go idle within \(duration(timeout)); the page may keep polling, so wait for --text or --selector instead")))
                 }
@@ -206,12 +242,7 @@ func coreCommands() -> [Command] {
             let begin = {
                 tab.handoff = { report(tab, reply) }
                 tab.reveal(args.string("message") ?? "Finish this step, then close the window")
-                // Whatever happens, the window hides again: on --until, on close, or at the timeout.
-                DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
-                    guard tab.handoff != nil else { return }
-                    tab.handoff = { reply(.failure(UmbraError(2, "handoff timed out after \(duration(timeout))"))) }
-                    tab.endHandoff()
-                }
+                // The runtime closes the handoff at the request deadline.
                 guard let until = args.string("until") else { return }
                 tab.wait(until: until, timeout: timeout) { result in
                     guard tab.handoff != nil, case .success = result else { return }
@@ -256,12 +287,13 @@ func coreCommands() -> [Command] {
                          Param(name: "until", kind: .string, help: "JavaScript condition to wait for, across redirects")],
                 usesTab: false, timeout: 90) { args, engine, reply in
             guard let url = normalizeURL(args.string("url") ?? "") else { return reply(.failure(UmbraError(64, "not a URL"))) }
-            let (tab, finish) = scratch(engine, "read", args, timeout: 90, reply)
+            guard let (tab, finish) = scratch(engine, "read", args, reply) else { return }
             tab.load(url) { loaded in
                 if case .failure(let error) = loaded { return finish(.failure(error)) }
-                DispatchQueue.main.asyncAfter(deadline: .now() + (args.number("wait") ?? 0)) {
+                requestAfter(args.number("wait") ?? 0, engine, args) {
                     let proceed = {
                         store.httpCookieStore.getAllCookies { cookies in
+                            guard let request = args.operation, engine.runtime.isActive(request), tab.operation == request else { return }
                             let host = tab.web.url?.host ?? ""
                             if let cookie = args.string("cookie"), !cookies.contains(where: { $0.name == cookie && $0.sent(to: host) }) {
                                 return finish(.failure(UmbraError(3, "signed out of \(host)")))
@@ -291,7 +323,7 @@ func coreCommands() -> [Command] {
                   let page = URL(string: args.string("from") ?? "/robots.txt", relativeTo: url)?.absoluteURL else {
                 return reply(.failure(UmbraError(64, "fetch needs an absolute URL")))
             }
-            let (tab, finish) = scratch(engine, "fetch", args, timeout: 90, reply)
+            guard let (tab, finish) = scratch(engine, "fetch", args, reply) else { return }
             tab.load(page) { loaded in
                 if case .failure(let error) = loaded { return finish(.failure(error)) }
                 tab.run(fetchScript, ["url": url.absoluteString]) { result in
@@ -307,7 +339,8 @@ func coreCommands() -> [Command] {
         Command(name: "download", help: "Download a URL with the browser's session to a file, replacing it once complete.",
                 params: [Param(name: "url", kind: .string, help: "URL to download", required: true, positional: true),
                          Param(name: "file", kind: .string, help: "Where to save it", required: true, positional: true)],
-                usesTab: false, timeout: 300) { args, _, reply in
+                usesTab: false, timeout: 300) { args, engine, reply in
+            if let error = engine.runtime.admissionError(newTab: true) { return reply(.failure(error)) }
             guard let url = URL(string: args.string("url") ?? "") else { return reply(.failure(UmbraError(64, "not a URL"))) }
             let file = args.path("file")!
             var job: Download?
@@ -316,8 +349,7 @@ func coreCommands() -> [Command] {
                 job = nil
                 code == 0 ? reply(.success(["path": file.path, "text": file.path])) : reply(.failure(UmbraError(code, message)))
             }
-            let timeout = args.number("timeout") ?? 300
-            DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { [weak job] in job?.cancel("no answer in \(duration(timeout))") }
+            if let request = args.operation { engine.runtime.onCancel(request) { [weak job] in job?.cancel("download cancelled") } }
         },
     ]
 }

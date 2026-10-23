@@ -12,6 +12,14 @@ let observeJS = #"""
   if (!handler || location.protocol === 'about:') return;
   const post = body => { try { handler.postMessage(body); } catch {} };
   post({kind: 'doc', url: location.href, mime: document.contentType, t: Date.now()});
+  if (window === window.top) {
+    const changed = () => post({kind: 'url', url: location.href, t: Date.now()});
+    addEventListener('popstate', changed); addEventListener('hashchange', changed);
+    for (const method of ['pushState', 'replaceState']) {
+      const original = history[method];
+      history[method] = function (...args) { const result = original.apply(this, args); changed(); return result; };
+    }
+  }
 
   const say = v => {
     if (typeof v === 'string') return v;
@@ -186,6 +194,8 @@ final class Observer: NSObject, WKScriptMessageHandler {
             return entry
         }
         switch kind {
+        case "url":
+            if main { emitEvent(tab, "url", ["url": body["url"] ?? ""]) }
         case "console":
             state.keep(entry(body), in: &state.console, limit: 500)
         case "start":
@@ -193,6 +203,7 @@ final class Observer: NSObject, WKScriptMessageHandler {
         case "net":
             if ["fetch", "xhr"].contains(body["via"] as? String) { state.inflight = max(0, state.inflight - 1) }
             state.file(entry(body))
+            emitEvent(tab, "network", entry(body))
         case "doc":
             var document = entry(body)
             document["type"] = "document"
@@ -341,11 +352,20 @@ let blockCommand: Command = Command(
     if let unknown = kinds.first(where: { !blockKinds.contains($0) }) {
         return reply(.failure(UmbraError(64, "cannot block \(unknown); choose from \(blockKinds.joined(separator: ", "))")))
     }
-    let tabs: [Tab]
+    var tabs: [Tab]
     if args.bool("all") { tabs = engine.tabs } else {
         guard let tab = pick(args, engine, reply) else { return }
         tabs = [tab]
     }
+    func ownershipError() -> UmbraError? {
+        if args.bool("all") { tabs = engine.tabs }
+        if let error = tabs.compactMap({ engine.runtime.ownerError($0, args) }).first { return error }
+        if args.bool("all"), !kinds.isEmpty || args.bool("none"), let busy = tabs.first(where: { $0.busy > 0 && $0.operation != args.operation }) {
+            return UmbraError(1, "tab \(busy.name) is busy; retry --all after its command completes")
+        }
+        return nil
+    }
+    if let error = ownershipError() { return reply(.failure(error)) }
     func report() {
         let blocked = args.bool("all") ? blockedEverywhere : observed(tabs[0]).blocked
         let list = blockKinds.filter(blocked.contains)
@@ -364,7 +384,12 @@ let blockCommand: Command = Command(
         return report()
     }
     if kinds.isEmpty { return report() }
+    let operation = args.operation
+    var cancelled = false
+    if let operation { engine.runtime.onCancel(operation) { cancelled = true } }
     compile(kinds) { result in
+        guard !cancelled, operation.map(engine.runtime.isActive) ?? true else { return }
+        if let error = ownershipError() { return reply(.failure(error)) }
         if case .failure(let error) = result { return reply(.failure(error)) }
         for tab in tabs {
             for kind in kinds where !observed(tab).blocked.contains(kind) {

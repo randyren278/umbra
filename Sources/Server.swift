@@ -64,10 +64,18 @@ final class Daemon {
     let engine = Engine()
     var lastUsed = Date()
     var inFlight = 0
+    let connections = DispatchSemaphore(value: runtimeLimit("UMBRA_CONNECTIONS", 64, 2...1024))
+    let connectionLock = NSLock()
+    var activeConnections = 0
 
     func run() -> Never {
         // A client that hangs up mid-reply must not take every tab down with it.
         signal(SIGPIPE, SIG_IGN)
+        engine.runtime.connectionCount = { [weak self] in
+            guard let self else { return 0 }
+            self.connectionLock.lock(); defer { self.connectionLock.unlock() }
+            return self.activeConnections
+        }
         // One daemon per profile: a second one bows out before touching the socket, after
         // giving a stopping predecessor a moment to let go.
         var owned = takeLock("daemon", wait: false)
@@ -95,13 +103,19 @@ final class Daemon {
         Thread.detachNewThread {
             while true {
                 let client = accept(listener, nil, nil)
-                if client >= 0 { self.serve(client) }
+                if client >= 0 {
+                    if self.connections.wait(timeout: .now()) == .success { self.serve(client) }
+                    else {
+                        writeAll(client, line(["ok": false, "error": ["code": 1, "message": "connection limit reached; retry later"]]))
+                        close(client)
+                    }
+                }
             }
         }
         Timer.scheduledTimer(withTimeInterval: min(15, max(1, idleLimit / 4)), repeats: true) { _ in
             self.engine.rest(after: idleLimit)
             if !self.engine.tabs.isEmpty { self.engine.attend(knownSites().filter { $0.keepSignedIn == true }) }
-            let busy = self.inFlight > 0 || SignInWindow.handingOff() || SignInWindow.shown != nil
+            let busy = self.inFlight > 0 || SignInWindow.handingOff() || SignInWindow.shown != nil || self.engine.tabs.contains { $0.dirty || $0.activeDownloads > 0 || self.engine.runtime.lease($0) != nil }
             if !busy, Date().timeIntervalSince(self.lastUsed) > idleLimit { self.shutdown() }
         }
         // Cookies reach the disk on the network process's own schedule, and kept session cookies only
@@ -125,7 +139,17 @@ final class Daemon {
 
     /// One thread per connection; its requests run in order, on the main thread.
     func serve(_ fd: Int32) {
+        connectionLock.lock(); activeConnections += 1; connectionLock.unlock()
         Thread.detachNewThread {
+            defer {
+                close(fd)
+                self.connectionLock.lock(); self.activeConnections -= 1; self.connectionLock.unlock()
+                self.connections.signal()
+            }
+            var interval = timeval(tv_sec: 30, tv_usec: 0)
+            setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &interval, socklen_t(MemoryLayout<timeval>.size))
+            setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &interval, socklen_t(MemoryLayout<timeval>.size))
+            let limit = runtimeLimit("UMBRA_REQUEST_BYTES", 8 * 1024 * 1024, 1024...67108864)
             var buffer = Data()
             var chunk = [UInt8](repeating: 0, count: 65536)
             while true {
@@ -138,13 +162,19 @@ final class Daemon {
                         self.handle(Data(request)) { reply = line($0); done.signal() }
                     }
                     done.wait()
+                    if reply.count > 64 * 1024 * 1024 {
+                        reply = line(["ok": false, "error": ["code": 1, "message": "reply exceeds 64 MiB; use a smaller observation or file output"]])
+                    }
                     writeAll(fd, reply)
                 }
                 let count = read(fd, &chunk, chunk.count)
                 if count <= 0 { break }
                 buffer.append(chunk, count: count)
+                if buffer.count > limit {
+                    writeAll(fd, line(["ok": false, "error": ["code": 64, "message": "request exceeds \(limit) bytes"]]))
+                    break
+                }
             }
-            close(fd)
         }
     }
 
@@ -160,30 +190,15 @@ final class Daemon {
             return reply(["id": id, "ok": false, "error": ["code": 64, "message": "unknown command: \(name)"]])
         }
         let args = Args(values: object["args"] as? [String: Any] ?? [:])
-        let timeout = args.number("timeout") ?? command.timeout
-        var answered = false
         inFlight += 1
-        // The tab it acts on stays open and shown while it runs (Engine.rest).
-        let target = { command.usesTab ? try? self.engine.tab(args).get() : nil }
-        let tab = target()
-        tab?.busy += 1
-        func finish(_ result: Result<[String: Any], UmbraError>) {
-            guard !answered else { return }
-            answered = true
-            inFlight -= 1
-            if used { lastUsed = Date() }
-            tab?.busy -= 1
-            target()?.lastUsed = Date()
+        engine.runtime.submit(command, args) { result in
+            self.inFlight -= 1
+            if used { self.lastUsed = Date() }
             switch result {
             case .success(let value): reply(["id": id, "ok": true, "result": value])
-            case .failure(let error): reply(["id": id, "ok": false, "error": ["code": Int(error.code), "message": error.message]])
+            case .failure(let error): reply(["id": id, "ok": false, "error": error.json])
             }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + timeout + 0.5) {
-            finish(.failure(UmbraError(2, "\(name) gave no answer in \(duration(timeout))")))
-        }
-        guard let tab else { return command.run(args, engine, finish) }
-        tab.wake { command.run(args, self.engine, finish) }
     }
 }
 
@@ -291,5 +306,5 @@ func call(_ command: String, _ args: [String: Any], spawn: Bool = true) -> Resul
     }
     if reply["ok"] as? Bool == true { return .success(reply["result"] as? [String: Any] ?? [:]) }
     let error = reply["error"] as? [String: Any]
-    return .failure(UmbraError(Int32(error?["code"] as? Int ?? 1), error?["message"] as? String ?? "failed"))
+    return .failure(UmbraError(Int32(error?["code"] as? Int ?? 1), error?["message"] as? String ?? "failed", details: error ?? [:]))
 }

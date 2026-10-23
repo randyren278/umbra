@@ -44,7 +44,7 @@ VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05']
 CORE = {'open', 'back', 'forward', 'reload', 'tabs', 'tab', 'eval', 'wait', 'status', 'handoff', 'cookies',
         'downloads', 'fetch'}
 READ_ONLY = {'snapshot', 'text', 'markdown', 'screenshot', 'tabs', 'status', 'cookies', 'links', 'html', 'info',
-             'console', 'network', 'downloads', 'get'}
+             'console', 'network', 'downloads', 'get', 'observe', 'extract', 'watch', 'capabilities', 'frames', 'events', 'tasks', 'processes'}
 TYPES = {'string', 'number', 'integer', 'boolean', 'array', 'object', 'null'}
 PAGE = '<!doctype html><title>Umbra MCP</title><h1>Hello from MCP</h1>'
 
@@ -464,7 +464,7 @@ class Calls(unittest.TestCase):
         self.assertIn('open needs url', text(result))
         result = self.server.call('eval', {'script': 'return 1', 'selector': 'h1'})
         self.assertIs(result['isError'], True)
-        self.assertIn('eval has no parameter selector; it takes script, tab, timeout', text(result))
+        self.assertIn('eval has no parameter selector; it takes agent, deadline, request, script, tab, task, timeout', text(result))
         # The server sends its own sites file with each call; a model can't name one.
         result = self.server.call('status', {'sitesFile': '/tmp/elsewhere.json'})
         self.assertIs(result['isError'], True)
@@ -483,11 +483,12 @@ class Calls(unittest.TestCase):
                 self.assertEqual(self.server.request('tools/call', params)['error']['code'], -32602)
 
     def test_calls_run_concurrently(self):
-        self.open_page()
+        for index in range(5):
+            self.server.call('open', {'url': BASE + '/page', 'tab': f'parallel-{index}'})
         delays = [1000, 800, 600, 400, 200]  # ms; the last call sent should answer first
         start = time.monotonic()
         calls = {self.server.send('tools/call', {'name': 'eval', 'arguments': {
-            'script': f'await new Promise(r => setTimeout(r, {ms})); return {index}'}}): index
+            'tab': f'parallel-{index}', 'script': f'await new Promise(r => setTimeout(r, {ms})); return {index}'}}): index
             for index, ms in enumerate(delays)}
         ping = self.server.send('ping')
         answers = [self.server.receive() for _ in range(len(calls) + 1)]
@@ -500,10 +501,11 @@ class Calls(unittest.TestCase):
         self.assertLess(elapsed, 2, 'the calls overlapped instead of running one after another')
 
     def test_long_calls_send_progress_when_the_client_asks(self):
-        self.open_page()
+        for name in ('long', 'short', 'silent'):
+            self.server.call('open', {'url': BASE + '/page', 'tab': 'progress-' + name})
 
         def slow(ms, value, token=None):
-            params = {'name': 'eval', 'arguments': {'script': f'await new Promise(r => setTimeout(r, {ms})); return "{value}"'}}
+            params = {'name': 'eval', 'arguments': {'tab': 'progress-' + value, 'script': f'await new Promise(r => setTimeout(r, {ms})); return "{value}"'}}
             if token is not None:
                 params['_meta'] = {'progressToken': token}
             return self.server.send('tools/call', params)

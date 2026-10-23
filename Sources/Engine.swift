@@ -14,6 +14,16 @@ let downloadsDir: URL = {
     return dir
 }()
 
+private final class FormState: NSObject, WKScriptMessageHandler {
+    static let shared = FormState()
+    let tabs = NSMapTable<WKWebView, Tab>.weakToWeakObjects()
+    static let world = WKContentWorld.world(name: "umbra-form-state")
+    static let script = "addEventListener('input', e => { if (e.isTrusted) webkit.messageHandlers.umbraDirty.postMessage(true) }, true); addEventListener('change', e => { if (e.isTrusted) webkit.messageHandlers.umbraDirty.postMessage(true) }, true)"
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if let web = message.webView { tabs.object(forKey: web)?.dirty = true }
+    }
+}
+
 final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate, NSWindowDelegate {
     let name: String
     let web: WKWebView
@@ -29,6 +39,9 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     var handoff: (() -> Void)?
     var navigations = 0                              // main-frame navigations started; actions compare before and after
     var lastUsed = Date()                            // when a command on it last finished (Engine.rest)
+    var operation: String?
+    var dirty = false
+    var activeDownloads: Int { saving.count }
     var busy = 0                                     // commands on it still running
     private var watchdog = 0                         // the live load watch; older timers and late answers stand down
     private var restarting = false                   // the web process was killed on purpose: not a crash
@@ -54,7 +67,22 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         if web.responds(to: occlusion) { web.perform(occlusion, with: false) }
         web.navigationDelegate = self
         web.uiDelegate = self
+        FormState.shared.tabs.setObject(self, forKey: web)
+        let controller = configuration.userContentController
+        controller.removeScriptMessageHandler(forName: "umbraDirty", contentWorld: FormState.world)
+        controller.add(FormState.shared, contentWorld: FormState.world, name: "umbraDirty")
+        if !controller.userScripts.contains(where: { $0.source == FormState.script }) {
+            controller.addUserScript(WKUserScript(source: FormState.script, injectionTime: .atDocumentStart, forMainFrameOnly: false, in: FormState.world))
+        }
         for setup in tabSetups { setup(self) }
+    }
+
+    func cancelOperation() {
+        operation = nil
+        watchdog += 1
+        web.stopLoading()
+        if handoff != nil { handoff = nil; endHandoff() }
+        finishLoading(.failure(UmbraError(2, "request interrupted")))
     }
 
     func conceal() {
@@ -149,6 +177,8 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        dirty = false
+        emitEvent(self, "url", ["url": webView.url?.absoluteString ?? "", "status": status as Any? ?? NSNull()])
         finishLoading(.success(()))
     }
 
@@ -217,18 +247,23 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         guard let entry = saving.removeValue(forKey: ObjectIdentifier(download)) else { return }
         let size = (try? FileManager.default.attributesOfItem(atPath: entry.path.path)[.size] as? Int) ?? 0
         downloads.append(["url": entry.url, "path": entry.path.path, "bytes": size, "state": "complete"])
+        emitEvent(self, "download", ["state": "complete", "bytes": size])
     }
 
     func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
         let entry = saving.removeValue(forKey: ObjectIdentifier(download))
         downloads.append(["url": entry?.url ?? "", "state": "failed", "error": error.localizedDescription])
+        emitEvent(self, "download", ["state": "failed"])
     }
 
     // MARK: Pop-ups, dialogs and file choosers
 
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
                  for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-        engine.open(name: nil, config: configuration, select: false).web
+        guard engine.runtime.admissionError(newTab: true) == nil else { return nil }
+        let popup = engine.open(name: nil, config: configuration, select: false)
+        if let owner = engine.runtime.lease(self) { engine.runtime.leases[popup.name] = owner }
+        return popup.web
     }
 
     func webViewDidClose(_ webView: WKWebView) {
@@ -239,6 +274,7 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         let reply = nextDialog ?? (true, text)
         nextDialog = nil
         dialogs.append(["type": type, "message": message, "accepted": reply.accept, "text": reply.text as Any? ?? NSNull()])
+        emitEvent(self, "dialog", ["type": type])
         return reply
     }
 
@@ -271,7 +307,9 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     /// Runs `body` as an async function in `world`; the page world sees the page's own globals.
     func run(_ body: String, _ arguments: [String: Any] = [:], in world: WKContentWorld = .page,
              done: @escaping (Result<Any?, UmbraError>) -> Void) {
+        let generation = operation
         web.callAsyncJavaScript(body, arguments: arguments, in: nil, in: world) { result in
+            guard generation == self.operation else { return done(.failure(UmbraError(2, "request interrupted"))) }
             switch result {
             case .success(let value): done(.success(value))
             case .failure(let error): done(.failure(UmbraError(2, "script failed: \(exceptionText(error))")))
@@ -284,8 +322,11 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     func wait(until condition: String, _ arguments: [String: Any] = [:], in world: WKContentWorld = .page,
               timeout: Double, done: @escaping (Result<Void, UmbraError>) -> Void) {
         let deadline = Date().addingTimeInterval(timeout)
+        let generation = operation
         func check() {
+            guard generation == self.operation else { return done(.failure(UmbraError(2, "request interrupted"))) }
             run("return Boolean(\(condition))", arguments, in: world) { result in
+                guard generation == self.operation else { return done(.failure(UmbraError(2, "request interrupted"))) }
                 if case .success(let value) = result, (value as? Bool) == true { return done(.success(())) }
                 if Date() > deadline { return done(.failure(UmbraError(2, "timed out after \(duration(timeout)) waiting for \(condition)"))) }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: check)
@@ -331,6 +372,7 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
 }
 
 final class Engine {
+    lazy var runtime = Runtime(self)
     var tabs: [Tab] = []
     var current: Tab?
     var size = NSSize(width: 1280, height: 900)
@@ -353,7 +395,7 @@ final class Engine {
     /// command shows it again). After `limit` it closes, as the daemon itself exits when unused: a
     /// tab an agent left behind doesn't keep a web process going for days.
     func rest(after limit: Double) {
-        for tab in tabs where tab.busy == 0 && tab.handoff == nil {
+        for tab in tabs where tab.busy == 0 && tab.handoff == nil && tab.activeDownloads == 0 && !tab.dirty && runtime.lease(tab) == nil && !runtime.jobs.contains(where: { $0.tab === tab }) {
             let idle = Date().timeIntervalSince(tab.lastUsed)
             if idle > limit, tab.loading.isEmpty {
                 let wasCurrent = current === tab
@@ -366,6 +408,24 @@ final class Engine {
         }
     }
 
+    /// Only abandoned clean tabs may be reclaimed; active work and state belonging to an agent survive.
+    @discardableResult
+    func reclaim(critical: Bool, pressured: Bool = true) -> Int {
+        guard pressured else { return 0 }
+        var reclaimed = 0
+        for tab in tabs where tab.busy == 0 && tab.handoff == nil && tab.activeDownloads == 0 && !tab.dirty && tab.loading.isEmpty && runtime.lease(tab) == nil && !runtime.jobs.contains(where: { $0.tab === tab }) {
+            guard Date().timeIntervalSince(tab.lastUsed) > (critical ? 5 : 30) else { continue }
+            if critical {
+                let wasCurrent = current === tab
+                close(tab)
+                if wasCurrent { current = nil }
+                closedIdle.insert(tab.name)
+                reclaimed += 1
+            } else { tab.window.orderOut(nil) }
+        }
+        return reclaimed
+    }
+
     /// Tabs on a site kept signed in look attended, resting or not: some sites sign you out after
     /// minutes with no input in an open page (Air Canada after 15), and an agent's tab has none.
     func attend(_ kept: [Site]) {
@@ -376,6 +436,11 @@ final class Engine {
     }
 
     func close(_ tab: Tab) {
+        closeEvents(tab)
+        guard tabs.contains(where: { $0 === tab }) else { return }
+        runtime.leases.removeValue(forKey: tab.name)
+        FormState.shared.tabs.removeObject(forKey: tab.web)
+        tab.operation = nil
         tab.web.stopLoading()
         tab.finishLoading(.failure(UmbraError(4, "the tab closed")))
         tab.window.orderOut(nil)

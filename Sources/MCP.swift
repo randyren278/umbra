@@ -22,7 +22,7 @@ let mcpInstructions = """
 /// Tools that only look, unless they write a file where the caller says (a `path` or `file`
 /// param), which may replace one. Every tool may reach any site.
 let readOnlyTools: Set = ["snapshot", "text", "markdown", "screenshot", "tabs", "status", "cookies", "links",
-                          "html", "info", "console", "network", "downloads", "get"]
+                          "html", "info", "console", "network", "downloads", "get", "observe", "extract", "watch", "capabilities", "frames", "events", "tasks", "processes"]
 
 let errorHints: [Int32: String] = [
     1: "Umbra itself failed; the next call starts it again.",
@@ -63,8 +63,11 @@ func toolResult(_ result: Result<[String: Any], UmbraError>) -> [String: Any] {
     switch result {
     case .failure(let error):
         let text = [error.message, errorHints[error.code]].compactMap { $0 }.joined(separator: "\n")
-        return ["content": [["type": "text", "text": text]], "isError": true]
-    case .success(let value):
+        var value: [String: Any] = ["content": [["type": "text", "text": text]], "isError": true]
+        if !error.details.isEmpty { value["structuredContent"] = error.json }
+        return value
+    case .success(let raw):
+        let value = raw.filter { $0.key != "request" }
         var text = value["text"] as? String ?? ""
         let fields = value.filter { $0.key != "text" && $0.key != "data" && (text.isEmpty || $0.value as? String != text) }
         if text.isEmpty {
@@ -94,6 +97,21 @@ func validID(_ id: Any?) -> Bool {
     return CFGetTypeID(number) != CFBooleanGetTypeID()
 }
 
+private func mcpKey(_ id: Any) -> String {
+    if let text = id as? String { return "s:" + text }
+    return "n:" + String(describing: id)
+}
+
+private final class MCPCall {
+    let request: String
+    let owner: [String: Any]
+    var dispatched = false
+    init(_ arguments: [String: Any]) {
+        request = arguments["request"] as? String ?? UUID().uuidString.lowercased()
+        owner = arguments.filter { ["agent", "task"].contains($0.key) }
+    }
+}
+
 func runMCP() -> Never {
     if args == ["--print-config"] { printMCPConfig() }
     guard args.isEmpty else { fail(64, "usage: umbra mcp [--print-config]") }
@@ -103,7 +121,8 @@ func runMCP() -> Never {
     reaper.setEventHandler { while waitpid(-1, nil, WNOHANG) > 0 {} }
     reaper.resume()
     let output = NSLock()
-    var running = Set<String>()  // tools/call ids not yet answered or cancelled
+    var running: [String: MCPCall] = [:]
+    var workers = 0
     let calls = DispatchGroup()
     func send(_ message: [String: Any]) {
         output.lock()
@@ -129,8 +148,15 @@ func runMCP() -> Never {
         guard let id else {
             if method == "notifications/cancelled", let request = params["requestId"] {
                 output.lock()
-                running.remove("\(request)")
+                let cancelled = running.removeValue(forKey: mcpKey(request))
                 output.unlock()
+                if let cancelled, cancelled.dispatched {
+                    DispatchQueue.global().async {
+                        var values = cancelled.owner
+                        values["id"] = cancelled.request; values["_pending"] = true
+                        _ = call("cancel", values, spawn: false)
+                    }
+                }
             }
             continue
         }
@@ -156,10 +182,17 @@ func runMCP() -> Never {
                 send(rpcError(id, -32602, "arguments must be an object"))
                 continue
             }
-            let key = "\(id)"
+            let key = mcpKey(id)
+            let pending = MCPCall(arguments)
             output.lock()
-            running.insert(key)
+            let duplicate = running[key] != nil
+            let full = workers >= 256
+            if !duplicate, !full { running[key] = pending; workers += 1 }
             output.unlock()
+            if duplicate || full {
+                send(rpcError(id, -32600, duplicate ? "request ID is already active" : "too many active MCP calls"))
+                continue
+            }
             // A client that asked for progress hears from a long call (open, wait, handoff) every 5 s,
             // so an SDK's request timeout doesn't give up on it.
             let heartbeat: DispatchSourceTimer? = {
@@ -170,7 +203,7 @@ func runMCP() -> Never {
                 timer.setEventHandler {
                     let seconds = Int(Date().timeIntervalSince(started).rounded())
                     output.lock()
-                    if running.contains(key) {
+                    if running[key] === pending {
                         writeAll(STDOUT_FILENO, line(["jsonrpc": "2.0", "method": "notifications/progress", "params":
                             ["progressToken": token, "progress": seconds, "message": "\(name): \(seconds) s"]]))
                     }
@@ -184,11 +217,29 @@ func runMCP() -> Never {
                 var values = arguments.filter { !($0.value is NSNull) }  // models send null for "not given"
                 values["cwd"] = values["cwd"] ?? FileManager.default.currentDirectoryPath  // relative paths mean the client's directory
                 let problem = argumentProblem(command, values)
+                values["request"] = pending.request
                 values["sitesFile"] = sitesFile.path  // set after the check, so a model can't choose the file
-                let result: Result<[String: Any], UmbraError> = problem.map { .failure($0) } ?? call(name, values)
+                let result: Result<[String: Any], UmbraError>
+                if let problem { result = .failure(problem) }
+                else {
+                    // Establish the daemon before marking dispatch: an earlier cancellation skips
+                    // the call; a racing cancellation leaves a bounded tombstone at the daemon.
+                    let ready = call("runtime", [:])
+                    output.lock()
+                    let live = running[key] === pending
+                    if live { pending.dispatched = true }
+                    output.unlock()
+                    if !live { result = .failure(UmbraError(2, "MCP request cancelled before dispatch")) }
+                    else if case .failure(let error) = ready { result = .failure(error) }
+                    else { result = call(name, values) }
+                }
                 heartbeat?.cancel()
                 output.lock()
-                if running.remove(key) != nil { writeAll(STDOUT_FILENO, line(rpcResult(id, toolResult(result)))) }
+                workers -= 1
+                if running[key] === pending {
+                    running[key] = nil
+                    writeAll(STDOUT_FILENO, line(rpcResult(id, toolResult(result))))
+                }
                 output.unlock()
                 calls.leave()
             }
