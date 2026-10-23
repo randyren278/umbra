@@ -96,6 +96,12 @@ extension Tab {
         }
     }
 
+    /// A Shift tap: input a page's idle timer counts as a person's, which changes nothing on the page.
+    func nudge() {
+        key(Key(code: 56, chars: "", plain: "", flags: .shift), flags: true)
+        key(Key(code: 56, chars: "", plain: "", flags: []), flags: true)
+    }
+
     private func key(_ key: Key, flags: Bool) {
         eventNumber += 1
         guard let event = NSEvent.keyEvent(with: .flagsChanged, location: .zero, modifierFlags: key.flags,

@@ -27,10 +27,12 @@ jobs:
 
       - run: make build
 
-      # Daemons the tests start exit after 60 idle seconds instead of 15 minutes.
+      # Daemons the tests start exit after 60 idle seconds instead of 15 minutes. Nobody works at
+      # this Mac, so the sign-in and handoff windows show for real (UMBRA_TEST_GUI=1).
       - run: make test
         env:
           UMBRA_IDLE: 60
+          UMBRA_TEST_GUI: 1
 
       - name: WebKit diagnostics
         if: failure()

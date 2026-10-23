@@ -7,6 +7,9 @@ import Darwin
 let socketPath = supportDir.appendingPathComponent(profileFile("daemon", "sock")).path
 let daemonLog = supportDir.appendingPathComponent(profileFile("daemon", "log")).path
 let idleLimit = environment["UMBRA_IDLE"].flatMap(Double.init) ?? 900
+// For the test suite: the sign-in and handoff windows open as usual, but transparent and click-through,
+// and Umbra never comes forward or shows a Dock icon, so the person at the Mac can keep working.
+let unseen = environment["UMBRA_UNSEEN"] == "1"
 let startedAt = Date()
 
 /// JSON-safe copy of a value that came from WebKit (dates, data and other objects included).
@@ -97,6 +100,7 @@ final class Daemon {
         }
         Timer.scheduledTimer(withTimeInterval: min(15, max(1, idleLimit / 4)), repeats: true) { _ in
             self.engine.rest(after: idleLimit)
+            if !self.engine.tabs.isEmpty { self.engine.attend(knownSites().filter { $0.keepSignedIn == true }) }
             let busy = self.inFlight > 0 || SignInWindow.handingOff() || SignInWindow.shown != nil
             if !busy, Date().timeIntervalSince(self.lastUsed) > idleLimit { self.shutdown() }
         }

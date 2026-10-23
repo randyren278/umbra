@@ -108,6 +108,8 @@ With `"keepSignedIn": true`, Umbra visits the site every 10 minutes, so the sess
 
 Cookies the site sets in its answer are kept, so a session cookie the site renews on each request stays current. After the visits, Umbra rewrites the session-only cookies of `keepSession` and `keepSignedIn` sites to expire 30 days later and writes everything to disk.
 
+**Open tabs look attended:** some sites also sign you out from inside an open page that gets no keystroke, mouse move or scroll for a while. Air Canada does it after 15 minutes, "stay signed in" or not. An agent's tab never gets that kind of input, so a tab left on such a site would sign you out everywhere. While the daemon runs, any of its tabs on a `keepSignedIn` site gets a Shift key tap every 15 seconds, which the page counts as input and which changes nothing on it. Tabs a command is using, and handoff windows, are left alone.
+
 **The launch agent:** the visits come from a launchd job in your login session (a LaunchAgent). It runs `umbra keep-signed-in` once when it's installed, at each login, and every 10 minutes by the clock (on the hour, ten past, and so on).
 
 - **Label:** `com.randyren.umbra.keep-signed-in`, or `com.randyren.umbra.keep-signed-in.<profile>` for a profile.

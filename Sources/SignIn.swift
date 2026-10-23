@@ -248,6 +248,7 @@ final class Arrival: NSObject, WKNavigationDelegate {
     private var seen: (look: Signed, times: Int)?
     private var timer: Timer?
     private var probing = false
+    private var loaded = false
 
     static func run(_ site: Site, done: @escaping (Signed, String?) -> Void) {
         guard let url = site.probeScript == nil ? URL(string: site.login) : site.probeURL ?? URL(string: site.login) else {
@@ -271,7 +272,7 @@ final class Arrival: NSObject, WKNavigationDelegate {
 
     private func watch() {
         if let script = site.probeScript {
-            guard !probing else { return }
+            guard loaded, !probing else { return }
             probing = true
             return web.evaluateJavaScript("document.readyState === 'complete'", in: nil, in: .defaultClient) { [weak self] result in
                 guard let self, self.done != nil else { return }
@@ -308,7 +309,19 @@ final class Arrival: NSObject, WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        if (error as NSError).code != NSURLErrorCancelled { finish(.unknown, error.localizedDescription) }
+        if (error as NSError).code != NSURLErrorCancelled { finish(.unknown, "the page failed to load") }
+    }
+
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        loaded = false
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        loaded = true
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        if (error as NSError).code != NSURLErrorCancelled { finish(.unknown, "the page failed to load") }
     }
 }
 
@@ -692,6 +705,12 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     // MARK: Window
 
     func present() {
+        if unseen {
+            window.alphaValue = 0
+            window.ignoresMouseEvents = true
+            window.collectionBehavior = [.canJoinAllSpaces]
+            return window.orderFrontRegardless()
+        }
         NSApp.setActivationPolicy(.regular)  // a Dock icon and a menu bar while the window is up
         installMenus()
         window.makeKeyAndOrderFront(nil)

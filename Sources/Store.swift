@@ -91,9 +91,13 @@ func configuration() -> WKWebViewConfiguration {
 /// Sites files that sign-in requests named besides this process's own (a client may use another).
 var requestSitesFiles: Set<URL> = []
 
+/// The sites as they are now: a daemon outlives edits to the sites file, and requests may name another file.
+func knownSites() -> [Site] {
+    ((try? readSites()) ?? sites) + requestSitesFiles.flatMap { (try? readSites($0)) ?? [] }
+}
+
 func keepSessions(then done: @escaping () -> Void) {
-    // A daemon outlives edits to the sites file, and sign-ins may come from another file.
-    let kept = ((try? readSites()) ?? sites) + requestSitesFiles.flatMap { (try? readSites($0)) ?? [] }
+    let kept = knownSites()
     store.httpCookieStore.getAllCookies { cookies in
         let lasting = cookies.filter { cookie in
             cookie.isSessionOnly && kept.contains { ($0.keepSession == true || $0.keepSignedIn == true) && cookie.within($0.domain) }

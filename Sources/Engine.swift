@@ -300,16 +300,17 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     /// CAPTCHA, a consent screen. Closing the window hands control back.
     func reveal(_ message: String) {
         // A window the person can use, still no Dock icon (unless the sign-in window has one up).
-        if SignInWindow.shown == nil { NSApp.setActivationPolicy(.accessory) }
+        if SignInWindow.shown == nil && !unseen { NSApp.setActivationPolicy(.accessory) }
         installMenus()
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
         window.title = "Umbra · \(message)"
-        window.collectionBehavior = []
-        window.ignoresMouseEvents = false
-        window.alphaValue = 1
+        window.collectionBehavior = unseen ? [.canJoinAllSpaces] : []  // unseen, it is up on whatever Space the person is on
+        window.ignoresMouseEvents = unseen
+        window.alphaValue = unseen ? 0 : 1
         let screen = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
         window.setFrame(NSRect(x: screen.midX - engine.size.width / 2, y: screen.midY - engine.size.height / 2,
                                width: engine.size.width, height: engine.size.height + 28), display: true)
+        if unseen { return window.orderFrontRegardless() }
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
     }
@@ -362,6 +363,15 @@ final class Engine {
             } else if idle > limit / 3, tab.window.isVisible {
                 tab.window.orderOut(nil)
             }
+        }
+    }
+
+    /// Tabs on a site kept signed in look attended, resting or not: some sites sign you out after
+    /// minutes with no input in an open page (Air Canada after 15), and an agent's tab has none.
+    func attend(_ kept: [Site]) {
+        for tab in tabs where tab.busy == 0 && tab.handoff == nil {
+            guard let host = tab.web.url?.host, kept.contains(where: { host == $0.domain || host.hasSuffix("." + $0.domain) }) else { continue }
+            tab.nudge()
         }
     }
 

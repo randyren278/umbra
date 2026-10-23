@@ -2,7 +2,9 @@
 
 Every run gets a throwaway UMBRA_PROFILE, never the default (signed-in) store, and a sites file
 the test controls, never ~/.config/umbra/sites.json. The profile stores and lock files are
-removed when the suite exits, pass or fail.
+removed when the suite exits, pass or fail. The sign-in and handoff windows open unseen
+(UMBRA_UNSEEN=1: transparent, and never in front), so the Mac stays usable while the suite runs;
+UMBRA_TEST_GUI=1 shows them for real, taking focus, and checks what only a real window can show.
 
     python3 tests/test_umbra.py [-v] [TestClass.test_name ...]
     UMBRA=/path/to/umbra python3 tests/test_umbra.py
@@ -30,6 +32,7 @@ from server import Server, free_port  # noqa: E402
 
 REPO = Path(__file__).resolve().parent.parent
 UMBRA = os.environ.get('UMBRA') or str(REPO / 'build/Umbra.app/Contents/MacOS/umbra')
+GUI = os.environ.get('UMBRA_TEST_GUI') == '1'
 STORES = Path.home() / 'Library/WebKit/com.randyren.umbra/WebsiteDataStore'
 LOCKS = Path.home() / 'Library/Application Support/Umbra'
 DOWNLOADS = Path.home() / 'Downloads/Umbra'  # page downloads land in DOWNLOADS/<profile>
@@ -168,7 +171,7 @@ def environment(profile, sites, env=None):
     starts idles out in a minute."""
     assert profile in profiles, 'tests must use new_profile(): never the default store, always cleaned up'
     return {**os.environ, 'UMBRA_PROFILE': profile, 'UMBRA_SITES': str(sites or NO_SITES), 'UMBRA_IDLE': '60',
-            'UMBRA_AGENTS': str(AGENTS), **(env or {})}
+            'UMBRA_AGENTS': str(AGENTS), **({} if GUI else {'UMBRA_UNSEEN': '1'}), **(env or {})}
 
 
 def spawn(*args, profile, input=None, sites=None, stdin=subprocess.DEVNULL, binary=UMBRA, cwd=None, env=None):
@@ -1047,7 +1050,6 @@ class SignInTests(UmbraCase):
                     self.assertEqual(r.out, b'')
 
     @unittest.skipUnless(window_server(), 'no window server (not in an Aqua session): skipping the sign-in window')
-    @unittest.skipIf(os.environ.get('UMBRA_TEST_GUI') == '0', 'UMBRA_TEST_GUI=0')
     def test_the_sign_in_window_opens_and_stays_up(self):
         srv = Server()
         srv.page('/login', '<title>Log in</title><form><input name=user></form>')
@@ -1204,6 +1206,19 @@ class KeepSignedInTests(UmbraCase):
         self.assertExit(self.umbra('read', self.srv.url('/echo'), input='return 1', sites=sites), 0)
         self.assertEqual(self.srv.requests('/echo')[-1].cookies.get('roll'), self.rolled[-1],
                          'the refreshed session cookie survives a fresh process')
+
+    def test_a_rendered_probe_waits_for_the_requested_page_instead_of_initial_blank(self):
+        @self.srv.route('/slow-app')
+        def slow_app(h):
+            time.sleep(1)
+            h.reply(200, '<title>App</title><script>window.appReady = true;</script>')
+
+        sites = self.kept(self.site('App', probe='/slow-app',
+                                   probeScript="if (!window.appReady) throw Error('not initialized'); return true;"))
+        r = self.keep(sites=sites)
+        self.assertExit(r, 0)
+        self.assertReport(r.text, 'App: signed in')
+        self.assertEqual(len(self.srv.requests('/slow-app')), 1)
 
     def test_a_rendered_probe_rejects_a_stale_cookie_and_a_public_200_shell(self):
         self.sign_in()

@@ -12,6 +12,8 @@ make test       # builds if needed, then runs every suite against the build, nev
 
 An invisibility guard runs after every daemon command in the suite. It fails the test if any Umbra window is visible on screen or the daemon has become the frontmost app.
 
+The suite never takes your focus, so you can keep working while it runs. It sets `UMBRA_UNSEEN=1` for every Umbra it starts. The sign-in and handoff windows then open transparent and click-through, Umbra never comes forward or shows a Dock icon, and the tests still read and press those windows. `UMBRA_TEST_GUI=1 make test` shows them for real instead, as CI does. In that mode the windows take focus, and the tests also check the Dock icon and that each window is opaque on screen.
+
 [`bench/`](../bench/README.md) adds the proving-ground app behind the [agent eval](evaluation/README.md) and the [benchmarks](evaluation/latency/README.md).
 
 

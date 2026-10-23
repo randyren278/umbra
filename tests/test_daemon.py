@@ -40,6 +40,11 @@ def window_report(pids):
     return json.loads(lister.stdout.readline())
 
 
+def shown(pids):
+    """The windows that are up where a person would see them: opaque on a display, or transparent there under UMBRA_UNSEEN."""
+    return [w for w in window_report(pids)['windows'] if w['onscreen'] and w['visibleArea'] > 0 and (w['alpha'] > 0 or not base.GUI)]
+
+
 def quit_app(pid):
     """Sends the app Quit, as the Dock or Command-Q does."""
     window_report([])  # starts the helper
@@ -148,6 +153,14 @@ class Guarded:
             front = front_pid()
             # The person may switch apps while the suite runs; Umbra itself must never come forward.
             self.assertTrue(front == self.front or front not in pids, f'the daemon (pid {front}) became the frontmost app')
+
+    def assertBackground(self):
+        """Under UMBRA_UNSEEN, even with its sign-in or handoff window up, the daemon stays behind the person's app, with no Dock icon."""
+        if base.GUI:
+            return
+        for pid in daemon_of(self.profile):
+            self.assertNotEqual(front_pid(), pid, 'the daemon became the frontmost app')
+            self.assertNotEqual(app_type(pid), 'Foreground', 'the daemon showed a Dock icon')
 
 
 class SessionCase(Guarded, base.UmbraCase):
@@ -630,7 +643,6 @@ class SessionCommandTests(SessionCase):
         self.assertEqual(self.eval(VISIBLE), '["visible",true]', 'the tab must look visible to its page again')
 
     @unittest.skipUnless(base.window_server(), 'no window server (not in an Aqua session)')
-    @unittest.skipIf(os.environ.get('UMBRA_TEST_GUI') == '0', 'UMBRA_TEST_GUI=0')
     def test_a_handoff_that_times_out_hides_its_window_again(self):
         # Also proves the guard can see a window: a handoff really shows one, for a moment.
         self.open(self.srv.url('/a'))
@@ -638,8 +650,8 @@ class SessionCommandTests(SessionCase):
             with self.subTest(until=until):
                 proc = base.spawn('handoff', 'look', *until, '--timeout', '2', profile=self.profile)
                 pids = daemon_of(self.profile)
-                seen = wait_for(lambda: [w for w in window_report(pids)['windows']
-                                         if w['onscreen'] and w['alpha'] > 0 and w['visibleArea'] > 0], 5)
+                seen = wait_for(lambda: shown(pids), 5)
+                self.assertBackground()
                 out, err = proc.communicate(timeout=30)
                 self.assertTrue(seen, 'the handoff window never showed')
                 self.assertEqual(proc.returncode, 2, err)
@@ -753,7 +765,35 @@ class RestingTabTests(SessionCase):
         return r.text.rstrip('\n')
 
 
-# MARK: The sign-in window
+class AttendedTabTests(SessionCase):
+    """A tab on a site kept signed in looks attended, resting or not: some sites sign you out after
+    minutes with no keystroke, mouse move or scroll in an open page (Air Canada after 15), and an
+    agent's tab has none of its own."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.srv = srv = Server()
+        # Signs out after 8 s without input, checked as Air Canada's ac_SSO_util_activity.js does.
+        srv.page('/account', '<title>Account</title><script>let last = Date.now();'
+                             ' onkeydown = onmousemove = onscroll = () => { last = Date.now() };'
+                             ' setInterval(() => { if (Date.now() - last > 8000) location.replace("/logout?from=" + location.hostname) }, 500)</script>')
+        srv.page('/logout', '<title>Signed out</title>')
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.srv.close()
+
+    def test_a_kept_sites_tab_never_idles_out_but_another_sites_does(self):
+        sites = base.write_sites([{'name': 'Kept', 'domain': '127.0.0.1', 'login': self.srv.url('/account'),
+                                   'cookie': 'sess', 'keepSignedIn': True}])
+        env = {'UMBRA_IDLE': '30'}  # tabs rest (hidden) after 10 s and close after 30 s; housekeeping every 7.5 s
+        self.assertExit(self.umbra('--tab', 'kept', 'open', self.srv.url('/account'), sites=sites, env=env), 0)
+        self.assertExit(self.umbra('--tab', 'other', 'open', self.srv.url('/account', 'localhost'), sites=sites, env=env), 0)
+        self.srv.wait_for('/logout', timeout=20)
+        time.sleep(26 - 8)  # past the kept tab's rest, and three of its 8 s windows
+        self.assertEqual([r.query for r in self.srv.requests('/logout')], [{'from': 'localhost'}],
+                         'only the tab on a site not kept signed in may sign out')
+
 
 def app_type(pid):
     """How the system runs a process: Foreground (Dock icon), UIElement, or BackgroundOnly."""
@@ -764,7 +804,6 @@ def app_type(pid):
 
 
 @unittest.skipUnless(base.window_server(), 'no window server (not in an Aqua session): skipping the sign-in window')
-@unittest.skipIf(os.environ.get('UMBRA_TEST_GUI') == '0', 'UMBRA_TEST_GUI=0')
 class SignInWindowTests(SessionCase):
     """The window signs a person in and then gets out of the way: a site that is signed in is
     never loaded, so the window can't be used to browse it."""
@@ -831,7 +870,9 @@ class SignInWindowTests(SessionCase):
         self.mark = len(self.srv.log)  # the server is shared: this test's requests come after
 
     def run_umbra(self, *args, **kwargs):
-        return self.umbra(*args, sites=self.sites, guard=False, timeout=90, **kwargs)
+        r = self.umbra(*args, sites=self.sites, guard=False, timeout=90, **kwargs)
+        self.assertBackground()
+        return r
 
     def requests(self, path=None):
         return [r for r in self.srv.log[self.mark:] if path is None or r.path == path]
@@ -900,10 +941,9 @@ class SignInWindowTests(SessionCase):
         r = self.run_umbra('sign-in')
         self.assertExit(r, 0)
         [pid] = daemon_pids(self.profile)
-        self.assertTrue(wait_for(lambda: app_type(pid) == 'Foreground', 5), 'the window should come with a Dock icon')
-        shown = wait_for(lambda: [w for w in window_report([pid])['windows']
-                                  if w['onscreen'] and w['alpha'] > 0 and w['visibleArea'] > 0], 5)
-        self.assertTrue(shown, 'the sign-in window never showed')
+        if base.GUI:
+            self.assertTrue(wait_for(lambda: app_type(pid) == 'Foreground', 5), 'the window should come with a Dock icon')
+        self.assertTrue(wait_for(lambda: shown([pid]), 5), 'the sign-in window never showed')
         time.sleep(2)
         self.assertEqual(self.logins(), [], 'a login page was loaded for a signed-in site')
         # Only the probe reaches a signed-in site with its session; the window's logo lookup goes without cookies.
@@ -1018,7 +1058,7 @@ class SignInWindowTests(SessionCase):
         self.assertExit(self.run_umbra('open', self.srv.url('/welcome')), 0)
         [pid] = daemon_pids(self.profile)
         proc = base.spawn('handoff', 'look', '--timeout', '60', profile=self.profile, sites=self.sites)
-        self.assertTrue(wait_for(lambda: [w for w in window_report([pid])['windows'] if w['onscreen'] and w['alpha'] > 0 and w['visibleArea'] > 0], 10))
+        self.assertTrue(wait_for(lambda: shown([pid]), 10))
         self.assertTrue(quit_app(pid))  # Command-Q in the handoff window, as the Dock or menu sends it
         out, err = proc.communicate(timeout=30)
         self.assertEqual(proc.returncode, 0, err)
@@ -1031,7 +1071,9 @@ class SignInWindowTests(SessionCase):
         self.assertExit(r, 0)
         self.assertEqual(r.text, "Umbra's sign-in window is open\n")
         [pid] = daemon_pids(self.profile)
-        self.assertTrue(wait_for(lambda: app_type(pid) == 'Foreground', 5))
+        self.assertTrue(wait_for(lambda: shown([pid]), 5), 'the sign-in window never showed')
+        if base.GUI:
+            self.assertTrue(wait_for(lambda: app_type(pid) == 'Foreground', 5))
 
     def test_a_request_that_times_out_hands_the_window_to_the_next(self):
         never = base.spawn('sign-in', 'Never', '--timeout', '4', profile=self.profile, sites=self.sites)
