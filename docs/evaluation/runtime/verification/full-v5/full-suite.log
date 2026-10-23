@@ -1,0 +1,238 @@
+== smoke.sh (/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/frozen-candidate-v4/Umbra.app/Contents/MacOS/umbra)
+ok   read returns the script's value
+ok   read with no script prints the page
+ok   read awaits and prints JSON
+ok   read waits for a page global
+ok   a throwing script exits 2
+ok   a missing session cookie exits 3
+ok   an unreachable page exits 4
+ok   a slow script exits 2 at the timeout
+ok   fetch prints the body
+ok   an HTTP error exits 5 and still prints the body
+ok   download saves the exact bytes
+ok   download replaces an existing file
+ok   a download HTTP error exits 5
+ok   concurrent runs take turns
+ok   cookies lists the store
+ok   an unknown command exits 64
+ok   the profile's store is keyed by the bundle identifier and profile name
+all passed
+
+== test_umbra.py
+...................................................................................................
+----------------------------------------------------------------------
+Ran 99 tests in 166.227s
+
+OK
+
+== test_daemon.py
+...........................................................................................................s..................F.FF.....
+======================================================================
+FAIL: test_no_sign_in_in_time_hides_the_window_again (__main__.SignInWindowTests.test_no_sign_in_in_time_hides_the_window_again)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/randyren/Developer/umbra/tests/test_daemon.py", line 1185, in test_no_sign_in_in_time_hides_the_window_again
+    self.assertSays(r, 'Never')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/randyren/Developer/umbra/tests/test_umbra.py", line 228, in assertSays
+    self.assertIn(fact, result.err)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 'Never' not found in 'request deadline elapsed while waiting for daemon reply\n'
+
+======================================================================
+FAIL: test_request_deadline_during_auth_check_never_opens_a_late_prompt (__main__.SignInWindowTests.test_request_deadline_during_auth_check_never_opens_a_late_prompt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/randyren/Developer/umbra/tests/test_daemon.py", line 1110, in test_request_deadline_during_auth_check_never_opens_a_late_prompt
+    self.assertSays(r, 'Slow', 'request deadline')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/randyren/Developer/umbra/tests/test_umbra.py", line 228, in assertSays
+    self.assertIn(fact, result.err)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 'Slow' not found in 'request deadline elapsed while waiting for daemon reply\n'
+
+======================================================================
+FAIL: test_request_deadline_hides_its_named_sign_in_prompt (__main__.SignInWindowTests.test_request_deadline_hides_its_named_sign_in_prompt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/randyren/Developer/umbra/tests/test_daemon.py", line 1094, in test_request_deadline_hides_its_named_sign_in_prompt
+    self.assertSays(r, 'Never', 'request deadline')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/randyren/Developer/umbra/tests/test_umbra.py", line 228, in assertSays
+    self.assertIn(fact, result.err)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 'Never' not found in 'request deadline elapsed while waiting for daemon reply\n'
+
+----------------------------------------------------------------------
+Ran 135 tests in 361.644s
+
+FAILED (failures=3, skipped=1)
+
+== mcp_conformance.py
+................
+initialize, from spawn to answer: best 13.3 ms, median 14.7 ms of 7
+................cleanup: every daemon exited; removed the stores and files of mcp-975fa2bf and mcp-975fa2bf-cold
+
+----------------------------------------------------------------------
+Ran 32 tests in 19.337s
+
+OK
+
+== test_runtime.py
+...................
+----------------------------------------------------------------------
+Ran 19 tests in 56.989s
+
+OK
+
+== test_condition_wait.py
+..........
+----------------------------------------------------------------------
+Ran 10 tests in 14.900s
+
+OK
+
+== test_transport_pressure.py
+..........
+----------------------------------------------------------------------
+Ran 10 tests in 7.171s
+
+OK
+
+== test_popup_ownership.py
+..
+----------------------------------------------------------------------
+Ran 2 tests in 4.022s
+
+OK
+
+== test_observation_efficiency.py
+......
+----------------------------------------------------------------------
+Ran 6 tests in 5.823s
+
+OK
+
+== test_request_identity.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 11.262s
+
+OK
+
+== test_capture_cancel.py
+........
+----------------------------------------------------------------------
+Ran 8 tests in 19.612s
+
+OK
+
+== test_idle_cancel.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 22.246s
+
+OK
+
+== test_headroom.py
+..
+----------------------------------------------------------------------
+Ran 2 tests in 1.019s
+
+OK
+
+== test_observe.py
+.............
+----------------------------------------------------------------------
+Ran 13 tests in 21.925s
+
+OK
+
+== test_watch_cleanup.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 9.957s
+
+OK
+
+== test_frames.py
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 9.596s
+
+OK
+
+== test_events.py
+......
+----------------------------------------------------------------------
+Ran 6 tests in 9.202s
+
+OK
+
+== test_mcp_runtime.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 6.797s
+
+OK
+
+== test_resource_cleanup.py
+......
+----------------------------------------------------------------------
+Ran 6 tests in 21.397s
+
+OK
+
+== test_execution.py
+..................
+----------------------------------------------------------------------
+Ran 18 tests in 52.540s
+
+OK
+
+== test_failure_bundle.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 3.828s
+
+OK
+
+== test_process_metrics.py
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 15.798s
+
+OK
+
+== test_sdk.py
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 5.945s
+
+OK
+
+== summary
+smoke.sh                 passed (12s)
+test_umbra.py            passed, 99 tests (175s)
+test_daemon.py           FAILED, 135 tests, 1 skipped (371s)
+mcp_conformance.py       passed, 32 tests (20s)
+test_runtime.py          passed, 19 tests (58s)
+test_condition_wait.py   passed, 10 tests (16s)
+test_transport_pressure.py passed, 10 tests (8s)
+test_popup_ownership.py  passed, 2 tests (5s)
+test_observation_efficiency.py passed, 6 tests (6s)
+test_request_identity.py passed, 4 tests (12s)
+test_capture_cancel.py   passed, 8 tests (20s)
+test_idle_cancel.py      passed, 5 tests (23s)
+test_headroom.py         passed, 2 tests (2s)
+test_observe.py          passed, 13 tests (23s)
+test_watch_cleanup.py    passed, 4 tests (11s)
+test_frames.py           passed, 9 tests (11s)
+test_events.py           passed, 6 tests (10s)
+test_mcp_runtime.py      passed, 5 tests (8s)
+test_resource_cleanup.py passed, 6 tests (22s)
+test_execution.py        passed, 18 tests (54s)
+test_failure_bundle.py   passed, 4 tests (5s)
+test_process_metrics.py  passed, 7 tests (17s)
+test_sdk.py              passed, 9 tests (6s)
+total 893s

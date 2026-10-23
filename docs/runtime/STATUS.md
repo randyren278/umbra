@@ -1,6 +1,6 @@
 # Runtime delivery status
 
-The full user brief remains the objective. Performance targets are not achieved results. No final comparative matrix, full external campaign or 24-hour soak has started.
+The full user brief remains the objective. Performance targets are not achieved results. The first comparative campaign completed with missed targets. Its full raw evidence is retained; the replacement campaign, full external comparison and 24-hour soak remain pending.
 
 ## Committed implementation
 
@@ -14,29 +14,42 @@ The full user brief remains the objective. Performance targets are not achieved 
 - `fb3a71b`: paired external capability harness and explicitly labelled calibration/plumbing evidence.
 - `40bd72a`: canonical launch-agent paths and short-idle attendance cadence correction. Five unchanged attendance/resting checks and the unchanged launch-agent check pass. Controlled scheduling-delay before/after evidence is retained in `docs/evaluation/runtime/verification/`. Default maintenance interval remains 15 seconds.
 
-## Current immutable candidate
+## Current candidate and measured findings
 
-SHA-256: `b3cab7cfd178ffc10613ec83ae42499148bd4704892491fcad5342a4dd7f5cab`. Product commit: `40bd72a`. Frozen SDK SHA-256: `1de49bf4f21951045660ce112fa94dc888fba1ffaba166c94974b882f88acfdb`.
+Current combined binary SHA-256 `410b10f1943bb8696c7854787715527a3fcd938b2a8dcfecfa4b73aa6890034f`; product source `9425a3a` includes the general event-sensitive wait and transport deadline fixes. Candidate app/SDK: task directory `frozen-candidate-v4/`; manifest `candidate-freeze-v4.json`. Frozen Python SDK SHA remains `1de49bf4f21951045660ce112fa94dc888fba1ffaba166c94974b882f88acfdb`. Root benchmark harness SHA is `5d019177f6bb75c84b89f97c4f6b79c4eaa8f37d0d5393dfeeaba30d4fb07a49`. Workload and three JSON method specifications are unchanged.
 
-The task directory is named by `/tmp/umbra-runtime-current`. Resolve it through `/private/var/...`. Candidate app/SDK are beneath `frozen-candidate-v2/`; full per-source hashes and canonical paths are in `candidate-freeze-v2.json`. Launch copied binaries by canonical path: the `/var` alias causes a WebKit sandbox-extension stderr warning. Installed binaries and the default profile remain untouched.
+Full combined regression v5 FINISHED with exit 1 after 893 seconds: 413 tests across 22 suites, 409 passed, one skipped, three failed; all 17 smoke checks passed. Exact log and hashes are retained in `docs/evaluation/runtime/verification/full-v5/`. All three failures are named sign-in deadline diagnostics replaced by the new client reply timeout. The transport worker is fixing the equal client/server deadline race; original assertions remain unchanged.
 
-Full combined regression PASSED: `/tmp/umbra-final-frozen-full-suite-v3.log`, tool session `39919`. All 18 suites pass: 385 tests, one expected skip, plus 17 smoke checks; runner exit 0, total 822 seconds. See `docs/evaluation/runtime/verification/FULL-SUITE.md` for the retained log and source hashes. `current-runners.json` in the task directory records runner/worker state.
+The preceding 393-test run had one MCP capacity failure; a deterministic socket-pressure reproduction exposed connection retry and reply-budget gaps. Those fixes and ten public transport tests are included in this candidate. The new waits and transport changes passed 25 combined focused checks before this full run, but that subset did not catch the sign-in diagnostic regression.
 
-Superseded candidate `d3168ba9...` completed 385 tests with two failures (launch-agent canonical path and attendance) and one expected skip; every new runtime/SDK suite passed. Its log is `/tmp/umbra-final-frozen-full-suite-v2.log`. Both failed assertions were retained and their fixes are in the current candidate. Earlier alias-path preliminary failure is also retained.
+All comparative measurements are HELD. The performance worker's conditional GO is revoked until the regression is fixed, a new candidate is frozen and its full verification passes. No performance campaign, external episodes or soak is active.
+
+The earlier b3 candidate passed 385 tests / 1 skip + 17 smoke (retained `verification/FULL-SUITE.md`) but failed the first complete performance campaign. The full 60 cells and all raw evidence are retained in `docs/evaluation/runtime/primary-v1/`: 35 budget aborts, 14 cell errors, 40,254 planned/measured failures; only 3/15 eligible pairs per route. All 66 cleanup receipts passed. No complete throughput/RAM/control target was proved.
+
+That trial exposed a cross-agent ownership/lifetime bug. An action mistook unrelated scratch tabs for pop-ups and retained them to a 60-second deadline. `32bad68` binds native opener UUIDs, snapshots IDs and clears follow timers. The paired four-iteration/two-tab probe showed 8 closed WebContent processes retained before, 0 after; fixed peak 170.68 MiB under a 1 GiB guard. Evidence is in `verification/popup-lifetime/`.
+
+The old journey reconstructed all 16 states, but token reductions were SDK 52.27%, CLI 41.62%, MCP 43.35%. SDK’s duplicated full text inflates its denominator. `e05ac3e` now inherits only unchanged metadata from the explicitly requested baseline, preserving full/reset results and bounding metadata cache storage.37 focused checks plus 8 integrated checks passed; actual fresh journey tokens remain unmeasured.
+
+The initial semantic grid had a verifier schema mistake after its actions. Corrected separate diagnostics passed all 1/4/8/16/32 levels with ownership, fairness, cancellation, drain and connection bounds; peak 32-worker family 1231 MiB. The corrected harness reads tasks separately from runtime counters and strictly reconstructs all 6 metadata fields against forced-full. It does not drop payloads from token counts or weaken reset fidelity.
+
+Loaded-control p95 also missed the target. Retained-history attribution showed 95–99% queue time behind same-tab waits with a 100 ms condition poll interval; return 1 JS service was about 1 ms. `7553315` implements a general event-sensitive wait with a bounded 100 ms fallback, original predicate semantics and cancellation cleanup. Fifty focused checks passed. Tab ordering and the frozen eval gate are unchanged; fresh comparative latency proof is pending.
+
+`9425a3a` bounds connection-pressure retries and connected reply reads with the caller's explicit deadline. Read/fetch/download share that budget across readiness and fallback, and MCP preserves arrival-time budgets. The transport lane reports 20 latest-source checks and 15 repeat checks passing; earlier compatibility receipts are distinguished. Exact evidence is retained in `verification/condition-waits/` and `verification/transport-pressure/`.
 
 ## Remaining work in order
 
-1. Functional regression is complete and retained; keep the candidate frozen during measurements.
-2. The corrected hash and CONDITIONAL GO have been sent to `/root/performance_final`: it may start only after a terminal all-pass summary (385 tests, one expected skip), actual test-process exit, hash verification and 30 seconds of quiet settling. The gate has passed; it is taking the 30-second quiet settling period before primary startup. No builds, tests or model episodes during these measurements. Run full primary then secondary matrices, loaded controls, 1/4/8/16/32 ownership/cancel/fairness grid and 16-state observation journey. Preserve aborts/failures; ineligible subsets do not prove targets.
-3. After quiet measurements, start the full paired MiniWoB campaign through `/root/external_final`: 125 tasks x 5 seeds x 2 arms = 1,250 episodes. Worker is prepared and idle; its earlier d316 manifest is superseded and has executed no episodes.
-4. Start the bounded 24-hour localhost soak with the confirmed hash after quiet measurements. Explicitly declare any overlap with external episodes; retain actual PID, heartbeat, elapsed time, memory series, stability and cleanup receipts. No soak is active.
-5. Publish actual measured results, update stat SVGs only from retained evidence, render/check them, and audit every original requirement. Keep the persistent goal active while required work remains.
+1. Integrate and verify the bounded reply-delivery fix, freeze the corrected candidate and run its complete regression. The failed 413-test v5 receipt is retained unchanged.
+2. The performance worker may start only after its conditional regression/cleanup/hash/settling gate passes. Run fresh full primary and secondary directories; retain the earlier failed campaign unchanged. No builds/tests/model episodes during matrices.
+3. Rerun the 16-state actual SDK/CLI/MCP observation journey and all 1/4/8/16/32 semantics with corrected strict metadata reconstruction. Report all target misses and denominators, not a passing subset.
+4. Only after final quiet measurements, resume `/root/external_final` with a confirmed hash and explicit GO for 125 tasks x 5 seeds x 2 arms = 1,250 episodes. Its preparation is complete; old d316 preflight is superseded, zero episodes launched. Exact handoff: task directory `external-final/continue.md`.
+5. Start the bounded 24-hour localhost soak only after quiet measurements; declare overlap with external episodes. Retain actual PID/heartbeat/elapsed/resource/stability/cleanup evidence. No soak is active.
+6. Publish final measured results and update stat SVGs only from evidence; render/check them and audit every original requirement. Keep the goal active while required work remains.
 
 ## Resume and safety
 
 Task directory currently `/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx`. Baseline app: `baseline-app/Umbra.app/Contents/MacOS/umbra`, SHA-256 `1a71d178d1899b5610adf065128167efadae7e054b27e18d7b06cc6681b8dd47`; baseline source tree `4e07d2462a46c5b8fe71837cb0ddcf7677cec18e`.
 
-Performance lane is task directory `runtime`; exact commands and fixed harness hashes are in `performance-result.md` and `performance-handoff.json`. Root six frozen harness files match that handoff. Workload SHA-256 `bd536999c3efca63a69c02160bf2122597a05970f9a711d912d8c6cd936d8318`. Use task directory `tokenizer-venv/bin/python` with actual pinned tiktoken.
+Performance lane is task directory `runtime`; exact commands and fixed harness hashes are in `performance-result.md` and `performance-handoff.json`. The older handoff describes commands; its original harness hash is superseded by the hash above and `performance-final-v2-freeze-check.json`. Root and lane harness files match the current freeze. Workload SHA-256 `bd536999c3efca63a69c02160bf2122597a05970f9a711d912d8c6cd936d8318`. Use task directory `tokenizer-venv/bin/python` with actual pinned tiktoken.
 
 External dependencies: `/private/tmp/umbra-runtime-external.SXH9wg`; preparation in `docs/evaluation/runtime/external/PREPARATION.md`. Final worker owns its prepared `external-final` directory; do not restart an active campaign or substitute calibration for full proof.
 

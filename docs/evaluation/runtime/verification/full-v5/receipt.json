@@ -1,0 +1,192 @@
+{
+  "createdUTC": "2026-10-23T10:05:30.626165+00:00",
+  "binary": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/frozen-candidate-v4/Umbra.app/Contents/MacOS/umbra",
+  "binarySha256": "410b10f1943bb8696c7854787715527a3fcd938b2a8dcfecfa4b73aa6890034f",
+  "sdk": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/frozen-candidate-v4/sdk/python/umbra.py",
+  "sdkSha256": "1de49bf4f21951045660ce112fa94dc888fba1ffaba166c94974b882f88acfdb",
+  "productCommit": "9425a3a",
+  "sourceBase": "1776f2736914f698b55596ce3604657fb5594f63",
+  "sourceSha256": {
+    "Sources/Capture.swift": "41d1781724bae9852920e0cccdaf0d15b97408175e7430d269b5453054c6f966",
+    "Sources/CaptureObserve.swift": "49813c7b8fb9321d8e60011623706d6e3f27b92f67838cc503a8c0e59d3cbb04",
+    "Sources/CaptureText.swift": "d073e228adab6a57bb7e19a38f6c012b2b1f5add0c953e3402488ed481adac92",
+    "Sources/CoreCommands.swift": "0ff25a6b357ea96d2e2b2a971cf58da3a99061d87d3c2065a0bac0349c66e360",
+    "Sources/Engine.swift": "fe4e1ce3a948bcc9f6a14ee4ace7d4a40fe0f5432f0b10ece725fdaf6c0609e7",
+    "Sources/Events.swift": "b64dade352506347d4737022ac4ff5d2a56642c057306f2c0a3a2b8ae23ee135",
+    "Sources/Execution.swift": "2e9ab3cb9c137d2d7f3e0b7579ff97d1e6d7688f8f878273a7a29050df565fb2",
+    "Sources/Frames.swift": "706f5675cba05ba0cf9e2ed4d0d5e59794ec6c25ed61742a003638ee9b96ada6",
+    "Sources/Inspector.swift": "1d9ca761e0c3b80dce7b321410287f1d01d0599f9b3d67b49305a6e7bba9c9fb",
+    "Sources/Interact.swift": "f3f425230630bcb3655a3c103eb4c7213b4268f7fdd5bf983679e5a1072d140c",
+    "Sources/InteractJS.swift": "4a7d09cc7013e2d7f631742b2d58cca23071fb0d605a213a9767235610d63d98",
+    "Sources/KeepSignedIn.swift": "fef876b4d600b6e9abf629f79a5ad232f34ed87b2d4ecadd297697a6c0194094",
+    "Sources/Logo.swift": "38211ceee82cf649e6317c810a3ae92768e192dad305f312c6acb49460acad43",
+    "Sources/MCP.swift": "3d87a746928a3b8a273d06c1a1bd883a7b58e35c8f8b056c102a009a089947f2",
+    "Sources/Observe.swift": "410d50f8bc6882ee6f17af5fd677bcfb9a8b8f0ace4d684ff1628a5610e91f54",
+    "Sources/OneShot.swift": "69c23999fa67fd6335e247eb17ee2bb965180744dfe7a3f19a44c647446eeee6",
+    "Sources/ProcessMetrics.swift": "ef420d6d8e17fa2580ec0134bfd85ec45686f53948369c3df314dee81888f675",
+    "Sources/Recording.swift": "6fe5266d7318b58c50bd0e012a62a23b8ed60600d169e3675b7b143d98ff531f",
+    "Sources/Registry.swift": "f9a33928144976ca48211d9e0e30c850cc8fae4fa22af6151859c692d90d1068",
+    "Sources/Resources.swift": "a32a0148f64d5e76d87020190ffd6191bd8d0055143294f8b2b3d66aa1a3d1db",
+    "Sources/Runtime.swift": "a233f4470c9806e1aee5a9d2d0694ff9dbc92590c4fb293ad3e40feead36b381",
+    "Sources/Server.swift": "02b388d8c694d87f91b6701837be0fbf57cfdf24b55b437585c2c811ff9f2bf9",
+    "Sources/SignIn.swift": "7ad101ca368ee25dfaff74ccfc8fab47616fc92f11cb7787cad81dedf70ca900",
+    "Sources/Store.swift": "e2abde2a830bdd2ffed18ccb37e0f326218a5fa808f166deae928721e2f838a5",
+    "Sources/main.swift": "bc557e59ae6a24a488bc3d8b4292eee64a78d5912989445b019543a2eb1db4fb",
+    "Info.plist": "8cc08737a365516ac1168322a82a116c543fd5e13f399dbd7fda7c35c41c9c15",
+    "Makefile": "2298d8fca0df35997ddfade996b180f943e5994dbcdea4e3aad7397af852cb16",
+    "sdk/python/umbra.py": "1de49bf4f21951045660ce112fa94dc888fba1ffaba166c94974b882f88acfdb",
+    "sdk/typescript/umbra.ts": "ad2185b29c6e78f38b4258d26f4c3ff23a45d6d195c6795683978bf4b9acd6e2",
+    "sdk/swift/Umbra.swift": "14ba2aeae3f39ea3c6b3bad7675c2aba0e7a813ea400391b62cdf56017508ef8"
+  },
+  "harnessSha256": "5d019177f6bb75c84b89f97c4f6b79c4eaa8f37d0d5393dfeeaba30d4fb07a49",
+  "workloadSha256": "bd536999c3efca63a69c02160bf2122597a05970f9a711d912d8c6cd936d8318",
+  "status": "failed-complete",
+  "tests": 413,
+  "passed": 409,
+  "skipped": 1,
+  "failed": 3,
+  "smokeChecks": 17,
+  "exitCode": 1,
+  "wallSeconds": 893,
+  "suites": {
+    "test_umbra.py": {
+      "status": "passed",
+      "tests": 99,
+      "skipped": 0,
+      "wallSeconds": 175
+    },
+    "test_daemon.py": {
+      "status": "FAILED",
+      "tests": 135,
+      "skipped": 1,
+      "wallSeconds": 371
+    },
+    "mcp_conformance.py": {
+      "status": "passed",
+      "tests": 32,
+      "skipped": 0,
+      "wallSeconds": 20
+    },
+    "test_runtime.py": {
+      "status": "passed",
+      "tests": 19,
+      "skipped": 0,
+      "wallSeconds": 58
+    },
+    "test_condition_wait.py": {
+      "status": "passed",
+      "tests": 10,
+      "skipped": 0,
+      "wallSeconds": 16
+    },
+    "test_transport_pressure.py": {
+      "status": "passed",
+      "tests": 10,
+      "skipped": 0,
+      "wallSeconds": 8
+    },
+    "test_popup_ownership.py": {
+      "status": "passed",
+      "tests": 2,
+      "skipped": 0,
+      "wallSeconds": 5
+    },
+    "test_observation_efficiency.py": {
+      "status": "passed",
+      "tests": 6,
+      "skipped": 0,
+      "wallSeconds": 6
+    },
+    "test_request_identity.py": {
+      "status": "passed",
+      "tests": 4,
+      "skipped": 0,
+      "wallSeconds": 12
+    },
+    "test_capture_cancel.py": {
+      "status": "passed",
+      "tests": 8,
+      "skipped": 0,
+      "wallSeconds": 20
+    },
+    "test_idle_cancel.py": {
+      "status": "passed",
+      "tests": 5,
+      "skipped": 0,
+      "wallSeconds": 23
+    },
+    "test_headroom.py": {
+      "status": "passed",
+      "tests": 2,
+      "skipped": 0,
+      "wallSeconds": 2
+    },
+    "test_observe.py": {
+      "status": "passed",
+      "tests": 13,
+      "skipped": 0,
+      "wallSeconds": 23
+    },
+    "test_watch_cleanup.py": {
+      "status": "passed",
+      "tests": 4,
+      "skipped": 0,
+      "wallSeconds": 11
+    },
+    "test_frames.py": {
+      "status": "passed",
+      "tests": 9,
+      "skipped": 0,
+      "wallSeconds": 11
+    },
+    "test_events.py": {
+      "status": "passed",
+      "tests": 6,
+      "skipped": 0,
+      "wallSeconds": 10
+    },
+    "test_mcp_runtime.py": {
+      "status": "passed",
+      "tests": 5,
+      "skipped": 0,
+      "wallSeconds": 8
+    },
+    "test_resource_cleanup.py": {
+      "status": "passed",
+      "tests": 6,
+      "skipped": 0,
+      "wallSeconds": 22
+    },
+    "test_execution.py": {
+      "status": "passed",
+      "tests": 18,
+      "skipped": 0,
+      "wallSeconds": 54
+    },
+    "test_failure_bundle.py": {
+      "status": "passed",
+      "tests": 4,
+      "skipped": 0,
+      "wallSeconds": 5
+    },
+    "test_process_metrics.py": {
+      "status": "passed",
+      "tests": 7,
+      "skipped": 0,
+      "wallSeconds": 17
+    },
+    "test_sdk.py": {
+      "status": "passed",
+      "tests": 9,
+      "skipped": 0,
+      "wallSeconds": 6
+    }
+  },
+  "logSha256": "add84e8053b582d82f575c7f12d88388bf96766249b336b1f063df52f1ad21fa",
+  "failures": [
+    "test_no_sign_in_in_time_hides_the_window_again (__main__.SignInWindowTests.test_no_sign_in_in_time_hides_the_window_again)",
+    "test_request_deadline_during_auth_check_never_opens_a_late_prompt (__main__.SignInWindowTests.test_request_deadline_during_auth_check_never_opens_a_late_prompt)",
+    "test_request_deadline_hides_its_named_sign_in_prompt (__main__.SignInWindowTests.test_request_deadline_hides_its_named_sign_in_prompt)"
+  ],
+  "scope": "Complete combined localhost regression. Failed; no performance GO. Three named sign-in deadline diagnostics lost to equal client/server cutoff."
+}
