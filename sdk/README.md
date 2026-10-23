@@ -129,3 +129,5 @@ UMBRA_SDK_BINARY="$PWD/build/Umbra.app/Contents/MacOS/umbra" UMBRA_SDK_RUNTIME=1
 ```
 
 That opt-in test creates an isolated profile, sets `UMBRA_IDLE=60`, `UMBRA_UNSEEN=1` and a temporary launch-agent directory, and stops the daemon and removes its profile files afterward. It verifies Python → TypeScript → Swift shared page state and that closing a client leaves the same daemon alive. It does not use the owner’s default profile.
+
+For incremental `observe` replies, retain reconstructed state per returned baseline token. Apply `patch.start/delete/lines` to that token’s prior outline. Omitted delta `refs`, `url`, `title`, `truncated`, `depthLimited` and `doc` inherit from the same token; emitted values replace them, including `false`. A full/reset reply replaces text and metadata. The thin clients return the wire result without maintaining observation state for you.

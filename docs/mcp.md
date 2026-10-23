@@ -71,7 +71,7 @@ The same runtime controls are available as MCP tools. A minimal owned task uses 
 {"name":"observe","arguments":{"tab":"research","agent":"researcher","task":"lookup","interactive":true,"max":4000}}
 ```
 
-Use a returned `baseline` as `since` with identical scope/budgets for incremental observations. `max` limits outline characters, not model tokens. JSON-valued command parameters such as `batch.steps`, `workflow.vars`, `frame.args` and `extract.schema` are **JSON strings** in the MCP arguments, matching their generated schema; they are not nested objects at that parameter boundary.
+Use a returned `baseline` as `since` with identical scope/budgets for incremental observations. Retain its reconstructed text and metadata: absent delta `refs`, `url`, `title`, `truncated`, `depthLimited` and `doc` inherit from that requested token. Full/reset results replace the state. `max` limits outline characters, not model tokens. JSON-valued command parameters such as `batch.steps`, `workflow.vars`, `frame.args` and `extract.schema` are **JSON strings** in the MCP arguments, matching their generated schema; they are not nested objects at that parameter boundary.
 
 Assign a runtime `request` when you need explicit cancellation, then use `cancel` from another call with the same owner:
 

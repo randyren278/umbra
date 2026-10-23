@@ -51,7 +51,7 @@ func observeCommands() -> [Command] {
         }
     }
     return [
-        Command(name: "observe", help: "Observe the page, or return a line replacement patch against --since baseline. Baselines are document-local, at most 8 and 512 KiB per tab. Missing/evicted/navigation baselines return full content. Apply patch.start and patch.delete to the previous snapshot lines, then insert patch.lines. Use identical scope/budgets for deltas.",
+        Command(name: "observe", help: "Observe the page, or return a line replacement patch against --since baseline. Baselines are document-local, at most 8 and 512 KiB of serialized UTF-16 content per tab, including metadata. Missing/evicted/navigation baselines return full content and metadata. Apply patch.start and patch.delete to the requested baseline's snapshot lines, then insert patch.lines. Delta metadata (refs, url, title, truncated, depthLimited, doc) inherits from that baseline when omitted. changed reports outline changes only. Use identical scope/budgets for deltas.",
                 params: observationParams + [Param(name: "since", kind: .string, help: "Baseline token returned by an earlier observe")]) { args, engine, reply in
             switch observationOptions(args) {
             case .failure(let error): reply(.failure(error))

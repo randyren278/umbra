@@ -47,7 +47,7 @@ Use a named tab for each task. With cooperating clients on one profile, acquire 
 
 Give cancellable work a unique `--request`. `tasks` lists actual runtime IDs; `cancel ID` requires matching ownership. A timeout, cancelled call or lost socket does not prove an action did not happen. Check real state before repeating a submission; already-dispatched JavaScript can continue after cancellation and produce later side effects, while earlier actions cannot be rolled back.
 
-For deltas, keep the returned `baseline`, apply `patch.start/delete/lines` to the previous snapshot lines and use identical scope/budgets. Navigation or eviction returns full content. Budgets count characters, not model tokens. `watch` needs observed DOM/input events; use `wait --js` for silent property changes.
+For deltas, keep the returned `baseline`, apply `patch.start/delete/lines` to the previous snapshot lines and use identical scope/budgets. Keep reconstructed refs/url/title/truncated/depthLimited/doc with each token: absent delta metadata inherits from the requested baseline, while emitted values replace it, including false. Full/reset results replace the state; changed describes outline changes only. Navigation or eviction returns full content and metadata. Budgets count characters, not model tokens. `watch` needs observed DOM/input events; use `wait --js` for silent property changes.
 
 Put each target tab in a batch/workflow step’s `args`; coordinators do not take top-level CLI `--tab`. Checkpoint `pending` means outcome uncertain. Resume refuses non-repeatable pending steps until explicitly resolved; use verified postconditions or an authorized retry. SDK repair callbacks observe and propose only; they never auto-execute or prove earlier dispatch did not occur.
 

@@ -876,7 +876,8 @@ function observe(a) {
   const old = a.since && baselines.get(a.since), compatible = old && old.key === key;
   const token = doc + ':' + ++baselineID;
   const lines = now.text.split('\n');
-  const saved = { key, lines, bytes: now.text.length * 2 };
+  const meta = { ...now }; delete meta.text;
+  const saved = { key, lines, meta, bytes: JSON.stringify({ token, key, lines, meta }).length * 2 };
   baselines.set(token, saved); baselineBytes += saved.bytes;
   while (baselines.size > 8 || baselineBytes > 524288) {
     const first = baselines.keys().next().value;
@@ -892,7 +893,8 @@ function observe(a) {
     const removed = old.lines.slice(start, old.lines.length - end), added = lines.slice(start, lines.length - end);
     out.patch = { start, delete: removed.length, lines: added };
     out.changed = removed.length > 0 || added.length > 0;
-    out.text = out.changed ? `@@ line ${start}, remove ${removed.length}, add ${added.length} @@\n` + added.join('\n') : '(unchanged)';
+    out.text = out.changed ? `@@ line ${start}, remove ${removed.length}, add ${added.length} @@\n` + added.join('\n') : '(no outline changes)';
+    for (const key of Object.keys(meta)) if (meta[key] === old.meta[key]) delete out[key];
   }
   out.snapshot = out.text;
   return out;

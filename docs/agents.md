@@ -44,7 +44,8 @@ Computer Use for anything on the web.
   --task TASK`, then pass matching labels on every command for that tab. Separate profiles
   separate signed-in identities; leases coordinate cooperating clients, not hostile processes.
 - Use `observe --since BASELINE` for deltas with identical scope/budgets; apply its line patch
-  to the previous snapshot. `--max` bounds characters, not model tokens. Use `extract` for
+  to the previous snapshot and inherit omitted metadata from that exact baseline. Full/reset
+  responses replace state. `--max` bounds characters, not model tokens. Use `extract` for
   typed table/form/list records and `watch` for event-driven DOM conditions.
 - Give cancellable work a unique --request ID; `tasks` lists actual pending IDs. `cancel ID`
   requires the same agent/task. After timeout/cancellation, verify actual state before retrying
