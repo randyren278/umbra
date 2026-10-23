@@ -186,58 +186,49 @@ def facts_picture(entry, mobile):
     return frame(width, y + height + 36, entry['title'], plain(entry['source']), body)
 
 
-def runtime_picture(kind, mobile):
-    directory = ROOT / 'docs/evaluation/runtime'
-    comparisons = json.loads((directory / 'primary-v2/summary.json').read_text())['pairs']
-    pairs = [p for p in comparisons if p['route'] == 'matched' and p['concurrency'] == 1 and p['validCompletePair']]
-    assert len(pairs) == 3
-    observation = json.loads((directory / 'verification/final-observation/results.json').read_text())
-    closeout = json.loads((directory / 'verification/closeout.json').read_text())
+def competitive_picture(mobile):
+    data = json.loads((ROOT / 'docs/evaluation/latency/results.json').read_text())
+    assert not data['errors']
     width, margin = (600, 36) if mobile else (1200, 48)
     usable = width - 2 * margin
-    if kind == 'runtime-wins':
-        low, high = min(p['throughputRatio'] for p in pairs), max(p['throughputRatio'] for p in pairs)
-        a, b = min(p['peakPhysicalFootprintReduction'] for p in pairs), max(p['peakPhysicalFootprintReduction'] for p in pairs)
-        metrics = [(f'{low:.2f}–{high:.2f}×', 'More tasks per second', 'Same WebKit workload', BLUE),
-                   (f'{a:.0%}–{b:.0%}', 'Less sampled peak memory', 'Daemon + responsible helpers', VIOLET)]
-        title, subtitle = 'More work. Less weight.', 'Matched single-worker fixture · three complete paired repeats'
-        footer = 'All measured tasks and warmups succeeded in each pair. Whole-grid targets remain unmet; heavy matched runs hit the RAM guard.'
-    elif kind == 'runtime-observations':
-        metrics = []
-        for label, key, color in [('CLI JSON', 'cli-json-without-human-text', BLUE), ('MCP', 'mcp-tool-result', CYAN), ('Python SDK', 'python-sdk-raw-result', VIOLET)]:
-            value = observation['summary'][key]
-            assert value['fiftyPercentGate'] and value['completeValidJourney']
-            metrics.append((f"{value['tokenReduction']:.1%}", label + ' · fewer tokens', f"{value['fullTokens']:,} → {value['deltaTokens']:,} tokens", color))
-        title, subtitle = 'Smaller context. Same page.', 'Full → incremental responses · exact text, refs and metadata retained'
-        footer = '16 states, including initial and navigation-reset full responses. Pinned tiktoken 0.12.0 / o200k_base. Observation responses only.'
-    else:
-        assert closeout['finalConcurrencyAllPassed'] and closeout['liveApp']
-        metrics = [(str(closeout['fullRegression']['tests']), 'Regression tests', 'One expected skip', BLUE),
-                   (str(closeout['fullRegression']['smokeChecks']), 'Smoke checks', 'All passed', CYAN),
-                   (str(max(closeout['finalConcurrencyLevels'])), 'Concurrent clients', 'Ownership · progress · cancel', VIOLET)]
-        title, subtitle = 'Built. Exercised. Verified.', 'Final build · native app, live loading and responsive inspector checked'
-        footer = 'Concurrency is a semantic check, not full-workload performance. The requested release excludes a 24-hour soak.'
-    body, used = paragraph(margin, 74, title, usable, 36, PAPER, 650)
+    title = 'Built for the agent loop.'
+    body, used = paragraph(margin, 74, title, usable, 38, PAPER, 700)
     y = 74 + used
-    chunk, used = paragraph(margin, y, subtitle, usable, 23, MUTED)
-    body += chunk; y += used + 26
-    columns = 1 if mobile else len(metrics)
-    gap = 24
-    cell_width = (usable - gap * (columns - 1)) / columns
-    start = y
-    for index, (value, label, caption, color) in enumerate(metrics):
-        x = margin if mobile else margin + index * (cell_width + gap)
-        top = start + index * 254 if mobile else start
-        body += f'<rect x="{x:g}" y="{top:g}" width="{cell_width:g}" height="230" rx="18" fill="#11192b" stroke="#2f3b55"/>'
-        body += text(x + 24, top + 78, value, 56 if len(value) > 8 else 66, color, cell_width - 48, 700)
-        chunk, _ = paragraph(x + 24, top + 124, label, cell_width - 48, 24, PAPER, 600)
-        body += chunk
-        chunk, _ = paragraph(x + 24, top + 186, caption, cell_width - 48, 20, MUTED)
-        body += chunk
-    y = start + (len(metrics) * 254 if mobile else 254) + 12
-    chunk, used = paragraph(margin, y, footer, usable, 22, MUTED)
+    chunk, used = paragraph(margin, y, 'Faster clicks. Faster snapshots.', usable, 24, MUTED)
     body += chunk
-    return frame(width, y + used + 28, title, subtitle + '. ' + '; '.join(f'{value}: {label}; {caption}' for value, label, caption, _ in metrics) + '. ' + footer, body)
+    top = y + used + 26
+    cell_width = usable if mobile else (usable - 24) / 2
+    descriptions = []
+    for index, (metric, label, color) in enumerate([('click', 'CLICKS + DOM UPDATE', BLUE), ('snapshot', 'ACCESSIBILITY SNAPSHOTS', VIOLET)]):
+        values = data['metrics'][metric]
+        native = values['umbra_socket']['p50']
+        chromium, webkit = values['chromium']['p50'], values['webkit']['p50']
+        for key in ['umbra_socket', 'chromium', 'webkit']:
+            assert len(values[key]['samples']) == data['runs']
+        assert webkit > native and chromium > native
+        x = margin if mobile else margin + index * (cell_width + 24)
+        card_y = top + index * 404 if mobile else top
+        inner = cell_width - 48
+        body += f'<rect x="{x:g}" y="{card_y:g}" width="{cell_width:g}" height="380" rx="18" fill="#11192b" stroke="#2f3b55"/>'
+        body += text(x + 24, card_y + 36, label, 20, color, inner, 650)
+        body += text(x + 24, card_y + 116, f'{webkit / native:.1f}×', 78, PAPER, inner, 700)
+        body += text(x + 24, card_y + 154, 'faster than Playwright WebKit', 22, MUTED, inner)
+        body += text(x + 24, card_y + 190, f'{chromium / native:.1f}× vs Playwright Chromium', 22, color, inner, 600)
+        for row, (name, value, fill) in enumerate([('Umbra daemon', native, CYAN), ('Playwright Chromium', chromium, BLUE), ('Playwright WebKit', webkit, VIOLET)]):
+            baseline = card_y + 234 + row * 48
+            body += text(x + 24, baseline, name, 20, MUTED, inner - 112)
+            body += text(x + cell_width - 120, baseline, f'{value:.2f} ms', 20, PAPER, 100)
+            body += f'<rect x="{x + 24:g}" y="{baseline + 10:g}" width="{inner:g}" height="6" rx="3" fill="#ffffff" fill-opacity="0.08"/>'
+            body += f'<rect x="{x + 24:g}" y="{baseline + 10:g}" width="{inner * value / webkit:g}" height="6" rx="3" fill="{fill}"/>'
+        descriptions.append(f'{plain(label)}: Umbra {native:.2f} ms; Playwright Chromium {chromium:.2f} ms ({chromium / native:.1f}×); Playwright WebKit {webkit:.2f} ms ({webkit / native:.1f}×)')
+    y = top + (808 if mobile else 404) + 12
+    footer = f"Same local fixtures · {data['runs']}-run medians · {data['machine']['cpu']} · recorded {data['date'][:10]}."
+    scope = f"Umbra daemon socket vs Playwright {data['playwright']} drivers. Excludes fresh CLI/MCP overhead. Clicks include each tool’s actionability policy."
+    for words in [footer, scope]:
+        chunk, used = paragraph(margin, y, words, usable, 21, MUTED)
+        body += chunk
+        y += used + 8
+    return frame(width, y + 24, title, '; '.join(descriptions) + '. ' + footer + ' ' + scope, body)
 
 
 def picture(desktop, mobile, document, alt):
@@ -272,10 +263,10 @@ def outputs(manifest):
     for ident, entry in manifest.items():
         generated, block = figure(entry, ident)
         files.update(generated); blocks[ident] = block
-    for kind in ['runtime-wins', 'runtime-observations', 'runtime-verification']:
+    for kind in ['competitive-benchmarks']:
         names = []
         for mobile in (False, True):
-            source = runtime_picture(kind, mobile)
+            source = competitive_picture(mobile)
             name = f'{kind}{"-mobile" if mobile else ""}-{hashlib.sha256(source.encode()).hexdigest()[:10]}.svg'
             files[name] = source; names.append(name)
         description = ET.fromstring(files[names[0]]).find('{http://www.w3.org/2000/svg}desc').text
@@ -299,7 +290,7 @@ def main():
             source, count = re.subn(pattern, lambda _: blocks[ident], source, flags=re.S)
             if count != 1: raise ValueError(f'{path}: missing/duplicate figure slot {ident}')
         if path == ROOT / 'README.md':
-            for ident in ['runtime-wins', 'runtime-observations', 'runtime-verification']:
+            for ident in ['competitive-benchmarks']:
                 source = re.sub(r'<!-- runtime-panel: ' + ident + r' -->.*?<!-- /runtime-panel -->', lambda _: '<!-- runtime-panel: ' + ident + ' -->\n' + blocks[ident] + '\n<!-- /runtime-panel -->', source, flags=re.S)
         rendered[path] = source
     if args.collect:
@@ -310,7 +301,7 @@ def main():
     for name, source in files.items(): (OUT / name).write_text(source)
     for path, source in rendered.items():
         if path.read_text() != source: path.write_text(source)
-    print(f'Generated {len(files)} responsive SVGs for {len(manifest)} documentation figures and three benchmark panels')
+    print(f'Generated {len(files)} responsive SVGs for {len(manifest)} documentation figures and one competitive benchmark panel')
 
 
 if __name__ == '__main__':
