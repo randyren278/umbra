@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 720" width="600" height="720" role="img" aria-labelledby="title desc">
+  <title id="title">Ledger</title>
+  <desc id="desc">- 2026-10-13: the agent eval with Codex (eval.py run-codex, GPT-6 Sol at high effort): 14/14 with the skill in the prompt and 14/14 as installed, zero critical failures by process.py; in every as-installed run Codex read its installed skill unprompted. README diagrams for the loop, WebKit, sign-in, handoff, profiles, the eval and speed, each with a phone layout; assets/charts.py draws the data ones from docs/evaluation/latency/results.json and docs/evaluation/regression/scores.json.</desc>
+  <defs>
+  <radialGradient id="corona" cx="0" cy="0" r="230" gradientUnits="userSpaceOnUse">
+    <stop offset="0.60" stop-color="#dce7ff" stop-opacity="0"/>
+    <stop offset="0.655" stop-color="#e8edff" stop-opacity="1"/>
+    <stop offset="0.70" stop-color="#93b4ff" stop-opacity="0.7"/>
+    <stop offset="0.82" stop-color="#b5a1ff" stop-opacity="0.22"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="rays" cx="0" cy="0" r="262" gradientUnits="userSpaceOnUse">
+    <stop offset="0.56" stop-color="#e8edff" stop-opacity="0.75"/>
+    <stop offset="0.72" stop-color="#93b4ff" stop-opacity="0.32"/>
+    <stop offset="1" stop-color="#b5a1ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="moon" cx="-40" cy="-50" r="190" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#192039"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </radialGradient>
+  <radialGradient id="bead" cx="0" cy="0" r="46" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="0.18" stop-color="#edf3ff"/>
+    <stop offset="0.45" stop-color="#bbceff" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#93b4ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#7c83f6" stop-opacity="0.20"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
+    <feGaussianBlur stdDeviation="2.6"/>
+  </filter>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#151c30"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </linearGradient>
+  </defs><rect width="600" height="720" rx="28" fill="url(#sky)"/><rect x="0.75" y="0.75" width="598.5" height="718.5" rx="27.25" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5"/><text x="36" y="66" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="650" fill="#93b4ff" data-max-width="528">Ledger</text><text x="36" y="124" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">- 2026-10-13: the agent eval with</text><text x="36" y="159" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">Codex (eval.py run-codex, GPT-6</text><text x="36" y="194" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">Sol at high effort): 14/14 with</text><text x="36" y="229" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">the skill in the prompt and 14/14</text><text x="36" y="264" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">as installed, zero critical</text><text x="36" y="299" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">failures by process.py; in every</text><text x="36" y="334" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">as-installed run Codex read its</text><text x="36" y="369" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">installed skill unprompted.</text><text x="36" y="404" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">README diagrams for the loop,</text><text x="36" y="439" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">WebKit, sign-in, handoff,</text><text x="36" y="474" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">profiles, the eval and speed,</text><text x="36" y="509" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">each with a phone layout;</text><text x="36" y="544" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">assets/charts.py draws the data</text><text x="36" y="579" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">ones from docs/evaluation/latency</text><text x="36" y="614" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">/results.json and docs/evaluation</text><text x="36" y="649" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">/regression/scores.json.</text>
+</svg>

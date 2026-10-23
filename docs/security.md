@@ -10,7 +10,19 @@
 - **Pages can't see Umbra's machinery.** Snapshot and action code runs in an isolated world.
 - **No telemetry.** Umbra's own requests are the URLs you or your agent give it, the visits to sites you mark `keepSignedIn`, and, while the sign-in window is open, a cookie-free request for each listed site's icon (its home page, `/apple-touch-icon.png` or `/favicon.ico`, at most weekly); what those pages load is up to them, as in any browser.
 - **The `keepSession` trade-off.** It re-saves a site's session-only cookies with a 30-day expiry so sign-ins survive between runs. They outlive the browser session the site had in mind, so turn it on only where it's needed and only on a Mac you trust.
+<!-- umbra-figure: docs-security-facts-0e078b333c -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-security-facts-0e078b333c-1-mobile-aa81546978.svg">
+  <img src="../assets/docs/docs-security-facts-0e078b333c-1-96d054e73b.svg" width="100%" alt="Security model. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 - **`keepSignedIn` runs in the background.** A launch agent sends each site you mark a request with your cookies every 10 minutes, so its session never idles out, and keeps the site's session-only cookies on disk as `keepSession` does. The agent is a per-user LaunchAgent: it runs as you, only while you're logged in, and needs no admin rights. Choosing **Keep Signed In** again in the site's **…** menu, or `umbra keep-signed-in <site> --off`, removes it once no site is marked. To remove it by hand, `launchctl bootout gui/$(id -u)/com.randyren.umbra.keep-signed-in` and delete `~/Library/LaunchAgents/com.randyren.umbra.keep-signed-in.plist` (a profile's label ends in `.<profile>`).
+
+</details>
+<!-- /umbra-figure -->
 - **Your account protects the store.** As with Safari, anyone who can read your home folder can reuse your sessions.
 
 

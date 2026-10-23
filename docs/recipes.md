@@ -47,7 +47,19 @@ while true; do
 done
 ```
 
+<!-- umbra-figure: docs-recipes-facts-1f1c49324d -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-recipes-facts-1f1c49324d-1-mobile-55f286403c.svg">
+  <img src="../assets/docs/docs-recipes-facts-1f1c49324d-1-edc5485230.svg" width="100%" alt="A table that spans several pages. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 `wait --idle` checks for a complete document and an unchanged resource-entry count for 500 ms; it does not track outstanding requests. For sites that poll or render rows after that quiet period, wait for a row-count or loading-state condition instead.
+
+</details>
+<!-- /umbra-figure -->
 
 ## Fill in a form and confirm it saved
 
@@ -195,15 +207,52 @@ This stops on failure without rollback or automatic retry. For reusable variable
 
 ## Exit codes in practice
 
-| Exit | Meaning | Retry? | Typical handling |
-|---|---|---|---|
-| `0` | Done | | Use stdout |
-| `2` | Deadline, cancellation, or script error | Check state first | Read stderr; already-dispatched JavaScript and side effects may continue |
-| `3` | Signed out | No | Tell the person to run `umbra sign-in`, then skip this run |
-| `4` | The page or download failed to load | Yes, later | Network down, site down, or a bad host name |
-| `5` | HTTP error status | Rarely | stderr is `HTTP <status>`. `fetch` still prints the body, which often explains the error |
-| `64` | Usage error | No | A bug in the caller |
-| `78` | `sites.json` can't be parsed | No | Fix the file |
+<!-- umbra-figure: docs-recipes-table-dcdf3c4c34 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-recipes-table-dcdf3c4c34-1-mobile-6309781f79.svg">
+  <img src="../assets/docs/docs-recipes-table-dcdf3c4c34-1-3dc14be770.svg" width="100%" alt="Exit codes in practice. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
+- **Exit:** `0`
+- **Meaning:** Done
+- **Retry?:**
+- **Typical handling:** Use stdout
+
+- **Exit:** `2`
+- **Meaning:** Deadline, cancellation, or script error
+- **Retry?:** Check state first
+- **Typical handling:** Read stderr; already-dispatched JavaScript and side effects may continue
+
+- **Exit:** `3`
+- **Meaning:** Signed out
+- **Retry?:** No
+- **Typical handling:** Tell the person to run `umbra sign-in`, then skip this run
+
+- **Exit:** `4`
+- **Meaning:** The page or download failed to load
+- **Retry?:** Yes, later
+- **Typical handling:** Network down, site down, or a bad host name
+
+- **Exit:** `5`
+- **Meaning:** HTTP error status
+- **Retry?:** Rarely
+- **Typical handling:** stderr is `HTTP <status>`. `fetch` still prints the body, which often explains the error
+
+- **Exit:** `64`
+- **Meaning:** Usage error
+- **Retry?:** No
+- **Typical handling:** A bug in the caller
+
+- **Exit:** `78`
+- **Meaning:** `sites.json` can't be parsed
+- **Retry?:** No
+- **Typical handling:** Fix the file
+
+</details>
+<!-- /umbra-figure -->
 
 Umbra writes results to stdout and messages to stderr. When the profile's daemon is running, one-shots go through it and share its tabs' session. Otherwise they run on their own, take turns on the profile's lock, and time spent waiting for the lock doesn't count toward `--timeout`. So if your caller enforces its own timeout, make it generous.
 

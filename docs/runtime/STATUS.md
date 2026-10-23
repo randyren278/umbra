@@ -15,13 +15,37 @@ Final product source: `9542ee5`. Built binary SHA-256: `bace278786dd13901a428728
 
 ## Verification
 
+<!-- umbra-figure: docs-runtime-status-facts-5da4aea2c8 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../assets/docs/docs-runtime-status-facts-5da4aea2c8-1-mobile-ef41b6fdfe.svg">
+  <img src="../../assets/docs/docs-runtime-status-facts-5da4aea2c8-1-4a8502e051.svg" width="100%" alt="Verification. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 418 tests across 22 suites passed with one expected skip; all 17 smoke checks passed. Three additional visible GUI tests passed. Manual HTTPS navigation returned 200; snapshots, painting, trusted native form input, native Accounts launch/close, and desktop/mobile inspector capture all worked. Images were inspected. The exact final binary passed all five 1/4/8/16/32-client semantic levels and exceeded 50% observation-token reduction independently through SDK, CLI and MCP, reconstructing all 16 states exactly.
+
+</details>
+<!-- /umbra-figure -->
 
 Independent review found one malformed frame-select mutation bug; the boundary guard and public regression tests resolve it. No other confirmed P1/P2 was found within the recorded review scope. All run-owned daemons/profile files were cleaned up. Installed binaries and default authentication were preserved.
 
 ## Benchmarks and remaining limits
 
+<!-- umbra-figure: docs-runtime-status-facts-3a02d44d0b -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../assets/docs/docs-runtime-status-facts-3a02d44d0b-1-mobile-c73e20d047.svg">
+  <img src="../../assets/docs/docs-runtime-status-facts-3a02d44d0b-1-729f3f46a6.svg" width="100%" alt="Benchmarks and remaining limits. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 The single-worker matched fixture measured 1.32–1.47× throughput and about 82–84% lower sampled peak family footprint across three valid repeats. The complete 60-cell grid did not meet broad throughput/RAM/p95 gates, and heavy matched 32-worker cells exceeded 2 GiB. All raw failures and aborts are retained. Performance samples identify their earlier candidate hash; final-binary regression/semantic/token checks identify the shipped product hash.
+
+</details>
+<!-- /umbra-figure -->
 
 Extended external campaigns and the secondary admission experiment were prepared but not executed for this release; no new score or capability-preservation claim is made. The optional 24-hour tool remains, with its release requirement removed and no long-duration claim. Remote CI workflows are manually disabled, so verification is local. These are documented limits, not hidden passing gates or active background jobs.
 

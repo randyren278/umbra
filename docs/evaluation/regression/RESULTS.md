@@ -35,13 +35,37 @@ using Computer Use.
 - **Claude's setup:** each candidate is a Claude Code subagent on this Mac, where the skill was installed (`~/.claude/skills/umbra`) and the global `~/.claude/CLAUDE.md` names it. So in opus-bare, "only `umbra help`" means nothing about the skill in the task prompt, not that the skill was out of reach.
 - **Codex's setup:** the user's own Codex install (model, `~/.codex/skills/umbra`, global `AGENTS.md`), with three changes for isolation: the Umbra MCP server pinned to the run's profile (`-c mcp_servers.umbra.env.UMBRA_PROFILE=…`), the `node_repl` browser tool off (it would take over the screen), and `HERA_OFF=1` with no turn notifications so the runs leave no trace in the user's notes.
 
-| Arm | Model | Guidance |
-|---|---|---|
-| opus-skill | Claude Opus 5.5 | `skill/SKILL.md` in the prompt |
-| opus-bare | Claude Opus 5.5 | only "the browser is Umbra; `umbra help` explains it" |
-| sonnet-skill | Claude Sonnet 5.5 | `skill/SKILL.md` in the prompt |
-| codex-skill | GPT-6 Sol in Codex (codex-cli 0.162.1, model gpt-6-sol, reasoning effort high) | `skill/SKILL.md` in the prompt |
-| codex-bare | the same | only "the browser is Umbra; `umbra help` explains it", with Codex's installed skill available as usual |
+<!-- umbra-figure: docs-evaluation-regression-results-table-150981c70d -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-regression-results-table-150981c70d-1-mobile-b7a9f40431.svg">
+  <img src="../../../assets/docs/docs-evaluation-regression-results-table-150981c70d-1-1438508a5b.svg" width="100%" alt="Setup. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
+- **Arm:** opus-skill
+- **Model:** Claude Opus 5.5
+- **Guidance:** `skill/SKILL.md` in the prompt
+
+- **Arm:** opus-bare
+- **Model:** Claude Opus 5.5
+- **Guidance:** only "the browser is Umbra; `umbra help` explains it"
+
+- **Arm:** sonnet-skill
+- **Model:** Claude Sonnet 5.5
+- **Guidance:** `skill/SKILL.md` in the prompt
+
+- **Arm:** codex-skill
+- **Model:** GPT-6 Sol in Codex (codex-cli 0.162.1, model gpt-6-sol, reasoning effort high)
+- **Guidance:** `skill/SKILL.md` in the prompt
+
+- **Arm:** codex-bare
+- **Model:** the same
+- **Guidance:** only "the browser is Umbra; `umbra help` explains it", with Codex's installed skill available as usual
+
+</details>
+<!-- /umbra-figure -->
 
 ## Results
 
@@ -61,9 +85,33 @@ using Computer Use.
 | popup-report | PASS | PASS | PASS | PASS | PASS |
 | otp-login | PASS | PASS | PASS | PASS | PASS |
 | slow-forecast | PASS | PASS | PASS | PASS | PASS |
+<!-- umbra-figure: docs-evaluation-regression-results-facts-545ccc3eb1 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-regression-results-facts-545ccc3eb1-1-mobile-a12207db83.svg">
+  <img src="../../../assets/docs/docs-evaluation-regression-results-facts-545ccc3eb1-1-8fbfe54711.svg" width="100%" alt="Results. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 | **Total** | **14/14** | **14/14** | **14/14** | **14/14** | **14/14** |
 
+</details>
+<!-- /umbra-figure -->
+
+<!-- umbra-figure: docs-evaluation-regression-results-facts-013354a2da -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-regression-results-facts-013354a2da-1-mobile-c86d657790.svg">
+  <img src="../../../assets/docs/docs-evaluation-regression-results-facts-013354a2da-1-7cf1462bde.svg" width="100%" alt="Results. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 | Process (per arm, 14 runs) | opus-skill | opus-bare | sonnet-skill | codex-skill | codex-bare |
+
+</details>
+<!-- /umbra-figure -->
 |---|:-:|:-:|:-:|:-:|:-:|
 | Critical failures | 0 | 0 | 0 | 0 | 0 |
 | Median tool calls per task | 8 | 9 | 6.5 | 14.5 | 17 |
@@ -76,13 +124,37 @@ Codex counts each shell command or MCP call as a tool call. Neither Codex arm us
 
 ## What the eval changed
 
+<!-- umbra-figure: docs-evaluation-regression-results-facts-af1e8432b5 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-regression-results-facts-af1e8432b5-1-mobile-12b6973c47.svg">
+  <img src="../../../assets/docs/docs-evaluation-regression-results-facts-af1e8432b5-1-721774f998.svg" width="100%" alt="What the eval changed. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 1. **The skill's safety rules were too blunt.** The first version said "get the user's explicit OK before purchases, posts, submissions, refunds…". The opus-skill refund candidate then stopped and asked for permission, even though the request said "Please refund it", and failed (13/14). The rules are now conditions on the request: do what was asked, ask before consequential actions that are your own idea, and use credentials the request provides. Re-run, the refund passed every time.
 2. **`wait --idle` ignored `--timeout`.** An opus-bare candidate's `wait --idle` ran past two minutes and had to be killed. It's fixed in 2dd2701: it now fails at the timeout with a hint to wait for text or a selector.
 3. **The harness itself had a bug.** One batch gave three reps of a task the same profile. The agents noticed tabs and sign-ins changing under them and moved to scratch profiles on their own, but the batch was discarded and re-run with a profile per run. The lesson went into the docs: parallel agents need separate profiles (or `--tab`), and cookies on 127.0.0.1 are shared across ports.
 
+</details>
+<!-- /umbra-figure -->
+
 ## Reading the results
 
+<!-- umbra-figure: docs-evaluation-regression-results-facts-f310916f44 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-regression-results-facts-f310916f44-1-mobile-cb1b917a61.svg">
+  <img src="../../../assets/docs/docs-evaluation-regression-results-facts-f310916f44-1-fa5e75bfbe.svg" width="100%" alt="Reading the results. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 - Umbra is usable without the skill in the prompt: opus-bare passed everything with only `umbra help` in the task prompt, which suggests the CLI's help text holds up for agents (the installed skill was within their reach too, and their transcripts weren't kept to show whether they used it). The skill's value is efficiency and discipline: about 10× fewer help lookups, and none of opus-skill's runs fell back to `sleep`.
+
+</details>
+<!-- /umbra-figure -->
 - A smaller model with the skill passed everything, with the fewest tool calls.
 - Limits:
   - Each arm ran each task once (n = 1 per cell).

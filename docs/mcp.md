@@ -57,7 +57,19 @@ Then sign that profile in to the sites the agent should reach: `UMBRA_PROFILE=ag
 - **Images.** `screenshot` without a path returns the image itself as MCP image content, alongside a text line such as `88×48 PNG (base64 in data)`.
 - **Tool hints.** Tools that only look (`snapshot`, `text`, `markdown`, `links`, `info`, `console`, `network`…) are marked read-only. `screenshot`, `pdf` and `download` are marked destructive because they can replace a file at the path given. Every tool is marked open-world.
 - **Errors the model can act on.** A failure comes back as a tool error with Umbra's message. Codes 1 to 4 also get a hint: a signed-out site, for example, says to call `sign-in` with the site's name, which shows the person Umbra's window and returns once they've signed in.
+<!-- umbra-figure: docs-mcp-facts-9ae9e01a90 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-mcp-facts-9ae9e01a90-1-mobile-58f687f265.svg">
+  <img src="../assets/docs/docs-mcp-facts-9ae9e01a90-1-4d104b7f3d.svg" width="100%" alt="What the agent gets. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 - **Progress for long calls.** If the client sends a progress token, `open`, `wait`, `handoff` and other long calls report progress every 5 seconds, so the client's request timeout doesn't give up on them.
+
+</details>
+<!-- /umbra-figure -->
 
 Relative paths in arguments (`screenshot shot.png`, `upload … invoice.pdf`) are resolved against the directory the server was started in, unless the call passes `cwd`.
 
@@ -84,13 +96,42 @@ The JSON-RPC request ID and the runtime cancellation identifier are different pr
 
 ## Handoff over MCP
 
+<!-- umbra-figure: docs-mcp-facts-c8e9f42456 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-mcp-facts-c8e9f42456-1-mobile-b242232aef.svg">
+  <img src="../assets/docs/docs-mcp-facts-c8e9f42456-1-b0ca0c6fc9.svg" width="100%" alt="Handoff over MCP. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 When a page needs a person (a two-factor prompt, a CAPTCHA, a consent screen), the agent calls `handoff` with a short message and, ideally, an `until` condition. The tab appears in a window on your screen with the message. The tool call returns when you close the window or the condition holds, and the tab hides again. The default timeout is 15 minutes, and progress notifications keep the call alive meanwhile.
+
+</details>
+<!-- /umbra-figure -->
 
 ## Troubleshooting
 
-| Symptom | Check |
-|---|---|
-| The client lists no tools | Run the command from the config by hand: `…/umbra mcp` should wait silently on stdin. Check the path is absolute. |
-| Every page shows a sign-in screen | The server is on another profile than the one you signed in. Compare `UMBRA_PROFILE` in the config with your `umbra sign-in` run. |
-| Calls hang or fail after a crash | `umbra status` shows the daemon. `umbra stop` (with the same profile) resets it; the next call starts a new one. Its log is `~/Library/Application Support/Umbra/daemon.log` (`daemon-<profile>.log` for a profile). |
-| A call times out | Inspect actual state before repeating an action. Use `tasks`/`cancel` with its request and owner, or wait for a specific condition. |
+<!-- umbra-figure: docs-mcp-table-bcaa4479ad -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-mcp-table-bcaa4479ad-1-mobile-64fbc22428.svg">
+  <img src="../assets/docs/docs-mcp-table-bcaa4479ad-1-86ec858990.svg" width="100%" alt="Troubleshooting. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
+- **Symptom:** The client lists no tools
+- **Check:** Run the command from the config by hand: `…/umbra mcp` should wait silently on stdin. Check the path is absolute.
+
+- **Symptom:** Every page shows a sign-in screen
+- **Check:** The server is on another profile than the one you signed in. Compare `UMBRA_PROFILE` in the config with your `umbra sign-in` run.
+
+- **Symptom:** Calls hang or fail after a crash
+- **Check:** `umbra status` shows the daemon. `umbra stop` (with the same profile) resets it; the next call starts a new one. Its log is `~/Library/Application Support/Umbra/daemon.log` (`daemon-<profile>.log` for a profile).
+
+- **Symptom:** A call times out
+- **Check:** Inspect actual state before repeating an action. Use `tasks`/`cancel` with its request and owner, or wait for a specific condition.
+
+</details>
+<!-- /umbra-figure -->

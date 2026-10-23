@@ -1,10 +1,34 @@
 # Verification receipt
 
+<!-- umbra-figure: docs-evaluation-miniwob-2026-10-13-verification-facts-8b17ed6d74 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../../assets/docs/docs-evaluation-miniwob-2026-10-13-verification-facts-8b17ed6d74-1-mobile-c66345c0b5.svg">
+  <img src="../../../../assets/docs/docs-evaluation-miniwob-2026-10-13-verification-facts-8b17ed6d74-1-ba08f2f7cd.svg" width="100%" alt="Verification receipt. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 The primary campaign ran all 125 upstream task types with the five seeds from the pinned BrowserGym configuration in each of two arms: 1,250 episodes. Both arms used fresh Codex sessions with the same model and prompts. The browser protocol was adapted to filtered MCP tools.
+
+</details>
+<!-- /umbra-figure -->
 
 Checks completed against the actual artifacts:
 
+<!-- umbra-figure: docs-evaluation-miniwob-2026-10-13-verification-facts-e8c2ad924f -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../../assets/docs/docs-evaluation-miniwob-2026-10-13-verification-facts-e8c2ad924f-1-mobile-82d2df1d22.svg">
+  <img src="../../../../assets/docs/docs-evaluation-miniwob-2026-10-13-verification-facts-e8c2ad924f-1-e64101b1c3.svg" width="100%" alt="Verification receipt. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 - All 1,250 run receipts are present; all 625 paired setups have identical goal text.
+
+</details>
+<!-- /umbra-figure -->
 - The Umbra executable, frozen harness and five pinned BrowserGym source hashes match the manifest.
 - All controller JSON and tool-call JSONL files parse successfully.
 - No completed candidate trace used command execution, changed files or called another MCP server. Missing, malformed and started forbidden actions are rejected by the reporter.
@@ -18,9 +42,33 @@ One Playwright case has no outcome evidence: `miniwob.multi-orderings`, repetiti
 
 The audit identified two material comparison caveats. Native press arrays counted as one interaction unit, so 23 positive-reward Umbra outcomes exceed ten units when the keys are expanded individually. The report gives a conservative post-hoc sensitivity calculation and retains the original score. Native clipboard actions also share macOS state across profiles; their serial diagnostic is reported separately.
 
+<!-- umbra-figure: docs-evaluation-miniwob-2026-10-13-verification-facts-9cee6fb34b -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../../assets/docs/docs-evaluation-miniwob-2026-10-13-verification-facts-9cee6fb34b-1-mobile-24b7d994ef.svg">
+  <img src="../../../../assets/docs/docs-evaluation-miniwob-2026-10-13-verification-facts-9cee6fb34b-1-18fedd3c33.svg" width="100%" alt="Verification receipt. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 The primary full-reward difference is 4.48 percentage points, with a task-grouped 95% bootstrap interval from -0.64 to 9.604 points. This does not establish superiority. Neither the full corpus score nor these controls establish real-site reliability or pure browser-engine speed.
 
+</details>
+<!-- /umbra-figure -->
+
+<!-- umbra-figure: docs-evaluation-miniwob-2026-10-13-verification-facts-17955852c5 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../../assets/docs/docs-evaluation-miniwob-2026-10-13-verification-facts-17955852c5-1-mobile-81d8906180.svg">
+  <img src="../../../../assets/docs/docs-evaluation-miniwob-2026-10-13-verification-facts-17955852c5-1-747bf1beeb.svg" width="100%" alt="Verification receipt. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 The separate serialized clipboard diagnostic completed all 20 episodes, with full reward on 10/10 for each arm. It reused the original five seeds and paired goal text, with one episode at a time. Its ten native profiles, all Chromium profile directories and scoped process roots were absent in the final census. Model strategy and machine load varied; this does not prove clipboard contention caused the primary failures.
+
+</details>
+<!-- /umbra-figure -->
 
 ## Retained evidence
 

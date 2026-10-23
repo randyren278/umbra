@@ -1,0 +1,244 @@
+{
+  "verifiedUTC": "2026-10-23T20:05:38.049147+00:00",
+  "sourceBase": "034f63b76c17870493ff99ad4e62b55675b2d47e",
+  "documentationFigures": 189,
+  "tables": 47,
+  "quantitativeCallouts": 142,
+  "readmePanels": 3,
+  "responsiveSVGFiles": 434,
+  "totalAccessibleSVGFiles": 458,
+  "documents": 47,
+  "nativeLayout": {
+    "figures": 434,
+    "texts": 8749,
+    "violations": [],
+    "cleanup": {
+      "daemonGone": true,
+      "profileFilesGone": true
+    }
+  },
+  "githubMarkdownRender": {
+    "api": "GitHub gfm renderer",
+    "readmeAndCommandReference": [
+      {
+        "document": "/README.md",
+        "viewport": "desktop",
+        "code": 3,
+        "details": 0,
+        "images": [
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/banner.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/runtime-wins-75e89842d5.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/runtime-observations-2c36caae31.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/runtime-verification-755db17e0c.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/showcase-v1.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/memory.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/the-loop.svg"
+          }
+        ],
+        "pageWidth": 1263,
+        "tables": 0,
+        "text": true,
+        "width": 1280
+      },
+      {
+        "document": "/README.md",
+        "viewport": "mobile",
+        "code": 3,
+        "details": 0,
+        "images": [
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/banner.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/runtime-wins-mobile-5968f2d4cf.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/runtime-observations-mobile-8e685ac1ed.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/runtime-verification-mobile-ae26ea8938.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/showcase-mobile-v1.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/memory-mobile.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/the-loop-mobile.svg"
+          }
+        ],
+        "pageWidth": 373,
+        "tables": 0,
+        "text": true,
+        "width": 390
+      },
+      {
+        "document": "/docs/commands.md",
+        "viewport": "desktop",
+        "code": 0,
+        "details": 10,
+        "images": [
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-e872c48d03-1-1fa8010fa4.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-e872c48d03-2-8040622397.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-99bfc94cd0-1-175e030de5.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-99bfc94cd0-2-2cb96d262e.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-d6f5520937-1-c3d2a97b04.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-d6f5520937-2-76bcdf2e1c.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-14177c4af4-1-0cb3f77db8.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-ec5b2a67ec-1-4f6a31750b.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-69653e37c5-1-cb14f3716b.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-9ae059d752-1-7dc741ab91.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-e81061a828-1-4d2e00321a.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-6a9ed7d3ef-1-67f1447df1.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-facts-104bf82a01-1-4d47dac9a5.svg"
+          }
+        ],
+        "pageWidth": 1263,
+        "tables": 0,
+        "text": false,
+        "width": 1280
+      },
+      {
+        "document": "/docs/commands.md",
+        "viewport": "mobile",
+        "code": 0,
+        "details": 10,
+        "images": [
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-e872c48d03-1-mobile-d6b588ef5b.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-e872c48d03-2-mobile-a2f2ba3e0c.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-99bfc94cd0-1-mobile-608e206c52.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-99bfc94cd0-2-mobile-25505166a7.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-d6f5520937-1-mobile-5c38b62a77.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-d6f5520937-2-mobile-829aecdda0.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-14177c4af4-1-mobile-87232bfe34.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-ec5b2a67ec-1-mobile-f910f78ab9.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-69653e37c5-1-mobile-da74c4ed1d.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-9ae059d752-1-mobile-772ffde3d0.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-e81061a828-1-mobile-ee1724e461.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-table-6a9ed7d3ef-1-mobile-7b0014e3ec.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:60826/assets/docs/docs-commands-facts-104bf82a01-1-mobile-2121401655.svg"
+          }
+        ],
+        "pageWidth": 373,
+        "tables": 0,
+        "text": false,
+        "width": 390
+      }
+    ],
+    "lightAndDarkVisuallyInspected": true
+  },
+  "localLinksVerified": 606,
+  "tableHeadersAndRowsPreserved": true,
+  "originalFencedCommandsAndConfigurationPreserved": true,
+  "importAndRegenerationByteIdempotent": true,
+  "productSourceChanged": false,
+  "rawBenchmarkEvidenceChanged": false,
+  "style": "Existing cool blue/violet/cyan palette; self-contained SVGs with title/desc; text/source links retained in details",
+  "cacheHandling": "Content-hashed image filenames; no stale CDN paths reused",
+  "sourceGeneratorSha256": "9f596aa88f9c1861f8c2aefcff39ea8407395a59030aa9fb93e594439c2dd256",
+  "manifestSha256": "da5b954048fe6366c08521135495d95ea20def3b7abaa3cb602bab6e907493fa"
+}

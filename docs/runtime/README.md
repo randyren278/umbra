@@ -36,7 +36,19 @@ umbra runtime --json
 
 `--deadline` is an absolute Unix timestamp in **seconds**. The runtime uses the earlier of that deadline and the command’s timeout measured from admission; queue time counts. SDKs enforce the same absolute deadline locally.
 
+<!-- umbra-figure: docs-runtime-readme-facts-f2d130d36a -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../assets/docs/docs-runtime-readme-facts-f2d130d36a-1-mobile-17342adc99.svg">
+  <img src="../../assets/docs/docs-runtime-readme-facts-f2d130d36a-1-cabea87ebb.svg" width="100%" alt="See queued work and cancel it. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 Explicit CLI/MCP budgets cover daemon connection retries and readiness; read/fetch/download share their original budget with store acquisition and one-shot fallback. After the execution deadline, CLI/MCP reply reads allow at most 100 ms to receive the daemon’s failure and cancellation details. This does not extend execution: a complete success received after the execution deadline is rejected, and an incomplete or later reply yields a local deadline error. Blocking request writes are unchanged, so this is a bound on connection/reply waiting rather than a hard whole-call wall-clock guarantee. Refused/full UNIX connections retry for at most one second within that budget; a missing socket keeps immediate cold startup.
+
+</details>
+<!-- /umbra-figure -->
 
 `request` is the runtime cancellation identifier; the raw socket envelope’s `id` only correlates a reply. SDKs set both consistently unless you explicitly override `args.request`.
 
@@ -68,7 +80,19 @@ Extraction is deterministic DOM traversal, not model interpretation. It returns 
 
 The JSON Schema subset supports types, properties, required fields, additional properties, array items, item/string/numeric bounds, enum and const. Unsupported constraints fail explicitly; this is not a full JSON Schema implementation.
 
+<!-- umbra-figure: docs-runtime-readme-facts-4de418f4ca -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../assets/docs/docs-runtime-readme-facts-4de418f4ca-1-mobile-f3d5a61117.svg">
+  <img src="../../assets/docs/docs-runtime-readme-facts-4de418f4ca-1-be7d3e2ae4.svg" width="100%" alt="Extract records and wait for events. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 `watch` uses DOM mutation and input/change/load events rather than repeated agent calls. It returns `matched: false` when its duration expires; durations are 0–25 seconds, with at most 16 watches per document. A programmatic value change that emits no observed event can be missed. Use ordinary `wait --js` when the condition needs polling or JavaScript computation. This is a one-result wait, not a durable event stream. General `wait --js` conditions react to DOM/input/load/visibility events too, retaining a 100 ms fallback for globals/time or unobserved changes. Predicates may run repeatedly; keep them free of side effects. Resources remain on demand and are removed on completion, cancellation, timeout or navigation.
+
+</details>
+<!-- /umbra-figure -->
 
 ## Batch known steps and checkpoint a workflow
 
@@ -79,7 +103,19 @@ umbra batch '[
 ]' --agent researcher --task lookup --json
 ```
 
+<!-- umbra-figure: docs-runtime-readme-facts-fe60cf83aa -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../assets/docs/docs-runtime-readme-facts-fe60cf83aa-1-mobile-d6da741fdf.svg">
+  <img src="../../assets/docs/docs-runtime-readme-facts-fe60cf83aa-1-54cfdd3aa2.svg" width="100%" alt="Batch known steps and checkpoint a workflow. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 A batch runs 1–64 supported steps sequentially and stops at the first error. Each successful step returns a receipt. Failures retain indexed completed-step results and a failed-step record through CLI JSON errors, SDK errors and MCP structured content; exit codes and MCP error status remain failures. A failed step marked dispatched may already have changed the site. `before` and `after` use string conditions from `wait`: `js`, `url`, `text`, `selector` or `gone`. Steps name their target tab in `args` and use the parent’s agent/task and deadline. `batch` and `workflow` are coordinators, so they do not take a top-level CLI `--tab`. They are individual scheduler operations, not an atomic transaction across agents. Definitions are limited to 256 KiB and collected results to 4 MiB. Large outputs should go to files or use smaller observation budgets.
+
+</details>
+<!-- /umbra-figure -->
 
 For a reusable workflow, save this JSON as `workflow.json`:
 
@@ -148,7 +184,19 @@ umbra diagnose --path ./failure.json --target research --observations --agent re
 umbra inspector --stop
 ```
 
+<!-- umbra-figure: docs-runtime-readme-facts-c6d8b294a0 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../assets/docs/docs-runtime-readme-facts-c6d8b294a0-1-mobile-1d299cc88e.svg">
+  <img src="../../assets/docs/docs-runtime-readme-facts-c6d8b294a0-1-aab638b938.svg" width="100%" alt="Inspect only when needed. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 The inspector is a token-protected IPv4-loopback dashboard for queue/ownership metadata, on-demand screenshots and human takeover. Its URL grants access to the profile inspector; keep it private. Optional live preview captures at one frame per second while enabled and visible; capture is off by default. `record` explicitly writes a PNG sequence and JSON manifest, bounded by duration (1–600 seconds), rate (0.1–5 fps), 600 frames and a 64 MiB maximum byte budget. Captures can contain signed-in page content. There is no video encoder or always-on recording service.
+
+</details>
+<!-- /umbra-figure -->
 
 `diagnose` defaults to a metadata-only JSON bundle at mode 0600, at most 512 KiB, with recent failure codes and queue/ownership evidence. Explicit `--observations --target TAB` adds a bounded redacted outline under matching agent/task ownership. Field values, their mirrored text, URLs and recognized token patterns are removed before capture; labels and other visible content can remain sensitive. Cookies, headers, raw arguments and screenshots are excluded. Choose non-sensitive agent/task/tab/request labels. A screenshot or recording is a separate, content-bearing artifact.
 
@@ -158,18 +206,71 @@ The inspector is a token-protected IPv4-loopback dashboard for queue/ownership m
 
 Set these before starting a profile’s daemon; restarting is required to change its environment:
 
-| Variable | Default | Valid range | Meaning |
-|---|---:|---:|---|
-| `UMBRA_ACTIVE` | 32 | 1–256 | Concurrent active non-coordinator jobs |
-| `UMBRA_PENDING` | 256 | 1–4096 | Total admitted running/queued jobs |
-| `UMBRA_TABS` | 128 | 1–1024 | Admitted tabs, including scratch tabs/pop-ups |
-| `UMBRA_MIN_AVAILABLE_MB` | 512 | 0–16384 | Estimated system memory headroom reserved before starting more work |
-| `UMBRA_JOB_MB` | 128 | 1–4096 | Headroom estimate per active job; limits admission, not an allocation guarantee |
-| `UMBRA_CONNECTIONS` | 64 | 2–1024 | Accepted Unix-socket connections |
-| `UMBRA_QUEUE_BYTES` | 33554432 | 1024–268435456 | Admitted argument bytes |
-| `UMBRA_REQUEST_BYTES` | 8388608 | 1024–67108864 | Buffered unread socket input bytes |
+<!-- umbra-figure: docs-runtime-readme-table-75b6625cb2 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../assets/docs/docs-runtime-readme-table-75b6625cb2-1-mobile-7c9ddc7006.svg">
+  <img src="../../assets/docs/docs-runtime-readme-table-75b6625cb2-1-bc2513a9a1.svg" width="100%" alt="Capacity and memory pressure. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
+- **Variable:** `UMBRA_ACTIVE`
+- **Default:** 32
+- **Valid range:** 1–256
+- **Meaning:** Concurrent active non-coordinator jobs
+
+- **Variable:** `UMBRA_PENDING`
+- **Default:** 256
+- **Valid range:** 1–4096
+- **Meaning:** Total admitted running/queued jobs
+
+- **Variable:** `UMBRA_TABS`
+- **Default:** 128
+- **Valid range:** 1–1024
+- **Meaning:** Admitted tabs, including scratch tabs/pop-ups
+
+- **Variable:** `UMBRA_MIN_AVAILABLE_MB`
+- **Default:** 512
+- **Valid range:** 0–16384
+- **Meaning:** Estimated system memory headroom reserved before starting more work
+
+- **Variable:** `UMBRA_JOB_MB`
+- **Default:** 128
+- **Valid range:** 1–4096
+- **Meaning:** Headroom estimate per active job; limits admission, not an allocation guarantee
+
+- **Variable:** `UMBRA_CONNECTIONS`
+- **Default:** 64
+- **Valid range:** 2–1024
+- **Meaning:** Accepted Unix-socket connections
+
+- **Variable:** `UMBRA_QUEUE_BYTES`
+- **Default:** 33554432
+- **Valid range:** 1024–268435456
+- **Meaning:** Admitted argument bytes
+
+- **Variable:** `UMBRA_REQUEST_BYTES`
+- **Default:** 8388608
+- **Valid range:** 1024–67108864
+- **Meaning:** Buffered unread socket input bytes
+
+</details>
+<!-- /umbra-figure -->
+
+<!-- umbra-figure: docs-runtime-readme-facts-e68f4ead13 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../assets/docs/docs-runtime-readme-facts-e68f4ead13-1-mobile-e47b30a844.svg">
+  <img src="../../assets/docs/docs-runtime-readme-facts-e68f4ead13-1-4ad17025d9.svg" width="100%" alt="Capacity and memory pressure. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
 
 Replies have a 64 MiB server cap; SDK clients default to a smaller 16 MiB cap. Idle socket reads/writes have a 30-second timeout. Admission failures are explicit errors; retry only when appropriate, rather than opening unlimited connections. Connection handling still uses one thread per accepted connection, bounded by the configured limit.
+
+</details>
+<!-- /umbra-figure -->
 
 The scheduler also samples system free pages (which already include speculative pages) plus inactive pages once per second as an estimate of reclaimable headroom. It caps new active work using the reserve and per-job estimate, pauses new tab admission below the reserve, and resumes queued work when headroom recovers. This is not a per-profile physical-memory ceiling; the OS pressure signal remains authoritative.
 

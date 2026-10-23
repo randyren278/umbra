@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 752" width="1200" height="752" role="img" aria-labelledby="title desc">
+  <title id="title">The daemon</title>
+  <desc id="desc">Tabs follow the same rule, one by one, so that the tabs agents leave behind don&#x27;t pile up in a daemon that other agents keep busy. A tab no command has used for a third of the limit (5 minutes) rests: Umbra hides its window, and the page slows its timers and pauses its animations as a background tab does in Safari. The next command on it shows it again and runs once the page knows it is visible. A tab unused for the whole limit closes, and its web process ends with it; a later command that names it says so, and open --tab NAME &lt;url&gt; opens it again. A tab never rests while active or queued work targets it, a handoff shows it, a download is active, a lease protects it, or trusted form input marked it dirty, and a tab that closes while it was the current one leaves no current tab, so a command without --tab never lands in another agent&#x27;s tab. On the way out it saves the session cookies of keepSession and keepSignedIn sites (see sites.md).</desc>
+  <defs>
+  <radialGradient id="corona" cx="0" cy="0" r="230" gradientUnits="userSpaceOnUse">
+    <stop offset="0.60" stop-color="#dce7ff" stop-opacity="0"/>
+    <stop offset="0.655" stop-color="#e8edff" stop-opacity="1"/>
+    <stop offset="0.70" stop-color="#93b4ff" stop-opacity="0.7"/>
+    <stop offset="0.82" stop-color="#b5a1ff" stop-opacity="0.22"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="rays" cx="0" cy="0" r="262" gradientUnits="userSpaceOnUse">
+    <stop offset="0.56" stop-color="#e8edff" stop-opacity="0.75"/>
+    <stop offset="0.72" stop-color="#93b4ff" stop-opacity="0.32"/>
+    <stop offset="1" stop-color="#b5a1ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="moon" cx="-40" cy="-50" r="190" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#192039"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </radialGradient>
+  <radialGradient id="bead" cx="0" cy="0" r="46" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="0.18" stop-color="#edf3ff"/>
+    <stop offset="0.45" stop-color="#bbceff" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#93b4ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#7c83f6" stop-opacity="0.20"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
+    <feGaussianBlur stdDeviation="2.6"/>
+  </filter>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#151c30"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </linearGradient>
+  </defs><rect width="1200" height="752" rx="28" fill="url(#sky)"/><rect x="0.75" y="0.75" width="1198.5" height="750.5" rx="27.25" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5"/><text x="48" y="66" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="650" fill="#93b4ff" data-max-width="1104">The daemon</text><text x="48" y="124" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">Tabs follow the same rule, one by one, so that the tabs agents</text><text x="48" y="161" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">leave behind don&#x27;t pile up in a daemon that other agents keep</text><text x="48" y="198" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">busy. A tab no command has used for a third of the limit (5</text><text x="48" y="235" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">minutes) rests: Umbra hides its window, and the page slows its</text><text x="48" y="272" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">timers and pauses its animations as a background tab does in</text><text x="48" y="309" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">Safari. The next command on it shows it again and runs once the</text><text x="48" y="346" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">page knows it is visible. A tab unused for the whole limit</text><text x="48" y="383" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">closes, and its web process ends with it; a later command that</text><text x="48" y="420" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">names it says so, and open --tab NAME &lt;url&gt; opens it again. A</text><text x="48" y="457" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">tab never rests while active or queued work targets it, a</text><text x="48" y="494" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">handoff shows it, a download is active, a lease protects it, or</text><text x="48" y="531" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">trusted form input marked it dirty, and a tab that closes while</text><text x="48" y="568" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">it was the current one leaves no current tab, so a command</text><text x="48" y="605" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">without --tab never lands in another agent&#x27;s tab. On the way</text><text x="48" y="642" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">out it saves the session cookies of keepSession and</text><text x="48" y="679" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">keepSignedIn sites (see sites.md).</text>
+</svg>

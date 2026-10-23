@@ -6,12 +6,33 @@ The [completed 1,250-episode report](miniwob/2026-10-13/RESULTS.md) gives all ou
 
 ## Benchmark research
 
-| Benchmark | What it measures | Decision for this machine |
-|---|---|---|
-| [MiniWoB++](https://github.com/Farama-Foundation/miniwob-plusplus) through [BrowserGym](https://github.com/ServiceNow/BrowserGym) | Over 100 locally hosted web interaction tasks; deterministic rewards. BrowserGym's standard configuration has 125 task types, five repeats and ten actions. | Run all 625 episodes per browser arm. |
-| [WebArena](https://github.com/web-arena-x/webarena) | 812 tasks on self-hosted replicas of full websites; functional evaluators. | Not run: required site containers are absent and the local Docker daemon is unavailable. |
-| [Online-Mind2Web](https://github.com/OSU-NLP-Group/Online-Mind2Web) | Tasks on real websites, judged from actions and screenshots. | Not run: this repository permits localhost-only tests; dataset access and model judging are additional dependencies. |
-| [WebdriverIO's browser tool comparison](https://github.com/webdriverio/benchmark) | Playwright MCP/CLI, WebdriverIO, Stagehand and agent-browser under a shared model and harness. Its current suite samples Online-Mind2Web. | Inspected methodology; not executed for the same live-site/dataset/judge restrictions. |
+<!-- umbra-figure: docs-evaluation-protocol-table-3f971f5b5f -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../assets/docs/docs-evaluation-protocol-table-3f971f5b5f-1-mobile-35a7097059.svg">
+  <img src="../../assets/docs/docs-evaluation-protocol-table-3f971f5b5f-1-993b7c9b3a.svg" width="100%" alt="Benchmark research. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
+- **Benchmark:** [MiniWoB++](https://github.com/Farama-Foundation/miniwob-plusplus) through [BrowserGym](https://github.com/ServiceNow/BrowserGym)
+- **What it measures:** Over 100 locally hosted web interaction tasks; deterministic rewards. BrowserGym's standard configuration has 125 task types, five repeats and ten actions.
+- **Decision for this machine:** Run all 625 episodes per browser arm.
+
+- **Benchmark:** [WebArena](https://github.com/web-arena-x/webarena)
+- **What it measures:** 812 tasks on self-hosted replicas of full websites; functional evaluators.
+- **Decision for this machine:** Not run: required site containers are absent and the local Docker daemon is unavailable.
+
+- **Benchmark:** [Online-Mind2Web](https://github.com/OSU-NLP-Group/Online-Mind2Web)
+- **What it measures:** Tasks on real websites, judged from actions and screenshots.
+- **Decision for this machine:** Not run: this repository permits localhost-only tests; dataset access and model judging are additional dependencies.
+
+- **Benchmark:** [WebdriverIO's browser tool comparison](https://github.com/webdriverio/benchmark)
+- **What it measures:** Playwright MCP/CLI, WebdriverIO, Stagehand and agent-browser under a shared model and harness. Its current suite samples Online-Mind2Web.
+- **Decision for this machine:** Inspected methodology; not executed for the same live-site/dataset/judge restrictions.
+
+</details>
+<!-- /umbra-figure -->
 
 Playwright is a browser automation tool, not one universal agent benchmark. MiniWoB++ and WebArena are established external tasks; the WebdriverIO comparison is a third-party benchmark that includes Playwright. This harness does not claim Microsoft adopted or endorsed this evaluation.
 

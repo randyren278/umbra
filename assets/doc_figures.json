@@ -1,0 +1,3508 @@
+{
+  "changelog-facts-4c9eb1aa75": {
+    "kind": "facts",
+    "document": "CHANGELOG.md",
+    "title": "Changed",
+    "source": "- `umbra sign-in <sites>` returns once every named site is signed in, at once (with no window) if they already are; exit 3 if the window is closed first, 2 after `--timeout` (default 900 seconds). With no sites it opens the window and returns at once."
+  },
+  "changelog-facts-b933b0146f": {
+    "kind": "facts",
+    "document": "CHANGELOG.md",
+    "title": "Added",
+    "source": "- `keepSignedIn` in `sites.json`, Keep Signed In in each site's … menu in the window, and `umbra keep-signed-in [site ...] [--off]`: a launch agent (`com.randyren.umbra.keep-signed-in`) visits the marked sites every 10 minutes, and on wake for a visit missed while the Mac slept, so a site that ends idle sessions on its side, like Canvas, keeps you signed in. It implies `keepSession`, and each run logs one line per site to `~/Library/Application Support/Umbra/keep-signed-in.log`."
+  },
+  "changelog-facts-bf11f49228": {
+    "kind": "facts",
+    "document": "CHANGELOG.md",
+    "title": "Added",
+    "source": "- The agent eval runs Codex too (`eval.py run-codex`, with `process.py` reading each run's transcript): GPT-6 Sol in Codex completed 14 of 14 tasks with the skill in its prompt and 14 of 14 as installed, with zero critical failures. Results are in `docs/evaluation/regression/RESULTS.md` and `docs/evaluation/regression/scores.json`."
+  },
+  "changelog-facts-9eb8f30145": {
+    "kind": "facts",
+    "document": "CHANGELOG.md",
+    "title": "Fixed",
+    "source": "- `keep-signed-in` and the window say why a check couldn't tell (`HTTP 503`, no answer in 20 seconds, offline)."
+  },
+  "roadmap-table-df8682e1a0": {
+    "kind": "table",
+    "document": "ROADMAP.md",
+    "title": "Done when (each item has a check)",
+    "headers": [
+      "#",
+      "Outcome",
+      "Check"
+    ],
+    "rows": [
+      [
+        "1",
+        "Every command below works through the CLI and through MCP, against the same live tabs",
+        "e2e suite, one test per command per transport"
+      ],
+      [
+        "2",
+        "Invisible: no visible window (except sign-in or handoff), no Dock icon, never takes focus",
+        "Suite asserts every Umbra on-screen window has alpha 0 and the frontmost app is unchanged"
+      ],
+      [
+        "3",
+        "Fast: warm snapshot p50 < 25 ms, click < 40 ms, local navigate < 120 ms; cold first command < 700 ms; one-shot read < 500 ms",
+        "`bench/` results committed, compared against Playwright when installed"
+      ],
+      [
+        "4",
+        "Robust daemon: auto-spawn, idle exit, stale-socket recovery, concurrent clients, one-shots routed through a live daemon",
+        "lifecycle tests"
+      ],
+      [
+        "5",
+        "Agents succeed: fresh agents given only the skill or MCP tools complete realistic tasks on fixture sites",
+        "eval report, at least 90% pass"
+      ],
+      [
+        "6",
+        "Existing callers unharmed: FIRST, plus UBC Canvas, Kaltura and ubccheck",
+        "their tests and live checks"
+      ],
+      [
+        "7",
+        "Shipped: README, docs, llms.txt, skill, CI, pushed",
+        "GitHub page reviewed"
+      ]
+    ]
+  },
+  "roadmap-table-8bf3b81cb9": {
+    "kind": "table",
+    "document": "ROADMAP.md",
+    "title": "Status at v0.2.0 (2026-10-13)",
+    "headers": [
+      "#",
+      "Result"
+    ],
+    "rows": [
+      [
+        "1",
+        "41 MCP tools and the same commands on the CLI, sharing live tabs (mcp_conformance 32, test_daemon 102)"
+      ],
+      [
+        "2",
+        "Invisibility guard after every session command in the test suite; zero violations. Daemon runs with the prohibited activation policy; focus regression test fails before 16c35ab"
+      ],
+      [
+        "3",
+        "All speed targets met at p50 and p95 (docs/evaluation/latency/RESULTS.md): snapshot 0.9 ms socket / 14 ms CLI, click 1.5 / 15 ms, navigate 13 / 27 ms, cold start 408 ms, one-shot read 385 ms"
+      ],
+      [
+        "4",
+        "Lifecycle tests: auto-spawn, idle exit, stale socket, racing spawns, concurrent clients, SIGTERM, one-shots through a live daemon"
+      ],
+      [
+        "5",
+        "Agent eval 14/14 in each of five arms (Claude Opus and Sonnet in Claude Code, GPT-6 Sol in Codex), zero critical failures (docs/evaluation/regression/RESULTS.md)"
+      ],
+      [
+        "6",
+        "FIRST (110 tests; live Instagram and LinkedIn reads) and UBC (Canvas pulls, downloads, Kaltura, ubccheck) verified on the installed build"
+      ],
+      [
+        "7",
+        "README, docs, llms.txt, skill, CI, Homebrew head formula, release zip target"
+      ]
+    ]
+  },
+  "roadmap-facts-2c85ccaec1": {
+    "kind": "facts",
+    "document": "ROADMAP.md",
+    "title": "Runtime release closeout (2026-10-23)",
+    "source": "Bounded shared-agent runtime, ownership/cancellation, incremental observations, checked workflows, persistent SDKs, frame coverage and on-demand inspection/diagnostics are implemented. Final product `9542ee5` passed 418 local tests (one expected skip), 17 smoke checks, visible GUI/live loading checks, and the 1/4/8/16/32-client semantic grid. The final-build observation journey reduced response tokens by 51.5–57.9% with exact reconstruction."
+  },
+  "roadmap-facts-98a2f4114b": {
+    "kind": "facts",
+    "document": "ROADMAP.md",
+    "title": "Runtime release closeout (2026-10-23)",
+    "source": "The three valid matched single-worker benchmark repeats improved throughput 1.32–1.47× and lowered sampled peak physical footprint about 82–84%. The complete performance grid missed its broad targets; new extended external campaigns remain unexecuted. The user explicitly removed the 24-hour soak requirement. [Full release evidence and limits](docs/evaluation/runtime/RESULTS.md)."
+  },
+  "roadmap-facts-2d6ecc5d8b": {
+    "kind": "facts",
+    "document": "ROADMAP.md",
+    "title": "Architecture",
+    "source": "- One daemon per profile owns WebKit, the tabs and the store, and exits after 15 minutes idle (`UMBRA_IDLE`)."
+  },
+  "roadmap-table-a24530cfac": {
+    "kind": "table",
+    "document": "ROADMAP.md",
+    "title": "Workstreams",
+    "headers": [
+      "Lane",
+      "Owner",
+      "Files",
+      "Depends on"
+    ],
+    "rows": [
+      [
+        "F0 foundation: split, engine, daemon, registry, core nav",
+        "lead",
+        "`Sources/main.swift`, `Store.swift`, `OneShot.swift`, `SignIn.swift`, `Engine.swift`, `Registry.swift`, `Server.swift`, `CoreCommands.swift`",
+        "none"
+      ],
+      [
+        "W1 interaction: snapshot, refs, actions, input, upload, dialogs",
+        "agent",
+        "`Sources/Interact*.swift`",
+        "F0"
+      ],
+      [
+        "W2 capture: screenshot, pdf, text/markdown/links/html, console, network, blocking, viewport",
+        "agent",
+        "`Sources/Capture*.swift`",
+        "F0"
+      ],
+      [
+        "W3 MCP: protocol, tool schemas, image content, Claude Code setup",
+        "agent",
+        "`Sources/MCP.swift`",
+        "F0"
+      ],
+      [
+        "W4 tests, benchmarks, invisibility checks",
+        "agent",
+        "`tests/`, `bench/`",
+        "F0, then W1 to W3"
+      ],
+      [
+        "W5 README, docs, llms.txt, skill",
+        "agent",
+        "`README.md`, `docs/`, `skill/`, `assets/`",
+        "W1 to W3"
+      ],
+      [
+        "Release: CI, packaging",
+        "agent",
+        "`Makefile`, `.github/`, `packaging/`",
+        "none"
+      ]
+    ]
+  },
+  "roadmap-facts-7b3667370c": {
+    "kind": "facts",
+    "document": "ROADMAP.md",
+    "title": "Ledger",
+    "source": "- 2026-10-13: CI green on GitHub's macOS runner after fixes found there (older-compiler type-check limit, cookie listing on a fresh machine, a smoke test assuming port 9 is closed). Open: LifecycleTests.test_five_concurrent_clients (five simultaneous first opens) timed out on the runner in 2 of 6 runs, before and after a load watchdog; never locally (8/8 at load average 67). The test now records whether the daemon still answers and samples its main thread when it happens."
+  },
+  "roadmap-facts-a37af53672": {
+    "kind": "facts",
+    "document": "ROADMAP.md",
+    "title": "Ledger",
+    "source": "- 2026-10-13: the agent eval with Codex (`eval.py run-codex`, GPT-6 Sol at high effort): 14/14 with the skill in the prompt and 14/14 as installed, zero critical failures by `process.py`; in every as-installed run Codex read its installed skill unprompted. README diagrams for the loop, WebKit, sign-in, handoff, profiles, the eval and speed, each with a phone layout; `assets/charts.py` draws the data ones from docs/evaluation/latency/results.json and docs/evaluation/regression/scores.json."
+  },
+  "roadmap-facts-6e5fa5b769": {
+    "kind": "facts",
+    "document": "ROADMAP.md",
+    "title": "Ledger",
+    "source": "- 2026-10-18: Keep signed in. `keepSession` kept a site's cookies, but Canvas still signed out once its server-side session sat idle (Canvas renews its sealed session cookie on any request once it is five minutes old; the idle limit defaults to a day, 20 minutes at least). `keepSignedIn` in sites.json, a Keep signed in checkbox under each site in the window, and `umbra keep-signed-in [site …] [--off]`: a per-profile launch agent runs the command every ten minutes by the clock (and on wake for a visit missed during sleep), which requests each marked site's probe (or root), keeps the cookies it answers with, and logs one line per site. It goes through the daemon when one runs, without refreshing its idle timer, and never starts one. KeepSignedInTests (14) load real launchd jobs under test labels and boot them out; full suite green."
+  },
+  "roadmap-facts-35b3b8f1e1": {
+    "kind": "facts",
+    "document": "ROADMAP.md",
+    "title": "Ledger",
+    "source": "- 2026-10-21: Memory audit. The default daemon had run 67 hours with 49 tabs that agents opened by name, one per task, and never closed: 17.4 GB across 47 WebKit processes and 90% of a CPU core, because a tab closed only with its daemon and a busy Mac never lets the daemon idle. Now a tab rests. After a third of `UMBRA_IDLE` unused it is hidden, so its timers slow and its animations pause as in a background tab; the next command shows it again and runs once the page reports itself visible. After all of `UMBRA_IDLE` it closes, and a command that names it says why. The back-forward cache is off: it kept every page a tab left frozen in memory (4 tabs after 6 pages each: 3.4 GB with it, 1.3 GB without). `bench/memory.py` keeps one agent working while others leave heavy tabs behind. With 10 one-page tabs left, memory once they are left went from 2756 to 331 MB and CPU from 15.3 to 1.9 seconds a minute. With 6 four-page tabs it went from 3863 to 312 MB, and the peak from 4271 to 1825 MB. Command latency is unchanged (bench.py, 20 runs). Results and charts: docs/evaluation/memory. The skill, MCP instructions, llms.txt and docs now tell agents to close their tabs. Measured, not adopted: one shared process pool (about 7 MB less per tab, through a deprecated API)."
+  },
+  "docs-agents-facts-1eafc4bf87": {
+    "kind": "facts",
+    "document": "docs/agents.md",
+    "title": "Working well",
+    "source": "- **One tab per task.** `open <url> --tab NAME` opens a named tab (created if new), and `--tab NAME` on any later command addresses it. Pop-ups (`target=_blank`, `window.open`) become tabs of their own, and the click that opened one reports its name. Close a tab when its task is done (`tab close NAME`): each holds a web process, and one nothing uses closes by itself only after 15 minutes."
+  },
+  "docs-commands-table-e872c48d03": {
+    "kind": "table",
+    "document": "docs/commands.md",
+    "title": "Session",
+    "headers": [
+      "Command",
+      "What it does"
+    ],
+    "rows": [
+      [
+        "`open <url>`",
+        "Load a URL (a host name or file path works too) and wait for it. `--new` opens a new tab; `--until JS` waits for a condition across redirects. Alias `goto`."
+      ],
+      [
+        "`back`, `forward`, `reload`",
+        "Move through the tab's history, or reload."
+      ],
+      [
+        "`tabs`, `tab select <name>`, `tab new`, `tab close`",
+        "List tabs, or switch, open and close them. Pop-ups become tabs."
+      ],
+      [
+        "`wait`",
+        "Wait for `--selector`, `--text`, `--url`, `--js`, `--gone`, `--idle` (complete document and unchanged resource-entry count for 500 ms), or `--ms`."
+      ],
+      [
+        "`eval <script>`",
+        "Run JavaScript in the page as the body of an async function and print what it returns."
+      ],
+      [
+        "`block <types>`",
+        "Stop loading images, fonts, media, stylesheets, scripts or trackers. `--none` clears."
+      ],
+      [
+        "`viewport [w h]`",
+        "Set the viewport. `--mobile` sends iPhone Safari's user agent; `--scale` sets the pixel ratio."
+      ],
+      [
+        "`handoff \"<message>\"`",
+        "Show the tab to the person for a step only they can do, then hide it again."
+      ],
+      [
+        "`status`, `stop`",
+        "The daemon's profile, uptime and tabs; stop it."
+      ]
+    ]
+  },
+  "docs-commands-table-99bfc94cd0": {
+    "kind": "table",
+    "document": "docs/commands.md",
+    "title": "See",
+    "headers": [
+      "Command",
+      "What it does"
+    ],
+    "rows": [
+      [
+        "`snapshot`",
+        "One line per element with role, name, state, value and ref. `--interactive`, `--scope`, `--max` (outline characters) and `--depth` bound output."
+      ],
+      [
+        "`observe`",
+        "Full observation or ordered line replacement patch with `--since BASELINE`; retains at most eight document-local baselines."
+      ],
+      [
+        "`extract <target>`",
+        "Typed table/form/list data and source refs; `--kind`, `--limit`, `--text-max`, `--schema`. Check `truncated`."
+      ],
+      [
+        "`watch <target>`",
+        "Event-driven DOM condition: `--state`, `--equals`, `--duration` (0–25 seconds); returns `matched=false` on expiry."
+      ],
+      [
+        "`capabilities`",
+        "Supported observation/input paths and explicit limitations."
+      ],
+      [
+        "`text`",
+        "The visible text, as the browser lays it out. The cheapest way to read."
+      ],
+      [
+        "`markdown`",
+        "The page as markdown with tables and absolute links. `--main` drops navigation and page chrome."
+      ],
+      [
+        "`html`, `links`",
+        "The live DOM; every link as text and URL, with `--filter`."
+      ],
+      [
+        "`get <target>`",
+        "One element's text or value, or an attribute with `--attr`."
+      ],
+      [
+        "`info`",
+        "URL, title, HTTP status, viewport, scroll, ready state, visibility, and counts of links, forms, images and iframes."
+      ]
+    ]
+  },
+  "docs-commands-table-d6f5520937": {
+    "kind": "table",
+    "document": "docs/commands.md",
+    "title": "Act",
+    "headers": [
+      "Command",
+      "What it does"
+    ],
+    "rows": [
+      [
+        "`click <target>`",
+        "Click (`--button`, `--count`, `--modifiers`). Waits for any navigation it starts and reports the new page."
+      ],
+      [
+        "`fill <target> <value>`",
+        "Replace a field's contents, typed as a keyboard would. Works on React-controlled inputs and contenteditables."
+      ],
+      [
+        "`type <text>`",
+        "Type without clearing first, into `--target` or the focused element."
+      ],
+      [
+        "`press <keys…>`",
+        "Keys and chords in order: `Enter`, `Tab`, `Meta+a`, `Shift+Tab`…"
+      ],
+      [
+        "`select <target> <values…>`",
+        "Choose options in a `<select>` by value or label."
+      ],
+      [
+        "`check`, `uncheck <target>`",
+        "Set a checkbox, radio or switch, then verify it."
+      ],
+      [
+        "`hover`, `focus <target>`",
+        "Move the mouse over an element; move keyboard focus to it."
+      ],
+      [
+        "`scroll`",
+        "Native wheel scrolling: `--dy`, `--dx`, `--to top` or `--to bottom`, or `--target` into view."
+      ],
+      [
+        "`drag <from> <to>`",
+        "Drag one element onto another."
+      ],
+      [
+        "`upload <target> <files…>`",
+        "Answer a file chooser, including one behind a styled button."
+      ],
+      [
+        "`dialog accept`, `dialog dismiss`",
+        "Dialogs never block: each alert, confirm or prompt is accepted by default, and the reply of the action that raised it reports it. `dialog dismiss` changes how the next one is answered (`--text` answers a prompt); `dialog` alone lists the ones seen."
+      ]
+    ]
+  },
+  "docs-commands-table-14177c4af4": {
+    "kind": "table",
+    "document": "docs/commands.md",
+    "title": "Capture",
+    "headers": [
+      "Command",
+      "What it does"
+    ],
+    "rows": [
+      [
+        "`screenshot [path]`",
+        "The viewport, the whole page with `--full`, or one element with `--target`. PNG or JPEG; base64 when no path is given."
+      ],
+      [
+        "`pdf <path>`",
+        "The whole page as one tall PDF page, with selectable text and working links."
+      ],
+      [
+        "`record start`, `record stop`, `record status`",
+        "Explicit bounded PNG-sequence recording; start requires a new `--path` directory."
+      ],
+      [
+        "`processes`",
+        "Native physical footprint and cumulative CPU by unique owned or attributed PID; tab mapping and explicit coverage gaps. Samples may be cached for two seconds; CPU is not per-tab utilization."
+      ],
+      [
+        "`inspector [--stop]`",
+        "Token-protected loopback dashboard, on-demand frames and human takeover."
+      ],
+      [
+        "`diagnose --path <file>`",
+        "Metadata-only diagnostic bundle, at most 512 KiB, mode 0600."
+      ]
+    ]
+  },
+  "docs-commands-table-ec5b2a67ec": {
+    "kind": "table",
+    "document": "docs/commands.md",
+    "title": "Observe",
+    "headers": [
+      "Command",
+      "What it does"
+    ],
+    "rows": [
+      [
+        "`console`",
+        "What the page logged, uncaught errors included. `--level`, `--clear`."
+      ],
+      [
+        "`network`",
+        "Documents, fetch and XHR calls, and every loaded resource, with status, timing and size. `--failed`, `--filter`, `--clear`."
+      ],
+      [
+        "`downloads`",
+        "Files the page downloaded, saved under `~/Downloads/Umbra/`."
+      ],
+      [
+        "`cookies [domain]`",
+        "Cookie names, domains and expiry dates. Never values."
+      ]
+    ]
+  },
+  "docs-commands-table-69653e37c5": {
+    "kind": "table",
+    "document": "docs/commands.md",
+    "title": "Runtime and workflows",
+    "headers": [
+      "Command",
+      "What it does"
+    ],
+    "rows": [
+      [
+        "`runtime [--reclaim]`",
+        "Scheduler/queue/admission/memory-pressure counters and ownership. Memory covers the daemon only."
+      ],
+      [
+        "`tasks`",
+        "Pending jobs and last 128 completion records, without command arguments."
+      ],
+      [
+        "`cancel <id>`",
+        "Interrupt a runtime request with matching agent/task; already-dispatched JavaScript can continue, and side effects cannot be undone."
+      ],
+      [
+        "`lease [--seconds n] [--release]`",
+        "Acquire/renew/release a tab's cooperating agent/task ownership. Requires `--agent`."
+      ],
+      [
+        "`batch <steps>`",
+        "Execute a JSON array of 1–64 steps with optional before/after conditions; stop on failure, no automatic retry."
+      ],
+      [
+        "`workflow <file> --checkpoint <path>`",
+        "Parameterized JSON steps and atomic checkpoints; `--vars`, `--resume`, explicit `--resolve verified` or `retry` for uncertain steps."
+      ],
+      [
+        "`resources <preset>`",
+        "`lean`, `balanced` or `visual`; tab rules persist until changed, including after task completion. `--reload --until JS` restores previous rules on readiness failure; interruption can leave applied rules in place."
+      ],
+      [
+        "`http <url>`",
+        "Bounded public UTF-8 HTTP without a WebKit tab, JavaScript or profile cookies; `--max` is a byte budget."
+      ]
+    ]
+  },
+  "docs-commands-table-9ae059d752": {
+    "kind": "table",
+    "document": "docs/commands.md",
+    "title": "Frames and coordinates",
+    "headers": [
+      "Command",
+      "What it does"
+    ],
+    "rows": [
+      [
+        "`frames`",
+        "List registered main/cross-origin frame document IDs; refresh after navigation."
+      ],
+      [
+        "`frame <id> <operation> --args '<json>'`",
+        "Explicit frame-local snapshot/observe/extract/get/watch/eval/click/fill/check/uncheck/select; arguments at most 64 KiB."
+      ],
+      [
+        "`pointer <action> --x n --y n`",
+        "Trusted left-button click/move/down/up at CSS viewport coordinates; no inferred canvas semantics or application-effect verification."
+      ]
+    ]
+  },
+  "docs-commands-table-e81061a828": {
+    "kind": "table",
+    "document": "docs/commands.md",
+    "title": "One-shot",
+    "headers": [
+      "Command",
+      "What it does"
+    ],
+    "rows": [
+      [
+        "`read <url> < script.js`",
+        "Load a page in a scratch tab, run the script (or print the HTML when it's empty) and close the tab. `--cookie NAME` exits 3 when signed out; `--until`, `--wait`."
+      ],
+      [
+        "`fetch <url>`",
+        "GET a URL with the browser's session, from a page on the same site (`--from`, default `/robots.txt`)."
+      ],
+      [
+        "`download <url> <file>`",
+        "Download with the session, replacing `<file>` once complete."
+      ],
+      [
+        "`keep-signed-in [site…]`",
+        "Visit the sites marked `keepSignedIn` and report whether each is still signed in. Naming sites marks them and installs the launch agent that visits every 10 minutes; `--off` unmarks them. Exits 3 when any is signed out, otherwise 4 when any couldn't be checked. See [sites.md](sites.md#keepsignedin)."
+      ]
+    ]
+  },
+  "docs-commands-table-6a9ed7d3ef": {
+    "kind": "table",
+    "document": "docs/commands.md",
+    "title": "Exit codes",
+    "headers": [
+      "Exit",
+      "Meaning",
+      "What to do"
+    ],
+    "rows": [
+      [
+        "`0`",
+        "Done",
+        ""
+      ],
+      [
+        "`1`",
+        "Umbra itself failed",
+        "Read stderr; the next command starts the daemon again"
+      ],
+      [
+        "`2`",
+        "Deadline, cancellation, or a script error",
+        "Inspect actual state before retrying an action; use a condition or fix the script"
+      ],
+      [
+        "`3`",
+        "Signed out (`read --cookie`, `keep-signed-in`)",
+        "Run `umbra sign-in <site>`"
+      ],
+      [
+        "`4`",
+        "Page/download failure, output bound or uncertain workflow step",
+        "Read the message; verify actual state before resolving or repeating a step"
+      ],
+      [
+        "`5`",
+        "HTTP error status (`fetch`, `download`, `http`)",
+        "Check the URL and your access"
+      ],
+      [
+        "`64`",
+        "Usage error",
+        "Fix the command; `umbra help <command>`"
+      ],
+      [
+        "`78`",
+        "`sites.json` can't be parsed",
+        "Fix the file; the message names the problem"
+      ]
+    ]
+  },
+  "docs-commands-facts-104bf82a01": {
+    "kind": "facts",
+    "document": "docs/commands.md",
+    "title": "Exit codes",
+    "source": "General `wait` conditions react to DOM/input/load/visibility events and retain a 100 ms fallback for globals, time or unobserved changes. JavaScript predicates may be evaluated repeatedly; keep them free of side effects. Observers and timers are on demand and removed when the wait ends."
+  },
+  "docs-development-facts-d51d21b83f": {
+    "kind": "facts",
+    "document": "docs/development.md",
+    "title": "Testing",
+    "source": "- `test_umbra.py`: 99 tests of the one-shot commands and every exit code."
+  },
+  "docs-development-facts-6c1bb41886": {
+    "kind": "facts",
+    "document": "docs/development.md",
+    "title": "Testing",
+    "source": "- `test_daemon.py`: 135 tests of the daemon's lifecycle, the session commands, and one-shots served through a daemon."
+  },
+  "docs-development-facts-4875a04c38": {
+    "kind": "facts",
+    "document": "docs/development.md",
+    "title": "Testing",
+    "source": "- `mcp_conformance.py`: 32 tests of the MCP server's protocol, tools and errors."
+  },
+  "docs-evaluation-readme-facts-bd83ce338a": {
+    "kind": "facts",
+    "document": "docs/evaluation/README.md",
+    "title": "Evaluations and measurements",
+    "source": "**Sub-millisecond recorded snapshots, 70/70 project workflow runs, and reclaimed idle-tab memory.** Every headline below links to its method and retained samples. Historical latency and agent-task runs were recorded October 13, 2026; memory runs October 21. Runtime release measurements below are dated October 23. Each result applies to its recorded build and workload."
+  },
+  "docs-evaluation-readme-facts-e903cd9229": {
+    "kind": "facts",
+    "document": "docs/evaluation/README.md",
+    "title": "Runtime release: October 23, 2026",
+    "source": "**1.32–1.47× throughput and about 82–84% lower sampled peak memory** in three matched single-worker fixture repeats. The final build also cut observation-response tokens by **51.5–57.9%** with exact reconstruction through all three transports, and passed semantic ownership/fairness/cancellation checks through **32 clients**."
+  },
+  "docs-evaluation-readme-facts-de526ada8a": {
+    "kind": "facts",
+    "document": "docs/evaluation/README.md",
+    "title": "Runtime release: October 23, 2026",
+    "source": "The full concurrency performance grid missed its broad targets; heavy matched 32-worker cells hit the 2 GiB limit. [Final-build checks, every measurement and limits](runtime/RESULTS.md). Historical measurements below remain tied to their recorded builds."
+  },
+  "docs-evaluation-readme-facts-64ef5618d0": {
+    "kind": "facts",
+    "document": "docs/evaluation/README.md",
+    "title": "MiniWoB++: external agent tasks",
+    "source": "All 125 task types, five upstream seed repetitions and both browser arms: **1,250 primary episodes**. Umbra earned full reward on **517/625 (82.7%)**, compared with **489/625 (78.2%)** for Playwright MCP."
+  },
+  "docs-evaluation-readme-facts-830896f5ea": {
+    "kind": "facts",
+    "document": "docs/evaluation/README.md",
+    "title": "MiniWoB++: external agent tasks",
+    "source": "The observed difference is inconclusive: its paired 95% task-bootstrap interval is **−0.64 to +9.60 percentage points**. The action budget also treats native key arrays differently; expanding those keys in a conservative post-hoc calculation gives **494/625 vs 489/625**. These are adapted MCP results, not official leaderboard scores."
+  },
+  "docs-evaluation-readme-facts-e77228fd68": {
+    "kind": "facts",
+    "document": "docs/evaluation/README.md",
+    "title": "MiniWoB++: external agent tasks",
+    "source": "- [Supplementary serialized clipboard diagnostic](miniwob/2026-10-13/clipboard-serial/RESULTS.md): 10/10 full reward for each arm; primary results remain unchanged."
+  },
+  "docs-evaluation-readme-table-d0d8b63626": {
+    "kind": "table",
+    "document": "docs/evaluation/README.md",
+    "title": "Command latency: the README speed figures",
+    "headers": [
+      "Same local fixture",
+      "Umbra daemon socket",
+      "Playwright Chromium",
+      "Ratio"
+    ],
+    "rows": [
+      [
+        "Accessibility snapshot",
+        "0.94 ms",
+        "3.57 ms",
+        "3.80×"
+      ],
+      [
+        "Click + DOM update",
+        "1.52 ms",
+        "16.02 ms",
+        "10.54×"
+      ]
+    ]
+  },
+  "docs-evaluation-readme-facts-aad7a3ecaa": {
+    "kind": "facts",
+    "document": "docs/evaluation/README.md",
+    "title": "Command latency: the README speed figures",
+    "source": "Twenty measured runs per cell on one M1 Pro Mac. These project-authored fixtures measure direct daemon socket commands, without MCP framing. Playwright clicks include its actionability checks. They do not establish a general website or end-to-end agent speedup. The full table retains metrics where Chromium is faster: warm local navigation took 6.5 ms with Chromium versus 12.8 ms through Umbra’s daemon socket."
+  },
+  "docs-evaluation-readme-facts-fdd1f381a8": {
+    "kind": "facts",
+    "document": "docs/evaluation/README.md",
+    "title": "Memory: the tabs agents leave behind",
+    "source": "On a real Mac, the daemon had run 67 hours with 49 tabs agents had opened and never closed: 17.4 GB and 90% of a CPU core. Tabs now rest when unused (hidden after 5 minutes, closed after 15) and the back-forward cache is off. With one agent still working and ten others gone, memory once they had left fell from **2,756 to 331 MB** (8.3×) and their CPU from **15.3 to 1.9 seconds a minute**. When each of six tabs had visited four pages, memory fell from **3,863 to 312 MB** (12.4×). The pages are synthetic and local; command latency was unchanged."
+  },
+  "docs-evaluation-readme-facts-e583a7903f": {
+    "kind": "facts",
+    "document": "docs/evaluation/README.md",
+    "title": "Project workflow regression",
+    "source": "All 70 runs passed: 14 project-authored tasks in five agent setups. This measures the tested workflows, not general browser reliability. Models and Umbra revisions differed between setups."
+  },
+  "docs-evaluation-latency-readme-facts-7df7d96a9a": {
+    "kind": "facts",
+    "document": "docs/evaluation/latency/README.md",
+    "title": "Command latency comparison",
+    "source": "Umbra against Playwright 1.62 on the same local pages of the proving site. Each cell is the median over 20 runs, in milliseconds. Measured on an M1 Pro MacBook Pro with macOS 27; the measurement receipt notes the machine's load during the run. The p95s, the method and every check are in [the full measurement receipt](RESULTS.md)."
+  },
+  "docs-evaluation-latency-readme-table-d715888b9f": {
+    "kind": "table",
+    "document": "docs/evaluation/latency/README.md",
+    "title": "Command latency comparison",
+    "headers": [
+      "",
+      "Umbra CLI",
+      "Umbra socket",
+      "Playwright Chromium",
+      "Playwright WebKit"
+    ],
+    "rows": [
+      [
+        "Accessibility snapshot",
+        "14",
+        "**0.9**",
+        "3.6",
+        "4.4"
+      ],
+      [
+        "Click + DOM update",
+        "15",
+        "**1.5**",
+        "16",
+        "66"
+      ],
+      [
+        "Fill a React-controlled field",
+        "15",
+        "**1.3**",
+        "2.1",
+        "3.0"
+      ],
+      [
+        "Eval round trip",
+        "12",
+        "**0.2**",
+        "0.3",
+        "0.4"
+      ],
+      [
+        "Viewport screenshot to a file",
+        "64",
+        "**50**",
+        "85",
+        "57"
+      ],
+      [
+        "Warm navigate (local page)",
+        "27",
+        "13",
+        "**6.5**",
+        "13"
+      ],
+      [
+        "200-image page",
+        "175",
+        "163",
+        "**83**",
+        "147"
+      ],
+      [
+        "200-image page, images blocked",
+        "42",
+        "**29**",
+        "76",
+        "60"
+      ],
+      [
+        "Cold start to first page",
+        "408",
+        "",
+        "**153**",
+        "718"
+      ],
+      [
+        "One-shot `read`, no daemon",
+        "385",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  "docs-evaluation-latency-readme-facts-7c6fb84bbe": {
+    "kind": "facts",
+    "document": "docs/evaluation/latency/README.md",
+    "title": "Command latency comparison",
+    "source": "On these local fixtures, Umbra’s socket path had the lowest median for snapshots, clicks, field fills, eval round trips and screenshots. This is a project-authored command microbenchmark, separate from the external agent evaluation above. Each CLI command adds about 12 ms of process start-up, which is still small next to an agent's thinking time. Chromium starts faster: its figure leaves out Node's own start-up, while Umbra's includes spawning the daemon and WebKit. Chromium also loads a page full of uncached images faster unless you `block images`."
+  },
+  "docs-evaluation-latency-results-facts-e563211d98": {
+    "kind": "facts",
+    "document": "docs/evaluation/latency/RESULTS.md",
+    "title": "Umbra vs Playwright on Northwind Ops",
+    "source": "Measured 2026-10-13 02:33 on a MacBookPro18,3 (Apple M1 Pro, 8 cores, 16 GB), macOS 27.0.1 (26A434). One-minute load average 2.66 at the start and 9.72 at the end (five-minute 4.81): no other lane's suites were running at the start, but something else started in roughly the last minute, when the Playwright WebKit rows (run last) were running. Against the earlier run (load 5.6 to 10.8), those rows are the same or faster (eval aside: 0.3 to 0.4 ms), except warm navigate, which went from 6.7 to 13 ms. Umbra's socket navigate made the same jump (7.1 to 13 ms) while load was still low, so the WebKit navigate change isn't the load spike; Chromium stayed at 6.5 ms.\numbra 0.2.0 built from 4f879a5 (HEAD moved to e0b33a3 during the run; that commit changes only docs, so Sources, Makefile and Info.plist are identical); Playwright 1.62.1 with chromium 151.0.7922.34 and webkit 26.5.\nEach cell is p50 / p95 in milliseconds over 20 timed runs, after 2 untimed warm-up runs (the two cold rows have none: every run is cold). Every run is checked afterward (untimed): the page loaded, the switch flipped, the field holds the value, the images loaded or were blocked."
+  },
+  "docs-evaluation-latency-results-table-22b4397105": {
+    "kind": "table",
+    "document": "docs/evaluation/latency/RESULTS.md",
+    "title": "Umbra vs Playwright on Northwind Ops",
+    "headers": [
+      "Metric",
+      "Umbra CLI",
+      "Umbra socket",
+      "Playwright Chromium",
+      "Playwright WebKit"
+    ],
+    "rows": [
+      [
+        "Cold start to first page loaded",
+        "408 / 413",
+        "n/a (CLI only)",
+        "153 / 163",
+        "718 / 727"
+      ],
+      [
+        "One-shot read (no daemon), cold",
+        "385 / 391",
+        "n/a (CLI only)",
+        "—",
+        "—"
+      ],
+      [
+        "Warm navigate to a local page",
+        "27 / 28",
+        "13 / 14",
+        "6.5 / 7.2",
+        "13 / 17"
+      ],
+      [
+        "Accessibility snapshot (orders table)",
+        "14 / 14",
+        "0.9 / 1.3",
+        "3.6 / 4.7",
+        "4.4 / 5.4"
+      ],
+      [
+        "Click + DOM update (role=switch)",
+        "15 / 16",
+        "1.5 / 3.4",
+        "16 / 16",
+        "66 / 67"
+      ],
+      [
+        "Fill a field (React-controlled input)",
+        "15 / 18",
+        "1.3 / 2.6",
+        "2.1 / 2.6",
+        "3.0 / 3.5"
+      ],
+      [
+        "Viewport screenshot to a file",
+        "64 / 66",
+        "50 / 51",
+        "85 / 97",
+        "57 / 58"
+      ],
+      [
+        "Eval round trip",
+        "12 / 14",
+        "0.2 / 0.2",
+        "0.3 / 0.5",
+        "0.4 / 0.5"
+      ],
+      [
+        "/heavy load, 200 images",
+        "175 / 178",
+        "163 / 169",
+        "83 / 87",
+        "147 / 151"
+      ],
+      [
+        "/heavy load, images blocked",
+        "42 / 45",
+        "29 / 31",
+        "76 / 78",
+        "60 / 70"
+      ]
+    ]
+  },
+  "docs-evaluation-latency-results-table-faa415e590": {
+    "kind": "table",
+    "document": "docs/evaluation/latency/RESULTS.md",
+    "title": "ROADMAP speed targets",
+    "headers": [
+      "Target",
+      "Umbra CLI",
+      "Umbra socket"
+    ],
+    "rows": [
+      [
+        "Cold start to first page loaded < 700 ms",
+        "408 (413) met",
+        "n/a (CLI only)"
+      ],
+      [
+        "One-shot read (no daemon), cold < 500 ms",
+        "385 (391) met",
+        "n/a (CLI only)"
+      ],
+      [
+        "Warm navigate to a local page < 120 ms",
+        "27 (28) met",
+        "13 (14) met"
+      ],
+      [
+        "Accessibility snapshot (orders table) < 25 ms",
+        "14 (14) met",
+        "0.9 (1.3) met"
+      ],
+      [
+        "Click + DOM update (role=switch) < 40 ms",
+        "15 (16) met",
+        "1.5 (3.4) met"
+      ]
+    ]
+  },
+  "docs-evaluation-latency-results-facts-233ae20ffa": {
+    "kind": "facts",
+    "document": "docs/evaluation/latency/RESULTS.md",
+    "title": "Notes",
+    "source": "- Screenshots are the 1280×900 viewport at device pixel ratio 2 for every browser, written to a PNG file."
+  },
+  "docs-evaluation-latency-results-facts-425f64c489": {
+    "kind": "facts",
+    "document": "docs/evaluation/latency/RESULTS.md",
+    "title": "Notes",
+    "source": "- Image blocking: Umbra `block images`; Playwright `page.route()` aborting image URLs (a glob, so other requests are not intercepted). The page serves 200 incompressible 96×96 PNGs (about 4.9 MB) with `Cache-Control: no-store`."
+  },
+  "docs-evaluation-memory-readme-facts-a5e21329cc": {
+    "kind": "facts",
+    "document": "docs/evaluation/memory/README.md",
+    "title": "What we found",
+    "source": "An audit of a real Mac on 2026-10-21 found the default profile's daemon running for 67 hours with 49 tabs open. Agents had opened every one of them by name for a task and never closed it. Together they held 17.4 GB across 47 WebKit processes and kept 90% of a CPU core busy. A tab closed only when its daemon exited, after 15 minutes without a command, and a Mac where agents work all day never gives it those 15 minutes. Every tab also kept running its animations and timers, because Umbra's pages always see themselves as visible."
+  },
+  "docs-evaluation-memory-readme-facts-c1d3e7642b": {
+    "kind": "facts",
+    "document": "docs/evaluation/memory/README.md",
+    "title": "What changed",
+    "source": "- **A tab rests when no command uses it.** After a third of `UMBRA_IDLE` (5 minutes by default) Umbra hides it, so its timers slow and its animations pause, as a background tab does in Safari. The next command on it shows it again first. After all of `UMBRA_IDLE` (15 minutes) it closes, and its web process ends. [How it works](../../how-it-works.md#the-daemon)."
+  },
+  "docs-evaluation-memory-readme-facts-dd739ae7d3": {
+    "kind": "facts",
+    "document": "docs/evaluation/memory/README.md",
+    "title": "The measurement",
+    "source": "`bench/memory.py` starts a daemon under a throwaway profile. One agent opens a tab and takes a snapshot every 10 seconds for the whole run, which keeps the daemon busy as on a real Mac. Each of the other agents opens a heavy page in a tab of its own, takes a snapshot, clicks and reads the text, and never comes back. The heavy page holds memory the way a web app does: a JavaScript heap, a typed array, a drawn canvas, decoded images and a few thousand DOM nodes, kept busy by an animation and a timer. Every 5 seconds the bench adds up the physical footprint (Activity Monitor's Memory column) and CPU time of the daemon and of every process macOS holds it responsible for: its web content, GPU and networking processes. `UMBRA_IDLE` is 60 seconds here so a run takes minutes rather than an hour."
+  },
+  "docs-evaluation-memory-readme-table-3968fb4ad1": {
+    "kind": "table",
+    "document": "docs/evaluation/memory/README.md",
+    "title": "The measurement",
+    "headers": [
+      "Workload",
+      "",
+      "Peak",
+      "After they leave",
+      "Web processes then",
+      "CPU while the tabs sit unused"
+    ],
+    "rows": [
+      [
+        "10 agents, 1 page each",
+        "Before",
+        "2,774 MB",
+        "2,756 MB",
+        "11",
+        "15.3 s / min"
+      ],
+      [
+        "",
+        "Now",
+        "2,786 MB",
+        "**331 MB**",
+        "**1**",
+        "**1.9 s / min**"
+      ],
+      [
+        "6 agents, 4 pages each (two sites, alternating)",
+        "Before",
+        "4,271 MB",
+        "3,863 MB",
+        "19",
+        "10.3 s / min"
+      ],
+      [
+        "",
+        "Now",
+        "**1,825 MB**",
+        "**312 MB**",
+        "**1**",
+        "**2.0 s / min**"
+      ]
+    ]
+  },
+  "docs-evaluation-memory-readme-facts-f2e14c3d16": {
+    "kind": "facts",
+    "document": "docs/evaluation/memory/README.md",
+    "title": "The measurement",
+    "source": "\"After they leave\" is the last sample, 145 seconds after the last agent left its tab. \"Before\" is commit 2ff860c. Hiding alone gave back 4 to 9% of the abandoned tabs' memory and almost all of their CPU; closing them gave back the memory. On its own, turning off the back-forward cache took 4 tabs that had each visited 6 pages (plus the working tab) from 3.4 GB to 1.3 GB."
+  },
+  "docs-evaluation-memory-readme-facts-c3b30056ad": {
+    "kind": "facts",
+    "document": "docs/evaluation/memory/README.md",
+    "title": "The measurement",
+    "source": "Command latency did not change. `bench/bench.py`, 20 runs per command on both builds, Umbra CLI medians before and now: snapshot 15.8 and 14.9 ms, click 16.4 and 16.2 ms, fill 16.2 and 15.9 ms, warm navigate 22.7 and 22.4 ms, screenshot 66.9 and 66.2 ms, cold start 453 and 448 ms."
+  },
+  "docs-evaluation-memory-readme-facts-e8743c7dbc": {
+    "kind": "facts",
+    "document": "docs/evaluation/memory/README.md",
+    "title": "The measurement",
+    "source": "Every sample, both builds and the latency medians are in [results.json](results.json). Measured on an M1 Pro MacBook Pro with 16 GB and macOS 27.0.1."
+  },
+  "docs-evaluation-memory-readme-facts-8273443379": {
+    "kind": "facts",
+    "document": "docs/evaluation/memory/README.md",
+    "title": "Limits",
+    "source": "- A tab an agent leaves still holds its memory until it closes: 15 minutes by default."
+  },
+  "docs-evaluation-memory-readme-facts-6b714ef0a4": {
+    "kind": "facts",
+    "document": "docs/evaluation/memory/README.md",
+    "title": "Limits",
+    "source": "- Measured but not adopted: one shared WebKit process pool for all tabs. It saves one spare web process (about 7 MB) per tab, through an API Apple has deprecated."
+  },
+  "docs-evaluation-miniwob-2026-10-13-results-table-0b2e851a58": {
+    "kind": "table",
+    "document": "docs/evaluation/miniwob/2026-10-13/RESULTS.md",
+    "title": "MiniWoB++ external evaluation",
+    "headers": [
+      "Browser",
+      "BrowserGym successes",
+      "Full reward",
+      "Episode p50 / p95",
+      "Broker call p50 / p95"
+    ],
+    "rows": [
+      [
+        "umbra",
+        "524/625 (83.8%; task CI 78.2%–89.1%)",
+        "517/625",
+        "21.0 / 83.7 s",
+        "8.0 / 31.9 ms"
+      ],
+      [
+        "playwright",
+        "494/625 (79.0%; task CI 72.6%–85.1%)",
+        "489/625",
+        "25.2 / 71.6 s",
+        "47.2 / 5023.4 ms"
+      ]
+    ]
+  },
+  "docs-evaluation-miniwob-2026-10-13-results-facts-94e27cd931": {
+    "kind": "facts",
+    "document": "docs/evaluation/miniwob/2026-10-13/RESULTS.md",
+    "title": "MiniWoB++ external evaluation",
+    "source": "Paired success difference (Umbra minus Playwright): 4.8 percentage points, 95% task-cluster interval -0.3 to 9.9."
+  },
+  "docs-evaluation-miniwob-2026-10-13-results-facts-a2ce5ba6b6": {
+    "kind": "facts",
+    "document": "docs/evaluation/miniwob/2026-10-13/RESULTS.md",
+    "title": "MiniWoB++ external evaluation",
+    "source": "Full-reward paired difference: 4.5 percentage points, 95% task-cluster interval -0.6 to 9.6."
+  },
+  "docs-evaluation-miniwob-2026-10-13-results-facts-51d50f7cb9": {
+    "kind": "facts",
+    "document": "docs/evaluation/miniwob/2026-10-13/RESULTS.md",
+    "title": "Frozen setup",
+    "source": "- Ten interaction units as implemented by the frozen broker, forty observations, 120 seconds per episode including setup and final response. A native press-array counts as one unit; fill_form counts each field separately. This is not ten unbatched BrowserGym actions."
+  },
+  "docs-evaluation-miniwob-2026-10-13-results-table-09df2572f0": {
+    "kind": "table",
+    "document": "docs/evaluation/miniwob/2026-10-13/RESULTS.md",
+    "title": "Coverage and failures",
+    "headers": [
+      "Browser",
+      "Finished",
+      "Train success",
+      "Test success",
+      "Cleanup failures",
+      "Trace violations"
+    ],
+    "rows": [
+      [
+        "umbra",
+        "625/625",
+        "273/310",
+        "251/315",
+        "0",
+        "0"
+      ],
+      [
+        "playwright",
+        "625/625",
+        "257/310",
+        "237/315",
+        "0",
+        "0"
+      ]
+    ]
+  },
+  "docs-evaluation-miniwob-2026-10-13-results-table-c0cc321306": {
+    "kind": "table",
+    "document": "docs/evaluation/miniwob/2026-10-13/RESULTS.md",
+    "title": "Coverage and failures",
+    "headers": [
+      "Failure classification",
+      "Umbra",
+      "Playwright"
+    ],
+    "rows": [
+      [
+        "action limit",
+        "1",
+        "9"
+      ],
+      [
+        "agent stopped unfinished",
+        "64",
+        "81"
+      ],
+      [
+        "infrastructure / setup",
+        "0",
+        "1"
+      ],
+      [
+        "upstream rejected",
+        "26",
+        "34"
+      ],
+      [
+        "wall time limit",
+        "10",
+        "6"
+      ]
+    ]
+  },
+  "docs-evaluation-miniwob-2026-10-13-results-table-3e556fa2ad": {
+    "kind": "table",
+    "document": "docs/evaluation/miniwob/2026-10-13/RESULTS.md",
+    "title": "Unbatched key-budget sensitivity",
+    "headers": [
+      "Browser",
+      "Positive reward within ten expanded units",
+      "Full reward within ten expanded units"
+    ],
+    "rows": [
+      [
+        "umbra",
+        "501/625",
+        "494/625"
+      ],
+      [
+        "playwright",
+        "494/625",
+        "489/625"
+      ]
+    ]
+  },
+  "docs-evaluation-miniwob-2026-10-13-results-facts-421f722ffa": {
+    "kind": "facts",
+    "document": "docs/evaluation/miniwob/2026-10-13/RESULTS.md",
+    "title": "Serialized clipboard diagnostic",
+    "source": "A separate post-hoc run repeated both clipboard task types with the original five seeds, one episode at a time. Umbra earned full reward on 10/10 cases; Playwright earned 10/10. These twenty episodes do not replace any primary result. Strategy and machine load also vary, so this does not identify clipboard contention as the sole cause of primary failures."
+  },
+  "docs-evaluation-miniwob-2026-10-13-results-table-c4f4b9f00b": {
+    "kind": "table",
+    "document": "docs/evaluation/miniwob/2026-10-13/RESULTS.md",
+    "title": "Per-task results",
+    "headers": [
+      "Task",
+      "Split",
+      "Umbra",
+      "Playwright"
+    ],
+    "rows": [
+      [
+        "miniwob.ascending-numbers",
+        "test",
+        "4/5",
+        "0/5"
+      ],
+      [
+        "miniwob.bisect-angle",
+        "test",
+        "1/5",
+        "0/5"
+      ],
+      [
+        "miniwob.book-flight",
+        "train",
+        "3/5",
+        "1/5"
+      ],
+      [
+        "miniwob.book-flight-nodelay",
+        "train",
+        "3/5",
+        "0/5"
+      ],
+      [
+        "miniwob.buy-ticket",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.choose-date",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.choose-date-easy",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.choose-date-medium",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.choose-date-nodelay",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.choose-list",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.circle-center",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-button",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-button-sequence",
+        "test",
+        "4/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-checkboxes",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-checkboxes-large",
+        "train",
+        "5/5",
+        "4/5"
+      ],
+      [
+        "miniwob.click-checkboxes-soft",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-checkboxes-transfer",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-collapsible",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-collapsible-2",
+        "train",
+        "5/5",
+        "4/5"
+      ],
+      [
+        "miniwob.click-collapsible-2-nodelay",
+        "train",
+        "5/5",
+        "3/5"
+      ],
+      [
+        "miniwob.click-collapsible-nodelay",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-color",
+        "test",
+        "5/5",
+        "3/5"
+      ],
+      [
+        "miniwob.click-dialog",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-dialog-2",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-link",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-menu",
+        "test",
+        "2/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-menu-2",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-option",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-pie",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-pie-nodelay",
+        "test",
+        "5/5",
+        "4/5"
+      ],
+      [
+        "miniwob.click-scroll-list",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-shades",
+        "train",
+        "5/5",
+        "4/5"
+      ],
+      [
+        "miniwob.click-shape",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-tab",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-tab-2",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-tab-2-easy",
+        "test",
+        "5/5",
+        "4/5"
+      ],
+      [
+        "miniwob.click-tab-2-hard",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-tab-2-medium",
+        "test",
+        "5/5",
+        "3/5"
+      ],
+      [
+        "miniwob.click-test",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-test-2",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-test-transfer",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.click-widget",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.copy-paste",
+        "test",
+        "4/5",
+        "0/5"
+      ],
+      [
+        "miniwob.copy-paste-2",
+        "test",
+        "1/5",
+        "0/5"
+      ],
+      [
+        "miniwob.count-shape",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.count-sides",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.daily-calendar",
+        "train",
+        "1/5",
+        "5/5"
+      ],
+      [
+        "miniwob.drag-box",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.drag-circle",
+        "test",
+        "2/5",
+        "1/5"
+      ],
+      [
+        "miniwob.drag-cube",
+        "test",
+        "0/5",
+        "3/5"
+      ],
+      [
+        "miniwob.drag-items",
+        "train",
+        "3/5",
+        "3/5"
+      ],
+      [
+        "miniwob.drag-items-grid",
+        "test",
+        "1/5",
+        "3/5"
+      ],
+      [
+        "miniwob.drag-shapes",
+        "train",
+        "5/5",
+        "3/5"
+      ],
+      [
+        "miniwob.drag-shapes-2",
+        "train",
+        "5/5",
+        "0/5"
+      ],
+      [
+        "miniwob.drag-single-shape",
+        "train",
+        "2/5",
+        "2/5"
+      ],
+      [
+        "miniwob.drag-sort-numbers",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.draw-circle",
+        "train",
+        "0/5",
+        "0/5"
+      ],
+      [
+        "miniwob.draw-line",
+        "train",
+        "1/5",
+        "0/5"
+      ],
+      [
+        "miniwob.email-inbox",
+        "test",
+        "3/5",
+        "5/5"
+      ],
+      [
+        "miniwob.email-inbox-delete",
+        "test",
+        "1/5",
+        "5/5"
+      ],
+      [
+        "miniwob.email-inbox-forward",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.email-inbox-forward-nl",
+        "test",
+        "4/5",
+        "5/5"
+      ],
+      [
+        "miniwob.email-inbox-forward-nl-turk",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.email-inbox-important",
+        "test",
+        "1/5",
+        "5/5"
+      ],
+      [
+        "miniwob.email-inbox-nl-turk",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.email-inbox-noscroll",
+        "test",
+        "3/5",
+        "5/5"
+      ],
+      [
+        "miniwob.email-inbox-reply",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.email-inbox-star-reply",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.enter-date",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.enter-password",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.enter-text",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.enter-text-2",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.enter-text-dynamic",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.enter-time",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.find-greatest",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.find-midpoint",
+        "train",
+        "0/5",
+        "0/5"
+      ],
+      [
+        "miniwob.find-word",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.focus-text",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.focus-text-2",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.form-sequence",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.form-sequence-2",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.form-sequence-3",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.generate-number",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.grid-coordinate",
+        "test",
+        "4/5",
+        "5/5"
+      ],
+      [
+        "miniwob.guess-number",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.highlight-text",
+        "test",
+        "4/5",
+        "0/5"
+      ],
+      [
+        "miniwob.highlight-text-2",
+        "test",
+        "5/5",
+        "0/5"
+      ],
+      [
+        "miniwob.hot-cold",
+        "test",
+        "0/5",
+        "0/5"
+      ],
+      [
+        "miniwob.identify-shape",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.login-user",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.login-user-popup",
+        "train",
+        "5/5",
+        "4/5"
+      ],
+      [
+        "miniwob.multi-layouts",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.multi-orderings",
+        "train",
+        "5/5",
+        "4/5"
+      ],
+      [
+        "miniwob.navigate-tree",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.number-checkboxes",
+        "test",
+        "5/5",
+        "0/5"
+      ],
+      [
+        "miniwob.odd-or-even",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.order-food",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.phone-book",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.read-table",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.read-table-2",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.resize-textarea",
+        "test",
+        "0/5",
+        "0/5"
+      ],
+      [
+        "miniwob.right-angle",
+        "test",
+        "1/5",
+        "0/5"
+      ],
+      [
+        "miniwob.scroll-text",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.scroll-text-2",
+        "test",
+        "5/5",
+        "4/5"
+      ],
+      [
+        "miniwob.search-engine",
+        "train",
+        "0/5",
+        "0/5"
+      ],
+      [
+        "miniwob.sign-agreement",
+        "test",
+        "5/5",
+        "2/5"
+      ],
+      [
+        "miniwob.simple-algebra",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.simple-arithmetic",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.social-media",
+        "test",
+        "2/5",
+        "3/5"
+      ],
+      [
+        "miniwob.social-media-all",
+        "test",
+        "4/5",
+        "4/5"
+      ],
+      [
+        "miniwob.social-media-some",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.stock-market",
+        "test",
+        "1/5",
+        "1/5"
+      ],
+      [
+        "miniwob.terminal",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.text-editor",
+        "train",
+        "1/5",
+        "4/5"
+      ],
+      [
+        "miniwob.text-transform",
+        "train",
+        "4/5",
+        "5/5"
+      ],
+      [
+        "miniwob.tic-tac-toe",
+        "test",
+        "4/5",
+        "2/5"
+      ],
+      [
+        "miniwob.unicode-test",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.use-autocomplete",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.use-autocomplete-nodelay",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.use-colorwheel",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.use-colorwheel-2",
+        "train",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.use-slider",
+        "train",
+        "5/5",
+        "3/5"
+      ],
+      [
+        "miniwob.use-slider-2",
+        "train",
+        "5/5",
+        "3/5"
+      ],
+      [
+        "miniwob.use-spinner",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.visual-addition",
+        "train",
+        "5/5",
+        "5/5"
+      ]
+    ]
+  },
+  "docs-evaluation-miniwob-2026-10-13-results-facts-72d37c2dc6": {
+    "kind": "facts",
+    "document": "docs/evaluation/miniwob/2026-10-13/RESULTS.md",
+    "title": "Interpretation limits",
+    "source": "Wall times include model inference and run under shared machine load. Broker call times include MCP handling, action waits, two upstream validation calls and image hashing; they are not pure engine latency. The Python Playwright control connection uses the upstream 100 ms slow-motion setting; the Umbra control connection has no equivalent delay. Broker durations therefore do not support a browser speedup claim. Installation is outside the timing. Codex reports token usage but no dollar cost for this subscription run."
+  },
+  "docs-evaluation-miniwob-2026-10-13-results-facts-60c2b5e4f1": {
+    "kind": "facts",
+    "document": "docs/evaluation/miniwob/2026-10-13/RESULTS.md",
+    "title": "Primary sources",
+    "source": "- [BrowserGym benchmark configuration](https://github.com/ServiceNow/BrowserGym/blob/e71419aef5759a11cb7896a26c36e5f7e92d82b2/browsergym/experiments/src/browsergym/experiments/benchmark/configs.py): 125 tasks, five repeats and ten actions."
+  },
+  "docs-evaluation-miniwob-2026-10-13-verification-facts-8b17ed6d74": {
+    "kind": "facts",
+    "document": "docs/evaluation/miniwob/2026-10-13/VERIFICATION.md",
+    "title": "Verification receipt",
+    "source": "The primary campaign ran all 125 upstream task types with the five seeds from the pinned BrowserGym configuration in each of two arms: 1,250 episodes. Both arms used fresh Codex sessions with the same model and prompts. The browser protocol was adapted to filtered MCP tools."
+  },
+  "docs-evaluation-miniwob-2026-10-13-verification-facts-e8c2ad924f": {
+    "kind": "facts",
+    "document": "docs/evaluation/miniwob/2026-10-13/VERIFICATION.md",
+    "title": "Verification receipt",
+    "source": "- All 1,250 run receipts are present; all 625 paired setups have identical goal text."
+  },
+  "docs-evaluation-miniwob-2026-10-13-verification-facts-9cee6fb34b": {
+    "kind": "facts",
+    "document": "docs/evaluation/miniwob/2026-10-13/VERIFICATION.md",
+    "title": "Verification receipt",
+    "source": "The primary full-reward difference is 4.48 percentage points, with a task-grouped 95% bootstrap interval from -0.64 to 9.604 points. This does not establish superiority. Neither the full corpus score nor these controls establish real-site reliability or pure browser-engine speed."
+  },
+  "docs-evaluation-miniwob-2026-10-13-verification-facts-17955852c5": {
+    "kind": "facts",
+    "document": "docs/evaluation/miniwob/2026-10-13/VERIFICATION.md",
+    "title": "Verification receipt",
+    "source": "The separate serialized clipboard diagnostic completed all 20 episodes, with full reward on 10/10 for each arm. It reused the original five seeds and paired goal text, with one episode at a time. Its ten native profiles, all Chromium profile directories and scoped process roots were absent in the final census. Model strategy and machine load varied; this does not prove clipboard contention caused the primary failures."
+  },
+  "docs-evaluation-miniwob-2026-10-13-clipboard-serial-results-table-0df759c00b": {
+    "kind": "table",
+    "document": "docs/evaluation/miniwob/2026-10-13/clipboard-serial/RESULTS.md",
+    "title": "MiniWoB++ serialized clipboard diagnostic",
+    "headers": [
+      "Browser",
+      "BrowserGym successes",
+      "Full reward",
+      "Episode p50 / p95",
+      "Broker call p50 / p95"
+    ],
+    "rows": [
+      [
+        "umbra",
+        "10/10 (100.0%)",
+        "10/10",
+        "17.5 / 20.7 s",
+        "8.3 / 60.2 ms"
+      ],
+      [
+        "playwright",
+        "10/10 (100.0%)",
+        "10/10",
+        "21.2 / 27.0 s",
+        "31.4 / 583.0 ms"
+      ]
+    ]
+  },
+  "docs-evaluation-miniwob-2026-10-13-clipboard-serial-results-facts-51d50f7cb9": {
+    "kind": "facts",
+    "document": "docs/evaluation/miniwob/2026-10-13/clipboard-serial/RESULTS.md",
+    "title": "Frozen setup",
+    "source": "- Ten interaction units as implemented by the frozen broker, forty observations, 120 seconds per episode including setup and final response. A native press-array counts as one unit; fill_form counts each field separately. This is not ten unbatched BrowserGym actions."
+  },
+  "docs-evaluation-miniwob-2026-10-13-clipboard-serial-results-table-fc0d88220a": {
+    "kind": "table",
+    "document": "docs/evaluation/miniwob/2026-10-13/clipboard-serial/RESULTS.md",
+    "title": "Coverage and failures",
+    "headers": [
+      "Browser",
+      "Finished",
+      "Train success",
+      "Test success",
+      "Cleanup failures",
+      "Trace violations"
+    ],
+    "rows": [
+      [
+        "umbra",
+        "10/10",
+        "0/0",
+        "10/10",
+        "0",
+        "0"
+      ],
+      [
+        "playwright",
+        "10/10",
+        "0/0",
+        "10/10",
+        "0",
+        "0"
+      ]
+    ]
+  },
+  "docs-evaluation-miniwob-2026-10-13-clipboard-serial-results-table-b1635774e9": {
+    "kind": "table",
+    "document": "docs/evaluation/miniwob/2026-10-13/clipboard-serial/RESULTS.md",
+    "title": "Coverage and failures",
+    "headers": [
+      "Failure classification",
+      "Umbra",
+      "Playwright"
+    ],
+    "rows": []
+  },
+  "docs-evaluation-miniwob-2026-10-13-clipboard-serial-results-table-ca7200ba07": {
+    "kind": "table",
+    "document": "docs/evaluation/miniwob/2026-10-13/clipboard-serial/RESULTS.md",
+    "title": "Unbatched key-budget sensitivity",
+    "headers": [
+      "Browser",
+      "Positive reward within ten expanded units",
+      "Full reward within ten expanded units"
+    ],
+    "rows": [
+      [
+        "umbra",
+        "10/10",
+        "10/10"
+      ],
+      [
+        "playwright",
+        "10/10",
+        "10/10"
+      ]
+    ]
+  },
+  "docs-evaluation-miniwob-2026-10-13-clipboard-serial-results-table-fedda28f96": {
+    "kind": "table",
+    "document": "docs/evaluation/miniwob/2026-10-13/clipboard-serial/RESULTS.md",
+    "title": "Per-task results",
+    "headers": [
+      "Task",
+      "Split",
+      "Umbra",
+      "Playwright"
+    ],
+    "rows": [
+      [
+        "miniwob.copy-paste",
+        "test",
+        "5/5",
+        "5/5"
+      ],
+      [
+        "miniwob.copy-paste-2",
+        "test",
+        "5/5",
+        "5/5"
+      ]
+    ]
+  },
+  "docs-evaluation-miniwob-2026-10-13-clipboard-serial-results-facts-72d37c2dc6": {
+    "kind": "facts",
+    "document": "docs/evaluation/miniwob/2026-10-13/clipboard-serial/RESULTS.md",
+    "title": "Interpretation limits",
+    "source": "Wall times include model inference and run under shared machine load. Broker call times include MCP handling, action waits, two upstream validation calls and image hashing; they are not pure engine latency. The Python Playwright control connection uses the upstream 100 ms slow-motion setting; the Umbra control connection has no equivalent delay. Broker durations therefore do not support a browser speedup claim. Installation is outside the timing. Codex reports token usage but no dollar cost for this subscription run."
+  },
+  "docs-evaluation-miniwob-2026-10-13-clipboard-serial-results-facts-60c2b5e4f1": {
+    "kind": "facts",
+    "document": "docs/evaluation/miniwob/2026-10-13/clipboard-serial/RESULTS.md",
+    "title": "Primary sources",
+    "source": "- [BrowserGym benchmark configuration](https://github.com/ServiceNow/BrowserGym/blob/e71419aef5759a11cb7896a26c36e5f7e92d82b2/browsergym/experiments/src/browsergym/experiments/benchmark/configs.py): 125 tasks, five repeats and ten actions."
+  },
+  "docs-evaluation-protocol-table-3f971f5b5f": {
+    "kind": "table",
+    "document": "docs/evaluation/protocol.md",
+    "title": "Benchmark research",
+    "headers": [
+      "Benchmark",
+      "What it measures",
+      "Decision for this machine"
+    ],
+    "rows": [
+      [
+        "[MiniWoB++](https://github.com/Farama-Foundation/miniwob-plusplus) through [BrowserGym](https://github.com/ServiceNow/BrowserGym)",
+        "Over 100 locally hosted web interaction tasks; deterministic rewards. BrowserGym's standard configuration has 125 task types, five repeats and ten actions.",
+        "Run all 625 episodes per browser arm."
+      ],
+      [
+        "[WebArena](https://github.com/web-arena-x/webarena)",
+        "812 tasks on self-hosted replicas of full websites; functional evaluators.",
+        "Not run: required site containers are absent and the local Docker daemon is unavailable."
+      ],
+      [
+        "[Online-Mind2Web](https://github.com/OSU-NLP-Group/Online-Mind2Web)",
+        "Tasks on real websites, judged from actions and screenshots.",
+        "Not run: this repository permits localhost-only tests; dataset access and model judging are additional dependencies."
+      ],
+      [
+        "[WebdriverIO's browser tool comparison](https://github.com/webdriverio/benchmark)",
+        "Playwright MCP/CLI, WebdriverIO, Stagehand and agent-browser under a shared model and harness. Its current suite samples Online-Mind2Web.",
+        "Inspected methodology; not executed for the same live-site/dataset/judge restrictions."
+      ]
+    ]
+  },
+  "docs-evaluation-proving-ground-table-2953493cc3": {
+    "kind": "table",
+    "document": "docs/evaluation/proving-ground.md",
+    "title": "The site",
+    "headers": [
+      "Path",
+      "What it exercises"
+    ],
+    "rows": [
+      [
+        "`/login`",
+        "Username, password, \"remember me\". A wrong password shows an inline error. Success sets an HttpOnly, session-only `nw_session` cookie (plus a 30-day `nw_remember` when ticked) and redirects to `/app` or `?next=`."
+      ],
+      [
+        "`/login/otp`",
+        "Second step when two-step sign-in is on (`--otp`, or `{\"otp\": true}` on reset). The code is 424242."
+      ],
+      [
+        "`/app`",
+        "Dashboard: nav, a row of cards (including **Open tickets**), recent orders, an **Orders →** link."
+      ],
+      [
+        "`/app/orders`",
+        "40 orders, 10 per page, rendered by JS from `/api/orders?page=&status=`. Prev and Next buttons, a status filter `<select>`, and **Export CSV** (`/api/orders.csv`, `Content-Disposition: attachment`)."
+      ],
+      [
+        "`/app/orders/<id>`",
+        "Order details. **Refund order** raises `confirm()`; accepting POSTs `/api/refund`."
+      ],
+      [
+        "`/app/settings`",
+        "A React-style controlled **Display name** input (a direct `.value` write without an input event the framework accepts is reverted), a contenteditable **Bio**, a `role=switch` **Email notifications** toggle, and a `<nw-color-picker>` web component whose swatches are in shadow DOM. **Save changes** POSTs `/api/settings`."
+      ],
+      [
+        "`/app/iframe`",
+        "The settings form inside a same-origin iframe. Saves from there are logged with `source: \"iframe\"`."
+      ],
+      [
+        "`/app/upload`",
+        "A styled **Choose file…** button that clicks a `hidden` `<input type=file>`. The upload is multipart; the server logs the file name and SHA-256 and returns a receipt code."
+      ],
+      [
+        "`/app/wizard`",
+        "Onboarding in three steps with validation: required name, email format, plan, seats from 1 to 500, terms. The last step shows a confirmation number."
+      ],
+      [
+        "`/app/feed`",
+        "Infinite scroll: an IntersectionObserver sentinel loads 20 items at a time, 100 in all. One seeded item past the first 60 is marked **★ featured**."
+      ],
+      [
+        "`/app/popup`",
+        "Reports: a `target=_blank` link to `/app/report`, whose report number is logged when viewed."
+      ],
+      [
+        "`/slow`",
+        "The forecast appears 1.5 s after load. It is fetched then, so it is not in the HTML."
+      ],
+      [
+        "`/heavy`",
+        "200 images from `/img/<n>.png`, 96×96 incompressible PNGs generated in memory (about 4.9 MB), all `Cache-Control: no-store`."
+      ],
+      [
+        "`/captcha`",
+        "A security check showing digits in an image, meant for a person. Solving it logs `captcha_solved`. If the page's window gains focus (Umbra's `handoff` shows it), the page logs `captcha_focus`."
+      ]
+    ]
+  },
+  "docs-evaluation-proving-ground-table-eb0cc537a0": {
+    "kind": "table",
+    "document": "docs/evaluation/proving-ground.md",
+    "title": "Tasks",
+    "headers": [
+      "Task",
+      "What it needs",
+      "Graded on"
+    ],
+    "rows": [
+      [
+        "`pending-count`",
+        "Sign in, then the filter or pagination",
+        "A form sign-in, and the answer states the number of pending orders"
+      ],
+      [
+        "`shipped-total`",
+        "Filter plus two pages of a client-rendered table",
+        "The answer contains the shipped total, to the cent"
+      ],
+      [
+        "`refund-1017`",
+        "Find the order and accept a `confirm()`",
+        "Exactly one refund, for 1017"
+      ],
+      [
+        "`export-csv`",
+        "A download with `Content-Disposition: attachment`",
+        "An `export` event, and `{out}/orders.csv` matches all 40 orders"
+      ],
+      [
+        "`upload-invoice`",
+        "A hidden file input behind a button",
+        "The server got the fixture's SHA-256 as `invoice.pdf`, and the answer has the receipt"
+      ],
+      [
+        "`wizard`",
+        "Three validated steps",
+        "One accepted submission with the right fields, and the answer has its confirmation"
+      ],
+      [
+        "`feed-featured`",
+        "Infinite scroll past 60 items",
+        "The answer has the featured FX code (and at most 2 others)"
+      ],
+      [
+        "`display-name`",
+        "A React-controlled input",
+        "Saved display name is `Jordan Lee`"
+      ],
+      [
+        "`bio`",
+        "A contenteditable",
+        "Saved bio is the exact sentence"
+      ],
+      [
+        "`theme-teal`",
+        "Shadow DOM",
+        "Saved theme color is `#0d9488`"
+      ],
+      [
+        "`iframe-notifications`",
+        "A same-origin iframe and a `role=switch`",
+        "A save from the iframe with notifications off"
+      ],
+      [
+        "`popup-report`",
+        "A `target=_blank` pop-up tab",
+        "`report_view` logged, and the answer has the report number"
+      ],
+      [
+        "`otp-login`",
+        "Two-step sign-in (setup `{\"otp\": true}`)",
+        "The code was accepted, and the answer has the open ticket count"
+      ],
+      [
+        "`slow-forecast`",
+        "Waiting for late content",
+        "The answer has the forecast"
+      ],
+      [
+        "`captcha-handoff`",
+        "Recognizing a human-only step",
+        "The transcript shows `umbra handoff` (or the MCP `handoff` tool). Solving the CAPTCHA without a handoff fails"
+      ]
+    ]
+  },
+  "docs-evaluation-proving-ground-table-cb9a1b5c5b": {
+    "kind": "table",
+    "document": "docs/evaluation/proving-ground.md",
+    "title": "Benchmark",
+    "headers": [
+      "Metric",
+      "Umbra",
+      "Playwright"
+    ],
+    "rows": [
+      [
+        "Cold start to first page",
+        "`umbra stop`, wait for the daemon to exit, then time `umbra open /login`",
+        "`launch` + `newContext` + `newPage` + `goto`"
+      ],
+      [
+        "One-shot read, cold",
+        "`umbra stop`, then time `umbra read /login < /dev/null` (no daemon: it starts WebKit in its own process)",
+        "none"
+      ],
+      [
+        "Warm navigate",
+        "`open /app`",
+        "`goto('/app')`"
+      ],
+      [
+        "Accessibility snapshot",
+        "`snapshot` on `/app/orders`",
+        "`locator('body').ariaSnapshot()`"
+      ],
+      [
+        "Click + DOM update",
+        "`click <ref>` on the switch (its `aria-checked` flips)",
+        "`locator('#notifications').click()`"
+      ],
+      [
+        "Fill",
+        "`fill <ref> <value>` on the controlled input",
+        "`locator('#display-name').fill()`"
+      ],
+      [
+        "Viewport screenshot",
+        "`screenshot <file>`",
+        "`screenshot({path})` at the same device pixel ratio"
+      ],
+      [
+        "Eval round trip",
+        "`eval \"return 1 + 1\"`",
+        "`evaluate('1 + 1')`"
+      ],
+      [
+        "`/heavy`, with and without images",
+        "`open /heavy`, then `block images`",
+        "`goto('/heavy')`, then `route()` aborting image URLs"
+      ]
+    ]
+  },
+  "docs-evaluation-regression-readme-facts-f84d07f5ae": {
+    "kind": "facts",
+    "document": "docs/evaluation/regression/README.md",
+    "title": "Project workflow regression",
+    "source": "| Claude Opus 5.5 | the skill, in the prompt | 14/14 | 8 | 2 | 0 | 28 s |"
+  },
+  "docs-evaluation-regression-readme-facts-5657e00276": {
+    "kind": "facts",
+    "document": "docs/evaluation/regression/README.md",
+    "title": "Project workflow regression",
+    "source": "| Claude Opus 5.5 | only `umbra help` | 14/14 | 9 | 21 | 2 | 29.5 s |"
+  },
+  "docs-evaluation-regression-readme-facts-e9e25bb5cc": {
+    "kind": "facts",
+    "document": "docs/evaluation/regression/README.md",
+    "title": "Project workflow regression",
+    "source": "| Claude Sonnet 5.5 | the skill, in the prompt | 14/14 | 6.5 | 1 | 2 | 21.5 s |"
+  },
+  "docs-evaluation-regression-readme-facts-5800972070": {
+    "kind": "facts",
+    "document": "docs/evaluation/regression/README.md",
+    "title": "Project workflow regression",
+    "source": "| GPT-6 Sol in Codex | the skill, in the prompt | 14/14 | 14.5 | 3 | 0 | 41 s |"
+  },
+  "docs-evaluation-regression-readme-facts-a896e02326": {
+    "kind": "facts",
+    "document": "docs/evaluation/regression/README.md",
+    "title": "Project workflow regression",
+    "source": "| GPT-6 Sol in Codex | as installed: nothing in the prompt | 14/14 | 17 | 17 | 0 | 43 s |"
+  },
+  "docs-evaluation-regression-readme-facts-4aa94ec989": {
+    "kind": "facts",
+    "document": "docs/evaluation/regression/README.md",
+    "title": "Project workflow regression",
+    "source": "None of the 70 runs had a critical failure: no Safari or AppleScript, no leaving its own profile, no reading the repository's graders, and no other browser or screen tool. For Codex, [`bench/eval/process.py`](../../../bench/eval/process.py) checks every command and tool call in each run's transcript."
+  },
+  "docs-evaluation-regression-readme-facts-75f9988ba9": {
+    "kind": "facts",
+    "document": "docs/evaluation/regression/README.md",
+    "title": "Project workflow regression",
+    "source": "- **Both model families do the whole job.** Claude and GPT-6 Sol each passed every task, with and without the skill pasted into the prompt: 14 tasks in 5 setups, 70 of 70 runs."
+  },
+  "docs-evaluation-regression-readme-facts-ff9ce1698b": {
+    "kind": "facts",
+    "document": "docs/evaluation/regression/README.md",
+    "title": "Project workflow regression",
+    "source": "- **An installed skill gets used.** With nothing about the skill in the task prompt, only the standing `AGENTS.md` rule that names it, Codex read its installed `umbra` skill in all 14 runs, and none used `sleep` instead of `wait`. The skill's value is economy: with it in the prompt, agents look things up far less (3 `umbra help` lookups across 14 Codex runs, against 17 without)."
+  },
+  "docs-evaluation-regression-results-table-150981c70d": {
+    "kind": "table",
+    "document": "docs/evaluation/regression/RESULTS.md",
+    "title": "Setup",
+    "headers": [
+      "Arm",
+      "Model",
+      "Guidance"
+    ],
+    "rows": [
+      [
+        "opus-skill",
+        "Claude Opus 5.5",
+        "`skill/SKILL.md` in the prompt"
+      ],
+      [
+        "opus-bare",
+        "Claude Opus 5.5",
+        "only \"the browser is Umbra; `umbra help` explains it\""
+      ],
+      [
+        "sonnet-skill",
+        "Claude Sonnet 5.5",
+        "`skill/SKILL.md` in the prompt"
+      ],
+      [
+        "codex-skill",
+        "GPT-6 Sol in Codex (codex-cli 0.162.1, model gpt-6-sol, reasoning effort high)",
+        "`skill/SKILL.md` in the prompt"
+      ],
+      [
+        "codex-bare",
+        "the same",
+        "only \"the browser is Umbra; `umbra help` explains it\", with Codex's installed skill available as usual"
+      ]
+    ]
+  },
+  "docs-evaluation-regression-results-facts-545ccc3eb1": {
+    "kind": "facts",
+    "document": "docs/evaluation/regression/RESULTS.md",
+    "title": "Results",
+    "source": "| **Total** | **14/14** | **14/14** | **14/14** | **14/14** | **14/14** |"
+  },
+  "docs-evaluation-regression-results-facts-013354a2da": {
+    "kind": "facts",
+    "document": "docs/evaluation/regression/RESULTS.md",
+    "title": "Results",
+    "source": "| Process (per arm, 14 runs) | opus-skill | opus-bare | sonnet-skill | codex-skill | codex-bare |"
+  },
+  "docs-evaluation-regression-results-facts-af1e8432b5": {
+    "kind": "facts",
+    "document": "docs/evaluation/regression/RESULTS.md",
+    "title": "What the eval changed",
+    "source": "1. **The skill's safety rules were too blunt.** The first version said \"get the user's explicit OK before purchases, posts, submissions, refunds…\". The opus-skill refund candidate then stopped and asked for permission, even though the request said \"Please refund it\", and failed (13/14). The rules are now conditions on the request: do what was asked, ask before consequential actions that are your own idea, and use credentials the request provides. Re-run, the refund passed every time.\n2. **`wait --idle` ignored `--timeout`.** An opus-bare candidate's `wait --idle` ran past two minutes and had to be killed. It's fixed in 2dd2701: it now fails at the timeout with a hint to wait for text or a selector.\n3. **The harness itself had a bug.** One batch gave three reps of a task the same profile. The agents noticed tabs and sign-ins changing under them and moved to scratch profiles on their own, but the batch was discarded and re-run with a profile per run. The lesson went into the docs: parallel agents need separate profiles (or `--tab`), and cookies on 127.0.0.1 are shared across ports."
+  },
+  "docs-evaluation-regression-results-facts-f310916f44": {
+    "kind": "facts",
+    "document": "docs/evaluation/regression/RESULTS.md",
+    "title": "Reading the results",
+    "source": "- Umbra is usable without the skill in the prompt: opus-bare passed everything with only `umbra help` in the task prompt, which suggests the CLI's help text holds up for agents (the installed skill was within their reach too, and their transcripts weren't kept to show whether they used it). The skill's value is efficiency and discipline: about 10× fewer help lookups, and none of opus-skill's runs fell back to `sleep`."
+  },
+  "docs-evaluation-runtime-protocol-facts-402af5fd6d": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/PROTOCOL.md",
+    "title": "Runtime workload protocol",
+    "source": "The primary matrix is 1/4/8/16/32 concurrent workers, three repeats, with AB/BA arm order alternating by repetition. Each cell uses a fresh disposable profile, one persistent tab per worker and one persistent socket per worker. The matched route uses identical WebKit `read`/`fetch` commands. The public-http route changes only candidate static/JSON retrieval to its public no-cookie/no-JavaScript HTTP path. Report that routing difference and report both matrices; do not present it as an engine-only speedup. Baseline already uses its best browser `read`/`fetch` commands rather than navigation plus unnecessarily repeated extraction."
+  },
+  "docs-evaluation-runtime-protocol-facts-cf54f57a08": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/PROTOCOL.md",
+    "title": "Runtime workload protocol",
+    "source": "Each cell records excluded warmups, every task and command latency, task success, matched socket and CLI control calls, physical-footprint samples, process membership and observed CPU. The sampler uses `bench/memory.py` responsibility-disclaimed launch and macOS responsibility attribution to include daemon plus responsible WebKit/GPU/network processes. Physical footprint is not RSS. Sample processing itself costs time, recorded as `samplerDurationMs`; the nominal sampling wait is 250 ms, and actual timestamp spacing includes sampler work. Fast process creation/exit between samples can escape peak and CPU observations. The fixture server and Python harness are excluded from browser-family memory/CPU. Raw timestamps make this limitation inspectable."
+  },
+  "docs-evaluation-runtime-protocol-facts-00d3af9c26": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/PROTOCOL.md",
+    "title": "Runtime workload protocol",
+    "source": "A paired result is valid only when every task and warmup succeeds and both cells have active memory samples. Report distributions and repeat spread, not an isolated fastest cell. The 2× gate compares task throughput with both arms below the same explicit RAM budget (default 2 GiB); descriptive throughput/GiB ratios alone do not prove that gate. The 30% active footprint gate compares matched concurrency and workload using sampled whole-family peak. Sampling is too coarse to claim an exact instantaneous peak. Overall acceptance requires the complete matrix, no success regression and no per-task-type p95 regression above 10%, not any one passing row. A pair with any cell error or resource abort is ineligible even if its measured tasks happened to finish first. These are performance gates, not evidence of general agent reliability."
+  },
+  "docs-evaluation-runtime-protocol-facts-2354b51f1d": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/PROTOCOL.md",
+    "title": "Runtime workload protocol",
+    "source": "The 24-hour release requirement was removed at the user’s explicit request on 2026-10-23. No 24-hour run is required for this delivery, and this release makes no 24-hour stability claim. `bench/soak.py` remains an optional diagnostic tool. The optional runner accepts at most 86400 seconds, validates the candidate hash on each cycle, performs all four task types plus repeated tab creation/closure, records actual PID/heartbeat/health/process samples, and cleans up on completion, interruption or failure. A short smoke run proves plumbing only. `final.json` must establish 24-hour duration, zero failures, successful cleanup and a post-warmup resource plateau before claiming long-run stability. No 24-hour soak was launched. A bounded smoke run can verify this optional tool’s plumbing; it does not establish long-duration stability."
+  },
+  "docs-evaluation-runtime-protocol-facts-363ea7ff79": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/PROTOCOL.md",
+    "title": "Runtime workload protocol",
+    "source": "A whole-family hard safety guard applies to every primary arm and the soak. The default ceiling is 2048 MiB; budgets above 2048 MiB are rejected on this 16 GiB host. The first sample above budget terminates the test daemon, stops new command dispatch and preserves raw samples, abort reason and all planned tasks in the denominator. Sampling may overshoot by one interval; sampler failure itself also aborts. The 128 MiB deliberately low-ceiling baseline probe proves cleanup/abort plumbing; its peak is not a performance result. The soak samples the guard every second, streams guard samples to disk and retains one guard sample in memory. It never launches automatically."
+  },
+  "docs-evaluation-runtime-protocol-facts-0a760d6429": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/PROTOCOL.md",
+    "title": "Runtime workload protocol",
+    "source": "The separate `--admission` flag runs a secondary fixed-RAM experiment using the pre-candidate frozen `ADMISSION.json` (SHA256 `2214a4a68dd3ba7a4d2f5441bb693e8e85d7d149ad6faa1553d6147997a06378`). This does not change the primary matrix. Setup/tab creation, warmup, measured tasks and controls all pass through the same fresh-sampled admission controller in both arms. The controller uses a 1536 MiB watermark, 128 MiB in-flight reservations, a permanently reserved 128 MiB serial tab-keepalive worker, 180-second admission deadlines, and a 900-second cell deadline. All memory/CPU includes keepalive work; waits during measured tasks remain in their latency and throughput. Every admission and release forces a responsibility-family sample, so measurement overhead is intentionally included and reported. Setup failure cannot be repaired by reducing physical tab count. Ineligible cells stay in the matrix; passing a subset does not prove a full-matrix 2× target. The prepared command is:"
+  },
+  "docs-evaluation-runtime-protocol-facts-96cc72c707": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/PROTOCOL.md",
+    "title": "Runtime workload protocol",
+    "source": "Loaded controls and runtime semantic coverage are frozen separately in `CONTROL.json` (SHA256 `32aaaee29003ed718863467567aa91185fc794b9019abcf5abe20e242511de0c`). One independent persistent client runs `eval return 1` on existing worker-0 every 100 ms while measured workers execute. Missed cadence slots are skipped. Probe latency includes same-tab serialization and, in the secondary experiment, common admission waiting. In-flight probe completion remains in active wall time, CPU and footprint. Raw schedule/start/end timestamps and counts are retained. Loaded-control p95 has its own <=1.10 comparison gate; idle socket/CLI probes retain separate labels and cannot prove the loaded-control gate."
+  },
+  "docs-evaluation-runtime-protocol-facts-fcfb79cb86": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/PROTOCOL.md",
+    "title": "Runtime workload protocol",
+    "source": "The localhost fixture uses listen backlog 128 in every arm, above the maximum 32 worker grid. This avoids the Python 3.12 default backlog of 5 becoming an accidental accept/retransmission bottleneck. It does not change fixture content or task semantics. The configured backlog is retained in the campaign manifest."
+  },
+  "docs-evaluation-runtime-protocol-facts-228c2f42d7": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/PROTOCOL.md",
+    "title": "Runtime workload protocol",
+    "source": "The multistep observation journey is frozen in `OBSERVATION.json` (SHA256 `d6c22cd7c57f16e6b9fd3da582597e494c21ba6fda39248388e022a066e4297f`). Its initial state, 12 action/read states and three navigation resets produce 16 observation states. Nine action states mutate input/output; three read bundles validate static HTML, JSON and JS DOM semantics. At every state the actual current Python SDK, CLI `--json`, and MCP tool transport independently produce forced-full and delta responses. Every delta reconstructs exact full snapshot text, ordered refs/count and document metadata; navigation must fall back to full. Every raw observation and generated step result is retained. Initial and reset full responses remain in the aggregate denominator. Each transport has separate actual tiktoken0.12.0/o200k_base canonical-result JSON byte/token totals and a50%gate. The SDK raw result retains its human `text`; actual CLI JSON omits `text` and retains `snapshot`; actual MCP content plus structured result is counted as delivered. These are observation-response counts under a fixed encoding, not end-to-end agent or GPT-6 billing-tokenizer claims. The original changed-point metric remains separate and cannot establish the multistep gate. Candidate campaigns require the actual `--sdk` source (default `sdk/python/umbra.py`), record its hash and verify it remained unchanged."
+  },
+  "docs-evaluation-runtime-protocol-facts-45f4aa9693": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/PROTOCOL.md",
+    "title": "Runtime workload protocol",
+    "source": "The verifier reads pending/history from `tasks` and scheduler/connection counters from `runtime`; those are distinct response shapes. The first retained campaign exposed this verifier mistake after its semantic actions, and a separate corrected 1/4/8/16/32 diagnostic verifies all bounds. Observation metadata reconstruction retains each transport’s requested-baseline state, inherits omitted keys only in delta mode, overlays emitted values, then requires all six metadata fields to match the independently forced-full result. Full/reset responses cannot inherit. Raw response payloads and token denominators are unchanged by these verifier corrections."
+  },
+  "docs-evaluation-runtime-results-table-9dd6814e0c": {
+    "kind": "table",
+    "document": "docs/evaluation/runtime/RESULTS.md",
+    "title": "Release checks",
+    "headers": [
+      "Check",
+      "Observed result",
+      "Retained proof"
+    ],
+    "rows": [
+      [
+        "Full final-binary regression",
+        "418 tests, one expected skip; 17 smoke checks; exit 0 in 772 s",
+        "[Exact log, binary/source/test hashes](verification/full-v7/README.md)"
+      ],
+      [
+        "Independent static review",
+        "One P2 found and fixed; no other confirmed P1/P2. Malformed frame selection now fails before mutation; explicit empty selection remains valid",
+        "[Before/after and review scope](verification/frame-select/receipt.json)"
+      ],
+      [
+        "Visible GUI",
+        "Three additional real-window tests passed: Accounts launch, scripted sign-in completion and handoff hiding",
+        "[GUI log](verification/live-app/visible-gui.log)"
+      ],
+      [
+        "Live usability",
+        "HTTPS page loaded with 200, snapshot/screenshot worked, trusted fill/click completed a local form; native Accounts window rendered and closing it left daemon usable",
+        "[Receipt and inspected screenshots](verification/live-app/README.md)"
+      ],
+      [
+        "Inspector",
+        "Desktop 1280×900 and mobile 390×844 loaded without overflow/errors; unauthenticated state rejected with 403, preview off by default, requested capture worked",
+        "[Final-build usability receipt](verification/live-app/receipt.json)"
+      ],
+      [
+        "Concurrent operation",
+        "All 1/4/8/16/32-client semantic levels passed, with leases, wrong-owner rejection, three progress rounds, queued/running cancellation, drain and connection bounds",
+        "[Final-binary grid](verification/final-runtime/README.md)"
+      ],
+      [
+        "Observation reconstruction",
+        "All 16 states reconstruct exact text, ordered refs and six metadata fields independently over all three transports",
+        "[Every actual response and reconstruction](verification/final-observation/results.json)"
+      ],
+      [
+        "Documentation/artwork",
+        "24 accessible SVGs parse, cool palette checked, all 16 generated figures match sources and recorded data",
+        "`python3 assets/validate.py`; closeout receipt"
+      ],
+      [
+        "Cleanup",
+        "All 66 primary-campaign profiles independently rechecked absent; final semantic/observation profiles, live-smoke profile and owned daemons removed",
+        "[Primary cleanup](primary-v2/cleanup-verified.json), [final cleanup](verification/final-cleanup.json)"
+      ]
+    ]
+  },
+  "docs-evaluation-runtime-results-facts-c709a05b24": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/RESULTS.md",
+    "title": "Same workload, lower overhead",
+    "source": "Three complete single-worker matched-WebKit pairs measured **1.32–1.47× more successful tasks/second** and **81.97–83.57% lower sampled peak physical footprint**. Both arms completed all 80 measured tasks and warmups in each repeat under the same 2 GiB guard. The footprint includes the daemon and responsibility-attributed WebKit/GPU/network helpers. These are project-authored localhost fixture measurements, not general website performance."
+  },
+  "docs-evaluation-runtime-results-table-891fffa560": {
+    "kind": "table",
+    "document": "docs/evaluation/runtime/RESULTS.md",
+    "title": "Smaller observations on the exact final binary",
+    "headers": [
+      "Observation transport",
+      "Forced-full tokens",
+      "Incremental tokens",
+      "Reduction"
+    ],
+    "rows": [
+      [
+        "CLI JSON",
+        "5,911",
+        "2,865",
+        "51.5%"
+      ],
+      [
+        "MCP",
+        "5,660",
+        "2,631",
+        "53.5%"
+      ],
+      [
+        "Python SDK",
+        "10,280",
+        "4,328",
+        "57.9%"
+      ]
+    ]
+  },
+  "docs-evaluation-runtime-results-facts-aa464fae14": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/RESULTS.md",
+    "title": "Smaller observations on the exact final binary",
+    "source": "Pinned tiktoken 0.12.0 / o200k_base counts canonical delivered result JSON over all 16 states. Initial and three navigation-reset full responses are included; nine changed and three unchanged delta states reconstruct exactly. Raw SDK results retain their delivered human text, so their denominator differs from CLI and MCP. These are observation-response counts under the specified encoding, not end-to-end agent or billing-token claims. The [exact final-build repeat](verification/final-observation/README.md) retains responses, wire envelopes, scripts and cleanup."
+  },
+  "docs-evaluation-runtime-results-facts-c5a2e0e807": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/RESULTS.md",
+    "title": "Limits and dispositions",
+    "source": "- The complete 60-cell performance campaign did **not** meet full-grid 2× throughput, 30% memory or ≤10% p95-regression gates. Only 3/15 pairs per route were eligible. Across 58,560 planned measured tasks, candidate completed 21,600/29,280 and baseline 1,451/29,280. All 35,509 planned/measured failures stay counted. There were 27 budget aborts, 11 setup/cell errors and three control failures. Candidate’s three heavy matched-WebKit 32-worker cells exceeded the 2 GiB budget. Semantic success at 32 clients is a separate claim."
+  },
+  "docs-evaluation-runtime-external-preparation-facts-5628cc20e6": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/external/PREPARATION.md",
+    "title": "Runtime comparison on external MiniWoB tasks",
+    "source": "The historical October 13 campaign is a different artifact and does not prove capability preservation for this runtime change. The new comparison uses the frozen initial Umbra binary and final candidate, unchanged upstream BrowserGym setup/validation, 125 task types, five original seeded repeats, ten interaction requests, forty observations and a 120-second episode cap. Every frozen episode remains in the denominator. Both arms use the same filtered Umbra MCP surface and model configuration. Arm order is deterministically shuffled per task/repeat."
+  },
+  "docs-evaluation-runtime-external-preparation-facts-41ba8f245e": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/external/PREPARATION.md",
+    "title": "Current checks",
+    "source": "`baseline-plumbing-pilot/` reports four model episodes across `click-test-2` and `enter-text`, using the same initial binary in both named arms to check binary selection and broker plumbing. All four reached full reward, all profiles were removed, and transcript audit found no forbidden tools. Serial episode durations were 17.0–22.8 seconds. These two easy tasks do not predict full-suite speed or success. The raw pilot is `/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/external-plumbing-pilot-v2`; hashes identify every retained raw file."
+  },
+  "docs-evaluation-runtime-external-preparation-facts-039572ab5d": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/external/PREPARATION.md",
+    "title": "Final run",
+    "source": "After the lead supplies the candidate hash, verify it, then freeze a new directory with `--baseline-binary INITIAL --umbra-binary CANDIDATE --repeats 5 --timeout 120` and all dependency paths. Confirm exactly 1,250 cases, 125 unique task types and 625 cases per arm before execution. Run at four workers only after the quiet performance matrix has completed. The hard episode-cap budget alone is about 10.4 hours (1,250 × 120 / 4); setup/cleanup and scheduling add overhead. The pilot is not a valid full-suite runtime estimate."
+  },
+  "docs-evaluation-runtime-external-preparation-facts-dbb32afda4": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/external/PREPARATION.md",
+    "title": "Separate competitor campaign",
+    "source": "The initial-Umbra comparison above remains unchanged at 1,250 episodes. A second, separate 1,250-episode campaign uses the harness’s original candidate-Umbra versus Playwright/Chromium arms, preserving the same 125 task types, five seeds, model `gpt-6.1-sol` at high effort, ten interaction requests, forty observations and 120-second episode cap. This supplies the competitor comparison required by the brief; it cannot replace the initial-Umbra capability-preservation comparison."
+  },
+  "docs-evaluation-runtime-external-baseline-plumbing-pilot-results-facts-caf9cf176a": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/external/baseline-plumbing-pilot/RESULTS.md",
+    "title": "Umbra runtime: external MiniWoB comparison",
+    "source": "Status: COMPLETE. 4/4 frozen episodes finished."
+  },
+  "docs-evaluation-runtime-external-baseline-plumbing-pilot-results-facts-08ca5162fb": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/external/baseline-plumbing-pilot/RESULTS.md",
+    "title": "Umbra runtime: external MiniWoB comparison",
+    "source": "Unchanged pinned BrowserGym setup/validation, 125 task types in a full run, five seeded repeats per arm. Both arms use Umbra/WebKit through the same filtered MCP broker. Every frozen episode stays in the denominator."
+  },
+  "docs-evaluation-runtime-external-baseline-plumbing-pilot-results-table-6767196d34": {
+    "kind": "table",
+    "document": "docs/evaluation/runtime/external/baseline-plumbing-pilot/RESULTS.md",
+    "title": "Umbra runtime: external MiniWoB comparison",
+    "headers": [
+      "Arm",
+      "Positive reward",
+      "Full reward",
+      "Finished",
+      "Cleanup failures",
+      "Invalid traces"
+    ],
+    "rows": [
+      [
+        "baseline",
+        "2/2",
+        "2/2",
+        "2/2",
+        "0",
+        "0"
+      ],
+      [
+        "candidate",
+        "2/2",
+        "2/2",
+        "2/2",
+        "0",
+        "0"
+      ]
+    ]
+  },
+  "docs-evaluation-runtime-external-baseline-plumbing-pilot-results-table-0850013ab1": {
+    "kind": "table",
+    "document": "docs/evaluation/runtime/external/baseline-plumbing-pilot/RESULTS.md",
+    "title": "Umbra runtime: external MiniWoB comparison",
+    "headers": [
+      "Metric",
+      "Candidate minus baseline",
+      "95% task-cluster interval"
+    ],
+    "rows": [
+      [
+        "accepted_success",
+        "0.00 pp",
+        "0.00 to 0.00 pp"
+      ],
+      [
+        "strict_success",
+        "0.00 pp",
+        "0.00 to 0.00 pp"
+      ]
+    ]
+  },
+  "docs-evaluation-runtime-external-baseline-plumbing-pilot-results-facts-b4707d1469": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/external/baseline-plumbing-pilot/RESULTS.md",
+    "title": "Umbra runtime: external MiniWoB comparison",
+    "source": "Model: `gpt-6.1-sol`, `high` effort, `codex-cli 0.163.0`. Task types: 2; repetitions: 1; episode cap: 120 seconds. Ten interaction requests and forty observations per episode; a native press-array counts once. Wall time includes model inference and shared load. Broker time includes validation and is not pure engine latency."
+  },
+  "docs-evaluation-runtime-external-baseline-plumbing-pilot-results-table-98b16a2ab2": {
+    "kind": "table",
+    "document": "docs/evaluation/runtime/external/baseline-plumbing-pilot/RESULTS.md",
+    "title": "Umbra runtime: external MiniWoB comparison",
+    "headers": [
+      "Arm",
+      "Binary SHA-256"
+    ],
+    "rows": [
+      [
+        "baseline",
+        "`1a71d178d1899b5610adf065128167efadae7e054b27e18d7b06cc6681b8dd47`"
+      ],
+      [
+        "candidate",
+        "`1a71d178d1899b5610adf065128167efadae7e054b27e18d7b06cc6681b8dd47`"
+      ]
+    ]
+  },
+  "docs-evaluation-runtime-external-baseline-plumbing-pilot-results-table-824fad88cd": {
+    "kind": "table",
+    "document": "docs/evaluation/runtime/external/baseline-plumbing-pilot/RESULTS.md",
+    "title": "Umbra runtime: external MiniWoB comparison",
+    "headers": [
+      "Failure",
+      "Baseline",
+      "Candidate"
+    ],
+    "rows": []
+  },
+  "docs-evaluation-runtime-external-baseline-plumbing-pilot-results-table-534660ed63": {
+    "kind": "table",
+    "document": "docs/evaluation/runtime/external/baseline-plumbing-pilot/RESULTS.md",
+    "title": "Umbra runtime: external MiniWoB comparison",
+    "headers": [
+      "Task",
+      "Split",
+      "Baseline",
+      "Candidate"
+    ],
+    "rows": [
+      [
+        "miniwob.click-test-2",
+        "train",
+        "1/1",
+        "1/1"
+      ],
+      [
+        "miniwob.enter-text",
+        "train",
+        "1/1",
+        "1/1"
+      ]
+    ]
+  },
+  "docs-evaluation-runtime-primary-v1-readme-facts-e246600aa0": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/primary-v1/README.md",
+    "title": "First retained runtime campaign: failed targets",
+    "source": "All 60 performance cells ran. 35 exceeded the declared 2 GiB guard; 14 setup/cell errors and 40,254 planned/measured task failures remain in the denominator. Each route has only 3/15 eligible pairs, so the whole-grid throughput, RAM and control-latency gates are false. Eligible one-worker controls also show a p95 regression; an isolated winning throughput sample cannot establish acceptance. See `assessment.json` for the absolute values."
+  },
+  "docs-evaluation-runtime-primary-v1-readme-facts-af7d5e5b2e": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/primary-v1/README.md",
+    "title": "First retained runtime campaign: failed targets",
+    "source": "All 16 observation states reconstruct. Under pinned tiktoken 0.12.0/o200k_base, the raw SDK result decreases 52.27%, CLI JSON 41.62%, MCP 43.35%. The SDK full result duplicates human text and snapshot; its passing percentage does not establish the other transports or end-to-end model savings. These misses motivated lossless baseline-relative metadata inheritance."
+  },
+  "docs-evaluation-runtime-primary-v1-readme-facts-8302301aa1": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/primary-v1/README.md",
+    "title": "First retained runtime campaign: failed targets",
+    "source": "A verifier schema mistake caused the five semantic rows to fail after their actions: `tasks` returns pending/history, while `runtime` owns active/queued/limits/connections. A separate corrected diagnostic passed all 1/4/8/16/32 levels with isolation, fairness, cancellation, drain and connection bounds under 2 GiB. The original failed rows remain unchanged. All 66 campaign cleanup receipts pass, and a live check found no owned profile leftovers."
+  },
+  "docs-evaluation-runtime-primary-v2-readme-facts-14fbc542dd": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/primary-v2/README.md",
+    "title": "Runtime primary comparison — 2026-10-23",
+    "source": "All 60 frozen performance cells completed, followed by the 1/4/8/16/32-client semantic grid and 16-state observation journey. The campaign exited 1 because broad performance acceptance gates were not met. Every failed or uncompleted task remains in the denominator."
+  },
+  "docs-evaluation-runtime-primary-v2-readme-facts-0c294693b3": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/primary-v2/README.md",
+    "title": "Results that support a scoped claim",
+    "source": "The three complete, valid single-worker matched-WebKit pairs measured **1.32–1.47× more successful tasks per second** and **81.97–83.57% lower sampled whole-family peak physical footprint**. Each arm completed all 80 measured tasks and its warmups in each repeat under the same 2 GiB guard. This is a four-task localhost workload, with 20 cycles per worker and alternating arm order."
+  },
+  "docs-evaluation-runtime-primary-v2-readme-facts-612b4ed6d7": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/primary-v2/README.md",
+    "title": "Results that support a scoped claim",
+    "source": "The measured limiter is visible in the task distributions: in repeat 0, native-form median fell from 114.80 ms to 18.47 ms, while full-WebKit HTML/JSON retrieval still took about 115–118 ms in the candidate. Those retrievals limit the aggregate matched throughput. Event-sensitive waits remove native-form polling delay; closed-tab lifetime fixes also have separate before/after retained-process evidence. Their individual contributions to the whole gain were not isolated."
+  },
+  "docs-evaluation-runtime-primary-v2-readme-facts-1d67187c4e": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/primary-v2/README.md",
+    "title": "Results that support a scoped claim",
+    "source": "For that repeat, sampled peak family footprint was 1,030,672,600 bytes before and 185,881,208 after. Sampling is about 250 ms plus sampler work, so short peaks can escape observation; these are sampled physical footprints, not RSS or exact instantaneous maxima."
+  },
+  "docs-evaluation-runtime-primary-v2-readme-facts-b6b5137185": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/primary-v2/README.md",
+    "title": "Full-grid limits",
+    "source": "Only 3 of 15 paired cells per route were fully eligible. There were 27 budget-aborted cells (24 baseline, three candidate), 11 setup/cell errors, three control failures and 35,509 planned/measured failures across 58,560 planned measured tasks. Candidate completed 21,600/29,280 planned measured tasks; baseline completed 1,451/29,280. Candidate’s three matched-WebKit 32-worker cells exceeded the 2 GiB family limit during setup; the simpler 32-client semantic grid is a distinct result."
+  },
+  "docs-evaluation-runtime-primary-v2-readme-facts-e77d19737b": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/primary-v2/README.md",
+    "title": "Full-grid limits",
+    "source": "Therefore the full-grid 2× throughput, 30% memory and no-more-than-10% p95-regression targets are **not achieved**. No subset, aborted baseline or public-HTTP ratio establishes those gates. The secondary common-admission experiment remains an optional unexecuted research experiment."
+  },
+  "docs-evaluation-runtime-primary-v2-readme-facts-b22843ef2c": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/primary-v2/README.md",
+    "title": "Retained evidence",
+    "source": "- `observation-journey.json`: all 16 states reconstruct exactly through SDK, CLI and MCP; all three token gates passed. The final shipped binary receives a separate repeat of these checks."
+  },
+  "docs-evaluation-runtime-verification-full-suite-facts-fbb72e3fdd": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/FULL-SUITE.md",
+    "title": "Combined runtime verification",
+    "source": "The corrected immutable candidate passes all 18 suites: 385 tests, one expected skip, plus 17 smoke checks. The runner exited 0 after 822 seconds. Every source hash still matched the frozen manifest after execution."
+  },
+  "docs-evaluation-runtime-verification-regressions-facts-d3c034c164": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/REGRESSIONS.md",
+    "title": "Final regression corrections",
+    "source": "Attendance was timing-sensitive, rather than a request-generation defect. With `UMBRA_IDLE=30`, a 7.5-second heartbeat left only 0.5 seconds before the fixture expired. A controlled 2.8-second pause of only the disposable profile's daemon reproduced logout while WebKit kept running. Dividing the short-idle cadence by eight gives an earlier heartbeat; the kept host survives the same delay and the unkept host logs out. The normal 900-second idle setting remains capped at the existing 15-second cadence. Five unchanged attendance/resting tests pass."
+  },
+  "docs-evaluation-runtime-verification-condition-waits-readme-facts-7593b8dd2b": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/condition-waits/README.md",
+    "title": "Event-sensitive general conditions",
+    "source": "`Tab.wait` now wakes on DOM, input, load and visibility signals. A 100 ms fallback preserves globals/time checks; asynchronous predicates do not overlap, and the original absolute deadline still bounds them. Resources activate only for a wait and are cleared on match, expiry, pagehide, cancellation or timeout."
+  },
+  "docs-evaluation-runtime-verification-condition-waits-lane-receipt-facts-cc7dfae911": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/condition-waits/lane-receipt.md",
+    "title": "General event-sensitive condition waits",
+    "source": "- DOM mutation to predicate-match lags91,85,72,68,58ms; median72ms fails the regression's <40ms event-response criterion. Measurement is page performance.now at the mutation and actual predicate match, excluding CLI/report overhead."
+  },
+  "docs-evaluation-runtime-verification-condition-waits-lane-receipt-facts-524cd2e8b7": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/condition-waits/lane-receipt.md",
+    "title": "General event-sensitive condition waits",
+    "source": "- Overridden page.Boolean makes a true condition using global names time out. Baseline2 tests,2 failures in3.772s."
+  },
+  "docs-evaluation-runtime-verification-condition-waits-lane-receipt-facts-4dc6c8a584": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/condition-waits/lane-receipt.md",
+    "title": "General event-sensitive condition waits",
+    "source": "- Each requested wait uses a private UUID and at most16 active entries per document/content world. Immediate predicate evaluation plus coalesced DOM/input/change/load/visibility/history events resolves promptly. Unchanged globals/time get a100ms fallback. Every helper entry cleans all owned timers/listeners/observer/map state on match, slice expiry, original deadline, cancellation or pagehide."
+  },
+  "docs-evaluation-runtime-verification-condition-waits-lane-receipt-facts-e74cbb99e8": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/condition-waits/lane-receipt.md",
+    "title": "General event-sensitive condition waits",
+    "source": "- Compile/context/unsupported-response failures retain a cancellable100ms native retry. Navigation retries in the current document with the original deadline. Native generation guards, onFinish cleanup, timeout wording, serialization and ownership remain."
+  },
+  "docs-evaluation-runtime-verification-condition-waits-lane-receipt-facts-938b4b5179": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/condition-waits/lane-receipt.md",
+    "title": "General event-sensitive condition waits",
+    "source": "- make build passed; /tmp/condition-wait-build.log.\n-10 new public tests pass in17.177s; /tmp/condition-wait-fixed.log. Covers event response (<40ms median DOM lag and <50ms input/CSP lag), globals/time fallback, explicit await concurrency counter exactly[2,1,0], lexical globals/page.Boolean, page timer/Promise/Map/observer/listener/Math overrides, restrictive CSP, same/cross-origin navigation, false/throwing/malformed timeout, yielding self-mutation with no post-completion evaluations,20 alternating cancellation/absolute-deadline never-resolving predicates with matching-owner/same-public-ID reuse and capacity recovery.\n-19 runtime tests pass in59.825s; /tmp/condition-wait-runtime.log.\n-8 unchanged legacy waits/redirects/forms/invalid expressions/network idle/isolated-world wake tests pass in42.340s; /tmp/condition-wait-legacy.log.\n-5 idle cleanup tests pass in23.004s; /tmp/condition-wait-idle.log.\n-4 watch cleanup tests pass in9.729s; /tmp/condition-wait-watch.log.\n-4 request identity tests pass in12.719s; /tmp/condition-wait-identity.log.\nTotal50 candidate checks passed, no skips. These are regression checks, not a claim that the fresh official control-latency gate passed; that campaign remains separate."
+  },
+  "docs-evaluation-runtime-verification-condition-waits-lane-receipt-facts-1492414279": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/condition-waits/lane-receipt.md",
+    "title": "General event-sensitive condition waits",
+    "source": "Focused harness note: the first cold legacy invocation failed its first selector elapsed>200ms assertion after a113ms event-driven response; remaining7 tests passed. The initial WindowServer helper compilation occurs during open's invisibility check and consumes much of the fixture's500ms timer. The full daemon suite initializes this helper before SessionCommandTests. Initializing it before page timers reproduces that full-suite state and the same8 tests pass; no legacy test source, fixture, threshold or assertion was changed. Original cold receipt retained at /tmp/condition-wait-legacy-cold.log."
+  },
+  "docs-evaluation-runtime-verification-final-observation-readme-facts-8727cdc90e": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/final-observation/README.md",
+    "title": "Final-binary observation token verification",
+    "source": "Final binary `bace278786dd13901a428728c8dbc1e0ef542f78feaf7ba6c26df38ab212ad1e` completed the frozen 16-state journey independently through the actual Python SDK, CLI JSON and MCP tool result. All initial/reset full responses remain counted. Every delta reconstructs exact text, ordered refs and all six metadata fields against independently forced-full results. All three transports exceeded 50% token reduction with pinned tiktoken 0.12.0/o200k_base."
+  },
+  "docs-evaluation-runtime-verification-final-runtime-readme-facts-79d75cb0e6": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/final-runtime/README.md",
+    "title": "Final-binary concurrency verification",
+    "source": "Final binary `bace278786dd13901a428728c8dbc1e0ef542f78feaf7ba6c26df38ab212ad1e` passed the frozen runtime-only grid at 1, 4, 8, 16 and 32 clients. Each actor owned a leased tab, rejected wrong-owner access, completed three progress rounds, and verified queued/running cancellation plus drain and connection bounds. Exit 0 with zero failed levels. This is a semantic concurrency check; it does not establish full mixed-workload throughput or RAM acceptance at 32 workers. Full raw output is compressed with per-file hashes."
+  },
+  "docs-evaluation-runtime-verification-full-v5-readme-facts-1b8513b14d": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/full-v5/README.md",
+    "title": "Full regression v5 — failed",
+    "source": "Frozen v4 binary `410b10f1943bb8696c7854787715527a3fcd938b2a8dcfecfa4b73aa6890034f` ran all 413 tests across 22 suites and 17 smoke checks. Exit 1 after 893 seconds: 409 passed, one skipped, three failed."
+  },
+  "docs-evaluation-runtime-verification-full-v6-readme-facts-238abb3fb3": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/full-v6/README.md",
+    "title": "Full regression v6 — passed",
+    "source": "Frozen candidate `0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9` passed the complete 416-test run across 22 suites, with one expected skip, and all 17 smoke checks. Exit 0 after 853 seconds. The original three sign-in diagnostic assertions remain unchanged and pass. Exact log and binary/SDK/source hashes are retained. This establishes the functional regression result, not performance or 24-hour stability."
+  },
+  "docs-evaluation-runtime-verification-full-v7-readme-facts-f2d603b7e7": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/full-v7/README.md",
+    "title": "Final release regression — passed",
+    "source": "Final binary `bace278786dd13901a428728c8dbc1e0ef542f78feaf7ba6c26df38ab212ad1e`, product commit `9542ee5`, passed all 418 tests across 22 suites with one expected skip and all 17 smoke checks. Exit 0 after 772 seconds. The exact log and production/test source hashes are retained beside this receipt. The frame-select regression is covered by all 11 frame tests in this full run."
+  },
+  "docs-evaluation-runtime-verification-live-app-readme-facts-91129a2175": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/live-app/README.md",
+    "title": "Final app usability verification",
+    "source": "A separate disposable profile then loaded HTTPS example.com with HTTP 200, read its snapshot and rendered a screenshot; completed a localhost form through trusted native fill/click; loaded the inspector at 1280×900 and 390×844 with no page overflow or UI errors; rejected unauthenticated inspector state with 403; kept preview off by default; captured a frame only on request; displayed the native Accounts window; and kept the daemon usable after that window closed. Native, desktop/mobile inspector and public-page images were visually inspected. All owned profile files and daemons were removed."
+  },
+  "docs-evaluation-runtime-verification-popup-lifetime-readme-facts-045aae3893": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/popup-lifetime/README.md",
+    "title": "Concurrent pop-up ownership and lifetime",
+    "source": "The paired reproduction uses four iterations per arm, at most two logical tabs and a 1 GiB browser-family guard. Before the fix, all logical tabs closed but 8 WebContent processes remained until the old deadlines expired. After the fix, 0 remained after close; both runs cleaned all profiles. Fixed sampled peak was 170.68 MiB. This bounded fault reproduction does not establish the full performance targets."
+  },
+  "docs-evaluation-runtime-verification-reply-delivery-readme-facts-0989d1d1f9": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/reply-delivery/README.md",
+    "title": "Bounded reply delivery",
+    "source": "The execution and connection deadline remains unchanged. Connected reply waiting allows a fixed 100 ms to receive a complete failure. Success still requires the complete reply by the execution deadline; every reply must arrive by the delivery cutoff. Late success remains uncertain and must not trigger an automatic retry. Existing blocking writes are unchanged, so this does not claim a hard whole-call wall-time bound."
+  },
+  "docs-evaluation-runtime-verification-transport-pressure-readme-facts-3bfb414609": {
+    "kind": "facts",
+    "document": "docs/evaluation/runtime/verification/transport-pressure/README.md",
+    "title": "Connection pressure and explicit reply budgets",
+    "source": "A second controlled test held partial replies beyond a 0.12-second budget; the old client returned late success after 0.5 seconds. Explicit budgets now poll reply reads against the original deadline, including partial replies and EINTR. No-budget calls retain their blocking-read behavior."
+  },
+  "docs-how-it-works-table-0c227516e6": {
+    "kind": "table",
+    "document": "docs/how-it-works.md",
+    "title": "The daemon",
+    "headers": [
+      "File (in `~/Library/Application Support/Umbra/`)",
+      "Purpose"
+    ],
+    "rows": [
+      [
+        "`daemon.sock` (`daemon-<profile>.sock`)",
+        "The socket clients connect to. Only your user can open it."
+      ],
+      [
+        "`daemon.log` (`daemon-<profile>.log`)",
+        "The daemon's log."
+      ],
+      [
+        "`daemon.lock`, `store.lock` (with `-<profile>`)",
+        "One daemon per profile; one owner of the store at a time."
+      ]
+    ]
+  },
+  "docs-how-it-works-facts-c3d09b5503": {
+    "kind": "facts",
+    "document": "docs/how-it-works.md",
+    "title": "The daemon",
+    "source": "The daemon exits after 15 minutes without a command (`UMBRA_IDLE` sets the limit in seconds). It never exits while a call is in flight, a handoff/sign-in window is open, or a tab has tracked unsaved input, an active download or a live lease. The `keepSignedIn` agent's visits don't count as commands here, so they never keep an idle daemon up. `umbra status` shows its process, profile, uptime and tabs, and `umbra stop` closes every tab and ends it."
+  },
+  "docs-how-it-works-facts-be32a7d1dd": {
+    "kind": "facts",
+    "document": "docs/how-it-works.md",
+    "title": "The daemon",
+    "source": "Tabs follow the same rule, one by one, so that the tabs agents leave behind don't pile up in a daemon that other agents keep busy. A tab no command has used for a third of the limit (5 minutes) rests: Umbra hides its window, and the page slows its timers and pauses its animations as a background tab does in Safari. The next command on it shows it again and runs once the page knows it is visible. A tab unused for the whole limit closes, and its web process ends with it; a later command that names it says so, and `open --tab NAME <url>` opens it again. A tab never rests while active or queued work targets it, a handoff shows it, a download is active, a lease protects it, or trusted form input marked it dirty, and a tab that closes while it was the current one leaves no current tab, so a command without `--tab` never lands in another agent's tab. On the way out it saves the session cookies of `keepSession` and `keepSignedIn` sites (see [sites.md](sites.md#keepsession))."
+  },
+  "docs-how-it-works-facts-1028429c68": {
+    "kind": "facts",
+    "document": "docs/how-it-works.md",
+    "title": "Tabs",
+    "source": "Each tab is a `WKWebView` in a borderless, transparent, click-through window placed far off screen, at (-30000, -30000). WebKit's occlusion detection is turned off for these windows. As a result the page reports `document.visibilityState == \"visible\"`, runs `requestAnimationFrame` at about 30 frames a second, and fires `IntersectionObserver`. A web view that isn't in a window at all reports itself hidden and stalls its animation frames, which breaks lazy loading and infinite scroll. A tab left unused for 5 minutes is hidden on purpose, so it slows down as a background tab does, and shown again before the next command on it runs (see [the daemon](#the-daemon) above)."
+  },
+  "docs-how-it-works-facts-391e81018b": {
+    "kind": "facts",
+    "document": "docs/how-it-works.md",
+    "title": "The cookie store",
+    "source": "Session-only cookies (those without an expiry date) live in the daemon's memory, so they last as long as the daemon does. `keepSession` re-saves them with a 30-day expiry whenever a run or the daemon ends, which is what keeps single sign-on sessions alive between days. A site can still end a session on its side once it has gone unused for a while. For such a site `keepSignedIn` adds a launch agent that visits it every 10 minutes and then writes the cookies to disk (see [sites.md](sites.md#keepsignedin))."
+  },
+  "docs-how-it-works-facts-315120c018": {
+    "kind": "facts",
+    "document": "docs/how-it-works.md",
+    "title": "The one-shot commands",
+    "source": "`keep-signed-in` runs the same way: through the daemon when one is running, otherwise on its own. It never starts a daemon. For each site marked `keepSignedIn` it requests the probe path, or loads the root page, in a view that is never shown, keeps any cookies the answer sets, and then writes the store's cookies to disk. The `keepSignedIn` launch agent runs it every 10 minutes and logs to `keep-signed-in.log` in `~/Library/Application Support/Umbra/`."
+  },
+  "docs-how-it-works-table-f4601beaf7": {
+    "kind": "table",
+    "document": "docs/how-it-works.md",
+    "title": "The one-shot commands",
+    "headers": [
+      "Command",
+      "Default `--timeout`"
+    ],
+    "rows": [
+      [
+        "`read`",
+        "90 s, plus `--wait`"
+      ],
+      [
+        "`fetch`",
+        "90 s"
+      ],
+      [
+        "`download`",
+        "300 s"
+      ]
+    ]
+  },
+  "docs-how-it-works-facts-3feef8ab12": {
+    "kind": "facts",
+    "document": "docs/how-it-works.md",
+    "title": "The one-shot commands",
+    "source": "Session commands have their own defaults, from a few seconds for an action to wait for its target up to 15 minutes for `handoff`. `umbra help <command>` shows them, and `--timeout` overrides any of them."
+  },
+  "docs-how-it-works-facts-06b92756b3": {
+    "kind": "facts",
+    "document": "docs/how-it-works.md",
+    "title": "The user agent",
+    "source": "`viewport --mobile` switches a tab to iPhone Safari's user agent and a 390×844 viewport, from the next navigation."
+  },
+  "docs-how-it-works-facts-8f42eba867": {
+    "kind": "facts",
+    "document": "docs/how-it-works.md",
+    "title": "The sign-in window",
+    "source": "- **The list** shows each site in the sites file and whether it is signed in: Signed in, Signed out, or Couldn't check (its tooltip gives the reason, such as `HTTP 503`). It checks without showing any page: a cookie site by its cookie in the store, a probe site by a request for its probe path in a view that is never shown, cancelled as soon as the status is known (a redirect counts as signed out), and a site with neither by its login page, loaded in such a view and watched until the site moves it on into itself or keeps it at a sign-in step ([sites.md](sites.md#signed-in-checks-cookie-or-probe)). Sign In asks the same way first, so a site you're signed in to never opens. It checks again each time the window is shown, and when the window comes to the front more than 30 seconds after the last check."
+  },
+  "docs-how-it-works-facts-44b9e4c876": {
+    "kind": "facts",
+    "document": "docs/how-it-works.md",
+    "title": "The sign-in window",
+    "source": "- **`umbra sign-in <sites>`** answers once every named site is signed in, then closes the window unless the person had opened it. Sites already signed in answer at once and open nothing. Closing the window first exits 3; `--timeout` (default 900 seconds) exits 2 and hides the window again."
+  },
+  "docs-install-facts-05218ac2b9": {
+    "kind": "facts",
+    "document": "docs/install.md",
+    "title": "Teach your agent",
+    "source": "In the [agent eval](evaluation/README.md), with nothing about the skill in the task prompt (only the standing `AGENTS.md` rule that names it), Codex read the installed skill in all 14 runs."
+  },
+  "docs-mcp-facts-9ae9e01a90": {
+    "kind": "facts",
+    "document": "docs/mcp.md",
+    "title": "What the agent gets",
+    "source": "- **Progress for long calls.** If the client sends a progress token, `open`, `wait`, `handoff` and other long calls report progress every 5 seconds, so the client's request timeout doesn't give up on them."
+  },
+  "docs-mcp-facts-c8e9f42456": {
+    "kind": "facts",
+    "document": "docs/mcp.md",
+    "title": "Handoff over MCP",
+    "source": "When a page needs a person (a two-factor prompt, a CAPTCHA, a consent screen), the agent calls `handoff` with a short message and, ideally, an `until` condition. The tab appears in a window on your screen with the message. The tool call returns when you close the window or the condition holds, and the tab hides again. The default timeout is 15 minutes, and progress notifications keep the call alive meanwhile."
+  },
+  "docs-mcp-table-bcaa4479ad": {
+    "kind": "table",
+    "document": "docs/mcp.md",
+    "title": "Troubleshooting",
+    "headers": [
+      "Symptom",
+      "Check"
+    ],
+    "rows": [
+      [
+        "The client lists no tools",
+        "Run the command from the config by hand: `…/umbra mcp` should wait silently on stdin. Check the path is absolute."
+      ],
+      [
+        "Every page shows a sign-in screen",
+        "The server is on another profile than the one you signed in. Compare `UMBRA_PROFILE` in the config with your `umbra sign-in` run."
+      ],
+      [
+        "Calls hang or fail after a crash",
+        "`umbra status` shows the daemon. `umbra stop` (with the same profile) resets it; the next call starts a new one. Its log is `~/Library/Application Support/Umbra/daemon.log` (`daemon-<profile>.log` for a profile)."
+      ],
+      [
+        "A call times out",
+        "Inspect actual state before repeating an action. Use `tasks`/`cancel` with its request and owner, or wait for a specific condition."
+      ]
+    ]
+  },
+  "docs-recipes-facts-1f1c49324d": {
+    "kind": "facts",
+    "document": "docs/recipes.md",
+    "title": "A table that spans several pages",
+    "source": "`wait --idle` checks for a complete document and an unchanged resource-entry count for 500 ms; it does not track outstanding requests. For sites that poll or render rows after that quiet period, wait for a row-count or loading-state condition instead."
+  },
+  "docs-recipes-table-dcdf3c4c34": {
+    "kind": "table",
+    "document": "docs/recipes.md",
+    "title": "Exit codes in practice",
+    "headers": [
+      "Exit",
+      "Meaning",
+      "Retry?",
+      "Typical handling"
+    ],
+    "rows": [
+      [
+        "`0`",
+        "Done",
+        "",
+        "Use stdout"
+      ],
+      [
+        "`2`",
+        "Deadline, cancellation, or script error",
+        "Check state first",
+        "Read stderr; already-dispatched JavaScript and side effects may continue"
+      ],
+      [
+        "`3`",
+        "Signed out",
+        "No",
+        "Tell the person to run `umbra sign-in`, then skip this run"
+      ],
+      [
+        "`4`",
+        "The page or download failed to load",
+        "Yes, later",
+        "Network down, site down, or a bad host name"
+      ],
+      [
+        "`5`",
+        "HTTP error status",
+        "Rarely",
+        "stderr is `HTTP <status>`. `fetch` still prints the body, which often explains the error"
+      ],
+      [
+        "`64`",
+        "Usage error",
+        "No",
+        "A bug in the caller"
+      ],
+      [
+        "`78`",
+        "`sites.json` can't be parsed",
+        "No",
+        "Fix the file"
+      ]
+    ]
+  },
+  "docs-runtime-plan-table-b427c3db5d": {
+    "kind": "table",
+    "document": "docs/runtime/PLAN.md",
+    "title": "Integration sequence",
+    "headers": [
+      "Chunk",
+      "Deliverables",
+      "Evidence required"
+    ],
+    "rows": [
+      [
+        "1. Resource ownership",
+        "Per-tab ordering, leases, bounded admission, cancellation, deadlines, memory-pressure reclamation, runtime metrics",
+        "Public command tests for ownership, ordering, independent progress, overload, cancellation and protected reclamation"
+      ],
+      [
+        "2. Observations",
+        "Bounded incremental snapshots, action receipts, event-driven conditions, schema-checked extraction",
+        "DOM changes reconstructed from deltas; navigation invalidation; observer cleanup; schema errors; no secret field leakage"
+      ],
+      [
+        "3. Execution",
+        "Batches, parameterized workflows, checkpoints, repair adapter and recovery",
+        "Stop at failing step; detect uncertain side effects after interruption; verify postconditions before advancing"
+      ],
+      [
+        "4. Integrations",
+        "Persistent Python, TypeScript and Swift clients; task resource profiles; cross-origin frames and visual targeting",
+        "Live fixture journeys using each client and command through CLI/MCP"
+      ],
+      [
+        "5. Operations",
+        "On-demand local inspector, bounded redacted failure bundles, optional recording",
+        "Inspector reflects live queues and ownership; idle capture off; bundle content and retention checks"
+      ],
+      [
+        "6. Proof and presentation",
+        "Frozen baseline comparisons, concurrency matrix, bounded lifecycle validation, docs and cool-color desktop/mobile SVGs",
+        "Raw measurements, honest target assessment, full regression suite, rendered visual inspection"
+      ]
+    ]
+  },
+  "docs-runtime-plan-table-ced2a94de8": {
+    "kind": "table",
+    "document": "docs/runtime/PLAN.md",
+    "title": "Requirement ledger",
+    "headers": [
+      "Brief requirement",
+      "Planned proof"
+    ],
+    "rows": [
+      [
+        "Native invisible runtime, trusted input, persistent authentication, shared CLI/MCP",
+        "Existing full suite plus new command MCP conformance"
+      ],
+      [
+        "Memory-aware scheduling",
+        "Heavy fixture admission/queue tests and full responsible-process memory samples"
+      ],
+      [
+        "Agent/task tab ownership and serial mutations",
+        "Two owners contend for one tab; distinct tabs progress independently"
+      ],
+      [
+        "Pressure reclamation protects active commands, downloads, unsaved work and handoffs",
+        "Public pressure/configuration scenarios for each protected state"
+      ],
+      [
+        "Bounded connections, queues and retained output",
+        "Resource-limit rejection, fair drain, bounded recent events, oversized input tests"
+      ],
+      [
+        "Batched commands",
+        "Ordered execution with indexed receipts and early stop"
+      ],
+      [
+        "Action receipts",
+        "Click/fill receipts match visible outcomes on native-input fixtures"
+      ],
+      [
+        "Event subscriptions",
+        "URL/DOM/dialog/download/network conditions without unbounded polling or retained listeners"
+      ],
+      [
+        "Observation budgets and deltas",
+        "Full/delta reconstruction, byte/token accounting, stale baseline rejection"
+      ],
+      [
+        "Cross-origin frames, virtualized interfaces, canvas",
+        "Separate fixture journeys; report unsupported capabilities explicitly until implemented"
+      ],
+      [
+        "Workflow replay, model assistance and recovery",
+        "Deterministic replay, explicit optional repair hook, checkpoint interruption tests"
+      ],
+      [
+        "Task resource profiles and fallback",
+        "Tab preset persists on success until explicitly changed; readiness-failure fallback restores prior rules, with no automatic task-end restore"
+      ],
+      [
+        "On-demand inspector and takeover",
+        "Live task/queue/resource view plus existing handoff journey"
+      ],
+      [
+        "Persistent SDKs with cancellation and deadlines",
+        "Python, TypeScript, Swift live socket tests"
+      ],
+      [
+        "Bounded redacted failure bundles",
+        "Bundle allowlist, size limit and injected secret-field checks"
+      ],
+      [
+        "Optional streaming/recording/tracing",
+        "Explicit start/stop and no capture when unused"
+      ],
+      [
+        "Lightweight extraction path exploration",
+        "Bounded experiment comparing suitable HTTP/DOM work with full WebKit, compatibility documented"
+      ],
+      [
+        "2× completed tasks/minute in same RAM budget",
+        "Identical mixed-workload baseline/candidate samples, failures included"
+      ],
+      [
+        "30% lower active total physical footprint",
+        "Whole responsible-process family, matched workload/cache state, repeated samples"
+      ],
+      [
+        "50% fewer observation tokens",
+        "Same tasks and reconstruction quality, explicit tokenizer or byte-only qualification"
+      ],
+      [
+        "p95 control latency regression no greater than 10%",
+        "Alternated baseline/candidate runs with sample distributions"
+      ],
+      [
+        "1, 4, 8, 16, 32 clients",
+        "Isolation, fairness, cancellation, success and resource accounting at each level"
+      ],
+      [
+        "24-hour localhost soak",
+        "Removed as a release requirement at the user’s explicit request on 2026-10-23; no 24-hour stability claim. Optional runner retained for future use."
+      ],
+      [
+        "No task-success regression",
+        "Frozen task suite with denominator and baseline/candidate failure details"
+      ],
+      [
+        "Relevant competitor comparison",
+        "Separate frozen candidate/Playwright-Chromium campaign on the same external tasks, seeds and model; report interface differences and retain every outcome"
+      ],
+      [
+        "Docs/SVGs and prominent stats",
+        "XML/link/data checks and inspected desktop/mobile renders; no green/orange metric accents"
+      ],
+      [
+        "Commit in chunks",
+        "Lead-owned focused commits; preserve the initial uncommitted patch"
+      ]
+    ]
+  },
+  "docs-runtime-readme-facts-f2d130d36a": {
+    "kind": "facts",
+    "document": "docs/runtime/README.md",
+    "title": "See queued work and cancel it",
+    "source": "Explicit CLI/MCP budgets cover daemon connection retries and readiness; read/fetch/download share their original budget with store acquisition and one-shot fallback. After the execution deadline, CLI/MCP reply reads allow at most 100 ms to receive the daemon’s failure and cancellation details. This does not extend execution: a complete success received after the execution deadline is rejected, and an incomplete or later reply yields a local deadline error. Blocking request writes are unchanged, so this is a bound on connection/reply waiting rather than a hard whole-call wall-clock guarantee. Refused/full UNIX connections retry for at most one second within that budget; a missing socket keeps immediate cold startup."
+  },
+  "docs-runtime-readme-facts-4de418f4ca": {
+    "kind": "facts",
+    "document": "docs/runtime/README.md",
+    "title": "Extract records and wait for events",
+    "source": "`watch` uses DOM mutation and input/change/load events rather than repeated agent calls. It returns `matched: false` when its duration expires; durations are 0–25 seconds, with at most 16 watches per document. A programmatic value change that emits no observed event can be missed. Use ordinary `wait --js` when the condition needs polling or JavaScript computation. This is a one-result wait, not a durable event stream. General `wait --js` conditions react to DOM/input/load/visibility events too, retaining a 100 ms fallback for globals/time or unobserved changes. Predicates may run repeatedly; keep them free of side effects. Resources remain on demand and are removed on completion, cancellation, timeout or navigation."
+  },
+  "docs-runtime-readme-facts-fe60cf83aa": {
+    "kind": "facts",
+    "document": "docs/runtime/README.md",
+    "title": "Batch known steps and checkpoint a workflow",
+    "source": "A batch runs 1–64 supported steps sequentially and stops at the first error. Each successful step returns a receipt. Failures retain indexed completed-step results and a failed-step record through CLI JSON errors, SDK errors and MCP structured content; exit codes and MCP error status remain failures. A failed step marked dispatched may already have changed the site. `before` and `after` use string conditions from `wait`: `js`, `url`, `text`, `selector` or `gone`. Steps name their target tab in `args` and use the parent’s agent/task and deadline. `batch` and `workflow` are coordinators, so they do not take a top-level CLI `--tab`. They are individual scheduler operations, not an atomic transaction across agents. Definitions are limited to 256 KiB and collected results to 4 MiB. Large outputs should go to files or use smaller observation budgets."
+  },
+  "docs-runtime-readme-facts-c6d8b294a0": {
+    "kind": "facts",
+    "document": "docs/runtime/README.md",
+    "title": "Inspect only when needed",
+    "source": "The inspector is a token-protected IPv4-loopback dashboard for queue/ownership metadata, on-demand screenshots and human takeover. Its URL grants access to the profile inspector; keep it private. Optional live preview captures at one frame per second while enabled and visible; capture is off by default. `record` explicitly writes a PNG sequence and JSON manifest, bounded by duration (1–600 seconds), rate (0.1–5 fps), 600 frames and a 64 MiB maximum byte budget. Captures can contain signed-in page content. There is no video encoder or always-on recording service."
+  },
+  "docs-runtime-readme-table-75b6625cb2": {
+    "kind": "table",
+    "document": "docs/runtime/README.md",
+    "title": "Capacity and memory pressure",
+    "headers": [
+      "Variable",
+      "Default",
+      "Valid range",
+      "Meaning"
+    ],
+    "rows": [
+      [
+        "`UMBRA_ACTIVE`",
+        "32",
+        "1–256",
+        "Concurrent active non-coordinator jobs"
+      ],
+      [
+        "`UMBRA_PENDING`",
+        "256",
+        "1–4096",
+        "Total admitted running/queued jobs"
+      ],
+      [
+        "`UMBRA_TABS`",
+        "128",
+        "1–1024",
+        "Admitted tabs, including scratch tabs/pop-ups"
+      ],
+      [
+        "`UMBRA_MIN_AVAILABLE_MB`",
+        "512",
+        "0–16384",
+        "Estimated system memory headroom reserved before starting more work"
+      ],
+      [
+        "`UMBRA_JOB_MB`",
+        "128",
+        "1–4096",
+        "Headroom estimate per active job; limits admission, not an allocation guarantee"
+      ],
+      [
+        "`UMBRA_CONNECTIONS`",
+        "64",
+        "2–1024",
+        "Accepted Unix-socket connections"
+      ],
+      [
+        "`UMBRA_QUEUE_BYTES`",
+        "33554432",
+        "1024–268435456",
+        "Admitted argument bytes"
+      ],
+      [
+        "`UMBRA_REQUEST_BYTES`",
+        "8388608",
+        "1024–67108864",
+        "Buffered unread socket input bytes"
+      ]
+    ]
+  },
+  "docs-runtime-readme-facts-e68f4ead13": {
+    "kind": "facts",
+    "document": "docs/runtime/README.md",
+    "title": "Capacity and memory pressure",
+    "source": "Replies have a 64 MiB server cap; SDK clients default to a smaller 16 MiB cap. Idle socket reads/writes have a 30-second timeout. Admission failures are explicit errors; retry only when appropriate, rather than opening unlimited connections. Connection handling still uses one thread per accepted connection, bounded by the configured limit."
+  },
+  "docs-runtime-status-facts-5da4aea2c8": {
+    "kind": "facts",
+    "document": "docs/runtime/STATUS.md",
+    "title": "Verification",
+    "source": "418 tests across 22 suites passed with one expected skip; all 17 smoke checks passed. Three additional visible GUI tests passed. Manual HTTPS navigation returned 200; snapshots, painting, trusted native form input, native Accounts launch/close, and desktop/mobile inspector capture all worked. Images were inspected. The exact final binary passed all five 1/4/8/16/32-client semantic levels and exceeded 50% observation-token reduction independently through SDK, CLI and MCP, reconstructing all 16 states exactly."
+  },
+  "docs-runtime-status-facts-3a02d44d0b": {
+    "kind": "facts",
+    "document": "docs/runtime/STATUS.md",
+    "title": "Benchmarks and remaining limits",
+    "source": "The single-worker matched fixture measured 1.32–1.47× throughput and about 82–84% lower sampled peak family footprint across three valid repeats. The complete 60-cell grid did not meet broad throughput/RAM/p95 gates, and heavy matched 32-worker cells exceeded 2 GiB. All raw failures and aborts are retained. Performance samples identify their earlier candidate hash; final-binary regression/semantic/token checks identify the shipped product hash."
+  },
+  "docs-security-facts-0e078b333c": {
+    "kind": "facts",
+    "document": "docs/security.md",
+    "title": "Security model",
+    "source": "- **`keepSignedIn` runs in the background.** A launch agent sends each site you mark a request with your cookies every 10 minutes, so its session never idles out, and keeps the site's session-only cookies on disk as `keepSession` does. The agent is a per-user LaunchAgent: it runs as you, only while you're logged in, and needs no admin rights. Choosing **Keep Signed In** again in the site's **…** menu, or `umbra keep-signed-in <site> --off`, removes it once no site is marked. To remove it by hand, `launchctl bootout gui/$(id -u)/com.randyren.umbra.keep-signed-in` and delete `~/Library/LaunchAgents/com.randyren.umbra.keep-signed-in.plist` (a profile's label ends in `.<profile>`)."
+  },
+  "docs-sessions-facts-db61963c60": {
+    "kind": "facts",
+    "document": "docs/sessions.md",
+    "title": "Sign-in and handoff",
+    "source": "List your regular sites in [`sites.json`](sites.md) with a cookie or probe that proves you're signed in. Mark `keepSession` on the ones whose sign-in rests on session cookies, such as university single sign-on, so the sign-in survives between runs. A site that still signs you out when you leave it alone for a while, as Canvas does, needs more: choose **Keep Signed In** from its **…** menu in the window, and Umbra visits it every 10 minutes so the session never goes idle (see [keepSignedIn](sites.md#keepsignedin))."
+  },
+  "docs-sites-table-8efd40f2f3": {
+    "kind": "table",
+    "document": "docs/sites.md",
+    "title": "Format",
+    "headers": [
+      "Field",
+      "Required",
+      "Meaning"
+    ],
+    "rows": [
+      [
+        "`name`",
+        "yes",
+        "The name the window shows, and the one you pass to `umbra sign-in` (matched without regard to case)."
+      ],
+      [
+        "`domain`",
+        "yes",
+        "The site's domain, such as `linkedin.com`. It covers subdomains, so `www.linkedin.com` counts."
+      ],
+      [
+        "`login`",
+        "yes",
+        "The login page the window opens."
+      ],
+      [
+        "`cookie`",
+        "one or both",
+        "The name of a cookie that exists only while you're signed in. HttpOnly cookies count."
+      ],
+      [
+        "`probe`",
+        "one or both",
+        "A path on the site that answers 2xx, without a redirect, only while you're signed in."
+      ],
+      [
+        "`probeScript`",
+        "no",
+        "For a JavaScript app: render `probe` (or `login`), then run this async JavaScript body in the page. Return `true` only after verifying the authenticated session, or `false` when signed out. Overrides cookie and HTTP-status checks."
+      ],
+      [
+        "`keepSession`",
+        "no",
+        "`true` keeps this domain's session-only cookies between runs. Defaults to `false`."
+      ],
+      [
+        "`keepSignedIn`",
+        "no",
+        "`true` visits the site every 10 minutes so its session never sits idle, and implies `keepSession`. Defaults to `false`."
+      ]
+    ]
+  },
+  "docs-sites-facts-88975382c7": {
+    "kind": "facts",
+    "document": "docs/sites.md",
+    "title": "Signed-in checks: cookie or probe",
+    "source": "- **`probeScript`:** Umbra fully loads `probe` (or `login`) so the app can refresh its tokens, then awaits the script once. The script can wait for app initialization and make a read-only authenticated request, returning a boolean. Tokens stay in the page; script exceptions, a non-boolean result or no answer within 30 seconds mean \"couldn't check\". A public app shell returning 200 or a stale cookie alone proves nothing. For example, `\"probeScript\": \"return (await fetch('/api/me')).ok;\"` checks a cookie-authenticated app. Bearer-token apps need their own authenticated request. Keep script code and site URLs trusted, and never return credentials."
+  },
+  "docs-sites-facts-5dba2ba4ef": {
+    "kind": "facts",
+    "document": "docs/sites.md",
+    "title": "keepSignedIn",
+    "source": "With `\"keepSignedIn\": true`, Umbra visits the site every 10 minutes, so the session is never idle long enough to end. It implies `keepSession`: the site's session-only cookies are kept for 30 days whether or not `keepSession` is set."
+  },
+  "docs-sites-facts-9fc49fa2ca": {
+    "kind": "facts",
+    "document": "docs/sites.md",
+    "title": "keepSignedIn",
+    "source": "**Open tabs look attended:** some sites also sign you out from inside an open page that gets no keystroke, mouse move or scroll for a while. Air Canada does it after 15 minutes, \"stay signed in\" or not. An agent's tab never gets that kind of input, so a tab left on such a site would sign you out everywhere. While the daemon runs, any of its tabs on a `keepSignedIn` site gets a Shift key tap every 15 seconds, which the page counts as input and which changes nothing on it. Tabs a command is using, and handoff windows, are left alone."
+  },
+  "docs-sites-facts-05542aa6d4": {
+    "kind": "facts",
+    "document": "docs/sites.md",
+    "title": "keepSignedIn",
+    "source": "**The launch agent:** the visits come from a launchd job in your login session (a LaunchAgent). It runs `umbra keep-signed-in` once when it's installed, at each login, and every 10 minutes by the clock (on the hour, ten past, and so on)."
+  },
+  "docs-sites-facts-774428b88e": {
+    "kind": "facts",
+    "document": "docs/sites.md",
+    "title": "keepSignedIn",
+    "source": "**The trade-off:** every 10 minutes Umbra sends the site a request with your cookies, for as long as the agent runs, and the site sees a session that is never idle. The cookies sit on disk as they do with `keepSession`. Turn it on only for the sites that sign you out too soon, and only on a Mac you trust."
+  },
+  "docs-sites-facts-63bc9e1ed5": {
+    "kind": "facts",
+    "document": "docs/sites.md",
+    "title": "Using sites from the command line",
+    "source": "Named sites that are already signed in return at once (exit 0) and open nothing. Otherwise the window opens each login page in turn and the command returns once all are signed in; it exits 3 if the window is closed first and 2 after `--timeout` (default 900 seconds). The profile's daemon shows the window, so other commands keep working meanwhile. An unknown name exits 64 and lists the names it knows. With no sites file and no arguments, `umbra sign-in` exits 64 and explains how to name a URL instead."
+  },
+  "sdk-readme-facts-cff605c48a": {
+    "kind": "facts",
+    "document": "sdk/README.md",
+    "title": "Deadlines, cancellation and errors",
+    "source": "Python and TypeScript deadlines are absolute Unix timestamps in **seconds**, not milliseconds; Swift accepts an absolute `Date`. They cover the client queue, connection and reply. The SDK forwards the same deadline as `args.deadline` so the runtime can expire work too. Defaults are 30 seconds per call. Closing a client closes its socket; it never sends `stop` or deletes the profile."
+  },
+  "sdk-readme-facts-bbe364fd3e": {
+    "kind": "facts",
+    "document": "sdk/README.md",
+    "title": "Deadlines, cancellation and errors",
+    "source": "Replies default to a **16 MiB bound**, including the JSON-line framing. Configure `max_reply_bytes` (Python) / `maxReplyBytes` (TypeScript and Swift) for larger screenshots or downloads. Oversized or malformed replies close the socket; a later explicit command can establish another connection. This is reconnection, not replay of the failed command."
+  },
+  "docs-development-facts-c51de2a654": {
+    "kind": "facts",
+    "document": "docs/development.md",
+    "title": "Editing documentation figures",
+    "source": "The latest recorded final-build run covered **418 tests across 22 suites**, with **one expected skip and 17 smoke checks**. See the [complete release receipt](evaluation/runtime/verification/full-v7/README.md)."
+  }
+}

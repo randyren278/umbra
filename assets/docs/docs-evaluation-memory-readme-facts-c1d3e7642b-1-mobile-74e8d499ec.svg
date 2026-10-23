@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 545" width="600" height="545" role="img" aria-labelledby="title desc">
+  <title id="title">What changed</title>
+  <desc id="desc">- A tab rests when no command uses it. After a third of UMBRA_IDLE (5 minutes by default) Umbra hides it, so its timers slow and its animations pause, as a background tab does in Safari. The next command on it shows it again first. After all of UMBRA_IDLE (15 minutes) it closes, and its web process ends. How it works.</desc>
+  <defs>
+  <radialGradient id="corona" cx="0" cy="0" r="230" gradientUnits="userSpaceOnUse">
+    <stop offset="0.60" stop-color="#dce7ff" stop-opacity="0"/>
+    <stop offset="0.655" stop-color="#e8edff" stop-opacity="1"/>
+    <stop offset="0.70" stop-color="#93b4ff" stop-opacity="0.7"/>
+    <stop offset="0.82" stop-color="#b5a1ff" stop-opacity="0.22"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="rays" cx="0" cy="0" r="262" gradientUnits="userSpaceOnUse">
+    <stop offset="0.56" stop-color="#e8edff" stop-opacity="0.75"/>
+    <stop offset="0.72" stop-color="#93b4ff" stop-opacity="0.32"/>
+    <stop offset="1" stop-color="#b5a1ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="moon" cx="-40" cy="-50" r="190" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#192039"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </radialGradient>
+  <radialGradient id="bead" cx="0" cy="0" r="46" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="0.18" stop-color="#edf3ff"/>
+    <stop offset="0.45" stop-color="#bbceff" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#93b4ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#7c83f6" stop-opacity="0.20"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
+    <feGaussianBlur stdDeviation="2.6"/>
+  </filter>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#151c30"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </linearGradient>
+  </defs><rect width="600" height="545" rx="28" fill="url(#sky)"/><rect x="0.75" y="0.75" width="598.5" height="543.5" rx="27.25" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5"/><text x="36" y="66" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="650" fill="#93b4ff" data-max-width="528">What changed</text><text x="36" y="124" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">- A tab rests when no command</text><text x="36" y="159" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">uses it. After a third of</text><text x="36" y="194" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">UMBRA_IDLE (5 minutes by default)</text><text x="36" y="229" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">Umbra hides it, so its timers</text><text x="36" y="264" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">slow and its animations pause, as</text><text x="36" y="299" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">a background tab does in Safari.</text><text x="36" y="334" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">The next command on it shows it</text><text x="36" y="369" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">again first. After all of</text><text x="36" y="404" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">UMBRA_IDLE (15 minutes) it</text><text x="36" y="439" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">closes, and its web process ends.</text><text x="36" y="474" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">How it works.</text>
+</svg>

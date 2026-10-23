@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 755" width="600" height="755" role="img" aria-labelledby="title desc">
+  <title id="title">What we found</title>
+  <desc id="desc">An audit of a real Mac on 2026-10-21 found the default profile&#x27;s daemon running for 67 hours with 49 tabs open. Agents had opened every one of them by name for a task and never closed it. Together they held 17.4 GB across 47 WebKit processes and kept 90% of a CPU core busy. A tab closed only when its daemon exited, after 15 minutes without a command, and a Mac where agents work all day never gives it those 15 minutes. Every tab also kept running its animations and timers, because Umbra&#x27;s pages always see themselves as visible.</desc>
+  <defs>
+  <radialGradient id="corona" cx="0" cy="0" r="230" gradientUnits="userSpaceOnUse">
+    <stop offset="0.60" stop-color="#dce7ff" stop-opacity="0"/>
+    <stop offset="0.655" stop-color="#e8edff" stop-opacity="1"/>
+    <stop offset="0.70" stop-color="#93b4ff" stop-opacity="0.7"/>
+    <stop offset="0.82" stop-color="#b5a1ff" stop-opacity="0.22"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="rays" cx="0" cy="0" r="262" gradientUnits="userSpaceOnUse">
+    <stop offset="0.56" stop-color="#e8edff" stop-opacity="0.75"/>
+    <stop offset="0.72" stop-color="#93b4ff" stop-opacity="0.32"/>
+    <stop offset="1" stop-color="#b5a1ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="moon" cx="-40" cy="-50" r="190" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#192039"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </radialGradient>
+  <radialGradient id="bead" cx="0" cy="0" r="46" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="0.18" stop-color="#edf3ff"/>
+    <stop offset="0.45" stop-color="#bbceff" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#93b4ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#7c83f6" stop-opacity="0.20"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
+    <feGaussianBlur stdDeviation="2.6"/>
+  </filter>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#151c30"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </linearGradient>
+  </defs><rect width="600" height="755" rx="28" fill="url(#sky)"/><rect x="0.75" y="0.75" width="598.5" height="753.5" rx="27.25" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5"/><text x="36" y="66" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="650" fill="#93b4ff" data-max-width="528">What we found</text><text x="36" y="124" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">An audit of a real Mac on</text><text x="36" y="159" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">2026-10-21 found the default</text><text x="36" y="194" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">profile&#x27;s daemon running for 67</text><text x="36" y="229" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">hours with 49 tabs open. Agents</text><text x="36" y="264" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">had opened every one of them by</text><text x="36" y="299" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">name for a task and never closed</text><text x="36" y="334" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">it. Together they held 17.4 GB</text><text x="36" y="369" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">across 47 WebKit processes and</text><text x="36" y="404" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">kept 90% of a CPU core busy. A</text><text x="36" y="439" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">tab closed only when its daemon</text><text x="36" y="474" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">exited, after 15 minutes without</text><text x="36" y="509" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">a command, and a Mac where agents</text><text x="36" y="544" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">work all day never gives it those</text><text x="36" y="579" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">15 minutes. Every tab also kept</text><text x="36" y="614" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">running its animations and</text><text x="36" y="649" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">timers, because Umbra&#x27;s pages</text><text x="36" y="684" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">always see themselves as visible.</text>
+</svg>

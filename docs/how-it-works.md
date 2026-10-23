@@ -17,15 +17,54 @@ Headless work runs under the *prohibited* activation policy. The process has no 
 
 The first session command for a profile (`open`, `snapshot`, anything but the one-shots) starts a daemon, `umbra serve`, in the background. One daemon per profile owns WebKit, the tabs and the cookie store, and every later command and every `umbra mcp` call goes to it. A second daemon for the same profile notices the first one's lock and bows out.
 
-| File (in `~/Library/Application Support/Umbra/`) | Purpose |
-|---|---|
-| `daemon.sock` (`daemon-<profile>.sock`) | The socket clients connect to. Only your user can open it. |
-| `daemon.log` (`daemon-<profile>.log`) | The daemon's log. |
-| `daemon.lock`, `store.lock` (with `-<profile>`) | One daemon per profile; one owner of the store at a time. |
+<!-- umbra-figure: docs-how-it-works-table-0c227516e6 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-how-it-works-table-0c227516e6-1-mobile-2d10ff0081.svg">
+  <img src="../assets/docs/docs-how-it-works-table-0c227516e6-1-f2fa21f99c.svg" width="100%" alt="The daemon. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
+- **File (in `~/Library/Application Support/Umbra/`):** `daemon.sock` (`daemon-<profile>.sock`)
+- **Purpose:** The socket clients connect to. Only your user can open it.
+
+- **File (in `~/Library/Application Support/Umbra/`):** `daemon.log` (`daemon-<profile>.log`)
+- **Purpose:** The daemon's log.
+
+- **File (in `~/Library/Application Support/Umbra/`):** `daemon.lock`, `store.lock` (with `-<profile>`)
+- **Purpose:** One daemon per profile; one owner of the store at a time.
+
+</details>
+<!-- /umbra-figure -->
+
+<!-- umbra-figure: docs-how-it-works-facts-c3d09b5503 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-how-it-works-facts-c3d09b5503-1-mobile-2153ecc0c8.svg">
+  <img src="../assets/docs/docs-how-it-works-facts-c3d09b5503-1-8d523816ef.svg" width="100%" alt="The daemon. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
 
 The daemon exits after 15 minutes without a command (`UMBRA_IDLE` sets the limit in seconds). It never exits while a call is in flight, a handoff/sign-in window is open, or a tab has tracked unsaved input, an active download or a live lease. The `keepSignedIn` agent's visits don't count as commands here, so they never keep an idle daemon up. `umbra status` shows its process, profile, uptime and tabs, and `umbra stop` closes every tab and ends it.
 
+</details>
+<!-- /umbra-figure -->
+
+<!-- umbra-figure: docs-how-it-works-facts-be32a7d1dd -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-how-it-works-facts-be32a7d1dd-1-mobile-a208257876.svg">
+  <img src="../assets/docs/docs-how-it-works-facts-be32a7d1dd-1-0d45f503f9.svg" width="100%" alt="The daemon. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 Tabs follow the same rule, one by one, so that the tabs agents leave behind don't pile up in a daemon that other agents keep busy. A tab no command has used for a third of the limit (5 minutes) rests: Umbra hides its window, and the page slows its timers and pauses its animations as a background tab does in Safari. The next command on it shows it again and runs once the page knows it is visible. A tab unused for the whole limit closes, and its web process ends with it; a later command that names it says so, and `open --tab NAME <url>` opens it again. A tab never rests while active or queued work targets it, a handoff shows it, a download is active, a lease protects it, or trusted form input marked it dirty, and a tab that closes while it was the current one leaves no current tab, so a command without `--tab` never lands in another agent's tab. On the way out it saves the session cookies of `keepSession` and `keepSignedIn` sites (see [sites.md](sites.md#keepsession)).
+
+</details>
+<!-- /umbra-figure -->
 
 ### The protocol
 
@@ -52,7 +91,19 @@ Memory pressure reduces admission capacity and reclaims clean abandoned tabs. Qu
 
 ## Tabs
 
+<!-- umbra-figure: docs-how-it-works-facts-1028429c68 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-how-it-works-facts-1028429c68-1-mobile-1caa8282ff.svg">
+  <img src="../assets/docs/docs-how-it-works-facts-1028429c68-1-9c976ca03d.svg" width="100%" alt="Tabs. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 Each tab is a `WKWebView` in a borderless, transparent, click-through window placed far off screen, at (-30000, -30000). WebKit's occlusion detection is turned off for these windows. As a result the page reports `document.visibilityState == "visible"`, runs `requestAnimationFrame` at about 30 frames a second, and fires `IntersectionObserver`. A web view that isn't in a window at all reports itself hidden and stalls its animation frames, which breaks lazy loading and infinite scroll. A tab left unused for 5 minutes is hidden on purpose, so it slows down as a background tab does, and shown again before the next command on it runs (see [the daemon](#the-daemon) above).
+
+</details>
+<!-- /umbra-figure -->
 
 A tab also handles:
 
@@ -88,7 +139,19 @@ Umbra uses a persistent `WKWebsiteDataStore(forIdentifier:)`. That API arrived i
 
 The default store's identifier is the fixed UUID `6F1C7A52-3D0B-4E8F-9A61-F1A57C0DE001`. It was carried over from FIRST's earlier helper so that tool's signed-in store moved to Umbra intact. Safari's data lives elsewhere, so neither browser can see the other's cookies. All of a profile's tabs share its store.
 
+<!-- umbra-figure: docs-how-it-works-facts-391e81018b -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-how-it-works-facts-391e81018b-1-mobile-f57c6c68a7.svg">
+  <img src="../assets/docs/docs-how-it-works-facts-391e81018b-1-aaf017826a.svg" width="100%" alt="The cookie store. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 Session-only cookies (those without an expiry date) live in the daemon's memory, so they last as long as the daemon does. `keepSession` re-saves them with a 30-day expiry whenever a run or the daemon ends, which is what keeps single sign-on sessions alive between days. A site can still end a session on its side once it has gone unused for a while. For such a site `keepSignedIn` adds a launch agent that visits it every 10 minutes and then writes the cookies to disk (see [sites.md](sites.md#keepsignedin)).
+
+</details>
+<!-- /umbra-figure -->
 
 Changing either the bundle identifier or the store identifier gives you a new, empty store, which signs every site out. If you fork Umbra under your own identifier, expect to sign in again.
 
@@ -126,15 +189,54 @@ Only one process at a time works with a profile's store, through an exclusive `f
 - **`fetch`** loads the `--from` page (by default `/robots.txt` on the URL's own origin), runs `fetch(url, {credentials: 'include'})` inside it, and prints the body as text. A non-2xx status prints the body anyway and exits 5. Because the request comes from the page, the browser's rules apply: the right cookies are attached, and a cross-origin URL needs CORS. Use `download` for binary files.
 - **`download`** loads the URL as a top-level navigation and turns the response into a download, as a click in Safari would, so the site's cookies are sent and redirects to storage hosts are followed. A non-2xx response exits 5 without writing anything. Otherwise the bytes go to `.<name>.umbra-part` beside the target and are renamed over it once complete, so readers never see half a file.
 
+<!-- umbra-figure: docs-how-it-works-facts-315120c018 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-how-it-works-facts-315120c018-1-mobile-ed44b4ab04.svg">
+  <img src="../assets/docs/docs-how-it-works-facts-315120c018-1-9758f87b26.svg" width="100%" alt="The one-shot commands. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 `keep-signed-in` runs the same way: through the daemon when one is running, otherwise on its own. It never starts a daemon. For each site marked `keepSignedIn` it requests the probe path, or loads the root page, in a view that is never shown, keeps any cookies the answer sets, and then writes the store's cookies to disk. The `keepSignedIn` launch agent runs it every 10 minutes and logs to `keep-signed-in.log` in `~/Library/Application Support/Umbra/`.
 
-| Command | Default `--timeout` |
-|---|---|
-| `read` | 90 s, plus `--wait` |
-| `fetch` | 90 s |
-| `download` | 300 s |
+</details>
+<!-- /umbra-figure -->
+
+<!-- umbra-figure: docs-how-it-works-table-f4601beaf7 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-how-it-works-table-f4601beaf7-1-mobile-e9922ab58b.svg">
+  <img src="../assets/docs/docs-how-it-works-table-f4601beaf7-1-1df1da7611.svg" width="100%" alt="The one-shot commands. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
+- **Command:** `read`
+- **Default `--timeout`:** 90 s, plus `--wait`
+
+- **Command:** `fetch`
+- **Default `--timeout`:** 90 s
+
+- **Command:** `download`
+- **Default `--timeout`:** 300 s
+
+</details>
+<!-- /umbra-figure -->
+
+<!-- umbra-figure: docs-how-it-works-facts-3feef8ab12 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-how-it-works-facts-3feef8ab12-1-mobile-7485416dd5.svg">
+  <img src="../assets/docs/docs-how-it-works-facts-3feef8ab12-1-2708961988.svg" width="100%" alt="The one-shot commands. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
 
 Session commands have their own defaults, from a few seconds for an action to wait for its target up to 15 minutes for `handoff`. `umbra help <command>` shows them, and `--timeout` overrides any of them.
+
+</details>
+<!-- /umbra-figure -->
 
 ## The user agent
 
@@ -144,7 +246,19 @@ Umbra sets WebKit's application name to `Version/<Safari version> Safari/605.1.1
 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0.1 Safari/605.1.15
 ```
 
+<!-- umbra-figure: docs-how-it-works-facts-06b92756b3 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-how-it-works-facts-06b92756b3-1-mobile-0ebe8f8da2.svg">
+  <img src="../assets/docs/docs-how-it-works-facts-06b92756b3-1-5349459398.svg" width="100%" alt="The user agent. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 `viewport --mobile` switches a tab to iPhone Safari's user agent and a 390×844 viewport, from the next navigation.
+
+</details>
+<!-- /umbra-figure -->
 
 ## The sign-in window
 
@@ -152,10 +266,34 @@ The daemon shows the sign-in window, for `umbra sign-in`, for an MCP client call
 
 The window is a way to sign in, never a way to browse a site:
 
+<!-- umbra-figure: docs-how-it-works-facts-8f42eba867 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-how-it-works-facts-8f42eba867-1-mobile-3adf520e87.svg">
+  <img src="../assets/docs/docs-how-it-works-facts-8f42eba867-1-9de17bac9a.svg" width="100%" alt="The sign-in window. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 - **The list** shows each site in the sites file and whether it is signed in: Signed in, Signed out, or Couldn't check (its tooltip gives the reason, such as `HTTP 503`). It checks without showing any page: a cookie site by its cookie in the store, a probe site by a request for its probe path in a view that is never shown, cancelled as soon as the status is known (a redirect counts as signed out), and a site with neither by its login page, loaded in such a view and watched until the site moves it on into itself or keeps it at a sign-in step ([sites.md](sites.md#signed-in-checks-cookie-or-probe)). Sign In asks the same way first, so a site you're signed in to never opens. It checks again each time the window is shown, and when the window comes to the front more than 30 seconds after the last check.
+
+</details>
+<!-- /umbra-figure -->
 - **Logos** are each site's own icon, found as Safari finds one: the icons its home page names (a home-screen icon first), else `/apple-touch-icon.png`, else `/favicon.ico`. They are fetched without cookies, never from the login page, and kept in `~/Library/Application Support/Umbra/Logos/` for a week; a site without one gets a letter tile.
 - **A login page** appears only when the person clicks Sign In, or when `umbra sign-in <site>` names a site that is signed out. Every main-frame response in it is checked before it is shown: once the site counts as signed in, that response is cancelled and the page is closed, so the signed-in site never renders. A cookie site is also checked whenever the store's cookies change, which catches sign-ins made by a script. A probe site is checked once the flow is back on its domain, since single sign-on pages often live elsewhere.
+<!-- umbra-figure: docs-how-it-works-facts-44b9e4c876 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-how-it-works-facts-44b9e4c876-1-mobile-2b61fba775.svg">
+  <img src="../assets/docs/docs-how-it-works-facts-44b9e4c876-1-f409433eaa.svg" width="100%" alt="The sign-in window. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 - **`umbra sign-in <sites>`** answers once every named site is signed in, then closes the window unless the person had opened it. Sites already signed in answer at once and open nothing. Closing the window first exits 3; `--timeout` (default 900 seconds) exits 2 and hides the window again.
+
+</details>
+<!-- /umbra-figure -->
 - **Sign Out…** in a row's **…** menu (and `umbra sign-out <site>`) deletes the cookies within the site's domain from the profile's store.
 - **Keep Signed In** in the same menu sets or removes the site's `keepSignedIn` in the sites file and installs or removes the launch agent, as `umbra keep-signed-in` does; a kept row says so under its domain. If that fails, an alert says why and nothing changes. **Check Again** checks that site now.
 - **Add Account** (and `umbra sign-in <login URL> --save NAME`) adds a site to the sites file and opens its login page. Umbra records the domain's cookie names once that page has loaded; when the person clicks Done, and a page has loaded since the login page, the session-like cookie that appeared since becomes the site's `cookie` (closing the window learns nothing), so later checks and sign-ins work as for any listed site.

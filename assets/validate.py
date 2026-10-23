@@ -6,6 +6,8 @@ from pathlib import Path
 
 import build
 import charts
+import doc_figures
+import json
 
 HERE = Path(__file__).resolve().parent
 OLD_ACCENTS = {"#f6b26b", "#c06bd6", "#5fd38d", "#ffe7b0", "#fff1d2", "#ffd08a", "#ffb35c"}
@@ -22,8 +24,12 @@ def main():
         "memory.svg": charts.memory, "memory-mobile.svg": charts.memory_mobile,
         "sign-in.svg": charts.sign_in, "sign-in-mobile.svg": charts.sign_in_mobile,
     }
+    expected = {name: make() for name, make in generated.items()}
+    manifest = json.loads(doc_figures.MANIFEST.read_text())
+    documentation, blocks = doc_figures.outputs(manifest)
+    expected.update({'docs/' + name: source for name, source in documentation.items()})
     failures = []
-    files = sorted(HERE.glob("*.svg"))
+    files = sorted(HERE.rglob("*.svg"))
     for path in files:
         source = path.read_text()
         try:
@@ -47,11 +53,26 @@ def main():
                 failures.append(f"{path.name}: missing paint target {target}")
         if "mobile" in path.stem and root.get("viewBox", "").split()[2:3] != ["600"]:
             failures.append(f"{path.name}: mobile figure must use the 600px artboard")
-        if path.name in generated and source != generated[path.name]():
+        relative = path.relative_to(HERE).as_posix()
+        if relative in expected and source != expected[relative]:
             failures.append(f"{path.name}: stale artwork; regenerate from assets/build.py or assets/charts.py")
+    actual = {p.name for p in doc_figures.OUT.glob('*.svg')}
+    if actual != set(documentation):
+        failures.append('documentation figures: missing or stale generated files')
+    for ident, entry in manifest.items():
+        source = (HERE.parent / entry['document']).read_text()
+        if source.count(blocks[ident]) != 1:
+            failures.append(f"{entry['document']}: figure/text source mismatch for {ident}")
+    for ident in ['runtime-wins', 'runtime-observations', 'runtime-verification']:
+        if (HERE.parent / 'README.md').read_text().count(blocks[ident]) != 1:
+            failures.append(f'README benchmark panel missing or stale: {ident}')
+    for path in doc_figures.documents():
+        source = re.sub(re.escape(doc_figures.START) + r'.*?' + re.escape(doc_figures.END), '', path.read_text(), flags=re.S)
+        if any(doc_figures.separator(line) for line in source.splitlines()):
+            failures.append(f'{path.relative_to(HERE.parent)}: Markdown table needs SVG conversion')
     if failures:
         raise SystemExit("\n".join(failures))
-    print(f"PASS: {len(files)} accessible SVGs; cool palette; {len(generated)} generated figures match sources and recorded JSON")
+    print(f"PASS: {len(files)} accessible SVGs; cool palette; {len(expected)} generated figures match sources and recorded JSON; {len(manifest)} documentation figures retain text and links")
 
 
 if __name__ == "__main__":

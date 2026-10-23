@@ -60,7 +60,19 @@ The [Northwind Ops fixture](../bench/README.md) supplies local workflow examples
 - **Snapshot small.** `snapshot --interactive` keeps only elements with refs, plus headings. `--scope main` (or any ref, `text=` or selector) narrows it to the part that matters. That keeps the context window for the task.
 - **Read before you act.** `text` and `markdown --main` are much cheaper than a screenshot, and they include content that isn't interactive, such as prices, statuses and table cells.
 - **Trust the waits that are built in.** `open` waits for the page to load. `click` waits until its target is visible, enabled and not covered, and waits for any page it opens. Use `wait` only for content that arrives later, such as `wait --text "Settings saved"` after a save. `--text` matches case-sensitively.
+<!-- umbra-figure: docs-agents-facts-1eafc4bf87 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-agents-facts-1eafc4bf87-1-mobile-27d61d5288.svg">
+  <img src="../assets/docs/docs-agents-facts-1eafc4bf87-1-0d8c712750.svg" width="100%" alt="Working well. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 - **One tab per task.** `open <url> --tab NAME` opens a named tab (created if new), and `--tab NAME` on any later command addresses it. Pop-ups (`target=_blank`, `window.open`) become tabs of their own, and the click that opened one reports its name. Close a tab when its task is done (`tab close NAME`): each holds a web process, and one nothing uses closes by itself only after 15 minutes.
+
+</details>
+<!-- /umbra-figure -->
 - **Choose resource limits deliberately.** `resources lean` blocks images/fonts/media/trackers; `balanced` blocks trackers; `visual` restores full resources. Preset rules persist on the tab until changed; task/lease completion does not restore them. `--reload --until JS` falls back to prior rules on readiness failure; interruption can leave applied rules in place. Use cookie-free `http` for public text/JSON; signed-in `fetch` or `open` for authenticated/rendered pages.
 - **Separate identity from task ownership.** Use different profiles for separate signed-in identities. Cooperating agents sharing a profile need explicit named tabs and matching leases; the current-tab pointer and cookies still belong to the profile. Cookies on `127.0.0.1` are shared across ports.
 - **Dialogs don't block.** Alerts, confirms and prompts are accepted by default, and the reply of the click that raised one reports it. Run `dialog dismiss` first to decline the next one.

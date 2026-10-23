@@ -16,39 +16,46 @@
 
 ## Benchmarks
 
-**1.32–1.47× more tasks per second. About 82–84% less sampled peak memory.** Three matched single-worker runs of the same four-task localhost workload, with all 80 measured tasks per arm succeeding in each repeat. Memory includes the daemon and its responsible WebKit/GPU/network processes. [October 23 measurements and every raw row](docs/evaluation/runtime/primary-v2/README.md).
+<!-- runtime-panel: runtime-wins -->
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/docs/runtime-wins-mobile-5968f2d4cf.svg">
+  <img src="assets/docs/runtime-wins-75e89842d5.svg" width="100%" alt="Matched single-worker fixture · three complete paired repeats. 1.32–1.47×: More tasks per second; Same WebKit workload; 82%–84%: Less sampled peak memory; Daemon + responsible helpers. All measured tasks and warmups succeeded in each pair. Whole-grid targets remain unmet; heavy matched runs hit the RAM guard.">
+</picture>
+<!-- /runtime-panel -->
 
-**Over 50% fewer observation tokens through CLI, MCP and Python.** The final build reconstructed text, refs and metadata exactly throughout a 16-state journey, including navigation resets and unchanged reads.
+<!-- runtime-panel: runtime-observations -->
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/docs/runtime-observations-mobile-8e685ac1ed.svg">
+  <img src="assets/docs/runtime-observations-2c36caae31.svg" width="100%" alt="Full → incremental responses · exact text, refs and metadata retained. 51.5%: CLI JSON · fewer tokens; 5,911 → 2,865 tokens; 53.5%: MCP · fewer tokens; 5,660 → 2,631 tokens; 57.9%: Python SDK · fewer tokens; 10,280 → 4,328 tokens. 16 states, including initial and navigation-reset full responses. Pinned tiktoken 0.12.0 / o200k_base. Observation responses only.">
+</picture>
+<!-- /runtime-panel -->
 
-| Observation transport | Full tokens | Incremental tokens | Reduction |
-|---|---:|---:|---:|
-| CLI JSON | 5,911 | 2,865 | 51.5% |
-| MCP | 5,660 | 2,631 | 53.5% |
-| Python SDK | 10,280 | 4,328 | 57.9% |
+<!-- runtime-panel: runtime-verification -->
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/docs/runtime-verification-mobile-ae26ea8938.svg">
+  <img src="assets/docs/runtime-verification-755db17e0c.svg" width="100%" alt="Final build · native app, live loading and responsive inspector checked. 418: Regression tests; One expected skip; 17: Smoke checks; All passed; 32: Concurrent clients; Ownership · progress · cancel. Concurrency is a semantic check, not full-workload performance. The requested release excludes a 24-hour soak.">
+</picture>
+<!-- /runtime-panel -->
 
-Counts cover delivered observation responses with tiktoken 0.12.0 / o200k_base; initial and navigation-reset full responses stay counted. **1, 4, 8, 16 and 32 concurrent clients passed ownership, progress and cancellation checks.** [Final-build verification and methods](docs/evaluation/runtime/RESULTS.md).
+The complete concurrency performance grid still missed its broad throughput, memory and latency targets. These figures identify the workloads and evidence they measure. [Runtime results, methods and every failed row](docs/evaluation/runtime/RESULTS.md).
 
-Those figures describe the single-worker fixture. Heavy matched-WebKit runs at 32 workers exceeded the 2 GiB budget, so the full-grid throughput, RAM and latency targets remain unmet.
-
-**0.94 ms snapshots. 1.52 ms clicks with DOM updates.** Earlier daemon-socket medians recorded October 13, 2026 on local fixtures, 20 runs per cell. In the October 21 abandoned-tab fixture, whole-browser memory fell from **2,756 to 331 MB** after idle tabs closed. [Methods, baselines and all samples](docs/evaluation/README.md).
+### Earlier measurements
 
 <a href="docs/evaluation/README.md">
   <picture>
     <source media="(max-width: 600px)" srcset="assets/showcase-mobile-v1.svg">
-    <img src="assets/showcase-v1.svg" width="100%" alt="Measured local-fixture medians: Umbra daemon socket snapshots 0.94 ms versus Playwright Chromium 3.57 ms, 3.8× faster; clicks plus DOM update 1.52 ms versus 16.02 ms, 10.5× faster. Umbra earned full reward on 517/625 MiniWoB++ cases (82.7%) with an adapted MCP protocol, and passed 70/70 project-authored workflow regression runs.">
+    <img src="assets/showcase-v1.svg" width="100%" alt="Earlier recorded local-fixture latency, external MiniWoB task reward and project workflow results. Full comparisons, dates and limits are linked below.">
   </picture>
 </a>
 
 <a href="docs/evaluation/memory/README.md">
   <picture>
     <source media="(max-width: 600px)" srcset="assets/memory-mobile.svg">
-    <img src="assets/memory.svg" width="100%" alt="Memory of Umbra and its WebKit processes while one agent keeps working and ten others have each left a heavy page open. Before, the abandoned tabs stayed open at about 2.7 GB. Now each tab closes once unused and memory falls to 331 MB, 8.3 times less; their CPU fell from 15.3 to 1.9 seconds a minute. With four pages per tab, memory fell from 3,863 to 312 MB, 12.4 times less.">
+    <img src="assets/memory.svg" width="100%" alt="Recorded whole-browser memory and CPU before and after abandoned tabs close, across two synthetic localhost workloads.">
   </picture>
 </a>
 
-The latency figures compare the same local fixture with Playwright Chromium and exclude MCP framing; Chromium navigated faster. Memory figures measure synthetic pages after abandoned tabs close, with a 60-second test idle limit. These results describe the recorded workloads, not a general website speedup.
-
-[Explore the complete evaluations, comparisons, methods and data →](docs/evaluation/README.md)
+These earlier measurements apply to their recorded builds: direct daemon latency excludes MCP framing, and Chromium navigated faster; reclaimed memory is measured after abandoned fixture tabs close. [Dates, methods, baselines and source data](docs/evaluation/README.md).
 
 ## Why Umbra
 

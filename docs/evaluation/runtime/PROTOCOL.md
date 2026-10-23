@@ -4,21 +4,93 @@ This is a custom localhost performance and behavior suite. It does not establish
 
 Four task types carry equal weight: public static HTML extraction, public JSON API retrieval, JavaScript-computed DOM reading, and a native form mutation. Every task validates semantic output. Public retrieval requires one corresponding server token; native mutation requires trusted input/click events, exact DOM output and an accepted server receipt. Failures and warmup failures stay in the denominator. Twenty measured cycles per worker provide a useful active memory sampling window; a one-cycle pilot tests plumbing only.
 
+<!-- umbra-figure: docs-evaluation-runtime-protocol-facts-402af5fd6d -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-runtime-protocol-facts-402af5fd6d-1-mobile-4531a72706.svg">
+  <img src="../../../assets/docs/docs-evaluation-runtime-protocol-facts-402af5fd6d-1-51c76442c4.svg" width="100%" alt="Runtime workload protocol. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 The primary matrix is 1/4/8/16/32 concurrent workers, three repeats, with AB/BA arm order alternating by repetition. Each cell uses a fresh disposable profile, one persistent tab per worker and one persistent socket per worker. The matched route uses identical WebKit `read`/`fetch` commands. The public-http route changes only candidate static/JSON retrieval to its public no-cookie/no-JavaScript HTTP path. Report that routing difference and report both matrices; do not present it as an engine-only speedup. Baseline already uses its best browser `read`/`fetch` commands rather than navigation plus unnecessarily repeated extraction.
+
+</details>
+<!-- /umbra-figure -->
+
+<!-- umbra-figure: docs-evaluation-runtime-protocol-facts-cf54f57a08 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-runtime-protocol-facts-cf54f57a08-1-mobile-7312b485ec.svg">
+  <img src="../../../assets/docs/docs-evaluation-runtime-protocol-facts-cf54f57a08-1-952be91a57.svg" width="100%" alt="Runtime workload protocol. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
 
 Each cell records excluded warmups, every task and command latency, task success, matched socket and CLI control calls, physical-footprint samples, process membership and observed CPU. The sampler uses `bench/memory.py` responsibility-disclaimed launch and macOS responsibility attribution to include daemon plus responsible WebKit/GPU/network processes. Physical footprint is not RSS. Sample processing itself costs time, recorded as `samplerDurationMs`; the nominal sampling wait is 250 ms, and actual timestamp spacing includes sampler work. Fast process creation/exit between samples can escape peak and CPU observations. The fixture server and Python harness are excluded from browser-family memory/CPU. Raw timestamps make this limitation inspectable.
 
+</details>
+<!-- /umbra-figure -->
+
+<!-- umbra-figure: docs-evaluation-runtime-protocol-facts-00d3af9c26 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-runtime-protocol-facts-00d3af9c26-1-mobile-c37bb29239.svg">
+  <img src="../../../assets/docs/docs-evaluation-runtime-protocol-facts-00d3af9c26-1-038b56c437.svg" width="100%" alt="Runtime workload protocol. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 A paired result is valid only when every task and warmup succeeds and both cells have active memory samples. Report distributions and repeat spread, not an isolated fastest cell. The 2× gate compares task throughput with both arms below the same explicit RAM budget (default 2 GiB); descriptive throughput/GiB ratios alone do not prove that gate. The 30% active footprint gate compares matched concurrency and workload using sampled whole-family peak. Sampling is too coarse to claim an exact instantaneous peak. Overall acceptance requires the complete matrix, no success regression and no per-task-type p95 regression above 10%, not any one passing row. A pair with any cell error or resource abort is ineligible even if its measured tasks happened to finish first. These are performance gates, not evidence of general agent reliability.
+
+</details>
+<!-- /umbra-figure -->
 
 Full versus delta observations need a separate reconstruction check and actual response-byte counts. Bytes must never be described as tokenizer counts. The candidate comparison runs pinned tiktoken 0.12.0 with o200k_base and records separate full/delta payload and text token counts plus reconstruction. These are actual counts under that fixed encoding; GPT-6 billing-tokenizer equivalence is not claimed.
 
 Run full measurements when competing builds/tests are idle, record machine load, and preserve manifests/binary/harness/workload hashes. Candidate execution requires a caller-supplied SHA256 and fails if it changes. Retain every raw result and cleanup receipt. Baseline-only pilots may run during development and must be labeled non-comparative.
 
+<!-- umbra-figure: docs-evaluation-runtime-protocol-facts-2354b51f1d -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-runtime-protocol-facts-2354b51f1d-1-mobile-7ebd429dad.svg">
+  <img src="../../../assets/docs/docs-evaluation-runtime-protocol-facts-2354b51f1d-1-765d433ed2.svg" width="100%" alt="Runtime workload protocol. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 The 24-hour release requirement was removed at the user’s explicit request on 2026-10-23. No 24-hour run is required for this delivery, and this release makes no 24-hour stability claim. `bench/soak.py` remains an optional diagnostic tool. The optional runner accepts at most 86400 seconds, validates the candidate hash on each cycle, performs all four task types plus repeated tab creation/closure, records actual PID/heartbeat/health/process samples, and cleans up on completion, interruption or failure. A short smoke run proves plumbing only. `final.json` must establish 24-hour duration, zero failures, successful cleanup and a post-warmup resource plateau before claiming long-run stability. No 24-hour soak was launched. A bounded smoke run can verify this optional tool’s plumbing; it does not establish long-duration stability.
+
+</details>
+<!-- /umbra-figure -->
+
+<!-- umbra-figure: docs-evaluation-runtime-protocol-facts-363ea7ff79 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-runtime-protocol-facts-363ea7ff79-1-mobile-b60650f4e2.svg">
+  <img src="../../../assets/docs/docs-evaluation-runtime-protocol-facts-363ea7ff79-1-ef1d45abbb.svg" width="100%" alt="Runtime workload protocol. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
 
 A whole-family hard safety guard applies to every primary arm and the soak. The default ceiling is 2048 MiB; budgets above 2048 MiB are rejected on this 16 GiB host. The first sample above budget terminates the test daemon, stops new command dispatch and preserves raw samples, abort reason and all planned tasks in the denominator. Sampling may overshoot by one interval; sampler failure itself also aborts. The 128 MiB deliberately low-ceiling baseline probe proves cleanup/abort plumbing; its peak is not a performance result. The soak samples the guard every second, streams guard samples to disk and retains one guard sample in memory. It never launches automatically.
 
+</details>
+<!-- /umbra-figure -->
+
+<!-- umbra-figure: docs-evaluation-runtime-protocol-facts-0a760d6429 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-runtime-protocol-facts-0a760d6429-1-mobile-c231727408.svg">
+  <img src="../../../assets/docs/docs-evaluation-runtime-protocol-facts-0a760d6429-1-786b24de62.svg" width="100%" alt="Runtime workload protocol. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 The separate `--admission` flag runs a secondary fixed-RAM experiment using the pre-candidate frozen `ADMISSION.json` (SHA256 `2214a4a68dd3ba7a4d2f5441bb693e8e85d7d149ad6faa1553d6147997a06378`). This does not change the primary matrix. Setup/tab creation, warmup, measured tasks and controls all pass through the same fresh-sampled admission controller in both arms. The controller uses a 1536 MiB watermark, 128 MiB in-flight reservations, a permanently reserved 128 MiB serial tab-keepalive worker, 180-second admission deadlines, and a 900-second cell deadline. All memory/CPU includes keepalive work; waits during measured tasks remain in their latency and throughput. Every admission and release forces a responsibility-family sample, so measurement overhead is intentionally included and reported. Setup failure cannot be repaired by reducing physical tab count. Ineligible cells stay in the matrix; passing a subset does not prove a full-matrix 2× target. The prepared command is:
+
+</details>
+<!-- /umbra-figure -->
 
 ```sh
 ../tokenizer-venv/bin/python bench/runtime.py --baseline ../baseline-app/Umbra.app/Contents/MacOS/umbra --candidate /frozen/umbra --candidate-sha256 HASH --out /tmp/runtime-secondary --admission
@@ -26,12 +98,60 @@ The separate `--admission` flag runs a secondary fixed-RAM experiment using the 
 
 The primary command omits `--admission` and writes to a separate output directory. No frozen-candidate measurement has run merely because these commands are documented.
 
+<!-- umbra-figure: docs-evaluation-runtime-protocol-facts-96cc72c707 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-runtime-protocol-facts-96cc72c707-1-mobile-786f7db450.svg">
+  <img src="../../../assets/docs/docs-evaluation-runtime-protocol-facts-96cc72c707-1-f7267dd36f.svg" width="100%" alt="Runtime workload protocol. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 Loaded controls and runtime semantic coverage are frozen separately in `CONTROL.json` (SHA256 `32aaaee29003ed718863467567aa91185fc794b9019abcf5abe20e242511de0c`). One independent persistent client runs `eval return 1` on existing worker-0 every 100 ms while measured workers execute. Missed cadence slots are skipped. Probe latency includes same-tab serialization and, in the secondary experiment, common admission waiting. In-flight probe completion remains in active wall time, CPU and footprint. Raw schedule/start/end timestamps and counts are retained. Loaded-control p95 has its own <=1.10 comparison gate; idle socket/CLI probes retain separate labels and cannot prove the loaded-control gate.
+
+</details>
+<!-- /umbra-figure -->
 
 Every primary candidate campaign then runs a separate semantic phase at each selected concurrency level, with fresh profiles outside performance windows. Each actor owns one leased tab, rejects a wrong-owner mutation, completes three asynchronous progress rounds, and verifies queued and running cancellation by ID with matching ownership. Every actor must progress within the frozen 5-second command/10-second fairness window. The receipt retains progress order, starvation counters/times, all cancellation replies, resource samples, runtime global metrics and cleanup. `--runtime-only` runs this candidate semantic grid without the performance matrix. A resource-aborted or incomplete level remains failed; no tab count is silently reduced.
 
+<!-- umbra-figure: docs-evaluation-runtime-protocol-facts-fcfb79cb86 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-runtime-protocol-facts-fcfb79cb86-1-mobile-08e2df7bb2.svg">
+  <img src="../../../assets/docs/docs-evaluation-runtime-protocol-facts-fcfb79cb86-1-9c34ea9172.svg" width="100%" alt="Runtime workload protocol. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 The localhost fixture uses listen backlog 128 in every arm, above the maximum 32 worker grid. This avoids the Python 3.12 default backlog of 5 becoming an accidental accept/retransmission bottleneck. It does not change fixture content or task semantics. The configured backlog is retained in the campaign manifest.
+
+</details>
+<!-- /umbra-figure -->
+
+<!-- umbra-figure: docs-evaluation-runtime-protocol-facts-228c2f42d7 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-runtime-protocol-facts-228c2f42d7-1-mobile-afd293df0b.svg">
+  <img src="../../../assets/docs/docs-evaluation-runtime-protocol-facts-228c2f42d7-1-f66d373719.svg" width="100%" alt="Runtime workload protocol. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
 
 The multistep observation journey is frozen in `OBSERVATION.json` (SHA256 `d6c22cd7c57f16e6b9fd3da582597e494c21ba6fda39248388e022a066e4297f`). Its initial state, 12 action/read states and three navigation resets produce 16 observation states. Nine action states mutate input/output; three read bundles validate static HTML, JSON and JS DOM semantics. At every state the actual current Python SDK, CLI `--json`, and MCP tool transport independently produce forced-full and delta responses. Every delta reconstructs exact full snapshot text, ordered refs/count and document metadata; navigation must fall back to full. Every raw observation and generated step result is retained. Initial and reset full responses remain in the aggregate denominator. Each transport has separate actual tiktoken0.12.0/o200k_base canonical-result JSON byte/token totals and a50%gate. The SDK raw result retains its human `text`; actual CLI JSON omits `text` and retains `snapshot`; actual MCP content plus structured result is counted as delivered. These are observation-response counts under a fixed encoding, not end-to-end agent or GPT-6 billing-tokenizer claims. The original changed-point metric remains separate and cannot establish the multistep gate. Candidate campaigns require the actual `--sdk` source (default `sdk/python/umbra.py`), record its hash and verify it remained unchanged.
 
+</details>
+<!-- /umbra-figure -->
+
+<!-- umbra-figure: docs-evaluation-runtime-protocol-facts-45f4aa9693 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../assets/docs/docs-evaluation-runtime-protocol-facts-45f4aa9693-1-mobile-4ed8e6c9d7.svg">
+  <img src="../../../assets/docs/docs-evaluation-runtime-protocol-facts-45f4aa9693-1-9443d70f40.svg" width="100%" alt="Runtime workload protocol. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 The verifier reads pending/history from `tasks` and scheduler/connection counters from `runtime`; those are distinct response shapes. The first retained campaign exposed this verifier mistake after its semantic actions, and a separate corrected 1/4/8/16/32 diagnostic verifies all bounds. Observation metadata reconstruction retains each transport’s requested-baseline state, inherits omitted keys only in delta mode, overlays emitted values, then requires all six metadata fields to match the independently forced-full result. Full/reset responses cannot inherit. Raw response payloads and token denominators are unchanged by these verifier corrections.
+
+</details>
+<!-- /umbra-figure -->

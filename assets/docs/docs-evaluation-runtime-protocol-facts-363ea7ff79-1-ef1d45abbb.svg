@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 604" width="1200" height="604" role="img" aria-labelledby="title desc">
+  <title id="title">Runtime workload protocol</title>
+  <desc id="desc">A whole-family hard safety guard applies to every primary arm and the soak. The default ceiling is 2048 MiB; budgets above 2048 MiB are rejected on this 16 GiB host. The first sample above budget terminates the test daemon, stops new command dispatch and preserves raw samples, abort reason and all planned tasks in the denominator. Sampling may overshoot by one interval; sampler failure itself also aborts. The 128 MiB deliberately low-ceiling baseline probe proves cleanup/abort plumbing; its peak is not a performance result. The soak samples the guard every second, streams guard samples to disk and retains one guard sample in memory. It never launches automatically.</desc>
+  <defs>
+  <radialGradient id="corona" cx="0" cy="0" r="230" gradientUnits="userSpaceOnUse">
+    <stop offset="0.60" stop-color="#dce7ff" stop-opacity="0"/>
+    <stop offset="0.655" stop-color="#e8edff" stop-opacity="1"/>
+    <stop offset="0.70" stop-color="#93b4ff" stop-opacity="0.7"/>
+    <stop offset="0.82" stop-color="#b5a1ff" stop-opacity="0.22"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="rays" cx="0" cy="0" r="262" gradientUnits="userSpaceOnUse">
+    <stop offset="0.56" stop-color="#e8edff" stop-opacity="0.75"/>
+    <stop offset="0.72" stop-color="#93b4ff" stop-opacity="0.32"/>
+    <stop offset="1" stop-color="#b5a1ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="moon" cx="-40" cy="-50" r="190" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#192039"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </radialGradient>
+  <radialGradient id="bead" cx="0" cy="0" r="46" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="0.18" stop-color="#edf3ff"/>
+    <stop offset="0.45" stop-color="#bbceff" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#93b4ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#7c83f6" stop-opacity="0.20"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
+    <feGaussianBlur stdDeviation="2.6"/>
+  </filter>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#151c30"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </linearGradient>
+  </defs><rect width="1200" height="604" rx="28" fill="url(#sky)"/><rect x="0.75" y="0.75" width="1198.5" height="602.5" rx="27.25" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5"/><text x="48" y="66" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="650" fill="#93b4ff" data-max-width="1104">Runtime workload protocol</text><text x="48" y="124" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">A whole-family hard safety guard applies to every primary arm</text><text x="48" y="161" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">and the soak. The default ceiling is 2048 MiB; budgets above</text><text x="48" y="198" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">2048 MiB are rejected on this 16 GiB host. The first sample</text><text x="48" y="235" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">above budget terminates the test daemon, stops new command</text><text x="48" y="272" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">dispatch and preserves raw samples, abort reason and all</text><text x="48" y="309" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">planned tasks in the denominator. Sampling may overshoot by one</text><text x="48" y="346" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">interval; sampler failure itself also aborts. The 128 MiB</text><text x="48" y="383" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">deliberately low-ceiling baseline probe proves cleanup/abort</text><text x="48" y="420" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">plumbing; its peak is not a performance result. The soak</text><text x="48" y="457" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">samples the guard every second, streams guard samples to disk</text><text x="48" y="494" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">and retains one guard sample in memory. It never launches</text><text x="48" y="531" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">automatically.</text>
+</svg>

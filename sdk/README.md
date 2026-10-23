@@ -74,7 +74,19 @@ Swift calls block the calling thread. Use a background queue in a UI app. The cl
 
 ## Deadlines, cancellation and errors
 
+<!-- umbra-figure: sdk-readme-facts-cff605c48a -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/sdk-readme-facts-cff605c48a-1-mobile-81a9529d6e.svg">
+  <img src="../assets/docs/sdk-readme-facts-cff605c48a-1-3590c08f40.svg" width="100%" alt="Deadlines, cancellation and errors. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 Python and TypeScript deadlines are absolute Unix timestamps in **seconds**, not milliseconds; Swift accepts an absolute `Date`. They cover the client queue, connection and reply. The SDK forwards the same deadline as `args.deadline` so the runtime can expire work too. Defaults are 30 seconds per call. Closing a client closes its socket; it never sends `stop` or deletes the profile.
+
+</details>
+<!-- /umbra-figure -->
 
 To cancel an in-flight request from another thread/task, assign its ID and use the same client’s control method. It opens its own connection, so a blocked data command cannot prevent cancellation:
 
@@ -96,7 +108,19 @@ Cancellation requires a runtime with the `cancel` command; repair proposals requ
 
 `UmbraError.code` preserves the daemon’s structured code, and `details` preserves its complete error object. Transport/protocol failures use code `1`; local deadlines use `2`; TypeScript local aborts use `'cancelled'`. Successful calls return the structured `result` object.
 
+<!-- umbra-figure: sdk-readme-facts-bbe364fd3e -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/sdk-readme-facts-bbe364fd3e-1-mobile-abd7a03128.svg">
+  <img src="../assets/docs/sdk-readme-facts-bbe364fd3e-1-139944262a.svg" width="100%" alt="Deadlines, cancellation and errors. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 Replies default to a **16 MiB bound**, including the JSON-line framing. Configure `max_reply_bytes` (Python) / `maxReplyBytes` (TypeScript and Swift) for larger screenshots or downloads. Oversized or malformed replies close the socket; a later explicit command can establish another connection. This is reconnection, not replay of the failed command.
+
+</details>
+<!-- /umbra-figure -->
 
 `socket_path` / `socketPath` overrides are for test fixtures or custom transports. Normal clients derive the profile’s actual socket path, including Umbra’s existing long-profile hashing rule.
 

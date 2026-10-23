@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 412" width="1200" height="412" role="img" aria-labelledby="title desc">
+  <title id="title">MiniWoB++ serialized clipboard diagnostic</title>
+  <desc id="desc">Browser: umbra, BrowserGym successes: 10/10 (100.0%), Full reward: 10/10, Episode p50 / p95: 17.5 / 20.7 s, Broker call p50 / p95: 8.3 / 60.2 ms; Browser: playwright, BrowserGym successes: 10/10 (100.0%), Full reward: 10/10, Episode p50 / p95: 21.2 / 27.0 s, Broker call p50 / p95: 31.4 / 583.0 ms</desc>
+  <defs>
+  <radialGradient id="corona" cx="0" cy="0" r="230" gradientUnits="userSpaceOnUse">
+    <stop offset="0.60" stop-color="#dce7ff" stop-opacity="0"/>
+    <stop offset="0.655" stop-color="#e8edff" stop-opacity="1"/>
+    <stop offset="0.70" stop-color="#93b4ff" stop-opacity="0.7"/>
+    <stop offset="0.82" stop-color="#b5a1ff" stop-opacity="0.22"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="rays" cx="0" cy="0" r="262" gradientUnits="userSpaceOnUse">
+    <stop offset="0.56" stop-color="#e8edff" stop-opacity="0.75"/>
+    <stop offset="0.72" stop-color="#93b4ff" stop-opacity="0.32"/>
+    <stop offset="1" stop-color="#b5a1ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="moon" cx="-40" cy="-50" r="190" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#192039"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </radialGradient>
+  <radialGradient id="bead" cx="0" cy="0" r="46" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="0.18" stop-color="#edf3ff"/>
+    <stop offset="0.45" stop-color="#bbceff" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#93b4ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#7c83f6" stop-opacity="0.20"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
+    <feGaussianBlur stdDeviation="2.6"/>
+  </filter>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#151c30"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </linearGradient>
+  </defs><rect width="1200" height="412" rx="28" fill="url(#sky)"/><rect x="0.75" y="0.75" width="1198.5" height="410.5" rx="27.25" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5"/><text x="48" y="66" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="650" fill="#f1f4fc" data-max-width="1104">MiniWoB++ serialized clipboard diagnostic</text><text x="48" y="118" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="18" font-weight="600" fill="#93b4ff" data-max-width="1104">REFERENCE / 1 OF 1</text><text x="62" y="180" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="19" font-weight="600" fill="#93b4ff" data-max-width="153.382">BROWSER</text><text x="243.382" y="180" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="19" font-weight="600" fill="#93b4ff" data-max-width="224.811">BROWSERGYM</text><text x="243.382" y="209" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="19" font-weight="600" fill="#93b4ff" data-max-width="224.811">SUCCESSES</text><text x="496.193" y="180" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="19" font-weight="600" fill="#93b4ff" data-max-width="153.382">FULL REWARD</text><text x="677.576" y="180" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="19" font-weight="600" fill="#93b4ff" data-max-width="199.467">EPISODE P50 /</text><text x="677.576" y="209" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="19" font-weight="600" fill="#93b4ff" data-max-width="199.467">P95</text><text x="905.043" y="180" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="19" font-weight="600" fill="#93b4ff" data-max-width="232.957">BROKER CALL P50 /</text><text x="905.043" y="209" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="19" font-weight="600" fill="#93b4ff" data-max-width="232.957">P95</text><rect x="48" y="234" width="1104" height="58" rx="8" fill="#121a2c"/><text x="62" y="264" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#87dced" data-max-width="153.382">umbra</text><text x="243.382" y="264" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#f1f4fc" data-max-width="224.811">10/10 (100.0%)</text><text x="496.193" y="264" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#f1f4fc" data-max-width="153.382">10/10</text><text x="677.576" y="264" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#f1f4fc" data-max-width="199.467">17.5 / 20.7 s</text><text x="905.043" y="264" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#f1f4fc" data-max-width="232.957">8.3 / 60.2 ms</text><rect x="48" y="296" width="1104" height="58" rx="8" fill="#0d1423"/><text x="62" y="326" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#87dced" data-max-width="153.382">playwright</text><text x="243.382" y="326" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#f1f4fc" data-max-width="224.811">10/10 (100.0%)</text><text x="496.193" y="326" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#f1f4fc" data-max-width="153.382">10/10</text><text x="677.576" y="326" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#f1f4fc" data-max-width="199.467">21.2 / 27.0 s</text><text x="905.043" y="326" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#f1f4fc" data-max-width="232.957">31.4 / 583.0 ms</text><text x="48" y="380" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#c2cadd" data-max-width="1104">Copyable values and source links are below.</text>
+</svg>

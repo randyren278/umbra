@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 790" width="600" height="790" role="img" aria-labelledby="title desc">
+  <title id="title">Limits and dispositions</title>
+  <desc id="desc">- The complete 60-cell performance campaign did not meet full-grid 2× throughput, 30% memory or ≤10% p95-regression gates. Only 3/15 pairs per route were eligible. Across 58,560 planned measured tasks, candidate completed 21,600/29,280 and baseline 1,451/29,280. All 35,509 planned/measured failures stay counted. There were 27 budget aborts, 11 setup/cell errors and three control failures. Candidate’s three heavy matched-WebKit 32-worker cells exceeded the 2 GiB budget. Semantic success at 32 clients is a separate claim.</desc>
+  <defs>
+  <radialGradient id="corona" cx="0" cy="0" r="230" gradientUnits="userSpaceOnUse">
+    <stop offset="0.60" stop-color="#dce7ff" stop-opacity="0"/>
+    <stop offset="0.655" stop-color="#e8edff" stop-opacity="1"/>
+    <stop offset="0.70" stop-color="#93b4ff" stop-opacity="0.7"/>
+    <stop offset="0.82" stop-color="#b5a1ff" stop-opacity="0.22"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="rays" cx="0" cy="0" r="262" gradientUnits="userSpaceOnUse">
+    <stop offset="0.56" stop-color="#e8edff" stop-opacity="0.75"/>
+    <stop offset="0.72" stop-color="#93b4ff" stop-opacity="0.32"/>
+    <stop offset="1" stop-color="#b5a1ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="moon" cx="-40" cy="-50" r="190" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#192039"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </radialGradient>
+  <radialGradient id="bead" cx="0" cy="0" r="46" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="0.18" stop-color="#edf3ff"/>
+    <stop offset="0.45" stop-color="#bbceff" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#93b4ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#7c83f6" stop-opacity="0.20"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
+    <feGaussianBlur stdDeviation="2.6"/>
+  </filter>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#151c30"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </linearGradient>
+  </defs><rect width="600" height="790" rx="28" fill="url(#sky)"/><rect x="0.75" y="0.75" width="598.5" height="788.5" rx="27.25" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5"/><text x="36" y="66" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="650" fill="#93b4ff" data-max-width="528">Limits and dispositions</text><text x="36" y="124" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">- The complete 60-cell</text><text x="36" y="159" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">performance campaign did not meet</text><text x="36" y="194" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">full-grid 2× throughput, 30%</text><text x="36" y="229" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">memory or ≤10% p95-regression</text><text x="36" y="264" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">gates. Only 3/15 pairs per route</text><text x="36" y="299" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">were eligible. Across 58,560</text><text x="36" y="334" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">planned measured tasks, candidate</text><text x="36" y="369" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">completed 21,600/29,280 and</text><text x="36" y="404" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">baseline 1,451/29,280. All 35,509</text><text x="36" y="439" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">planned/measured failures stay</text><text x="36" y="474" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">counted. There were 27 budget</text><text x="36" y="509" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">aborts, 11 setup/cell errors and</text><text x="36" y="544" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">three control failures.</text><text x="36" y="579" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">Candidate’s three heavy</text><text x="36" y="614" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">matched-WebKit 32-worker cells</text><text x="36" y="649" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">exceeded the 2 GiB budget.</text><text x="36" y="684" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">Semantic success at 32 clients is</text><text x="36" y="719" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">a separate claim.</text>
+</svg>

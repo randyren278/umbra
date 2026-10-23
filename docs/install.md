@@ -56,6 +56,18 @@ ln -s "$PWD/skill" ~/.claude/skills/umbra    # Claude Code
 ln -s "$PWD/skill" ~/.codex/skills/umbra     # Codex
 ```
 
+<!-- umbra-figure: docs-install-facts-05218ac2b9 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../assets/docs/docs-install-facts-05218ac2b9-1-mobile-233c834f85.svg">
+  <img src="../assets/docs/docs-install-facts-05218ac2b9-1-feaafba293.svg" width="100%" alt="Teach your agent. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 In the [agent eval](evaluation/README.md), with nothing about the skill in the task prompt (only the standing `AGENTS.md` rule that names it), Codex read the installed skill in all 14 runs.
+
+</details>
+<!-- /umbra-figure -->
 
 For other agents, [docs/agents.md](agents.md) has a short block to paste into `AGENTS.md` or a system prompt.

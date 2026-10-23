@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 678" width="1200" height="678" role="img" aria-labelledby="title desc">
+  <title id="title">Runtime workload protocol</title>
+  <desc id="desc">The 24-hour release requirement was removed at the user’s explicit request on 2026-10-23. No 24-hour run is required for this delivery, and this release makes no 24-hour stability claim. bench/soak.py remains an optional diagnostic tool. The optional runner accepts at most 86400 seconds, validates the candidate hash on each cycle, performs all four task types plus repeated tab creation/closure, records actual PID/heartbeat/health/process samples, and cleans up on completion, interruption or failure. A short smoke run proves plumbing only. final.json must establish 24-hour duration, zero failures, successful cleanup and a post-warmup resource plateau before claiming long-run stability. No 24-hour soak was launched. A bounded smoke run can verify this optional tool’s plumbing; it does not establish long-duration stability.</desc>
+  <defs>
+  <radialGradient id="corona" cx="0" cy="0" r="230" gradientUnits="userSpaceOnUse">
+    <stop offset="0.60" stop-color="#dce7ff" stop-opacity="0"/>
+    <stop offset="0.655" stop-color="#e8edff" stop-opacity="1"/>
+    <stop offset="0.70" stop-color="#93b4ff" stop-opacity="0.7"/>
+    <stop offset="0.82" stop-color="#b5a1ff" stop-opacity="0.22"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="rays" cx="0" cy="0" r="262" gradientUnits="userSpaceOnUse">
+    <stop offset="0.56" stop-color="#e8edff" stop-opacity="0.75"/>
+    <stop offset="0.72" stop-color="#93b4ff" stop-opacity="0.32"/>
+    <stop offset="1" stop-color="#b5a1ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="moon" cx="-40" cy="-50" r="190" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#192039"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </radialGradient>
+  <radialGradient id="bead" cx="0" cy="0" r="46" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="0.18" stop-color="#edf3ff"/>
+    <stop offset="0.45" stop-color="#bbceff" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#93b4ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#7c83f6" stop-opacity="0.20"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
+    <feGaussianBlur stdDeviation="2.6"/>
+  </filter>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#151c30"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </linearGradient>
+  </defs><rect width="1200" height="678" rx="28" fill="url(#sky)"/><rect x="0.75" y="0.75" width="1198.5" height="676.5" rx="27.25" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5"/><text x="48" y="66" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="650" fill="#93b4ff" data-max-width="1104">Runtime workload protocol</text><text x="48" y="124" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">The 24-hour release requirement was removed at the user’s</text><text x="48" y="161" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">explicit request on 2026-10-23. No 24-hour run is required for</text><text x="48" y="198" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">this delivery, and this release makes no 24-hour stability</text><text x="48" y="235" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">claim. bench/soak.py remains an optional diagnostic tool. The</text><text x="48" y="272" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">optional runner accepts at most 86400 seconds, validates the</text><text x="48" y="309" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">candidate hash on each cycle, performs all four task types plus</text><text x="48" y="346" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">repeated tab creation/closure, records actual</text><text x="48" y="383" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">PID/heartbeat/health/process samples, and cleans up on</text><text x="48" y="420" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">completion, interruption or failure. A short smoke run proves</text><text x="48" y="457" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">plumbing only. final.json must establish 24-hour duration, zero</text><text x="48" y="494" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">failures, successful cleanup and a post-warmup resource plateau</text><text x="48" y="531" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">before claiming long-run stability. No 24-hour soak was</text><text x="48" y="568" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">launched. A bounded smoke run can verify this optional tool’s</text><text x="48" y="605" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="400" fill="#f1f4fc" data-max-width="1104">plumbing; it does not establish long-duration stability.</text>
+</svg>

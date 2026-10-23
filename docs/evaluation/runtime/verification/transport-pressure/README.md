@@ -4,6 +4,18 @@ A controlled Darwin UNIX listener with a full accept backlog returns ECONNREFUSE
 
 The client retries refused/full connections for up to one second within a valid supplied budget. Missing sockets keep immediate cold startup. Existing stale recovery, worker-capacity and cancellation assertions remain. Read/fetch/download preserve live-daemon routing and share their remaining budget with store acquisition and one-shot fallback. MCP readiness and dispatch share one explicit absolute deadline.
 
+<!-- umbra-figure: docs-evaluation-runtime-verification-transport-pressure-readme-facts-3bfb414609 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../../../assets/docs/docs-evaluation-runtime-verification-transport-pressure-readme-facts-3bfb414609-1-mobile-9242e37601.svg">
+  <img src="../../../../../assets/docs/docs-evaluation-runtime-verification-transport-pressure-readme-facts-3bfb414609-1-1d6105c22f.svg" width="100%" alt="Connection pressure and explicit reply budgets. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 A second controlled test held partial replies beyond a 0.12-second budget; the old client returned late success after 0.5 seconds. Explicit budgets now poll reply reads against the original deadline, including partial replies and EINTR. No-budget calls retain their blocking-read behavior.
+
+</details>
+<!-- /umbra-figure -->
 
 The latest isolated source passed 20 unique checks and 15 repeats with explicit profile cleanup. Previous pre-poll compatibility checks are distinguished in the JSON receipt. The combined build passed 25 focused checks; its full regression is the next gate.

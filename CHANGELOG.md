@@ -8,17 +8,53 @@ All notable changes to Umbra are recorded here. Versions follow [Semantic Versio
 
 - The sign-in window is a way to sign in, not a way to browse. It lists each site and whether it is signed in without loading any page. For a site it can check, it shows the login page only to sign in and closes it the moment the sign-in lands, before the signed-in site renders; a one-off URL or an added account's first sign-in stays open until Done.
 - The daemon shows the sign-in window, so other commands keep working while a person signs in; `umbra sign-in` no longer stops the daemon. Opening Umbra.app shows the window even while the daemon runs (macOS hands the launch to it). The window comes with a Dock icon and a menu bar; Quit closes the window and leaves the daemon running.
+<!-- umbra-figure: changelog-facts-4c9eb1aa75 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/docs/changelog-facts-4c9eb1aa75-1-mobile-7251e488f3.svg">
+  <img src="assets/docs/changelog-facts-4c9eb1aa75-1-9a4b461876.svg" width="100%" alt="Changed. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 - `umbra sign-in <sites>` returns once every named site is signed in, at once (with no window) if they already are; exit 3 if the window is closed first, 2 after `--timeout` (default 900 seconds). With no sites it opens the window and returns at once.
+
+</details>
+<!-- /umbra-figure -->
 - `sign-in` is an MCP tool, and a signed-out error tells the model to call it.
 - A site with both `cookie` and `probe` counts as signed in only when the probe passes too, so a session the site ended while its cookie stayed opens the login page instead of being reported as signed in. The old cookie is never deleted: a sign-in counts when the cookie gets a new value. A probe that answers 503, 429 or the like can't tell, so a named sign-in exits 4 and opens nothing.
 
 ### Added
 
 - The sign-in window, redrawn for macOS 26: one Liquid Glass card of sites with each site's own logo, a status column (Signed in, Signed out, or Couldn't check with its reason), and Keep Signed In, Check Again and Sign Out… in each row's … menu. A login page opens under a toolbar with Done or a back button. On macOS 14 and 15 the same layout draws without glass.
+<!-- umbra-figure: changelog-facts-b933b0146f -->
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/docs/changelog-facts-b933b0146f-1-mobile-773c66d535.svg">
+  <img src="assets/docs/changelog-facts-b933b0146f-1-4a61e13740.svg" width="100%" alt="Added. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 - `keepSignedIn` in `sites.json`, Keep Signed In in each site's … menu in the window, and `umbra keep-signed-in [site ...] [--off]`: a launch agent (`com.randyren.umbra.keep-signed-in`) visits the marked sites every 10 minutes, and on wake for a visit missed while the Mac slept, so a site that ends idle sessions on its side, like Canvas, keeps you signed in. It implies `keepSession`, and each run logs one line per site to `~/Library/Application Support/Umbra/keep-signed-in.log`.
+
+</details>
+<!-- /umbra-figure -->
 - `umbra sign-out <site>`, and a Sign Out button in the window: deletes the site's cookies from the profile's store.
 - Add Account in the window, and `umbra sign-in <login URL> --save NAME`: a pasted login link becomes a site in `sites.json`. During its first sign-in Umbra learns the cookie it sets (a session-like one that appeared after the login page loaded), so from then on the site is checked like the others, and agents can use it.
+<!-- umbra-figure: changelog-facts-bf11f49228 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/docs/changelog-facts-bf11f49228-1-mobile-83090a52e5.svg">
+  <img src="assets/docs/changelog-facts-bf11f49228-1-0df796b492.svg" width="100%" alt="Added. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 - The agent eval runs Codex too (`eval.py run-codex`, with `process.py` reading each run's transcript): GPT-6 Sol in Codex completed 14 of 14 tasks with the skill in its prompt and 14 of 14 as installed, with zero critical failures. Results are in `docs/evaluation/regression/RESULTS.md` and `docs/evaluation/regression/scores.json`.
+
+</details>
+<!-- /umbra-figure -->
 - `umbra mcp --print-config` prints the line for Codex.
 - README diagrams in the artwork's style, each with a phone layout: the loop, why WebKit, the sign-in window, handoff, profiles, how it works, and two drawn from data by `assets/charts.py` (the eval scoreboard and the speed chart).
 
@@ -27,7 +63,19 @@ All notable changes to Umbra are recorded here. Versions follow [Semantic Versio
 - The sign-in window showed sites as signed out when they were signed in: a site with no cookie or probe, such as Wealthsimple, had no status and its Sign In opened the site signed in (it is now asked by its login page, loaded out of sight: a site that moves it on into itself is signed in, and never opens), and a window left open or shown again kept its first results (it now checks every time it is shown).
 - A sign-in that rested on a session-only cookie was gone after the daemon next exited, unless the site had `keepSession`: the window now sets `keepSession` for it, before `umbra sign-in` answers, and the daemon writes cookies to disk every five minutes.
 - A named `umbra sign-in` used the daemon's sites file rather than the caller's for what it learned or kept.
+<!-- umbra-figure: changelog-facts-9eb8f30145 -->
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/docs/changelog-facts-9eb8f30145-1-mobile-4468bad162.svg">
+  <img src="assets/docs/changelog-facts-9eb8f30145-1-0db0446585.svg" width="100%" alt="Fixed. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 - `keep-signed-in` and the window say why a check couldn't tell (`HTTP 503`, no answer in 20 seconds, offline).
+
+</details>
+<!-- /umbra-figure -->
 - A load whose web process stops answering (seen on GitHub's runners when several tabs start at once: the request never left and scripts got no answer) no longer hangs until the command's timeout. After two silent checks the watchdog ends that process and retries the load in a new one, up to twice, then reports exit 4.
 
 ## 0.2.0 - 2026-10-13

@@ -1,6 +1,18 @@
 # Event-sensitive general conditions
 
+<!-- umbra-figure: docs-evaluation-runtime-verification-condition-waits-readme-facts-7593b8dd2b -->
+<picture>
+  <source media="(max-width: 600px)" srcset="../../../../../assets/docs/docs-evaluation-runtime-verification-condition-waits-readme-facts-7593b8dd2b-1-mobile-d9b8a55b72.svg">
+  <img src="../../../../../assets/docs/docs-evaluation-runtime-verification-condition-waits-readme-facts-7593b8dd2b-1-a331b103fd.svg" width="100%" alt="Event-sensitive general conditions. Exact values and source links in the expandable text below.">
+</picture>
+
+<details>
+<summary>Read the text, values and source links</summary>
+
 `Tab.wait` now wakes on DOM, input, load and visibility signals. A 100 ms fallback preserves globals/time checks; asynchronous predicates do not overlap, and the original absolute deadline still bounds them. Resources activate only for a wait and are cleared on match, expiry, pagehide, cancellation or timeout.
+
+</details>
+<!-- /umbra-figure -->
 
 The fixed document-start bootstrap captures the APIs needed to evaluate explicitly requested page predicates despite later page overrides. Snapshot/action code remains isolated. CSP does not require eval/Function construction.
 

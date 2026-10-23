@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 895" width="600" height="895" role="img" aria-labelledby="title desc">
+  <title id="title">Runtime workload protocol</title>
+  <desc id="desc">The primary matrix is 1/4/8/16/32 concurrent workers, three repeats, with AB/BA arm order alternating by repetition. Each cell uses a fresh disposable profile, one persistent tab per worker and one persistent socket per worker. The matched route uses identical WebKit read/fetch commands. The public-http route changes only candidate static/JSON retrieval to its public no-cookie/no-JavaScript HTTP path. Report that routing difference and report both matrices; do not present it as an engine-only speedup. Baseline already uses its best browser read/fetch commands rather than navigation plus unnecessarily repeated extraction.</desc>
+  <defs>
+  <radialGradient id="corona" cx="0" cy="0" r="230" gradientUnits="userSpaceOnUse">
+    <stop offset="0.60" stop-color="#dce7ff" stop-opacity="0"/>
+    <stop offset="0.655" stop-color="#e8edff" stop-opacity="1"/>
+    <stop offset="0.70" stop-color="#93b4ff" stop-opacity="0.7"/>
+    <stop offset="0.82" stop-color="#b5a1ff" stop-opacity="0.22"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="rays" cx="0" cy="0" r="262" gradientUnits="userSpaceOnUse">
+    <stop offset="0.56" stop-color="#e8edff" stop-opacity="0.75"/>
+    <stop offset="0.72" stop-color="#93b4ff" stop-opacity="0.32"/>
+    <stop offset="1" stop-color="#b5a1ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="moon" cx="-40" cy="-50" r="190" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#192039"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </radialGradient>
+  <radialGradient id="bead" cx="0" cy="0" r="46" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="0.18" stop-color="#edf3ff"/>
+    <stop offset="0.45" stop-color="#bbceff" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#93b4ff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#7c83f6" stop-opacity="0.20"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
+    <feGaussianBlur stdDeviation="2.6"/>
+  </filter>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#151c30"/>
+    <stop offset="1" stop-color="#080b14"/>
+  </linearGradient>
+  </defs><rect width="600" height="895" rx="28" fill="url(#sky)"/><rect x="0.75" y="0.75" width="598.5" height="893.5" rx="27.25" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5"/><text x="36" y="66" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="650" fill="#93b4ff" data-max-width="528">Runtime workload protocol</text><text x="36" y="124" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">The primary matrix is 1/4/8/16/32</text><text x="36" y="159" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">concurrent workers, three</text><text x="36" y="194" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">repeats, with AB/BA arm order</text><text x="36" y="229" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">alternating by repetition. Each</text><text x="36" y="264" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">cell uses a fresh disposable</text><text x="36" y="299" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">profile, one persistent tab per</text><text x="36" y="334" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">worker and one persistent socket</text><text x="36" y="369" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">per worker. The matched route</text><text x="36" y="404" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">uses identical WebKit read/fetch</text><text x="36" y="439" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">commands. The public-http route</text><text x="36" y="474" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">changes only candidate</text><text x="36" y="509" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">static/JSON retrieval to its</text><text x="36" y="544" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">public no-cookie/no-JavaScript</text><text x="36" y="579" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">HTTP path. Report that routing</text><text x="36" y="614" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">difference and report both</text><text x="36" y="649" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">matrices; do not present it as an</text><text x="36" y="684" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">engine-only speedup. Baseline</text><text x="36" y="719" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">already uses its best browser</text><text x="36" y="754" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">read/fetch commands rather than</text><text x="36" y="789" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">navigation plus unnecessarily</text><text x="36" y="824" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#f1f4fc" data-max-width="528">repeated extraction.</text>
+</svg>
