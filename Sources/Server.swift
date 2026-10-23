@@ -89,6 +89,9 @@ final class Daemon {
         // takes focus from the person. Tab windows still order in, so pages still see themselves as
         // visible. Only a handoff switches to accessory, for as long as the person needs the window.
         NSApplication.shared.setActivationPolicy(.prohibited)
+        if let url = Bundle.main.url(forResource: "AppIcon", withExtension: "icns"), let icon = NSImage(contentsOf: url) {
+            NSApplication.shared.applicationIconImage = icon
+        }
         unlink(socketPath)
         let listener = socket(AF_UNIX, SOCK_STREAM, 0)
         guard listener >= 0, withAddress({ bind(listener, $0, $1) }) == 0, listen(listener, 32) == 0 else {

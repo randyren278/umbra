@@ -2,6 +2,12 @@
 
 All notable changes to Umbra are recorded here. Versions follow [Semantic Versioning](https://semver.org).
 
+## 0.3.1 - 2026-10-23
+
+### Fixed
+
+- The Accounts window, Dock and About panel load Umbra's bundled icon directly, so macOS's cached icon cannot keep showing the older gold artwork after an upgrade.
+
 ## 0.3.0 - 2026-10-23
 
 ### Changed

@@ -1,0 +1,47 @@
+{
+  "verifiedUTC": "2026-10-23T21:28:06.909090+00:00",
+  "version": "0.3.1",
+  "build": "4",
+  "installedPath": "/Users/randyren/Applications/Umbra.app",
+  "previousDaemonPid": 76880,
+  "runningDaemonPid": 84828,
+  "runningCDHash": "e88e3500aab4e5fce19d4a50d2250fbbafd9e0cf",
+  "runningSignatureMatchesInstalledBuild": true,
+  "signatureValid": true,
+  "binarySha256": "f026de8bbd86d257a6482bfebc4f0a8043faba83dfb5a3b6a6c99d3ba9dc714c",
+  "iconSha256": "28514909fc2cf517ba99083a9a346cd872cf6efdfdb30894044dfd352aab1c5d",
+  "ownerStoreDirectoryInodePreserved": true,
+  "cliTestsPassed": 4,
+  "smokeChecksPassed": 17,
+  "daemonLifecycleAndSignInTestsPassed": 38,
+  "fix": "Load AppIcon.icns into NSApplication.applicationIconImage before the daemon accepts requests; avoid stale macOS icon cache.",
+  "additionalLegacyMCPProcessesStopped": [
+    78587
+  ],
+  "baselineLiveVersion": "0.3.0",
+  "baselineAccountsIcon": "Old gold icon visibly reproduced despite current blue/violet bundled artwork.",
+  "accountsWindowBlueIconVisuallyVerified": true,
+  "aboutPanelBlueIconVisuallyVerified": true,
+  "aboutPanelVisibleText": "Umbra Version 0.3.1 (4)",
+  "finderBlueIconVisuallyVerified": true,
+  "independentReview": "No blocking findings; startup order, missing-resource fallback and headless activation behavior reviewed.",
+  "releaseArchiveSha256": "455efeeea0f4b3fa5307b66cff31c0d383d82d1285f316e14ac28f2b8b30893c",
+  "cleanup": {
+    "oldAppBundlesRetired": 46,
+    "recoverableArchive": "/Users/randyren/.Trash/Umbra-retired-builds-20261023-141901.zip",
+    "recoveryArchiveCRCVerified": true,
+    "oldMCPProcessesStopped": 14,
+    "onlyRegisteredUmbraPath": "/Users/randyren/Applications/Umbra.app",
+    "allRunningUmbraProcessesMatchCurrentBuild": true,
+    "runningProcesses": [
+      {
+        "pid": 84828,
+        "role": "serve",
+        "currentBuild": true
+      }
+    ],
+    "oldReleaseArchivesRemovedFromDist": true,
+    "signInStoresNotDeleted": true
+  },
+  "verificationLimit": "Native Accounts layout was unchanged; this release fixes the stale icon. The new About panel was left open for the owner."
+}
