@@ -1,0 +1,137 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "raw": "pilot-1.json.gz",
+      "errors": [
+        "viewport: {'message': 'no open tab; start with `umbra open <url>`', 'code': 64}",
+        "arm failed; retain attempt and repair before measurement"
+      ],
+      "summary": null,
+      "arms": [
+        {
+          "arm": "umbra",
+          "states": 0,
+          "cleanup": {
+            "daemonGone": true,
+            "profile": "runtime-bench-5f1155e51a",
+            "profileFilesGone": true
+          }
+        }
+      ]
+    },
+    {
+      "attempt": 2,
+      "raw": "pilot-2.json.gz",
+      "errors": [
+        "article/initial: missing information ['Start by opening the page and reading its current state. Identify the visible controls and record which account and document the task uses. Reuse a session while the workflow is active so that sign-in and navigation state remain available between commands.', 'After editing a form, inspect the value the page retained. After saving, wait for a receipt or reload the record. A successful click means the input was delivered; the application still needs to confirm that the requested change persisted.', 'If a command times out, read the current page before repeating a submission. The browser may have delivered the action before the client stopped waiting. Keep an explicit checkpoint for steps with lasting effects and resolve uncertain work before continuing.', 'Use a snapshot when the task depends on labels, values and accessible controls. A screenshot can help with visual content. Preserve enough context to act correctly and include a complete observation when navigation changes the underlying document.']",
+        "arm failed; retain attempt and repair before measurement"
+      ],
+      "summary": null,
+      "arms": [
+        {
+          "arm": "umbra",
+          "states": 18,
+          "cleanup": {
+            "daemonGone": true,
+            "profile": "runtime-bench-a78cdcef90",
+            "profileFilesGone": true
+          }
+        }
+      ]
+    },
+    {
+      "attempt": 3,
+      "raw": "pilot-3.json.gz",
+      "errors": [
+        "MCP observation error: {\"result\": {\"content\": [{\"type\": \"text\", \"text\": \"### Error\\nError: async initializeServer: Failed to launch chromium because executable doesn't exist at /Users/randyren/Library/Caches/ms-playwright/chromium-1247/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing\"}], \"isError\": true}, \"jsonrpc\": \"2.0\", \"id\": 2}",
+        "arm failed; retain attempt and repair before measurement"
+      ],
+      "summary": null,
+      "arms": [
+        {
+          "arm": "umbra",
+          "states": 27,
+          "cleanup": {
+            "daemonGone": true,
+            "profile": "runtime-bench-6a89b9d478",
+            "profileFilesGone": true
+          }
+        },
+        {
+          "arm": "chromium",
+          "states": 0,
+          "cleanup": {
+            "mcpExited": true
+          }
+        }
+      ]
+    },
+    {
+      "attempt": 4,
+      "raw": "pilot-4.json.gz",
+      "errors": [],
+      "summary": {
+        "chromium": {
+          "fullTokens": [
+            25434
+          ],
+          "statesPerRepeat": 27,
+          "tokens": [
+            25434
+          ]
+        },
+        "umbra": {
+          "fullTokens": [
+            20807
+          ],
+          "statesPerRepeat": 27,
+          "tokens": [
+            12539
+          ]
+        },
+        "webkit": {
+          "fullTokens": [
+            25211
+          ],
+          "statesPerRepeat": 27,
+          "tokens": [
+            25211
+          ]
+        }
+      },
+      "arms": [
+        {
+          "arm": "umbra",
+          "states": 27,
+          "cleanup": {
+            "daemonGone": true,
+            "profile": "runtime-bench-5949b05978",
+            "profileFilesGone": true
+          }
+        },
+        {
+          "arm": "chromium",
+          "states": 27,
+          "cleanup": {
+            "mcpExited": true
+          }
+        },
+        {
+          "arm": "webkit",
+          "states": 27,
+          "cleanup": {
+            "mcpExited": true
+          }
+        }
+      ]
+    }
+  ],
+  "changes": [
+    "Moved viewport setup after opening a tab.",
+    "Kept strict prose-equivalence check; added full text read to every Umbra state after detecting paragraph shortening.",
+    "Installed browsers matching the pinned MCP driver after a missing executable.",
+    "All arms passed pilot; final metadata and state assertions added before measured run."
+  ],
+  "selection": "No measured runs discarded. Pilot results excluded from headline."
+}

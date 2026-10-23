@@ -1,16 +1,16 @@
 {
-  "verifiedUTC": "2026-10-23T20:22:49.437770+00:00",
-  "sourceBase": "6886a19a6489c0c13b658ffc7ecd463b0ee76ebd",
+  "verifiedUTC": "2026-10-23T20:47:09.361689+00:00",
+  "sourceBase": "e9fc20425166e907d1f22172cfcecaeb8e4df7e0",
   "documentationFigures": 189,
   "tables": 47,
   "quantitativeCallouts": 142,
-  "readmePanels": 1,
-  "responsiveSVGFiles": 430,
-  "totalAccessibleSVGFiles": 454,
-  "documents": 47,
+  "readmePanels": 2,
+  "responsiveSVGFiles": 432,
+  "totalAccessibleSVGFiles": 456,
+  "documents": 53,
   "nativeLayout": {
-    "figures": 430,
-    "texts": 8714,
+    "figures": 432,
+    "texts": 8846,
     "violations": [],
     "cleanup": {
       "daemonGone": true,
@@ -28,15 +28,19 @@
         "images": [
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/banner.svg"
+            "src": "http://127.0.0.1:62022/assets/banner.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/competitive-benchmarks-bf442e5356.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/competitive-benchmarks-de969cdbf6.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/the-loop.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/why-umbra-f523332d30.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:62022/assets/the-loop.svg"
           }
         ],
         "pageWidth": 1263,
@@ -52,15 +56,19 @@
         "images": [
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/banner.svg"
+            "src": "http://127.0.0.1:62022/assets/banner.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/competitive-benchmarks-mobile-708f513aac.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/competitive-benchmarks-mobile-3184cba02d.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/the-loop-mobile.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/why-umbra-mobile-b3e946ebe0.svg"
+          },
+          {
+            "loaded": true,
+            "src": "http://127.0.0.1:62022/assets/the-loop-mobile.svg"
           }
         ],
         "pageWidth": 373,
@@ -76,55 +84,55 @@
         "images": [
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-e872c48d03-1-1fa8010fa4.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-e872c48d03-1-1fa8010fa4.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-e872c48d03-2-8040622397.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-e872c48d03-2-8040622397.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-99bfc94cd0-1-175e030de5.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-99bfc94cd0-1-175e030de5.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-99bfc94cd0-2-2cb96d262e.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-99bfc94cd0-2-2cb96d262e.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-d6f5520937-1-c3d2a97b04.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-d6f5520937-1-c3d2a97b04.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-d6f5520937-2-76bcdf2e1c.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-d6f5520937-2-76bcdf2e1c.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-14177c4af4-1-0cb3f77db8.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-14177c4af4-1-0cb3f77db8.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-ec5b2a67ec-1-4f6a31750b.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-ec5b2a67ec-1-4f6a31750b.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-69653e37c5-1-cb14f3716b.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-69653e37c5-1-cb14f3716b.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-9ae059d752-1-7dc741ab91.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-9ae059d752-1-7dc741ab91.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-e81061a828-1-4d2e00321a.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-e81061a828-1-4d2e00321a.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-6a9ed7d3ef-1-67f1447df1.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-6a9ed7d3ef-1-67f1447df1.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-facts-104bf82a01-1-4d47dac9a5.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-facts-104bf82a01-1-4d47dac9a5.svg"
           }
         ],
         "pageWidth": 1263,
@@ -140,55 +148,55 @@
         "images": [
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-e872c48d03-1-mobile-d6b588ef5b.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-e872c48d03-1-mobile-d6b588ef5b.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-e872c48d03-2-mobile-a2f2ba3e0c.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-e872c48d03-2-mobile-a2f2ba3e0c.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-99bfc94cd0-1-mobile-608e206c52.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-99bfc94cd0-1-mobile-608e206c52.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-99bfc94cd0-2-mobile-25505166a7.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-99bfc94cd0-2-mobile-25505166a7.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-d6f5520937-1-mobile-5c38b62a77.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-d6f5520937-1-mobile-5c38b62a77.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-d6f5520937-2-mobile-829aecdda0.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-d6f5520937-2-mobile-829aecdda0.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-14177c4af4-1-mobile-87232bfe34.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-14177c4af4-1-mobile-87232bfe34.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-ec5b2a67ec-1-mobile-f910f78ab9.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-ec5b2a67ec-1-mobile-f910f78ab9.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-69653e37c5-1-mobile-da74c4ed1d.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-69653e37c5-1-mobile-da74c4ed1d.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-9ae059d752-1-mobile-772ffde3d0.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-9ae059d752-1-mobile-772ffde3d0.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-e81061a828-1-mobile-ee1724e461.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-e81061a828-1-mobile-ee1724e461.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-table-6a9ed7d3ef-1-mobile-7b0014e3ec.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-table-6a9ed7d3ef-1-mobile-7b0014e3ec.svg"
           },
           {
             "loaded": true,
-            "src": "http://127.0.0.1:61147/assets/docs/docs-commands-facts-104bf82a01-1-mobile-2121401655.svg"
+            "src": "http://127.0.0.1:62022/assets/docs/docs-commands-facts-104bf82a01-1-mobile-2121401655.svg"
           }
         ],
         "pageWidth": 373,
@@ -199,15 +207,14 @@
     ],
     "lightAndDarkVisuallyInspected": true
   },
-  "localLinksVerified": 595,
+  "localLinksVerified": 38,
   "tableHeadersAndRowsPreserved": true,
   "originalFencedCommandsAndConfigurationPreserved": true,
   "importAndRegenerationByteIdempotent": true,
   "productSourceChanged": false,
-  "rawBenchmarkEvidenceChanged": false,
   "style": "Existing cool blue/violet/cyan palette; self-contained SVGs with title/desc; text/source links retained in details",
   "cacheHandling": "Content-hashed image filenames; no stale CDN paths reused",
-  "sourceGeneratorSha256": "033f385461bd468c83de67ea3623a6232fe8af2bb978b51d531ed58e53b6e809",
+  "sourceGeneratorSha256": "8ad29a076ee7b9a779a81e47c3c1c0b940e2755ddcace13842cc9148fc9b8806",
   "manifestSha256": "da5b954048fe6366c08521135495d95ea20def3b7abaa3cb602bab6e907493fa",
   "competitiveMeasurements": {
     "source": "docs/evaluation/latency/results.json",
@@ -215,6 +222,13 @@
     "date": "2026-10-13 02:33",
     "runs": 20,
     "comparisons": {
+      "click": {
+        "umbraDaemonMedianMs": 1.52,
+        "playwrightChromiumMedianMs": 16.02,
+        "playwrightWebKitMedianMs": 65.85,
+        "chromiumRatio": 10.539473684210526,
+        "webkitRatio": 43.32236842105263
+      },
       "snapshot": {
         "umbraDaemonMedianMs": 0.94,
         "playwrightChromiumMedianMs": 3.57,
@@ -222,14 +236,40 @@
         "chromiumRatio": 3.797872340425532,
         "webkitRatio": 4.6914893617021285
       },
-      "click": {
-        "umbraDaemonMedianMs": 1.52,
-        "playwrightChromiumMedianMs": 16.02,
-        "playwrightWebKitMedianMs": 65.85,
-        "chromiumRatio": 10.539473684210526,
-        "webkitRatio": 43.32236842105263
+      "fill": {
+        "umbraDaemonMedianMs": 1.27,
+        "playwrightChromiumMedianMs": 2.13,
+        "playwrightWebKitMedianMs": 2.96,
+        "chromiumRatio": 1.6771653543307086,
+        "webkitRatio": 2.3307086614173227
+      },
+      "screenshot": {
+        "umbraDaemonMedianMs": 50.16,
+        "playwrightChromiumMedianMs": 84.86,
+        "playwrightWebKitMedianMs": 57.12,
+        "chromiumRatio": 1.6917862838915472,
+        "webkitRatio": 1.138755980861244
       }
     },
     "scope": "Recorded direct daemon control medians on localhost fixtures; CLI/MCP startup excluded; click policy differences disclosed; no native Safari or general website speed claim"
-  }
+  },
+  "localLinksScope": "All local links in changed Markdown documents; unchanged documentation retained from prior verification",
+  "tokenStudy": {
+    "source": "docs/evaluation/observation-tokens/results.json",
+    "sourceSha256": "985dd2ea519fb0a0732181d7f9eba5f6c95adac7714c1ec94f561673c2b80217",
+    "audit": "docs/evaluation/observation-tokens/verification.json",
+    "observations": 243,
+    "worstCaseReduction": {
+      "chromium": 0.5084532515530392,
+      "webkit": 0.5041053508389195
+    },
+    "allRequiredInformationPresent": true,
+    "allResponseTokenCountsRecomputed": true,
+    "negativeChecks": [
+      "missing actionable refs rejected",
+      "missing checked state rejected",
+      "missing task information rejected"
+    ]
+  },
+  "existingRawBenchmarkEvidenceChanged": false
 }

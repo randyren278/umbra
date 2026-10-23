@@ -63,7 +63,7 @@ def main():
         source = (HERE.parent / entry['document']).read_text()
         if source.count(blocks[ident]) != 1:
             failures.append(f"{entry['document']}: figure/text source mismatch for {ident}")
-    for ident in ['competitive-benchmarks']:
+    for ident in ['competitive-benchmarks', 'why-umbra']:
         if (HERE.parent / 'README.md').read_text().count(blocks[ident]) != 1:
             failures.append(f'README benchmark panel missing or stale: {ident}')
     for path in doc_figures.documents():

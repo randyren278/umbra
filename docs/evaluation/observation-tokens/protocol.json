@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "frozenBeforeMeasuredRun": true,
+  "unit": "tokens in canonical compact JSON MCP tools/call result, including all content and structuredContent, excluding JSON-RPC envelope",
+  "tokenizer": {"version": "0.12.0", "encoding": "o200k_base"},
+  "fixtures": ["orders", "support", "article"],
+  "states": ["initial", "filled", "checked", "saved", "menu-expanded", "reviewer-assigned", "unchanged-read", "verification-receipt", "navigation-reset"],
+  "orders": [["umbra", "chromium", "webkit"], ["webkit", "umbra", "chromium"], ["chromium", "webkit", "umbra"]],
+  "viewport": {"width": 1280, "height": 900},
+  "headlineMinimumReduction": 0.1,
+  "headlineGate": "All 81 page states per arm pass task-information and cross-engine DOM-state checks; every repeat exceeds 10% reduction against both engines; no failures excluded. Pilot never eligible.",
+  "candidate": "Umbra MCP observe plus text on EVERY state; explicit since-baseline opt-in after initial observation; full initial and navigation fallback counted. The supplemental full text result and bundle JSON delimiters are charged, even when snapshot alone has all task prose.",
+  "comparators": "Playwright MCP browser_snapshot, full mode (the available modes are full or none), headless isolated Chromium and WebKit",
+  "diagnostic": "Also count Umbra full observe plus text bundle at each state and verify exact delta reconstruction of text and six metadata fields. Full diagnostic queries excluded consistently from measured stateful stream. Pilot 2 revealed per-paragraph snapshot shortening, so complete text reads are included before any measured run; no quality check is weakened.",
+  "stateSetup": "Fixture-owned JavaScript produces identical deterministic DOM states in every engine; independent state objects compared across arms. Setup/action tool results excluded for all arms.",
+  "semanticChecks": "Every task prose segment, table cell, heading, label, current field value, checked and expanded state, dynamic outcome and actionable refs must be available, directly or reconstructed. No truncation or depth clipping in Umbra; no snapshot scope reduction in any arm.",
+  "limits": "Observation results only, not total agent tokens, task success, action costs, billed model usage or all websites. Local fixture set is small. Explicit Umbra delta client state is compared with the pinned Playwright MCP full snapshot interface, not native WebKit token usage. No timing or RAM claim. No paid models."
+}

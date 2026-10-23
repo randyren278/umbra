@@ -1,0 +1,108 @@
+{
+  "allCrossEngineDOMStatesMatch": true,
+  "allDeltaTextAndMetadataMatchFullResults": true,
+  "allOwnedProfilesCleaned": true,
+  "allRequiredInformationPresent": true,
+  "allResponseTokenCountsRecomputed": true,
+  "errors": [],
+  "fullTotals": {
+    "chromium": [
+      25434,
+      25434,
+      25434
+    ],
+    "umbra": [
+      20735,
+      20693,
+      20717
+    ],
+    "webkit": [
+      25211,
+      25211,
+      25211
+    ]
+  },
+  "negativeChecks": [
+    "missing actionable refs rejected",
+    "missing checked state rejected",
+    "missing task information rejected"
+  ],
+  "observations": 243,
+  "perFixtureTotals": {
+    "article": {
+      "chromium": [
+        5331,
+        5331,
+        5331
+      ],
+      "umbra": [
+        4005,
+        3985,
+        4016
+      ],
+      "webkit": [
+        5286,
+        5286,
+        5286
+      ]
+    },
+    "orders": {
+      "chromium": [
+        15537,
+        15537,
+        15537
+      ],
+      "umbra": [
+        5956,
+        5950,
+        5952
+      ],
+      "webkit": [
+        15404,
+        15404,
+        15404
+      ]
+    },
+    "support": {
+      "chromium": [
+        4566,
+        4566,
+        4566
+      ],
+      "umbra": [
+        2541,
+        2539,
+        2523
+      ],
+      "webkit": [
+        4521,
+        4521,
+        4521
+      ]
+    }
+  },
+  "resultsSha256": "985dd2ea519fb0a0732181d7f9eba5f6c95adac7714c1ec94f561673c2b80217",
+  "totals": {
+    "chromium": [
+      25434,
+      25434,
+      25434
+    ],
+    "umbra": [
+      12502,
+      12474,
+      12491
+    ],
+    "webkit": [
+      25211,
+      25211,
+      25211
+    ]
+  },
+  "validatorSha256": "4ce890d4c9b1b8c211719cb5f8ee02bca58e9f7192afbbd62b115fa5f6269e2d",
+  "verifiedUTC": "2026-10-23T20:43:06.688703+00:00",
+  "worstCaseReduction": {
+    "chromium": 0.5084532515530392,
+    "webkit": 0.5041053508389195
+  }
+}

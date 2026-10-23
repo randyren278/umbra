@@ -1,0 +1,40 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Agent observation study</title>
+<style>body{font:16px system-ui;max-width:1000px;margin:30px}td,th{padding:5px 14px;text-align:left}label{display:block;margin:10px}nav{margin:12px}button{margin:5px}</style>
+<main>
+<h1 id="heading"></h1>
+<section id="context"></section>
+<form onsubmit="event.preventDefault()">
+<label>Reference <input id="entry"></label>
+<label><input id="notify" type="checkbox"> Email updates</label>
+<button id="submit">Save changes</button>
+<p role="status" id="status">Draft ready</p>
+</form>
+<button id="menu" aria-expanded="false">Actions</button>
+<nav id="options" hidden><button>Assign reviewer</button><button>Archive record</button></nav>
+<p id="reviewer">Reviewer unassigned</p>
+<a href="/orders">Open orders</a>
+</main>
+<script>
+const fixture='__FIXTURE__';
+const heading=document.querySelector('#heading'),context=document.querySelector('#context'),entry=document.querySelector('#entry'),notify=document.querySelector('#notify'),receipt=document.querySelector('#status'),menu=document.querySelector('#menu'),options=document.querySelector('#options'),reviewer=document.querySelector('#reviewer');
+const headings={orders:'Order approval queue',support:'Customer support request',article:'Knowledge base review'};
+heading.textContent=headings[fixture];
+if(fixture==='orders'){
+ context.innerHTML='<table><caption>Pending orders</caption><thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+Array.from({length:20},(_,i)=>`<tr><td>ORD-${1001+i}</td><td>Customer ${i+1}</td><td>$${120+i*17}.00</td><td>Awaiting approval</td></tr>`).join('')+'</tbody></table>';
+}else if(fixture==='support'){
+ context.innerHTML='<h2>Delivery address correction</h2><p>The customer requested a delivery update before dispatch. Confirm the reference number, keep email updates enabled and assign a reviewer before saving.</p><dl><dt>Priority</dt><dd>Normal</dd><dt>Category</dt><dd>Shipping</dd><dt>Owner</dt><dd>Operations team</dd></dl><h2>Recent activity</h2><ul><li>Request received by support</li><li>Identity confirmed by account owner</li><li>Warehouse notified of pending changes</li></ul>';
+}else{
+ context.innerHTML='<h2>Preparing a reliable browser workflow</h2><p>Start by opening the page and reading its current state. Identify the visible controls and record which account and document the task uses. Reuse a session while the workflow is active so that sign-in and navigation state remain available between commands.</p><h2>Verify changes at the boundary</h2><p>After editing a form, inspect the value the page retained. After saving, wait for a receipt or reload the record. A successful click means the input was delivered; the application still needs to confirm that the requested change persisted.</p><h2>Recover from uncertain outcomes</h2><p>If a command times out, read the current page before repeating a submission. The browser may have delivered the action before the client stopped waiting. Keep an explicit checkpoint for steps with lasting effects and resolve uncertain work before continuing.</p><h2>Keep observations focused</h2><p>Use a snapshot when the task depends on labels, values and accessible controls. A screenshot can help with visual content. Preserve enough context to act correctly and include a complete observation when navigation changes the underlying document.</p>';
+}
+const initialVisible=[...document.querySelectorAll('h1,h2,caption,th,td,dt,dd,li,#context p,label,a')].map(e=>e.textContent.trim());
+window.advance=step=>{
+ entry.value=step>=1?'REF-2048':'';
+ notify.checked=step>=2;
+ receipt.textContent=step>=7?'Saved REF-2048 · verification complete':step>=3?'Saved REF-2048':'Draft ready';
+ menu.setAttribute('aria-expanded',String(step>=4));options.hidden=step<4;
+ reviewer.textContent=step>=5?'Reviewer assigned to Alex':'Reviewer unassigned';
+ return {entry:entry.value,checked:notify.checked,expanded:menu.getAttribute('aria-expanded')==='true',visible:[...initialVisible,'Save changes',receipt.textContent,'Actions',reviewer.textContent,...(!options.hidden?['Assign reviewer','Archive record']:[])]};
+};
+</script>

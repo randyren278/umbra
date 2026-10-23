@@ -9,7 +9,9 @@ import argparse
 import hashlib
 import html
 import json
+import math
 import re
+import statistics
 import textwrap
 from pathlib import Path
 
@@ -194,41 +196,113 @@ def competitive_picture(mobile):
     title = 'Built for the agent loop.'
     body, used = paragraph(margin, 74, title, usable, 38, PAPER, 700)
     y = 74 + used
-    chunk, used = paragraph(margin, y, 'Faster clicks. Faster snapshots.', usable, 24, MUTED)
+    chunk, used = paragraph(margin, y, 'Read. Click. Fill. Capture.', usable, 24, MUTED)
     body += chunk
     top = y + used + 26
     cell_width = usable if mobile else (usable - 24) / 2
     descriptions = []
-    for index, (metric, label, color) in enumerate([('click', 'CLICKS + DOM UPDATE', BLUE), ('snapshot', 'ACCESSIBILITY SNAPSHOTS', VIOLET)]):
+    metrics = [('click', 'CLICKS + DOM UPDATE', BLUE, 'webkit'),
+               ('snapshot', 'ACCESSIBILITY SNAPSHOTS', VIOLET, 'webkit'),
+               ('fill', 'CONTROLLED FORM FILLING', CYAN, 'webkit'),
+               ('screenshot', 'PNG SCREENSHOTS', BLUE, 'chromium')]
+    for index, (metric, label, color, primary) in enumerate(metrics):
         values = data['metrics'][metric]
         native = values['umbra_socket']['p50']
         chromium, webkit = values['chromium']['p50'], values['webkit']['p50']
         for key in ['umbra_socket', 'chromium', 'webkit']:
             assert len(values[key]['samples']) == data['runs']
         assert webkit > native and chromium > native
-        x = margin if mobile else margin + index * (cell_width + 24)
-        card_y = top + index * 404 if mobile else top
+        x = margin if mobile else margin + (index % 2) * (cell_width + 24)
+        card_y = top + (index if mobile else index // 2) * 404
+        first, second = (webkit, chromium) if primary == 'webkit' else (chromium, webkit)
+        first_name, second_name = ('WebKit', 'Chromium') if primary == 'webkit' else ('Chromium', 'WebKit')
         inner = cell_width - 48
         body += f'<rect x="{x:g}" y="{card_y:g}" width="{cell_width:g}" height="380" rx="18" fill="#11192b" stroke="#2f3b55"/>'
         body += text(x + 24, card_y + 36, label, 20, color, inner, 650)
-        body += text(x + 24, card_y + 116, f'{webkit / native:.1f}×', 78, PAPER, inner, 700)
-        body += text(x + 24, card_y + 154, 'faster than Playwright WebKit', 22, MUTED, inner)
-        body += text(x + 24, card_y + 190, f'{chromium / native:.1f}× vs Playwright Chromium', 22, color, inner, 600)
+        body += text(x + 24, card_y + 116, f'{first / native:.1f}×', 78, PAPER, inner, 700)
+        body += text(x + 24, card_y + 154, f'faster than Playwright {first_name}', 22, MUTED, inner)
+        body += text(x + 24, card_y + 190, f'{second / native:.1f}× vs Playwright {second_name}', 22, color, inner, 600)
         for row, (name, value, fill) in enumerate([('Umbra daemon', native, CYAN), ('Playwright Chromium', chromium, BLUE), ('Playwright WebKit', webkit, VIOLET)]):
             baseline = card_y + 234 + row * 48
             body += text(x + 24, baseline, name, 20, MUTED, inner - 112)
             body += text(x + cell_width - 120, baseline, f'{value:.2f} ms', 20, PAPER, 100)
             body += f'<rect x="{x + 24:g}" y="{baseline + 10:g}" width="{inner:g}" height="6" rx="3" fill="#ffffff" fill-opacity="0.08"/>'
-            body += f'<rect x="{x + 24:g}" y="{baseline + 10:g}" width="{inner * value / webkit:g}" height="6" rx="3" fill="{fill}"/>'
+            body += f'<rect x="{x + 24:g}" y="{baseline + 10:g}" width="{inner * value / max(native, chromium, webkit):g}" height="6" rx="3" fill="{fill}"/>'
         descriptions.append(f'{plain(label)}: Umbra {native:.2f} ms; Playwright Chromium {chromium:.2f} ms ({chromium / native:.1f}×); Playwright WebKit {webkit:.2f} ms ({webkit / native:.1f}×)')
-    y = top + (808 if mobile else 404) + 12
+    y = top + (1616 if mobile else 808) + 12
     footer = f"Same local fixtures · {data['runs']}-run medians · {data['machine']['cpu']} · recorded {data['date'][:10]}."
     scope = f"Umbra daemon socket vs Playwright {data['playwright']} drivers. Excludes fresh CLI/MCP overhead. Clicks include each tool’s actionability policy."
     for words in [footer, scope]:
         chunk, used = paragraph(margin, y, words, usable, 21, MUTED)
         body += chunk
         y += used + 8
-    return frame(width, y + 24, title, '; '.join(descriptions) + '. ' + footer + ' ' + scope, body)
+    description = '; '.join(descriptions) + '. ' + footer + ' ' + scope
+    token_path = ROOT / 'docs/evaluation/observation-tokens/results.json'
+    token_data = json.loads(token_path.read_text())
+    audit = json.loads(token_path.with_name('verification.json').read_text())
+    assert audit['resultsSha256'] == hashlib.sha256(token_path.read_bytes()).hexdigest() and not audit['errors']
+    assert token_data['eligibleForHeadline'] and not token_data['pilot'] and not token_data['errors']
+    summaries = token_data['summary']
+    assert len(token_data['runs']) == 9 and all(len(r['states']) == 27 and not r['errors'] for r in token_data['runs'])
+    totals = {arm: statistics.median(summaries[arm]['tokens']) for arm in summaries}
+    reduction = math.floor(100 * min(1 - max(summaries['umbra']['tokens']) / min(summaries[arm]['tokens']) for arm in ['chromium', 'webkit']))
+    assert reduction >= 10
+    y += 18
+    token_top = y
+    token_body = text(margin + 24, y + 38, 'STATEFUL MCP OBSERVATIONS', 20, CYAN, usable - 48, 650)
+    token_body += text(margin + 24, y + 112, f'{reduction}% fewer tokens', 42 if mobile else 54, PAPER, usable - 48, 700)
+    y += 156
+    chunk, used = paragraph(margin + 24, y, 'vs Playwright MCP on Chromium and WebKit', usable - 48, 23, CYAN, 600)
+    token_body += chunk; y += used + 12
+    for name, arm, color in [('Umbra: deltas + full text', 'umbra', CYAN), ('Playwright Chromium', 'chromium', BLUE), ('Playwright WebKit', 'webkit', VIOLET)]:
+        token_body += text(margin + 24, y, name, 20, MUTED, usable - 200)
+        token_body += text(width - margin - 156, y, f'{totals[arm]:,.0f} tokens', 20, PAPER, 132)
+        token_body += f'<rect x="{margin + 24}" y="{y + 10}" width="{usable - 48}" height="6" rx="3" fill="#ffffff" fill-opacity="0.08"/>'
+        token_body += f'<rect x="{margin + 24}" y="{y + 10}" width="{(usable - 48) * totals[arm] / max(totals.values()):g}" height="6" rx="3" fill="{color}"/>'
+        y += 48
+    token_scope = [
+        'Complete task prose, form state and actionable controls retained.',
+        f"{summaries['umbra']['statesPerRepeat']} local states × {len(summaries['umbra']['tokens'])} repeats per browser · median totals · {token_data['tokenizer']['encoding']} · {token_data['recordedUTC'][:10]} UTC.",
+        f"Umbra opt-in observe deltas + full text on every state vs Playwright MCP {token_data['environment']['playwrightMCP']} full snapshots. Initial/reset snapshots included. Canonical result JSON only; setup/actions excluded. Not total agent or billed tokens.",
+    ]
+    for words in token_scope:
+        chunk, used = paragraph(margin + 24, y, words, usable - 48, 20, MUTED)
+        token_body += chunk; y += used + 8
+    body += f'<rect x="{margin}" y="{token_top}" width="{usable}" height="{y - token_top + 12}" rx="18" fill="#11192b" stroke="#2f3b55"/>' + token_body
+    description += f' STATEFUL MCP OBSERVATIONS: {reduction}% fewer canonical result tokens vs Playwright MCP Chromium and WebKit; Umbra {totals["umbra"]:,.0f}, Chromium {totals["chromium"]:,.0f}, WebKit {totals["webkit"]:,.0f}. ' + ' '.join(token_scope)
+    return frame(width, y + 36, title, description, body)
+
+
+def why_picture(mobile):
+    width, margin = (600, 36) if mobile else (1200, 48)
+    usable = width - 2 * margin
+    title = 'Your browser. Agent ready.'
+    body, used = paragraph(margin, 74, title, usable, 38, PAPER, 700)
+    y = 74 + used
+    chunk, used = paragraph(margin, y, 'Already native. Always in the flow.', usable, 24, MUTED)
+    body += chunk
+    top = y + used + 22
+    cell_width = usable if mobile else (usable - 24) / 2
+    benefits = [
+        ('Native to your Mac', 'WebKit is already there. A small Swift app gives your agent direct browser commands.', BLUE),
+        ('Sign in once. Keep going.', 'Persistent accounts in Umbra’s own store. Your agents pick up the session across commands.', VIOLET),
+        ('Your screen stays yours', 'Browse invisibly in the background. Bring a page forward for sign-in or a human handoff.', CYAN),
+        ('One session. Every tool.', 'Shell, MCP, Python, TypeScript and Swift share live tabs. Bring Codex, Claude Code or Cursor.', BLUE),
+        ('Agents that work together', 'Named tabs, ownership leases, bounded admission, deadlines and cancellation coordinate parallel work.', VIOLET),
+        ('Read less. Do more.', 'Observe changes, extract typed records, batch checked steps and resume explicit checkpoints.', CYAN),
+    ]
+    descriptions = []
+    for index, (heading, detail, color) in enumerate(benefits):
+        x = margin if mobile else margin + (index % 2) * (cell_width + 24)
+        card_y = top + (index if mobile else index // 2) * 244
+        body += f'<rect x="{x:g}" y="{card_y:g}" width="{cell_width:g}" height="224" rx="18" fill="#11192b" stroke="#2f3b55"/>'
+        body += f'<rect x="{x + 24:g}" y="{card_y + 26:g}" width="32" height="4" rx="2" fill="{color}"/>'
+        chunk, used = paragraph(x + 24, card_y + 66, heading, cell_width - 48, 28, color, 650)
+        body += chunk
+        chunk, _ = paragraph(x + 24, card_y + 66 + used + 8, detail, cell_width - 48, 23, PAPER)
+        body += chunk
+        descriptions.append(f'{heading.rstrip(".")}: {detail}')
+    return frame(width, top + (6 if mobile else 3) * 244 + 12, title, ' '.join(descriptions), body)
 
 
 def picture(desktop, mobile, document, alt):
@@ -263,10 +337,10 @@ def outputs(manifest):
     for ident, entry in manifest.items():
         generated, block = figure(entry, ident)
         files.update(generated); blocks[ident] = block
-    for kind in ['competitive-benchmarks']:
+    for kind, renderer in [('competitive-benchmarks', competitive_picture), ('why-umbra', why_picture)]:
         names = []
         for mobile in (False, True):
-            source = competitive_picture(mobile)
+            source = renderer(mobile)
             name = f'{kind}{"-mobile" if mobile else ""}-{hashlib.sha256(source.encode()).hexdigest()[:10]}.svg'
             files[name] = source; names.append(name)
         description = ET.fromstring(files[names[0]]).find('{http://www.w3.org/2000/svg}desc').text
@@ -290,7 +364,7 @@ def main():
             source, count = re.subn(pattern, lambda _: blocks[ident], source, flags=re.S)
             if count != 1: raise ValueError(f'{path}: missing/duplicate figure slot {ident}')
         if path == ROOT / 'README.md':
-            for ident in ['competitive-benchmarks']:
+            for ident in ['competitive-benchmarks', 'why-umbra']:
                 source = re.sub(r'<!-- runtime-panel: ' + ident + r' -->.*?<!-- /runtime-panel -->', lambda _: '<!-- runtime-panel: ' + ident + ' -->\n' + blocks[ident] + '\n<!-- /runtime-panel -->', source, flags=re.S)
         rendered[path] = source
     if args.collect:
@@ -301,7 +375,7 @@ def main():
     for name, source in files.items(): (OUT / name).write_text(source)
     for path, source in rendered.items():
         if path.read_text() != source: path.write_text(source)
-    print(f'Generated {len(files)} responsive SVGs for {len(manifest)} documentation figures and one competitive benchmark panel')
+    print(f'Generated {len(files)} responsive SVGs for {len(manifest)} documentation figures and two README panels')
 
 
 if __name__ == '__main__':

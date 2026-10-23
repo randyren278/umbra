@@ -18,21 +18,23 @@
 
 <!-- runtime-panel: competitive-benchmarks -->
 <picture>
-  <source media="(max-width: 600px)" srcset="assets/docs/competitive-benchmarks-mobile-708f513aac.svg">
-  <img src="assets/docs/competitive-benchmarks-bf442e5356.svg" width="100%" alt="CLICKS + DOM UPDATE: Umbra 1.52 ms; Playwright Chromium 16.02 ms (10.5×); Playwright WebKit 65.85 ms (43.3×); ACCESSIBILITY SNAPSHOTS: Umbra 0.94 ms; Playwright Chromium 3.57 ms (3.8×); Playwright WebKit 4.41 ms (4.7×). Same local fixtures · 20-run medians · Apple M1 Pro · recorded 2026-10-13. Umbra daemon socket vs Playwright 1.62.1 drivers. Excludes fresh CLI/MCP overhead. Clicks include each tool’s actionability policy.">
+  <source media="(max-width: 600px)" srcset="assets/docs/competitive-benchmarks-mobile-3184cba02d.svg">
+  <img src="assets/docs/competitive-benchmarks-de969cdbf6.svg" width="100%" alt="CLICKS + DOM UPDATE: Umbra 1.52 ms; Playwright Chromium 16.02 ms (10.5×); Playwright WebKit 65.85 ms (43.3×); ACCESSIBILITY SNAPSHOTS: Umbra 0.94 ms; Playwright Chromium 3.57 ms (3.8×); Playwright WebKit 4.41 ms (4.7×); CONTROLLED FORM FILLING: Umbra 1.27 ms; Playwright Chromium 2.13 ms (1.7×); Playwright WebKit 2.96 ms (2.3×); PNG SCREENSHOTS: Umbra 50.16 ms; Playwright Chromium 84.86 ms (1.7×); Playwright WebKit 57.12 ms (1.1×). Same local fixtures · 20-run medians · Apple M1 Pro · recorded 2026-10-13. Umbra daemon socket vs Playwright 1.62.1 drivers. Excludes fresh CLI/MCP overhead. Clicks include each tool’s actionability policy. STATEFUL MCP OBSERVATIONS: 50% fewer canonical result tokens vs Playwright MCP Chromium and WebKit; Umbra 12,491, Chromium 25,434, WebKit 25,211. Complete task prose, form state and actionable controls retained. 27 local states × 3 repeats per browser · median totals · o200k_base · 2026-10-23 UTC. Umbra opt-in observe deltas + full text on every state vs Playwright MCP 0.0.83 full snapshots. Initial/reset snapshots included. Canonical result JSON only; setup/actions excluded. Not total agent or billed tokens.">
 </picture>
 <!-- /runtime-panel -->
 
-[Benchmark methods, recorded builds and complete comparisons →](docs/evaluation/latency/README.md)
+[Speed benchmarks](docs/evaluation/latency/README.md) · [Token benchmark, method and raw results](docs/evaluation/observation-tokens/README.md)
 
 ## Why Umbra
 
-- **Native WebKit. No browser download.** The engine is already on your Mac. Umbra is a small Swift app that gives your agent direct browser commands.
-- **Signed in and ready.** Log in through Umbra's own window. Agents keep using the session across commands, in a store separate from Safari.
-- **Invisible until you need it.** Background tabs leave your desktop alone. Sign-in and handoff bring the page to you for the human steps.
-- **Shell and MCP, together.** Your scripts and agents share live tabs, history and accounts. Use Claude Code, Codex, Cursor or your own tooling.
-- **Parallel work with explicit ownership.** Named tabs, agent/task leases, bounded admission, deadlines and cancellation help cooperating agents share a profile. [Runtime guide](docs/runtime/README.md).
-- **Smaller observations and reusable steps.** Read line deltas, extract typed DOM records, run checked batches and resume explicit workflow checkpoints. [Persistent clients](sdk/README.md) support Python, TypeScript and Swift.
+<!-- runtime-panel: why-umbra -->
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/docs/why-umbra-mobile-b3e946ebe0.svg">
+  <img src="assets/docs/why-umbra-f523332d30.svg" width="100%" alt="Native to your Mac: WebKit is already there. A small Swift app gives your agent direct browser commands. Sign in once. Keep going: Persistent accounts in Umbra’s own store. Your agents pick up the session across commands. Your screen stays yours: Browse invisibly in the background. Bring a page forward for sign-in or a human handoff. One session. Every tool: Shell, MCP, Python, TypeScript and Swift share live tabs. Bring Codex, Claude Code or Cursor. Agents that work together: Named tabs, ownership leases, bounded admission, deadlines and cancellation coordinate parallel work. Read less. Do more: Observe changes, extract typed records, batch checked steps and resume explicit checkpoints.">
+</picture>
+<!-- /runtime-panel -->
+
+[Shared runtime](docs/runtime/README.md) · [Persistent clients](sdk/README.md) · [Accounts and handoff](docs/sessions.md)
 
 ## One continuous browsing session
 
