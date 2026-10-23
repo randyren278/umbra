@@ -40,11 +40,12 @@ class Handler(socketserver.StreamRequestHandler):
                 time.sleep(args.get('seconds', .2))
             elif name == 'block':
                 event = threading.Event()
-                self.server.pending[rid] = event
+                self.server.pending[args.get('request', rid)] = event
                 event.wait(2)
-                self.server.pending.pop(rid, None)
+                self.server.pending.pop(args.get('request', rid), None)
                 reply = {'id': rid, 'ok': False, 'error': {'code': 2, 'message': 'cancelled'}}
             elif name == 'cancel':
+                self.server.cancel_targets.append(args['id'])
                 event = self.server.pending.get(args['id'])
                 if event:
                     event.set()
@@ -69,6 +70,7 @@ class SDKTests(unittest.TestCase):
         cls.path = str(Path(cls.temp.name) / 'daemon.sock')
         cls.server = Server(cls.path, Handler)
         cls.server.connections, cls.server.pending, cls.server.commands = 0, {}, []
+        cls.server.cancel_targets = []
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
 
@@ -201,6 +203,34 @@ console.log('PASS TypeScript persistent calls, errors, bounds, IDs, deadlines, c
         result = subprocess.run(['node', '--experimental-strip-types', str(path)], capture_output=True, text=True, timeout=20)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    @unittest.skipUnless(shutil.which('node'), 'Node required')
+    def test_typescript_abort_and_timeout_cancel_overridden_runtime_id(self):
+        source = """
+import assert from 'node:assert/strict';
+import { Umbra } from SDK;
+for (const mode of ['abort', 'deadline']) {
+  const client = new Umbra('sdk-fixture', { socketPath: SOCKET });
+  const controller = new AbortController();
+  const pending = client.call('block', {request:'ts-runtime-'+mode}, {
+    requestId:'ts-wire-'+mode, signal:controller.signal,
+    deadline:Date.now()/1000 + (mode === 'deadline' ? .2 : 2),
+  });
+  const observed = assert.rejects(pending, e => e.code === (mode === 'abort' ? 'cancelled' : 2));
+  if (mode === 'abort') setTimeout(() => controller.abort(), 40);
+  await observed;
+  await new Promise(r => setTimeout(r, 100));
+  client.close();
+}
+""".replace('from SDK', 'from ' + json.dumps((ROOT / 'sdk/typescript/umbra.ts').as_uri())).replace('SOCKET', json.dumps(self.path))
+        path = Path(self.temp.name) / 'runtime-id.mts'
+        path.write_text(source)
+        result = subprocess.run(['node', '--experimental-strip-types', str(path)], capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for mode in ('abort', 'deadline'):
+            self.assertIn('ts-runtime-' + mode, self.server.cancel_targets)
+            self.assertNotIn('ts-wire-' + mode, self.server.cancel_targets)
+            self.assertNotIn('ts-runtime-' + mode, self.server.pending)
+
     @unittest.skipUnless(shutil.which('swiftc'), 'Swift required')
     def test_swift_transport(self):
         source = '''
@@ -308,10 +338,10 @@ class SDKLiveTests(unittest.TestCase):
                 if os.environ.get('UMBRA_SDK_RUNTIME') == '1':
                     source = ts.read_text().replace("console.log('PASS TypeScript real WebKit');", """
 const waiting = new Umbra(process.env.UMBRA_PROFILE!);
-const wait = waiting.call('wait', {js:'false',agent:'ts',task:'owned',timeout:5}, {requestId:'ts-owned'});
+const wait = waiting.call('wait', {js:'false',agent:'ts',task:'owned',timeout:5,request:'ts-owned-runtime'}, {requestId:'ts-owned-wire'});
 let waitCode; const observedWait = wait.catch(e=>{waitCode=e.code;});
-for(let i=0;i<100;i++){const tasks=await b.call('tasks');if(tasks.pending.some(t=>t.request==='ts-owned'))break;await new Promise(r=>setTimeout(r,10));}
-const cancelled=await b.cancel('ts-owned',{agent:'ts',task:'owned'});if(cancelled.cancelled!=='ts-owned')throw Error('cancel ID');
+for(let i=0;i<100;i++){const tasks=await b.call('tasks');if(tasks.pending.some(t=>t.request==='ts-owned-runtime'))break;await new Promise(r=>setTimeout(r,10));}
+const cancelled=await b.cancel('ts-owned-runtime',{agent:'ts',task:'owned'});if(cancelled.cancelled!=='ts-owned-runtime')throw Error('cancel ID');
 await observedWait;waiting.close();if(waitCode!==2)throw Error('cancel code');
 const proposal=await b.proposeRepair({command:'click',args:{target:'#old'}},(observation,step)=>{if(!JSON.stringify(observation).includes('Continue'))throw Error('fresh observation');return {target:'button'};});
 if(proposal.dispatched!==false)throw Error('proposal dispatched');

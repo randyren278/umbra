@@ -63,7 +63,9 @@ export class Umbra {
     if (!Number.isFinite(deadline)) return Promise.reject(new TypeError('deadline must be finite'));
     if (options.signal?.aborted) return Promise.reject(new UmbraError('cancelled', 'request aborted before dispatch'));
     const requestId = options.requestId ?? randomUUID();
-    const run = () => this.exchange(command, { ...args, request: args.request ?? requestId, deadline }, { ...options, deadline, requestId });
+    const runtimeId = args.request ?? requestId;
+    if (typeof runtimeId !== 'string') return Promise.reject(new TypeError('request must be a string'));
+    const run = () => this.exchange(command, { ...args, request: runtimeId, deadline }, { ...options, deadline, requestId });
     const result = this.queue.then(run, run);
     this.queue = result.catch(() => {});
     let timer: ReturnType<typeof setTimeout>;
@@ -98,7 +100,7 @@ export class Umbra {
       };
       const failed = (error: Error) => { this.disconnect(); finish(error instanceof UmbraError ? error : new UmbraError(1, error.message)); };
       const ended = () => failed(new UmbraError(1, 'daemon closed the connection'));
-      const aborted = () => { if (command !== 'cancel') void this.cancel(options.requestId, { deadline: Date.now() / 1000 + 5, agent: typeof args.agent === 'string' ? args.agent : undefined, task: typeof args.task === 'string' ? args.task : undefined }).catch(() => {}); failed(new UmbraError('cancelled', 'request aborted; cancellation requested')); };
+      const aborted = () => { if (command !== 'cancel') void this.cancel(args.request as string, { deadline: Date.now() / 1000 + 5, agent: typeof args.agent === 'string' ? args.agent : undefined, task: typeof args.task === 'string' ? args.task : undefined }).catch(() => {}); failed(new UmbraError('cancelled', 'request aborted; cancellation requested')); };
       const data = (chunk: Buffer) => {
         this.buffer = Buffer.concat([this.buffer, chunk]);
         if (this.buffer.length > this.maxReplyBytes) return failed(new UmbraError(1, 'reply exceeds maxReplyBytes'));
@@ -117,7 +119,7 @@ export class Umbra {
           }
         } catch (error) { failed(new UmbraError(1, (error as Error).message)); }
       };
-      const timer = setTimeout(() => { if (command !== 'cancel') void this.cancel(options.requestId, { deadline: Date.now() / 1000 + 5, agent: typeof args.agent === 'string' ? args.agent : undefined, task: typeof args.task === 'string' ? args.task : undefined }).catch(() => {}); failed(new UmbraError(2, 'request deadline elapsed')); }, Math.min(2147483647, remaining));
+      const timer = setTimeout(() => { if (command !== 'cancel') void this.cancel(args.request as string, { deadline: Date.now() / 1000 + 5, agent: typeof args.agent === 'string' ? args.agent : undefined, task: typeof args.task === 'string' ? args.task : undefined }).catch(() => {}); failed(new UmbraError(2, 'request deadline elapsed')); }, Math.min(2147483647, remaining));
       socket.on('data', data); socket.once('error', failed); socket.once('close', ended);
       options.signal?.addEventListener('abort', aborted, { once: true });
       socket.write(payload);
