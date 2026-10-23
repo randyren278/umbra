@@ -11,11 +11,11 @@ Build a native browser runtime that completes more agent work per GB of RAM whil
 | 3. Execution | Batches, parameterized workflows, checkpoints, repair adapter and recovery | Stop at failing step; detect uncertain side effects after interruption; verify postconditions before advancing |
 | 4. Integrations | Persistent Python, TypeScript and Swift clients; task resource profiles; cross-origin frames and visual targeting | Live fixture journeys using each client and command through CLI/MCP |
 | 5. Operations | On-demand local inspector, bounded redacted failure bundles, optional recording | Inspector reflects live queues and ownership; idle capture off; bundle content and retention checks |
-| 6. Proof and presentation | Frozen baseline comparisons, concurrency matrix, soak, docs and cool-color desktop/mobile SVGs | Raw measurements, honest target assessment, full regression suite, rendered visual inspection |
+| 6. Proof and presentation | Frozen baseline comparisons, concurrency matrix, bounded lifecycle validation, docs and cool-color desktop/mobile SVGs | Raw measurements, honest target assessment, full regression suite, rendered visual inspection |
 
 ## Requirement ledger
 
-All entries start **pending**. Implementation, passing tests and a performance result are distinct evidence.
+Implementation, passing tests and a performance result are distinct evidence. Final dispositions are recorded in `STATUS.md`; the 24-hour soak requirement was explicitly removed by the user on 2026-10-23.
 
 | Brief requirement | Planned proof |
 |---|---|
@@ -41,7 +41,7 @@ All entries start **pending**. Implementation, passing tests and a performance r
 | 50% fewer observation tokens | Same tasks and reconstruction quality, explicit tokenizer or byte-only qualification |
 | p95 control latency regression no greater than 10% | Alternated baseline/candidate runs with sample distributions |
 | 1, 4, 8, 16, 32 clients | Isolation, fairness, cancellation, success and resource accounting at each level |
-| 24-hour localhost soak | Live process handle, periodic health/resource evidence and final cleanup receipt |
+| 24-hour localhost soak | Removed as a release requirement at the user’s explicit request on 2026-10-23; no 24-hour stability claim. Optional runner retained for future use. |
 | No task-success regression | Frozen task suite with denominator and baseline/candidate failure details |
 | Relevant competitor comparison | Separate frozen candidate/Playwright-Chromium campaign on the same external tasks, seeds and model; report interface differences and retain every outcome |
 | Docs/SVGs and prominent stats | XML/link/data checks and inspected desktop/mobile renders; no green/orange metric accents |

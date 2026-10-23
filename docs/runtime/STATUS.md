@@ -1,6 +1,6 @@
 # Runtime delivery status
 
-The full user brief remains the objective. Performance targets are not achieved results. The first comparative campaign completed with missed targets. Its full raw evidence is retained; the replacement campaign, full external comparison and 24-hour soak remain pending.
+Closeout and push are authorized by the user on 2026-10-23. The user explicitly removed the 24-hour soak requirement. Performance targets remain measured gates, not assumed results; the earlier failed campaign stays retained. Finish runnable validation, report unavailable checks precisely, and publish the verified implementation without claiming unmeasured long-duration stability.
 
 ## Committed implementation
 
@@ -24,7 +24,7 @@ Full combined regression v6 PASSED with exit 0 after 853 seconds: 416 tests acro
 
 A model usage limit stopped the performance worker before any new matrix launched. Root verified the complete regression, unchanged binary/SDK/source/harness hashes, absent previous runners/outputs and a quiet interval, then started primary-v2 directly on 2026-10-23 at approximately 18:06:54 UTC. Runner PID 9824, session `98949`, log `/tmp/umbra-primary-official-v2.log`, lane output `runtime/docs/evaluation/runtime/primary-official-v2/`. The first baseline and candidate cells are running. No builds/tests/model episodes overlap the matrix. Secondary-v1 remains pending after primary inspection.
 
-Both external campaigns are prepared: 1,250 initial-Umbra/candidate cases and a separate 1,250 candidate/Playwright-Chromium cases with matching tasks, seeds and model. Zero final episodes have launched. Both external execution and the 24-hour soak remain held until quiet measurements finish.
+Both external campaigns are prepared: 1,250 initial-Umbra/candidate cases and a separate 1,250 candidate/Playwright-Chromium cases with matching tasks, seeds and model. Zero final episodes have launched. External execution remains held until quiet measurements finish. The 24-hour soak was removed as a release requirement; it will not be started.
 
 The earlier b3 candidate passed 385 tests / 1 skip + 17 smoke (retained `verification/FULL-SUITE.md`) but failed the first complete performance campaign. The full 60 cells and all raw evidence are retained in `docs/evaluation/runtime/primary-v1/`: 35 budget aborts, 14 cell errors, 40,254 planned/measured failures; only 3/15 eligible pairs per route. All 66 cleanup receipts passed. No complete throughput/RAM/control target was proved.
 
@@ -44,8 +44,8 @@ Loaded-control p95 also missed the target. Retained-history attribution showed 9
 2. Finish root-owned primary-v2, inspect all rows and cleanup, then run secondary-v1 unchanged. Retain the earlier failed campaign. No builds/tests/model episodes during matrices.
 3. Rerun the 16-state actual SDK/CLI/MCP observation journey and all 1/4/8/16/32 semantics with corrected strict metadata reconstruction. Report all target misses and denominators, not a passing subset.
 4. Only after final quiet measurements, give `/root/external_campaign` the confirmed hash and explicit GO for 125 tasks x 5 seeds x 2 arms = 1,250 episodes. The corrected initial-Umbra comparison is prepared in `external-final-v2/`; old d316 preflight is superseded, zero episodes launched. The separate candidate/Playwright-Chromium campaign is frozen in `external-competitor-v1/` before outcomes. Execute the initial-Umbra pair first, competitor pair second, with at most four external workers total. Original handoff: task directory `external-final/continue.md`.
-5. Start the bounded 24-hour localhost soak only after quiet measurements; declare overlap with external episodes. Retain actual PID/heartbeat/elapsed/resource/stability/cleanup evidence. No soak is active.
-6. Publish final measured results and update stat SVGs only from evidence; render/check them and audit every original requirement. Keep the goal active while required work remains.
+5. Run bounded lifecycle/cleanup validation as appropriate. The user removed the 24-hour soak requirement; retain the optional tool and make no long-duration stability claim.
+6. Publish final measured results, validate docs/SVGs, document all deferred or unavailable checks and target misses, then push the verified commits and confirm the remote revision.
 
 ## Resume and safety
 
