@@ -1,0 +1,46 @@
+{
+  "admissionProtocolSha256": null,
+  "baselineSha256": "1a71d178d1899b5610adf065128167efadae7e054b27e18d7b06cc6681b8dd47",
+  "budgetPolicy": "Sampler aborts the browser at first sample above the declared budget, stops dispatching further commands, retains all task failures and raw footprint overshoot. Sampling can overshoot by one interval; no failed cell establishes a ratio.",
+  "candidateSha256": "bace278786dd13901a428728c8dbc1e0ef542f78feaf7ba6c26df38ab212ad1e",
+  "classification": "primary",
+  "created": "2026-10-23T18:45:19Z",
+  "fixtureListenBacklog": 128,
+  "fullFrozenPerformanceConfiguration": false,
+  "harnessSha256": "5d019177f6bb75c84b89f97c4f6b79c4eaa8f37d0d5393dfeeaba30d4fb07a49",
+  "hostCPUCount": 8,
+  "hostPhysicalMemoryBytes": 17179869184,
+  "loadAtStart": [
+    10.4501953125,
+    18.8056640625,
+    25.36181640625
+  ],
+  "loadedControlProtocolSha256": "32aaaee29003ed718863467567aa91185fc794b9019abcf5abe20e242511de0c",
+  "memoryHelperSha256": "8bd68a9982ab74d6e4ee995e6a9c2d0f0e5aca7c576af5b17a7246400100181f",
+  "method": "Sequential cells; AB then BA order alternates by repeat. Warmups excluded. Persistent socket workload, matched socket/CLI controls. Responsibility-attributed whole-family physical footprint. No model/agent score.",
+  "observationProtocolSha256": "d6c22cd7c57f16e6b9fd3da582597e494c21ba6fda39248388e022a066e4297f",
+  "options": {
+    "admission": false,
+    "baseline": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/baseline-app/Umbra.app/Contents/MacOS/umbra",
+    "candidate": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/frozen-candidate-v6/Umbra.app/Contents/MacOS/umbra",
+    "candidate_sha256": "bace278786dd13901a428728c8dbc1e0ef542f78feaf7ba6c26df38ab212ad1e",
+    "concurrency": "1,4,8,16,32",
+    "controls": 20,
+    "cycles": 20,
+    "memory_budget_mib": 2048,
+    "out": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/final-runtime",
+    "repeats": 3,
+    "routes": "matched,public_http",
+    "runtime_only": true,
+    "sdk": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/frozen-candidate-v6/sdk/python/umbra.py",
+    "workload": "/Users/randyren/Developer/umbra/bench/runtime_workload.json"
+  },
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "python": "3.12.13 (main, Mar 10 2026, 18:18:07) [Clang 21.1.4 ]",
+  "sdkSha256": "1de49bf4f21951045660ce112fa94dc888fba1ffaba166c94974b882f88acfdb",
+  "tokenizer": {
+    "encoding": "o200k_base",
+    "tiktokenVersion": "0.12.0"
+  },
+  "workloadSha256": "bd536999c3efca63a69c02160bf2122597a05970f9a711d912d8c6cd936d8318"
+}

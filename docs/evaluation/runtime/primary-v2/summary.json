@@ -1,0 +1,1721 @@
+{
+  "note": "Every selected cell/repeat must be eligible for a route-wide gate. Repeat spreads retain all recorded ratios and are descriptive when any arm failed; no isolated passing cell establishes the whole workload target. CPU counters undercount processes that appear and exit entirely between samples.",
+  "pairs": [
+    {
+      "bothWithinBudget": true,
+      "concurrency": 1,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": 35.187667002901435,
+          "candidateP95Ms": 29.649749980308115,
+          "ratio": 0.8426176699314369
+        },
+        "socket": {
+          "baselineP95Ms": 0.39670802652835846,
+          "candidateP95Ms": 1.278249896131456,
+          "ratio": 3.22214276156089
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 53.44000004697591,
+        "candidateP95Ms": 47.41545801516622,
+        "ratio": 0.8872653063900847
+      },
+      "memory30PercentGate": true,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": true,
+      "noP95RegressionOver10PercentGate": true,
+      "noTaskP95RegressionOver10PercentGate": true,
+      "peakPhysicalFootprintReduction": 0.8196505776907235,
+      "repeat": 0,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 7.737084059044719,
+          "candidateP95Ms": 7.818375015631318,
+          "ratio": 1.0105066658144382
+        },
+        "json_api": {
+          "baselineP95Ms": 146.89195796381682,
+          "candidateP95Ms": 138.85537500027567,
+          "ratio": 0.9452891562278667
+        },
+        "native_form": {
+          "baselineP95Ms": 123.63787507638335,
+          "candidateP95Ms": 25.842709001153708,
+          "ratio": 0.20901935580167572
+        },
+        "static_html": {
+          "baselineP95Ms": 135.904333088547,
+          "candidateP95Ms": 136.41054194886237,
+          "ratio": 1.003724744081453
+        }
+      },
+      "throughputRatio": 1.3674399021508048,
+      "twofoldGate": false,
+      "validCompletePair": true
+    },
+    {
+      "bothWithinBudget": true,
+      "concurrency": 1,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": 30.9299579821527,
+          "candidateP95Ms": 50.87112507317215,
+          "ratio": 1.644720148101267
+        },
+        "socket": {
+          "baselineP95Ms": 0.535291968844831,
+          "candidateP95Ms": 0.4812499973922968,
+          "ratio": 0.8990420656428721
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 57.98445898108184,
+        "candidateP95Ms": 49.949957989156246,
+        "ratio": 0.8614369930648667
+      },
+      "memory30PercentGate": true,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": true,
+      "noP95RegressionOver10PercentGate": true,
+      "noTaskP95RegressionOver10PercentGate": true,
+      "peakPhysicalFootprintReduction": 0.8279653472285893,
+      "repeat": 1,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 9.046208928339183,
+          "candidateP95Ms": 5.950374994426966,
+          "ratio": 0.6577755434971376
+        },
+        "json_api": {
+          "baselineP95Ms": 162.43754094466567,
+          "candidateP95Ms": 148.04999995976686,
+          "ratio": 0.9114272421188652
+        },
+        "native_form": {
+          "baselineP95Ms": 125.19362499006093,
+          "candidateP95Ms": 35.76462506316602,
+          "ratio": 0.2856744907418837
+        },
+        "static_html": {
+          "baselineP95Ms": 143.81349994800985,
+          "candidateP95Ms": 136.3270829897374,
+          "ratio": 0.9479435730235417
+        }
+      },
+      "throughputRatio": 1.4693695942347558,
+      "twofoldGate": false,
+      "validCompletePair": true
+    },
+    {
+      "bothWithinBudget": true,
+      "concurrency": 1,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": 31.0569170396775,
+          "candidateP95Ms": 34.1146660503,
+          "ratio": 1.0984562957976802
+        },
+        "socket": {
+          "baselineP95Ms": 2.259250031784177,
+          "candidateP95Ms": 0.47204201109707355,
+          "ratio": 0.20893748122437433
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 56.579541065730155,
+        "candidateP95Ms": 55.5689170723781,
+        "ratio": 0.982137995920151
+      },
+      "memory30PercentGate": true,
+      "noControlP95RegressionOver10PercentGate": true,
+      "noLoadedControlP95RegressionOver10PercentGate": true,
+      "noP95RegressionOver10PercentGate": true,
+      "noTaskP95RegressionOver10PercentGate": true,
+      "peakPhysicalFootprintReduction": 0.8357261438873014,
+      "repeat": 2,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 13.40087503194809,
+          "candidateP95Ms": 7.199625018984079,
+          "ratio": 0.5372503662499618
+        },
+        "json_api": {
+          "baselineP95Ms": 164.01775006670505,
+          "candidateP95Ms": 159.4683330040425,
+          "ratio": 0.9722626541285176
+        },
+        "native_form": {
+          "baselineP95Ms": 137.76579103432596,
+          "candidateP95Ms": 27.091832947917283,
+          "ratio": 0.19665138017584521
+        },
+        "static_html": {
+          "baselineP95Ms": 142.59850000962615,
+          "candidateP95Ms": 136.67154090944678,
+          "ratio": 0.9584360347424463
+        }
+      },
+      "throughputRatio": 1.3190159505637498,
+      "twofoldGate": false,
+      "validCompletePair": true
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 4,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 29.780040960758924,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.4567919531837106,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 173.53533406276256,
+        "candidateP95Ms": 127.51437502447516,
+        "ratio": 0.7348035240958882
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.763970990856925,
+      "repeat": 0,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 13.720500050112605,
+          "candidateP95Ms": 61.84737500734627,
+          "ratio": 4.507661876859851
+        },
+        "json_api": {
+          "baselineP95Ms": 372.1585830207914,
+          "candidateP95Ms": 387.15325004886836,
+          "ratio": 1.0402910686792872
+        },
+        "native_form": {
+          "baselineP95Ms": 335.67408297676593,
+          "candidateP95Ms": 326.0588749544695,
+          "ratio": 0.9713555245700576
+        },
+        "static_html": {
+          "baselineP95Ms": 433.4231250686571,
+          "candidateP95Ms": 446.7828329652548,
+          "ratio": 1.0308237081131317
+        }
+      },
+      "throughputRatio": 1.1101907769091004,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 4,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 23.682083003222942,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.4765419289469719,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 90.7985829981044,
+        "candidateP95Ms": 122.00383306480944,
+        "ratio": 1.3436755182331042
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.7964507812365471,
+      "repeat": 1,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 19.278790918178856,
+          "candidateP95Ms": 78.96712503861636,
+          "ratio": 4.096062111662544
+        },
+        "json_api": {
+          "baselineP95Ms": 350.9988329606131,
+          "candidateP95Ms": 365.3724589385092,
+          "ratio": 1.0409506375182422
+        },
+        "native_form": {
+          "baselineP95Ms": 343.5010419925675,
+          "candidateP95Ms": 355.9054168872535,
+          "ratio": 1.0361116077631998
+        },
+        "static_html": {
+          "baselineP95Ms": 305.5346249602735,
+          "candidateP95Ms": 377.94679205399007,
+          "ratio": 1.237001508759054
+        }
+      },
+      "throughputRatio": 1.1078396694238333,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 4,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 33.19070802535862,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.6652079755440354,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 251.51275005191565,
+        "candidateP95Ms": 184.95670799165964,
+        "ratio": 0.7353770651924487
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.7891722250130241,
+      "repeat": 2,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 21.288792020641267,
+          "candidateP95Ms": 128.9215839933604,
+          "ratio": 6.0558430872151
+        },
+        "json_api": {
+          "baselineP95Ms": 615.903333062306,
+          "candidateP95Ms": 528.6583750275895,
+          "ratio": 0.8583463453575909
+        },
+        "native_form": {
+          "baselineP95Ms": 426.48045800160617,
+          "candidateP95Ms": 437.10833392105997,
+          "ratio": 1.024919959918571
+        },
+        "static_html": {
+          "baselineP95Ms": 523.9618340274319,
+          "candidateP95Ms": 549.6034580282867,
+          "ratio": 1.0489379613850125
+        }
+      },
+      "throughputRatio": 1.236444636833727,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 8,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 32.60166698601097,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.3452081000432372,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 316.8788750190288,
+        "candidateP95Ms": 276.2584170559421,
+        "ratio": 0.8718107732468837
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.6128507723924761,
+      "repeat": 0,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 50.42979202698916,
+          "candidateP95Ms": 135.0185419432819,
+          "ratio": 2.6773567075395093
+        },
+        "json_api": {
+          "baselineP95Ms": 568.6571249971166,
+          "candidateP95Ms": 1324.4618329918012,
+          "ratio": 2.3291044370516185
+        },
+        "native_form": {
+          "baselineP95Ms": 267.94770802371204,
+          "candidateP95Ms": 829.0092500392348,
+          "ratio": 3.0939217810583832
+        },
+        "static_html": {
+          "baselineP95Ms": 700.3220830811188,
+          "candidateP95Ms": 844.1072499845177,
+          "ratio": 1.2053129129825602
+        }
+      },
+      "throughputRatio": 1.1516729416425087,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 8,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 23.24974990915507,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.4052080912515521,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 275.41825000662357,
+        "candidateP95Ms": 299.96883298736066,
+        "ratio": 1.0891392744676385
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.6177146520573727,
+      "repeat": 1,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 15.094666974619031,
+          "candidateP95Ms": 116.27329199109226,
+          "ratio": 7.702938540254006
+        },
+        "json_api": {
+          "baselineP95Ms": 616.2109998986125,
+          "candidateP95Ms": 737.8611249150708,
+          "ratio": 1.197416347706344
+        },
+        "native_form": {
+          "baselineP95Ms": 193.5870839515701,
+          "candidateP95Ms": 890.4483749065548,
+          "ratio": 4.599730295691211
+        },
+        "static_html": {
+          "baselineP95Ms": 648.5251249978319,
+          "candidateP95Ms": 853.9862919133157,
+          "ratio": 1.3168129637478125
+        }
+      },
+      "throughputRatio": 1.0129001355816003,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 8,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 37.41124994121492,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.625541084446013,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 451.8955829553306,
+        "candidateP95Ms": 304.7582919243723,
+        "ratio": 0.6743998025634549
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.610131253070476,
+      "repeat": 2,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 21.36141702067107,
+          "candidateP95Ms": 87.40837499499321,
+          "ratio": 4.0918809323562035
+        },
+        "json_api": {
+          "baselineP95Ms": 527.515665977262,
+          "candidateP95Ms": 1043.3012919966131,
+          "ratio": 1.9777636178137383
+        },
+        "native_form": {
+          "baselineP95Ms": 167.15791693422943,
+          "candidateP95Ms": 795.8210000069812,
+          "ratio": 4.760893259516436
+        },
+        "static_html": {
+          "baselineP95Ms": 755.060916999355,
+          "candidateP95Ms": 817.3595409607515,
+          "ratio": 1.08250807657874
+        }
+      },
+      "throughputRatio": 0.9291465311328407,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": true,
+      "concurrency": 16,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 46.75450001377612,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.613874988630414,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 74.78920801077038,
+        "candidateP95Ms": 1076.575958984904,
+        "ratio": 14.394803576872569
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.20508876521868658,
+      "repeat": 0,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 0.004792003892362118,
+          "candidateP95Ms": 340.79137502703816,
+          "ratio": 71116.673250249
+        },
+        "json_api": {
+          "baselineP95Ms": 0.004417030140757561,
+          "candidateP95Ms": 1881.6818330669776,
+          "ratio": 426006.111143324
+        },
+        "native_form": {
+          "baselineP95Ms": 0.0049578957259655,
+          "candidateP95Ms": 3502.3859170032665,
+          "ratio": 706425.8932797972
+        },
+        "static_html": {
+          "baselineP95Ms": 0.13204209972172976,
+          "candidateP95Ms": 2814.6980840247124,
+          "ratio": 21316.671652120862
+        }
+      },
+      "throughputRatio": null,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 16,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 51.66583298705518,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 1.8753340700641274,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 835.8935830183327,
+        "candidateP95Ms": 922.6260419236496,
+        "ratio": 1.1037601683603482
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.3654121031579969,
+      "repeat": 1,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 0.004207948222756386,
+          "candidateP95Ms": 410.07112502120435,
+          "ratio": 97451.56150058098
+        },
+        "json_api": {
+          "baselineP95Ms": 0.0069999368861317635,
+          "candidateP95Ms": 2061.870750039816,
+          "ratio": 294555.6200834872
+        },
+        "native_form": {
+          "baselineP95Ms": 0.00291608739644289,
+          "candidateP95Ms": 2585.0445419782773,
+          "ratio": 886477.0463092339
+        },
+        "static_html": {
+          "baselineP95Ms": 0.12404099106788635,
+          "candidateP95Ms": 2082.8739589778706,
+          "ratio": 16791.81971254918
+        }
+      },
+      "throughputRatio": 2.875952243692927,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 16,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 56.00570805836469,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.9955000132322311,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 1066.2178329657763,
+        "candidateP95Ms": 1326.6824579332024,
+        "ratio": 1.2442883779601785
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.35654098417594404,
+      "repeat": 2,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 0.001708976924419403,
+          "candidateP95Ms": 737.62050003279,
+          "ratio": 431615.2485694823
+        },
+        "json_api": {
+          "baselineP95Ms": 0.005292007699608803,
+          "candidateP95Ms": 3448.74137500301,
+          "ratio": 651688.6540542919
+        },
+        "native_form": {
+          "baselineP95Ms": 0.0018749851733446121,
+          "candidateP95Ms": 6136.252790922299,
+          "ratio": 3272694.0341487643
+        },
+        "static_html": {
+          "baselineP95Ms": 0.008292030543088913,
+          "candidateP95Ms": 5504.502041032538,
+          "ratio": 663830.4107092717
+        }
+      },
+      "throughputRatio": 2.865950770489375,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 32,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": null,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": null,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": null,
+        "candidateP95Ms": null,
+        "ratio": null
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": null,
+      "repeat": 0,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {},
+      "throughputRatio": null,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 32,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": null,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": null,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": null,
+        "candidateP95Ms": null,
+        "ratio": null
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": null,
+      "repeat": 1,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {},
+      "throughputRatio": null,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 32,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": null,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": null,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": null,
+        "candidateP95Ms": null,
+        "ratio": null
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": null,
+      "repeat": 2,
+      "route": "matched",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {},
+      "throughputRatio": null,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": true,
+      "concurrency": 1,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": 47.611874993890524,
+          "candidateP95Ms": 25.080582941882312,
+          "ratio": 0.5267715868173772
+        },
+        "socket": {
+          "baselineP95Ms": 2.324625034816563,
+          "candidateP95Ms": 1.2387089664116502,
+          "ratio": 0.5328639878944593
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 74.46904096286744,
+        "candidateP95Ms": 2.4838329991325736,
+        "ratio": 0.033353900721926705
+      },
+      "memory30PercentGate": true,
+      "noControlP95RegressionOver10PercentGate": true,
+      "noLoadedControlP95RegressionOver10PercentGate": true,
+      "noP95RegressionOver10PercentGate": true,
+      "noTaskP95RegressionOver10PercentGate": true,
+      "peakPhysicalFootprintReduction": 0.8873711174143747,
+      "repeat": 0,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 13.525458984076977,
+          "candidateP95Ms": 0.7274589734151959,
+          "ratio": 0.05378442049704979
+        },
+        "json_api": {
+          "baselineP95Ms": 217.2271660529077,
+          "candidateP95Ms": 3.904915996827185,
+          "ratio": 0.01797618625598654
+        },
+        "native_form": {
+          "baselineP95Ms": 143.08491605333984,
+          "candidateP95Ms": 17.509459052234888,
+          "ratio": 0.12237110336429616
+        },
+        "static_html": {
+          "baselineP95Ms": 243.53066692128778,
+          "candidateP95Ms": 3.619374940171838,
+          "ratio": 0.014862091029141994
+        }
+      },
+      "throughputRatio": 24.14264781082568,
+      "twofoldGate": true,
+      "validCompletePair": true
+    },
+    {
+      "bothWithinBudget": true,
+      "concurrency": 1,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": 48.08791703544557,
+          "candidateP95Ms": 25.318374973721802,
+          "ratio": 0.5265018020027702
+        },
+        "socket": {
+          "baselineP95Ms": 2.206541015766561,
+          "candidateP95Ms": 0.6779170362278819,
+          "ratio": 0.3072306525842534
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 53.979875054210424,
+        "candidateP95Ms": 0.9407919133082032,
+        "ratio": 0.017428567820199532
+      },
+      "memory30PercentGate": true,
+      "noControlP95RegressionOver10PercentGate": true,
+      "noLoadedControlP95RegressionOver10PercentGate": true,
+      "noP95RegressionOver10PercentGate": true,
+      "noTaskP95RegressionOver10PercentGate": true,
+      "peakPhysicalFootprintReduction": 0.8881992469671602,
+      "repeat": 1,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 6.900624954141676,
+          "candidateP95Ms": 0.7900419877842069,
+          "ratio": 0.11448846923785254
+        },
+        "json_api": {
+          "baselineP95Ms": 214.80750001501292,
+          "candidateP95Ms": 3.76604194752872,
+          "ratio": 0.017532171582768343
+        },
+        "native_form": {
+          "baselineP95Ms": 142.23400002811104,
+          "candidateP95Ms": 13.945666956715286,
+          "ratio": 0.09804735122375151
+        },
+        "static_html": {
+          "baselineP95Ms": 193.43149999622256,
+          "candidateP95Ms": 4.963208921253681,
+          "ratio": 0.025658741835484944
+        }
+      },
+      "throughputRatio": 23.269820670571026,
+      "twofoldGate": true,
+      "validCompletePair": true
+    },
+    {
+      "bothWithinBudget": true,
+      "concurrency": 1,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": 48.58845809940249,
+          "candidateP95Ms": 41.54204099904746,
+          "ratio": 0.8549775527772576
+        },
+        "socket": {
+          "baselineP95Ms": 1.6272079665213823,
+          "candidateP95Ms": 0.47554203774780035,
+          "ratio": 0.2922441676366704
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 48.424707958474755,
+        "candidateP95Ms": 1.4900420792400837,
+        "ratio": 0.03077028529563518
+      },
+      "memory30PercentGate": true,
+      "noControlP95RegressionOver10PercentGate": true,
+      "noLoadedControlP95RegressionOver10PercentGate": true,
+      "noP95RegressionOver10PercentGate": true,
+      "noTaskP95RegressionOver10PercentGate": true,
+      "peakPhysicalFootprintReduction": 0.8720489847103057,
+      "repeat": 2,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 8.28970898874104,
+          "candidateP95Ms": 1.2474169488996267,
+          "ratio": 0.15047777317561448
+        },
+        "json_api": {
+          "baselineP95Ms": 152.40716701373458,
+          "candidateP95Ms": 6.405749940313399,
+          "ratio": 0.042030503327551046
+        },
+        "native_form": {
+          "baselineP95Ms": 127.71295802667737,
+          "candidateP95Ms": 18.269292078912258,
+          "ratio": 0.1430496353791764
+        },
+        "static_html": {
+          "baselineP95Ms": 138.66825005970895,
+          "candidateP95Ms": 5.716250045225024,
+          "ratio": 0.0412224863497136
+        }
+      },
+      "throughputRatio": 16.164301048762173,
+      "twofoldGate": true,
+      "validCompletePair": true
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 4,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 30.251250020228326,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 2.2036670707166195,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 223.51320798043162,
+        "candidateP95Ms": 27.38524996675551,
+        "ratio": 0.12252184206113254
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.840700264363373,
+      "repeat": 0,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 48.202916979789734,
+          "candidateP95Ms": 4.987166030332446,
+          "ratio": 0.103461913568912
+        },
+        "json_api": {
+          "baselineP95Ms": 498.6710000084713,
+          "candidateP95Ms": 12.17541703954339,
+          "ratio": 0.024415731091915426
+        },
+        "native_form": {
+          "baselineP95Ms": 498.8991660065949,
+          "candidateP95Ms": 35.83558299578726,
+          "ratio": 0.07182931028454266
+        },
+        "static_html": {
+          "baselineP95Ms": 499.1554580628872,
+          "candidateP95Ms": 12.776542105711997,
+          "ratio": 0.025596318540309974
+        }
+      },
+      "throughputRatio": 32.99860261996158,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 4,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 49.26695802714676,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.487874960526824,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 179.0039170300588,
+        "candidateP95Ms": 29.592124978080392,
+        "ratio": 0.16531551638119296
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.8404800237294607,
+      "repeat": 1,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 19.100832985714078,
+          "candidateP95Ms": 5.513582960702479,
+          "ratio": 0.2886566761159686
+        },
+        "json_api": {
+          "baselineP95Ms": 507.4062079656869,
+          "candidateP95Ms": 14.41912492737174,
+          "ratio": 0.028417320681158924
+        },
+        "native_form": {
+          "baselineP95Ms": 552.8328339569271,
+          "candidateP95Ms": 44.813708984293044,
+          "ratio": 0.08106195260425617
+        },
+        "static_html": {
+          "baselineP95Ms": 604.4903750298545,
+          "candidateP95Ms": 13.821291970089078,
+          "ratio": 0.022864370618649592
+        }
+      },
+      "throughputRatio": 31.217598755629037,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 4,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 30.87566699832678,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.9834589436650276,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 145.11379203759134,
+        "candidateP95Ms": 8.15958296880126,
+        "ratio": 0.056228859119659295
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.8317241477005362,
+      "repeat": 2,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 13.031541951932013,
+          "candidateP95Ms": 4.077624995261431,
+          "ratio": 0.31290426031716806
+        },
+        "json_api": {
+          "baselineP95Ms": 423.0975420214236,
+          "candidateP95Ms": 11.368333012796938,
+          "ratio": 0.026869295809384075
+        },
+        "native_form": {
+          "baselineP95Ms": 341.46745898760855,
+          "candidateP95Ms": 32.67099999357015,
+          "ratio": 0.09567822389411268
+        },
+        "static_html": {
+          "baselineP95Ms": 515.652250032872,
+          "candidateP95Ms": 14.720416977070272,
+          "ratio": 0.028547178793715863
+        }
+      },
+      "throughputRatio": 24.873714186327362,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 8,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 75.41537506040186,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 1.6214590286836028,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 437.5065000494942,
+        "candidateP95Ms": 30.31416703015566,
+        "ratio": 0.06928849520344561
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.7104911650242931,
+      "repeat": 0,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 19.543749978765845,
+          "candidateP95Ms": 10.267624980770051,
+          "ratio": 0.5253661652408447
+        },
+        "json_api": {
+          "baselineP95Ms": 715.3074590023607,
+          "candidateP95Ms": 24.009875021874905,
+          "ratio": 0.03356581106446377
+        },
+        "native_form": {
+          "baselineP95Ms": 162.73404099047184,
+          "candidateP95Ms": 86.83812501840293,
+          "ratio": 0.5336199143698973
+        },
+        "static_html": {
+          "baselineP95Ms": 734.8677080590278,
+          "candidateP95Ms": 29.149790992960334,
+          "ratio": 0.03966671915677494
+        }
+      },
+      "throughputRatio": 22.978554451796228,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 8,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 46.941042062826455,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 3.834167029708624,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 358.0236249836162,
+        "candidateP95Ms": 40.36837490275502,
+        "ratio": 0.11275338297745674
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.7429112759971999,
+      "repeat": 1,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 27.353040990419686,
+          "candidateP95Ms": 10.482167010195553,
+          "ratio": 0.3832176105708648
+        },
+        "json_api": {
+          "baselineP95Ms": 662.3943339800462,
+          "candidateP95Ms": 49.30716601666063,
+          "ratio": 0.07443778348826569
+        },
+        "native_form": {
+          "baselineP95Ms": 352.3462079465389,
+          "candidateP95Ms": 134.249750059098,
+          "ratio": 0.3810165883194848
+        },
+        "static_html": {
+          "baselineP95Ms": 775.8053329307586,
+          "candidateP95Ms": 78.06958397850394,
+          "ratio": 0.10063037809186048
+        }
+      },
+      "throughputRatio": 19.984048798265622,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 8,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 28.78295793198049,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.5226669600233436,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 568.5251250397414,
+        "candidateP95Ms": 6.476916954852641,
+        "ratio": 0.011392490269273301
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.7027851881191804,
+      "repeat": 2,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 15.129209030419588,
+          "candidateP95Ms": 5.510832997970283,
+          "ratio": 0.36425122998101955
+        },
+        "json_api": {
+          "baselineP95Ms": 676.2379580177367,
+          "candidateP95Ms": 17.903458094224334,
+          "ratio": 0.026475085998876675
+        },
+        "native_form": {
+          "baselineP95Ms": 197.25520792417228,
+          "candidateP95Ms": 47.31125000398606,
+          "ratio": 0.23984791327878746
+        },
+        "static_html": {
+          "baselineP95Ms": 862.5122499652207,
+          "candidateP95Ms": 17.405457911081612,
+          "ratio": 0.020179954443294523
+        }
+      },
+      "throughputRatio": 40.42787406489968,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 16,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 24.933084030635655,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.45016699004918337,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": null,
+        "candidateP95Ms": 31.717750011011958,
+        "ratio": null
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": null,
+      "repeat": 0,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {},
+      "throughputRatio": null,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 16,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 25.80204198602587,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.452833017334342,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": 758.9225840056315,
+        "candidateP95Ms": 24.31654103565961,
+        "ratio": 0.032040871556774195
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": 0.48951295237180315,
+      "repeat": 1,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {
+        "javascript_dom": {
+          "baselineP95Ms": 0.003917026333510876,
+          "candidateP95Ms": 10.994333075359464,
+          "ratio": 2806.806015395132
+        },
+        "json_api": {
+          "baselineP95Ms": 0.008665956556797028,
+          "candidateP95Ms": 34.26158404909074,
+          "ratio": 3953.583637829124
+        },
+        "native_form": {
+          "baselineP95Ms": 0.003459048457443714,
+          "candidateP95Ms": 91.94058401044458,
+          "ratio": 26579.732877864906
+        },
+        "static_html": {
+          "baselineP95Ms": 0.18387497402727604,
+          "candidateP95Ms": 30.508916010148823,
+          "ratio": 165.9220683594665
+        }
+      },
+      "throughputRatio": 148.08491317867865,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 16,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 28.72545795980841,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.4838330205529928,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": null,
+        "candidateP95Ms": 28.72475003823638,
+        "ratio": null
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": null,
+      "repeat": 2,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {},
+      "throughputRatio": null,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 32,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 24.96708300895989,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.7490830030292273,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": null,
+        "candidateP95Ms": 47.910541063174605,
+        "ratio": null
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": null,
+      "repeat": 0,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {},
+      "throughputRatio": null,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 32,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 25.46004205942154,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.6027080817148089,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": null,
+        "candidateP95Ms": 53.95929096266627,
+        "ratio": null
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": null,
+      "repeat": 1,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {},
+      "throughputRatio": null,
+      "twofoldGate": false,
+      "validCompletePair": false
+    },
+    {
+      "bothWithinBudget": false,
+      "concurrency": 32,
+      "controlP95Latency": {
+        "cli": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 24.445082992315292,
+          "ratio": null
+        },
+        "socket": {
+          "baselineP95Ms": null,
+          "candidateP95Ms": 0.588499940931797,
+          "ratio": null
+        }
+      },
+      "loadedControlP95Latency": {
+        "baselineP95Ms": null,
+        "candidateP95Ms": 52.13691701646894,
+        "ratio": null
+      },
+      "memory30PercentGate": false,
+      "noControlP95RegressionOver10PercentGate": false,
+      "noLoadedControlP95RegressionOver10PercentGate": false,
+      "noP95RegressionOver10PercentGate": false,
+      "noTaskP95RegressionOver10PercentGate": false,
+      "peakPhysicalFootprintReduction": null,
+      "repeat": 2,
+      "route": "public_http",
+      "sameBudgetBytes": 2147483648.0,
+      "taskP95Latency": {},
+      "throughputRatio": null,
+      "twofoldGate": false,
+      "validCompletePair": false
+    }
+  ],
+  "repeatGroups": [
+    {
+      "concurrency": 1,
+      "eligibleRepeats": 3,
+      "expectedRepeats": 3,
+      "observedRepeats": 3,
+      "peakFootprintReductionSpread": {
+        "max": 0.8357261438873014,
+        "min": 0.8196505776907235,
+        "n": 3,
+        "p50": 0.8279653472285893,
+        "p95": 0.8357261438873014
+      },
+      "route": "matched",
+      "throughputRatioSpread": {
+        "max": 1.4693695942347558,
+        "min": 1.3190159505637498,
+        "n": 3,
+        "p50": 1.3674399021508048,
+        "p95": 1.4693695942347558
+      }
+    },
+    {
+      "concurrency": 4,
+      "eligibleRepeats": 0,
+      "expectedRepeats": 3,
+      "observedRepeats": 3,
+      "peakFootprintReductionSpread": {
+        "max": 0.7964507812365471,
+        "min": 0.763970990856925,
+        "n": 3,
+        "p50": 0.7891722250130241,
+        "p95": 0.7964507812365471
+      },
+      "route": "matched",
+      "throughputRatioSpread": {
+        "max": 1.236444636833727,
+        "min": 1.1078396694238333,
+        "n": 3,
+        "p50": 1.1101907769091004,
+        "p95": 1.236444636833727
+      }
+    },
+    {
+      "concurrency": 8,
+      "eligibleRepeats": 0,
+      "expectedRepeats": 3,
+      "observedRepeats": 3,
+      "peakFootprintReductionSpread": {
+        "max": 0.6177146520573727,
+        "min": 0.610131253070476,
+        "n": 3,
+        "p50": 0.6128507723924761,
+        "p95": 0.6177146520573727
+      },
+      "route": "matched",
+      "throughputRatioSpread": {
+        "max": 1.1516729416425087,
+        "min": 0.9291465311328407,
+        "n": 3,
+        "p50": 1.0129001355816003,
+        "p95": 1.1516729416425087
+      }
+    },
+    {
+      "concurrency": 16,
+      "eligibleRepeats": 0,
+      "expectedRepeats": 3,
+      "observedRepeats": 3,
+      "peakFootprintReductionSpread": {
+        "max": 0.3654121031579969,
+        "min": 0.20508876521868658,
+        "n": 3,
+        "p50": 0.35654098417594404,
+        "p95": 0.3654121031579969
+      },
+      "route": "matched",
+      "throughputRatioSpread": {
+        "max": 2.875952243692927,
+        "min": 2.865950770489375,
+        "n": 2,
+        "p50": 2.865950770489375,
+        "p95": 2.875952243692927
+      }
+    },
+    {
+      "concurrency": 32,
+      "eligibleRepeats": 0,
+      "expectedRepeats": 3,
+      "observedRepeats": 3,
+      "peakFootprintReductionSpread": {
+        "max": null,
+        "min": null,
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "route": "matched",
+      "throughputRatioSpread": {
+        "max": null,
+        "min": null,
+        "n": 0,
+        "p50": null,
+        "p95": null
+      }
+    },
+    {
+      "concurrency": 1,
+      "eligibleRepeats": 3,
+      "expectedRepeats": 3,
+      "observedRepeats": 3,
+      "peakFootprintReductionSpread": {
+        "max": 0.8881992469671602,
+        "min": 0.8720489847103057,
+        "n": 3,
+        "p50": 0.8873711174143747,
+        "p95": 0.8881992469671602
+      },
+      "route": "public_http",
+      "throughputRatioSpread": {
+        "max": 24.14264781082568,
+        "min": 16.164301048762173,
+        "n": 3,
+        "p50": 23.269820670571026,
+        "p95": 24.14264781082568
+      }
+    },
+    {
+      "concurrency": 4,
+      "eligibleRepeats": 0,
+      "expectedRepeats": 3,
+      "observedRepeats": 3,
+      "peakFootprintReductionSpread": {
+        "max": 0.840700264363373,
+        "min": 0.8317241477005362,
+        "n": 3,
+        "p50": 0.8404800237294607,
+        "p95": 0.840700264363373
+      },
+      "route": "public_http",
+      "throughputRatioSpread": {
+        "max": 32.99860261996158,
+        "min": 24.873714186327362,
+        "n": 3,
+        "p50": 31.217598755629037,
+        "p95": 32.99860261996158
+      }
+    },
+    {
+      "concurrency": 8,
+      "eligibleRepeats": 0,
+      "expectedRepeats": 3,
+      "observedRepeats": 3,
+      "peakFootprintReductionSpread": {
+        "max": 0.7429112759971999,
+        "min": 0.7027851881191804,
+        "n": 3,
+        "p50": 0.7104911650242931,
+        "p95": 0.7429112759971999
+      },
+      "route": "public_http",
+      "throughputRatioSpread": {
+        "max": 40.42787406489968,
+        "min": 19.984048798265622,
+        "n": 3,
+        "p50": 22.978554451796228,
+        "p95": 40.42787406489968
+      }
+    },
+    {
+      "concurrency": 16,
+      "eligibleRepeats": 0,
+      "expectedRepeats": 3,
+      "observedRepeats": 3,
+      "peakFootprintReductionSpread": {
+        "max": 0.48951295237180315,
+        "min": 0.48951295237180315,
+        "n": 1,
+        "p50": 0.48951295237180315,
+        "p95": 0.48951295237180315
+      },
+      "route": "public_http",
+      "throughputRatioSpread": {
+        "max": 148.08491317867865,
+        "min": 148.08491317867865,
+        "n": 1,
+        "p50": 148.08491317867865,
+        "p95": 148.08491317867865
+      }
+    },
+    {
+      "concurrency": 32,
+      "eligibleRepeats": 0,
+      "expectedRepeats": 3,
+      "observedRepeats": 3,
+      "peakFootprintReductionSpread": {
+        "max": null,
+        "min": null,
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "route": "public_http",
+      "throughputRatioSpread": {
+        "max": null,
+        "min": null,
+        "n": 0,
+        "p50": null,
+        "p95": null
+      }
+    }
+  ],
+  "routeGates": [
+    {
+      "eligiblePairs": 3,
+      "expectedPairs": 15,
+      "fullSelectedGridEligible": false,
+      "memory30PercentEverySelectedCellGate": false,
+      "noP95RegressionEverySelectedCellGate": false,
+      "observedPairs": 15,
+      "route": "matched",
+      "twofoldEverySelectedCellGate": false
+    },
+    {
+      "eligiblePairs": 3,
+      "expectedPairs": 15,
+      "fullSelectedGridEligible": false,
+      "memory30PercentEverySelectedCellGate": false,
+      "noP95RegressionEverySelectedCellGate": false,
+      "observedPairs": 15,
+      "route": "public_http",
+      "twofoldEverySelectedCellGate": false
+    }
+  ]
+}

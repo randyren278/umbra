@@ -1,0 +1,40 @@
+{
+  "budgetAbortedCells": 27,
+  "cellErrors": 11,
+  "cells": 60,
+  "controlFailures": 3,
+  "failures": 35509,
+  "observationJourneyValid": true,
+  "observationToken50PercentGates": {
+    "cli-json-without-human-text": true,
+    "mcp-tool-result": true,
+    "python-sdk-raw-result": true
+  },
+  "out": "docs/evaluation/runtime/primary-official-v2",
+  "performanceRouteGates": [
+    {
+      "eligiblePairs": 3,
+      "expectedPairs": 15,
+      "fullSelectedGridEligible": false,
+      "memory30PercentEverySelectedCellGate": false,
+      "noP95RegressionEverySelectedCellGate": false,
+      "observedPairs": 15,
+      "route": "matched",
+      "twofoldEverySelectedCellGate": false
+    },
+    {
+      "eligiblePairs": 3,
+      "expectedPairs": 15,
+      "fullSelectedGridEligible": false,
+      "memory30PercentEverySelectedCellGate": false,
+      "noP95RegressionEverySelectedCellGate": false,
+      "observedPairs": 15,
+      "route": "public_http",
+      "twofoldEverySelectedCellGate": false
+    }
+  ],
+  "runnerPid": 9824,
+  "runtimeGridFailures": 0,
+  "runtimeGridLevels": 5,
+  "terminal": true
+}

@@ -1,6 +1,12 @@
 # Evaluations and measurements
 
-**Sub-millisecond recorded snapshots, 70/70 project workflow runs, and reclaimed idle-tab memory.** Every headline below links to its method and retained samples. The latency and task runs were recorded October 13, 2026; the memory runs October 21. They are evidence for those builds and workloads, not measurements of every later release.
+**Sub-millisecond recorded snapshots, 70/70 project workflow runs, and reclaimed idle-tab memory.** Every headline below links to its method and retained samples. Historical latency and agent-task runs were recorded October 13, 2026; memory runs October 21. Runtime release measurements below are dated October 23. Each result applies to its recorded build and workload.
+
+## Runtime release: October 23, 2026
+
+**1.32–1.47× throughput and about 82–84% lower sampled peak memory** in three matched single-worker fixture repeats. The final build also cut observation-response tokens by **51.5–57.9%** with exact reconstruction through all three transports, and passed semantic ownership/fairness/cancellation checks through **32 clients**.
+
+The full concurrency performance grid missed its broad targets; heavy matched 32-worker cells hit the 2 GiB limit. [Final-build checks, every measurement and limits](runtime/RESULTS.md). Historical measurements below remain tied to their recorded builds.
 
 ## MiniWoB++: external agent tasks
 

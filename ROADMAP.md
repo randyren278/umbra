@@ -28,6 +28,12 @@ live state.
 | 6 | FIRST (110 tests; live Instagram and LinkedIn reads) and UBC (Canvas pulls, downloads, Kaltura, ubccheck) verified on the installed build |
 | 7 | README, docs, llms.txt, skill, CI, Homebrew head formula, release zip target |
 
+## Runtime release closeout (2026-10-23)
+
+Bounded shared-agent runtime, ownership/cancellation, incremental observations, checked workflows, persistent SDKs, frame coverage and on-demand inspection/diagnostics are implemented. Final product `9542ee5` passed 418 local tests (one expected skip), 17 smoke checks, visible GUI/live loading checks, and the 1/4/8/16/32-client semantic grid. The final-build observation journey reduced response tokens by 51.5–57.9% with exact reconstruction.
+
+The three valid matched single-worker benchmark repeats improved throughput 1.32–1.47× and lowered sampled peak physical footprint about 82–84%. The complete performance grid missed its broad targets; new extended external campaigns remain unexecuted. The user explicitly removed the 24-hour soak requirement. [Full release evidence and limits](docs/evaluation/runtime/RESULTS.md).
+
 ## Commands (target surface)
 
 - Session: `open` (alias `goto`), `back`, `forward`, `reload`, `tabs`, `tab new|select|close`, `status`, `stop`

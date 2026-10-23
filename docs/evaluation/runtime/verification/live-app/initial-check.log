@@ -1,0 +1,8 @@
+{"ok": false, "checks": [], "cleanup": {"daemonGone": true, "profileFilesGone": true}}
+Traceback (most recent call last):
+  File "/tmp/umbra-closeout-app-smoke.py", line 36, in <module>
+    call('open', 'https://example.com', '--tab', 'public', '--until', 'document.querySelector("h1")?.textContent.includes("Example Domain")', '--timeout', '30')
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/umbra-closeout-app-smoke.py", line 32, in call
+    raise RuntimeError(f'{args[0]} failed with exit {result.code}')
+RuntimeError: open failed with exit 2

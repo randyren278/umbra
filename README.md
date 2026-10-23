@@ -16,7 +16,21 @@
 
 ## Benchmarks
 
-**0.94 ms snapshots. 1.52 ms clicks with DOM updates.** Those are the recorded daemon-socket medians on local fixtures, 20 runs per cell. In the abandoned-tab fixture, whole-browser memory fell from **2,756 to 331 MB** after idle tabs closed. [Methods, baselines and all samples](docs/evaluation/README.md).
+**1.32–1.47× more tasks per second. About 82–84% less sampled peak memory.** Three matched single-worker runs of the same four-task localhost workload, with all 80 measured tasks per arm succeeding in each repeat. Memory includes the daemon and its responsible WebKit/GPU/network processes. [October 23 measurements and every raw row](docs/evaluation/runtime/primary-v2/README.md).
+
+**Over 50% fewer observation tokens through CLI, MCP and Python.** The final build reconstructed text, refs and metadata exactly throughout a 16-state journey, including navigation resets and unchanged reads.
+
+| Observation transport | Full tokens | Incremental tokens | Reduction |
+|---|---:|---:|---:|
+| CLI JSON | 5,911 | 2,865 | 51.5% |
+| MCP | 5,660 | 2,631 | 53.5% |
+| Python SDK | 10,280 | 4,328 | 57.9% |
+
+Counts cover delivered observation responses with tiktoken 0.12.0 / o200k_base; initial and navigation-reset full responses stay counted. **1, 4, 8, 16 and 32 concurrent clients passed ownership, progress and cancellation checks.** [Final-build verification and methods](docs/evaluation/runtime/RESULTS.md).
+
+Those figures describe the single-worker fixture. Heavy matched-WebKit runs at 32 workers exceeded the 2 GiB budget, so the full-grid throughput, RAM and latency targets remain unmet.
+
+**0.94 ms snapshots. 1.52 ms clicks with DOM updates.** Earlier daemon-socket medians recorded October 13, 2026 on local fixtures, 20 runs per cell. In the October 21 abandoned-tab fixture, whole-browser memory fell from **2,756 to 331 MB** after idle tabs closed. [Methods, baselines and all samples](docs/evaluation/README.md).
 
 <a href="docs/evaluation/README.md">
   <picture>

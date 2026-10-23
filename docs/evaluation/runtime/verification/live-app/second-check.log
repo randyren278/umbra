@@ -1,0 +1,6 @@
+{"ok": false, "checks": ["publicNavigation", "publicHTTPSLoad"], "cleanup": {"daemonGone": true, "profileFilesGone": true}}
+Traceback (most recent call last):
+  File "/tmp/umbra-closeout-app-smoke.py", line 42, in <module>
+    assert 'Example Domain' in call('snapshot', '--tab', 'public')['snapshot']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

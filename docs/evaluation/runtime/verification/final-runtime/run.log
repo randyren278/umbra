@@ -1,0 +1,6 @@
+runtime-semantics-1
+runtime-semantics-4
+runtime-semantics-8
+runtime-semantics-16
+runtime-semantics-32
+{"budgetAbortedCells": 0, "cellErrors": 0, "cells": 0, "controlFailures": 0, "failures": 0, "observationJourneyValid": null, "observationToken50PercentGates": null, "out": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/final-runtime", "performanceRouteGates": [{"eligiblePairs": 0, "expectedPairs": 15, "fullSelectedGridEligible": false, "memory30PercentEverySelectedCellGate": false, "noP95RegressionEverySelectedCellGate": false, "observedPairs": 0, "route": "matched", "twofoldEverySelectedCellGate": false}, {"eligiblePairs": 0, "expectedPairs": 15, "fullSelectedGridEligible": false, "memory30PercentEverySelectedCellGate": false, "noP95RegressionEverySelectedCellGate": false, "observedPairs": 0, "route": "public_http", "twofoldEverySelectedCellGate": false}], "runnerPid": 38005, "runtimeGridFailures": 0, "runtimeGridLevels": 5, "terminal": true}

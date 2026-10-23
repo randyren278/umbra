@@ -1,0 +1,272 @@
+{
+  "checkedUTC": "2026-10-23T18:33:21.800378+00:00",
+  "profiles": [
+    {
+      "profile": "runtime-bench-56ed328b73",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-16f915a931",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-98cf201ae6",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-8ecd5c25f2",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-598d0bdece",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-34be23a6d7",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-646482483b",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-16f2364d2a",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-d2cfa5099e",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-7ea3560c2f",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-fac2dc5892",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-d10235b957",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-8dd73d0d10",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-cedd1d5601",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-586d91394b",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-407597283c",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-e5dd34ce12",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-68f926ac69",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-ffdce0da70",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-c9c1ee9991",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-2ea2029d6a",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-c9e792e02b",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-4d49592b02",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-a8cb62e97e",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-f5c147981f",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-a4cd05d387",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-c2702a0dec",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-8558604ae3",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-233fbaa290",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-04b5be38a4",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-d39f89e083",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-4f43161777",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-669b85c87c",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-0a9d0d2dae",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-aa26e87a98",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-f2743c90ff",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-b273860e74",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-eafc445f05",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-5532b4bb43",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-10ab240f49",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-ac4e4390d2",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-cdb93dfe89",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-9dd497c35e",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-9549b42af4",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-da15ca4954",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-bd74031761",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-9fbe1a1d10",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-cadc03a1ae",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-2b58e84dc9",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-6aeb9250d6",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-1ed7aa69b9",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-14b69b068f",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-c27dec85bd",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-d80fbb05dd",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-e421134d13",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-007619ab61",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-1fe9178cfc",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-8f32c46b58",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-a616fff6e0",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-5cf695f252",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-cc264c81c2",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-01dce03317",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-430355ecf3",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-f6ec16327b",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-b64634ba60",
+      "profileFilesGone": true
+    },
+    {
+      "profile": "runtime-bench-fafdc72b09",
+      "profileFilesGone": true
+    }
+  ],
+  "daemonsGone": true,
+  "profileFilesGone": true,
+  "note": "Independent live filesystem and exact immutable-app serve-process recheck after all66receipt claims; no default-profile operation"
+}

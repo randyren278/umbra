@@ -1,0 +1,45 @@
+{
+  "verifiedUTC": "2026-10-23T18:52:36.164017+00:00",
+  "productCommit": "9542ee5",
+  "binarySha256": "bace278786dd13901a428728c8dbc1e0ef542f78feaf7ba6c26df38ab212ad1e",
+  "fullRegression": {
+    "tests": 418,
+    "skipped": 1,
+    "smokeChecks": 17,
+    "exitCode": 0,
+    "wallSeconds": 772
+  },
+  "additionalVisibleGUITests": {
+    "tests": 3,
+    "exitCode": 0
+  },
+  "liveApp": true,
+  "finalConcurrencyLevels": [
+    1,
+    4,
+    8,
+    16,
+    32
+  ],
+  "finalConcurrencyAllPassed": true,
+  "finalObservationAllTransports50PercentGate": true,
+  "artwork": {
+    "svgFiles": 24,
+    "generatedFiguresMatchData": 16,
+    "coolPalette": true
+  },
+  "localDocumentationLinksVerified": 68,
+  "rawArchivesHashVerified": true,
+  "independentReview": {
+    "P1": 0,
+    "P2Found": 1,
+    "P2Resolved": 1
+  },
+  "soakRequirement": "Removed at explicit user request; not run; no long-duration claim",
+  "externalExtendedCampaigns": "Prepared but not executed; no new capability score claimed",
+  "secondaryAdmission": "Deferred research; not executed",
+  "remoteCI": "CI/Probe observed disabled_manually; no remote CI pass claimed",
+  "installedApp": "Not modified per repository safety requirements",
+  "sourceHashesVerifiedAfterAllChecks": true,
+  "expectedSkip": "Inherited one-shot cookie-drop assertion intentionally inapplicable to a running daemon; separate live-session lifetime test passes"
+}

@@ -1,0 +1,52 @@
+{
+  "binarySha256": "bace278786dd13901a428728c8dbc1e0ef542f78feaf7ba6c26df38ab212ad1e",
+  "harnessSha256": "5d019177f6bb75c84b89f97c4f6b79c4eaa8f37d0d5393dfeeaba30d4fb07a49",
+  "ok": true,
+  "python": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/tokenizer-venv/bin/python",
+  "scope": "Exact final-binary repeat of the frozen16-state actual SDK/CLI/MCP observation journey; all initial/navigation full responses included",
+  "sdkSha256": "1de49bf4f21951045660ce112fa94dc888fba1ffaba166c94974b882f88acfdb",
+  "summary": {
+    "cli-json-without-human-text": {
+      "changedDeltas": 9,
+      "completeValidJourney": true,
+      "deltaCanonicalBytes": 7005,
+      "deltaTokens": 2865,
+      "expectedStates": 16,
+      "fiftyPercentGate": true,
+      "fullCanonicalBytes": 13039,
+      "fullFallbacks": 4,
+      "fullTokens": 5911,
+      "states": 16,
+      "tokenReduction": 0.5153104381661309,
+      "unchangedDeltas": 3
+    },
+    "mcp-tool-result": {
+      "changedDeltas": 9,
+      "completeValidJourney": true,
+      "deltaCanonicalBytes": 6957,
+      "deltaTokens": 2631,
+      "expectedStates": 16,
+      "fiftyPercentGate": true,
+      "fullCanonicalBytes": 12993,
+      "fullFallbacks": 4,
+      "fullTokens": 5660,
+      "states": 16,
+      "tokenReduction": 0.5351590106007067,
+      "unchangedDeltas": 3
+    },
+    "python-sdk-raw-result": {
+      "changedDeltas": 9,
+      "completeValidJourney": true,
+      "deltaCanonicalBytes": 10343,
+      "deltaTokens": 4328,
+      "expectedStates": 16,
+      "fiftyPercentGate": true,
+      "fullCanonicalBytes": 22331,
+      "fullFallbacks": 4,
+      "fullTokens": 10280,
+      "states": 16,
+      "tokenReduction": 0.578988326848249,
+      "unchangedDeltas": 3
+    }
+  }
+}

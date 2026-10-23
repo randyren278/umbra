@@ -1,6 +1,6 @@
 # Runtime comparison on external MiniWoB tasks
 
-Status: two separate campaigns are prepared against frozen candidate `0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9`, product `1a1d850`. Full regression and quiet performance measurements must finish before execution. Zero episodes have launched in either final campaign.
+Status: deferred research at the authorized release closeout. Zero episodes launched in either new final campaign. Prepared manifests name the earlier `0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9` candidate; any future execution must freeze a fresh manifest against the intended binary (the verified closeout product is `bace278786dd13901a428728c8dbc1e0ef542f78feaf7ba6c26df38ab212ad1e`). Preparation is not a passing score or capability-preservation result.
 
 The historical October 13 campaign is a different artifact and does not prove capability preservation for this runtime change. The new comparison uses the frozen initial Umbra binary and final candidate, unchanged upstream BrowserGym setup/validation, 125 task types, five original seeded repeats, ten interaction requests, forty observations and a 120-second episode cap. Every frozen episode remains in the denominator. Both arms use the same filtered Umbra MCP surface and model configuration. Arm order is deterministically shuffled per task/repeat.
 

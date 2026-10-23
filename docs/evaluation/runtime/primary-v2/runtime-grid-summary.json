@@ -1,0 +1,163 @@
+[
+  {
+    "concurrency": 1,
+    "binarySha256": "0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9",
+    "finalBinarySha256": "0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9",
+    "ok": true,
+    "errors": [],
+    "expectedActors": 1,
+    "fairness": {
+      "counts": [
+        3
+      ],
+      "maxSecondsWithoutOwnProgress": 0.053656666073948145,
+      "maxStarvationCounter": 0,
+      "seconds": 0.1782475410727784
+    },
+    "cleanup": {
+      "daemonGone": true,
+      "profile": "runtime-bench-b64634ba60",
+      "profileFilesGone": true
+    }
+  },
+  {
+    "concurrency": 4,
+    "binarySha256": "0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9",
+    "finalBinarySha256": "0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9",
+    "ok": true,
+    "errors": [],
+    "expectedActors": 4,
+    "fairness": {
+      "counts": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "maxSecondsWithoutOwnProgress": 0.05278124997857958,
+      "maxStarvationCounter": 1,
+      "seconds": 0.16876379190944135
+    },
+    "cleanup": {
+      "daemonGone": true,
+      "profile": "runtime-bench-01dce03317",
+      "profileFilesGone": true
+    }
+  },
+  {
+    "concurrency": 8,
+    "binarySha256": "0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9",
+    "finalBinarySha256": "0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9",
+    "ok": true,
+    "errors": [],
+    "expectedActors": 8,
+    "fairness": {
+      "counts": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "maxSecondsWithoutOwnProgress": 0.05709849996492267,
+      "maxStarvationCounter": 1,
+      "seconds": 0.16923391702584922
+    },
+    "cleanup": {
+      "daemonGone": true,
+      "profile": "runtime-bench-f6ec16327b",
+      "profileFilesGone": true
+    }
+  },
+  {
+    "concurrency": 16,
+    "binarySha256": "0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9",
+    "finalBinarySha256": "0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9",
+    "ok": true,
+    "errors": [],
+    "expectedActors": 16,
+    "fairness": {
+      "counts": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "maxSecondsWithoutOwnProgress": 0.05906912498176098,
+      "maxStarvationCounter": 1,
+      "seconds": 0.1862328330753371
+    },
+    "cleanup": {
+      "daemonGone": true,
+      "profile": "runtime-bench-430355ecf3",
+      "profileFilesGone": true
+    }
+  },
+  {
+    "concurrency": 32,
+    "binarySha256": "0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9",
+    "finalBinarySha256": "0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9",
+    "ok": true,
+    "errors": [],
+    "expectedActors": 32,
+    "fairness": {
+      "counts": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "maxSecondsWithoutOwnProgress": 0.1141958748921752,
+      "maxStarvationCounter": 2,
+      "seconds": 0.27405266591813415
+    },
+    "cleanup": {
+      "daemonGone": true,
+      "profile": "runtime-bench-fafdc72b09",
+      "profileFilesGone": true
+    }
+  }
+]
