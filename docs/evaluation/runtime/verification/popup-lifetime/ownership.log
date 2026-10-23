@@ -1,0 +1,7 @@
+test_native_popup_still_belongs_to_its_opener (__main__.PopupOwnershipTests.test_native_popup_still_belongs_to_its_opener) ... ok
+test_scratch_read_is_not_the_clicks_popup (__main__.PopupOwnershipTests.test_scratch_read_is_not_the_clicks_popup) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 4.155s
+
+OK

@@ -1,0 +1,18 @@
+test_baselines_invalidate_after_navigation_options_or_eviction (__main__.ObserveTests.test_baselines_invalidate_after_navigation_options_or_eviction) ... ok
+test_budget_depth_and_shadow (__main__.ObserveTests.test_budget_depth_and_shadow) ... ok
+test_cancelled_delayed_click_never_fires_after_target_appears (__main__.ObserveTests.test_cancelled_delayed_click_never_fires_after_target_appears) ... ok
+test_cancelled_fill_cannot_type_into_following_command (__main__.ObserveTests.test_cancelled_fill_cannot_type_into_following_command) ... ok
+test_cancelled_fill_fallback_cannot_emit_late_native_keys (__main__.ObserveTests.test_cancelled_fill_fallback_cannot_emit_late_native_keys) ... ok
+test_capability_disclosure (__main__.ObserveTests.test_capability_disclosure) ... ok
+test_delta_reconstructs_snapshot_and_nochange (__main__.ObserveTests.test_delta_reconstructs_snapshot_and_nochange) ... ok
+test_form_types_and_password_redaction (__main__.ObserveTests.test_form_types_and_password_redaction) ... ok
+test_list_and_schema_rejection (__main__.ObserveTests.test_list_and_schema_rejection) ... ok
+test_receipt_observes_fill_and_redacts_password (__main__.ObserveTests.test_receipt_observes_fill_and_redacts_password) ... ok
+test_table_extraction_has_source_refs_and_limit (__main__.ObserveTests.test_table_extraction_has_source_refs_and_limit) ... ok
+test_watch_events_match_mutation_and_input (__main__.ObserveTests.test_watch_events_match_mutation_and_input) ... ok
+test_watch_expiry_and_removed_element (__main__.ObserveTests.test_watch_expiry_and_removed_element) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 18.384s
+
+OK

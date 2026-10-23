@@ -25,7 +25,9 @@ private final class FormState: NSObject, WKScriptMessageHandler {
 }
 
 final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate, NSWindowDelegate {
+    let id = UUID()
     let name: String
+    var opener: UUID?
     let web: WKWebView
     let window: NSWindow
     unowned let engine: Engine
@@ -262,6 +264,7 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
                  for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         guard engine.runtime.admissionError(newTab: true) == nil else { return nil }
         let popup = engine.open(name: nil, config: configuration, select: false)
+        popup.opener = id
         if let owner = engine.runtime.lease(self) { engine.runtime.leases[popup.name] = owner }
         return popup.web
     }

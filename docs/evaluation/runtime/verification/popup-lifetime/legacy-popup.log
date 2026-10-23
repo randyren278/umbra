@@ -1,0 +1,7 @@
+test_a_target_blank_link_opens_a_tab (__main__.SessionCommandTests.test_a_target_blank_link_opens_a_tab) ... ok
+test_popups_rest_too (__main__.RestingTabTests.test_popups_rest_too) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 9.044s
+
+OK

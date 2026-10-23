@@ -311,10 +311,10 @@ func deadlines(_ args: Args) -> (act: Date, total: Date) {
 /// The page, tabs, dialogs and downloads before an action, to tell what it changed. `info` is what
 /// the library said about the page (its URL, and an id that changes with the document).
 struct Before {
-    let navigations: Int, tabs: [Tab], dialogs: Int, downloads: Int, url: String, doc: String
+    let navigations: Int, tabs: Set<UUID>, dialogs: Int, downloads: Int, url: String, doc: String
     init(_ tab: Tab, _ engine: Engine, _ info: [String: Any] = [:]) {
         navigations = tab.navigations
-        tabs = engine.tabs
+        tabs = Set(engine.tabs.map(\.id))
         dialogs = tab.dialogs.count
         downloads = tab.downloads.count
         url = info["url"] as? String ?? ""
@@ -326,6 +326,11 @@ struct Before {
 /// the input started (a navigate event, a new provisional load, a new tab), up to `deadline`.
 func aftermath(_ tab: Tab, _ engine: Engine, _ before: Before, deadline: Date, done: @escaping ([String: Any]) -> Void) {
     let operation = tab.operation
+    var timer: DispatchSourceTimer?
+    func clearDeadline() {
+        timer?.setEventHandler {}; timer?.cancel(); timer = nil
+    }
+    if let operation { engine.runtime.onFinish(operation, clearDeadline) }
     tab.umbra("observed") { result in
         var seen = (try? result.get()) ?? ["navigating": true]  // the call fails when the page is unloading
         var finished = false
@@ -334,6 +339,7 @@ func aftermath(_ tab: Tab, _ engine: Engine, _ before: Before, deadline: Date, d
             guard operation == tab.operation else { return }
             guard !finished else { return }
             finished = true
+            clearDeadline()
             seen.merge(extra) { $1 }
             done(seen)
         }
@@ -372,18 +378,25 @@ func aftermath(_ tab: Tab, _ engine: Engine, _ before: Before, deadline: Date, d
                 return DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) { follow(t, extra) }
             }
             guard t.web.isLoading else { return page(t, extra) }
-            t.loading.append { loaded in
+            t.loading.append { [weak t] loaded in
+                guard let t else { return }
                 if case .failure(let error) = loaded { return finish(extra.merging(["error": error.message]) { $1 }) }
                 page(t, extra)
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + max(0, deadline.timeIntervalSinceNow)) {
-                if !finished { page(t, extra.merging(["loading": true]) { $1 }) }
+            clearDeadline()
+            let deadlineTimer = DispatchSource.makeTimerSource(queue: .main)
+            timer = deadlineTimer
+            deadlineTimer.schedule(deadline: .now() + max(0, deadline.timeIntervalSinceNow))
+            deadlineTimer.setEventHandler { [weak t] in
+                clearDeadline()
+                if !finished, let t { page(t, extra.merging(["loading": true]) { $1 }) }
             }
+            deadlineTimer.resume()
         }
         func poll() {
             guard operation == tab.operation else { return }
             if tab.navigations != before.navigations { return follow(tab, ["navigated": true]) }
-            if let opened = engine.tabs.first(where: { t in !before.tabs.contains { $0 === t } }) {
+            if let opened = engine.tabs.first(where: { $0.opener == tab.id && !before.tabs.contains($0.id) }) {
                 return follow(opened, ["newTab": opened.name])
             }
             let waiting = seen["navigating"] as? Bool == true || tab.web.isLoading

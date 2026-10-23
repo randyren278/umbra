@@ -1,0 +1,14 @@
+test_ancestor_overlay_refuses_native_click (__main__.FrameTests.test_ancestor_overlay_refuses_native_click) ... ok
+test_canvas_pointer_trusted_and_validated (__main__.FrameTests.test_canvas_pointer_trusted_and_validated) ... ok
+test_frame_navigation_invalidates_old_handle (__main__.FrameTests.test_frame_navigation_invalidates_old_handle) ... ok
+test_frame_watch_and_delta (__main__.FrameTests.test_frame_watch_and_delta) ... ok
+test_native_cross_origin_snapshot_extraction_and_sop (__main__.FrameTests.test_native_cross_origin_snapshot_extraction_and_sop) ... ok
+test_popup_frames_belong_to_popup_tab (__main__.FrameTests.test_popup_frames_belong_to_popup_tab) ... ok
+test_transformed_frame_and_unknown_operation_fail_explicitly (__main__.FrameTests.test_transformed_frame_and_unknown_operation_fail_explicitly) ... ok
+test_trusted_click_and_check_in_nested_cross_origin_frame (__main__.FrameTests.test_trusted_click_and_check_in_nested_cross_origin_frame) ... ok
+test_trusted_fill_and_password_redaction (__main__.FrameTests.test_trusted_fill_and_password_redaction) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 10.943s
+
+OK

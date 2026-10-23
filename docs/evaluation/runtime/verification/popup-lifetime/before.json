@@ -1,0 +1,2572 @@
+{
+  "binary": "/private/var/tmp/umbra-popup-ownership/baseline/Umbra.app/Contents/MacOS/umbra",
+  "mode": "scratch",
+  "iterations": 4,
+  "maxLogicalTabs": 2,
+  "budgetBytes": 1073741824,
+  "peakPhysicalFootprintBytes": 400188800,
+  "records": [
+    {
+      "iteration": 0,
+      "seconds": 1.7449540829984471,
+      "newTab": "read-8C0AB9",
+      "urlAfter": "http://127.0.0.1:62766/slow",
+      "trusted": true,
+      "tabsAfterClose": 0
+    },
+    {
+      "iteration": 1,
+      "seconds": 2.9147767079994082,
+      "newTab": "read-0F7E21",
+      "urlAfter": "http://127.0.0.1:62766/slow",
+      "trusted": true,
+      "tabsAfterClose": 0
+    },
+    {
+      "iteration": 2,
+      "seconds": 4.132702500093728,
+      "newTab": "read-23C6ED",
+      "urlAfter": "http://127.0.0.1:62766/slow",
+      "trusted": true,
+      "tabsAfterClose": 0
+    },
+    {
+      "iteration": 3,
+      "seconds": 5.358617125079036,
+      "newTab": "read-BE78C9",
+      "urlAfter": "http://127.0.0.1:62766/slow",
+      "trusted": true,
+      "tabsAfterClose": 0
+    }
+  ],
+  "samples": [
+    {
+      "seconds": 0.4765816670842469,
+      "phase": "iteration-0",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 26608720
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 6128096
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 2507112
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 10912488
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9109984
+        }
+      ],
+      "physicalFootprintBytes": 55266400
+    },
+    {
+      "seconds": 0.80472529202234,
+      "phase": "iteration-0",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 28738640
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 19464888
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 2572648
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 54510312
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 10060256
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5718568
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 10830544
+        }
+      ],
+      "physicalFootprintBytes": 131895856
+    },
+    {
+      "seconds": 1.1201763750286773,
+      "phase": "iteration-0",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 29000784
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 19350200
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 2572648
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 54313704
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9847264
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5718568
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 10650320
+        }
+      ],
+      "physicalFootprintBytes": 131453488
+    },
+    {
+      "seconds": 1.4390037920093164,
+      "phase": "iteration-0",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 29017168
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 20529848
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 55706344
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 10027488
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5718568
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 10470096
+        }
+      ],
+      "physicalFootprintBytes": 134631984
+    },
+    {
+      "seconds": 1.7482092920690775,
+      "phase": "iteration-1",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 29115472
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 21398248
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 55886568
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9601504
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31326928
+        }
+      ],
+      "physicalFootprintBytes": 156193376
+    },
+    {
+      "seconds": 2.0541344170924276,
+      "phase": "iteration-1",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 30868584
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 22774576
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3178856
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 35865320
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9519584
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31818448
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 35914448
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 29754088
+        }
+      ],
+      "physicalFootprintBytes": 205396088
+    },
+    {
+      "seconds": 2.3742030831053853,
+      "phase": "iteration-1",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 30786664
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 22758192
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 35488488
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9437664
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31802064
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 35881680
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 29721320
+        }
+      ],
+      "physicalFootprintBytes": 204740728
+    },
+    {
+      "seconds": 2.686969625065103,
+      "phase": "iteration-1",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 30852200
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 22823752
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34996968
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9306592
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32391912
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 54887120
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 29213416
+        }
+      ],
+      "physicalFootprintBytes": 223336616
+    },
+    {
+      "seconds": 3.0045331669971347,
+      "phase": "iteration-2",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 31589480
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 22741856
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34996968
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9290208
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32309992
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 56066768
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 51315432
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 7471704
+        }
+      ],
+      "physicalFootprintBytes": 254647064
+    },
+    {
+      "seconds": 3.325002917088568,
+      "phase": "iteration-2",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 32228456
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 23118760
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34931432
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9306592
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32195304
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 35357392
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 51348200
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 35865320
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 29770472
+        }
+      ],
+      "physicalFootprintBytes": 292986584
+    },
+    {
+      "seconds": 3.6337018749909475,
+      "phase": "iteration-2",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 32212072
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 23020456
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34931432
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9290208
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32129768
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34915024
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 51151592
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 35832552
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 29737704
+        }
+      ],
+      "physicalFootprintBytes": 292085464
+    },
+    {
+      "seconds": 3.9409654170740396,
+      "phase": "iteration-2",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 32212072
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 23118784
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34931432
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9290208
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32129768
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34849488
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 51118824
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 55378664
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 29197032
+        }
+      ],
+      "physicalFootprintBytes": 311090928
+    },
+    {
+      "seconds": 4.260734167066403,
+      "phase": "iteration-3",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 33408104
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 23266336
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34931432
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9241056
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32129768
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34849488
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 50987752
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 37061352
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 51348200
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31163112
+        }
+      ],
+      "physicalFootprintBytes": 347251256
+    },
+    {
+      "seconds": 4.578222583048046,
+      "phase": "iteration-3",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34194560
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 23561296
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34996968
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9241056
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32047848
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34685648
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 50971368
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34882280
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 51020520
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 54493928
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 29819624
+        }
+      ],
+      "physicalFootprintBytes": 398779752
+    },
+    {
+      "seconds": 4.899423333001323,
+      "phase": "iteration-3",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34243712
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 23528528
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34996968
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9224672
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32047848
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34685648
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32195304
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34718440
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 50594536
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 55280360
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 29786856
+        }
+      ],
+      "physicalFootprintBytes": 380167528
+    },
+    {
+      "seconds": 5.199555042083375,
+      "phase": "iteration-3",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34161792
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 23479400
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34980584
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9159136
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32047848
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34685648
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32195304
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34685672
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 50496232
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 54887144
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 50184936
+        }
+      ],
+      "physicalFootprintBytes": 399828352
+    },
+    {
+      "seconds": 5.502537875087,
+      "phase": "post-close-before-deadline",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34145408
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 23463016
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34980584
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9159136
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32047848
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34685648
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32178920
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34685672
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 50856680
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 54919912
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 50201320
+        }
+      ],
+      "physicalFootprintBytes": 400188800
+    },
+    {
+      "seconds": 5.799906958010979,
+      "phase": "post-close-before-deadline",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34129024
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 23479400
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34931432
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 9060832
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5702184
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32047848
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34783952
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32097000
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34570984
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 50889448
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 38437608
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 50135784
+        }
+      ],
+      "physicalFootprintBytes": 383427968
+    },
+    {
+      "seconds": 6.105603458010592,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34129024
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 23233640
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34931432
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8847840
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32047848
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34783952
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32097000
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34570984
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32113384
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 35177192
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 51233512
+        }
+      ],
+      "physicalFootprintBytes": 361964928
+    },
+    {
+      "seconds": 6.417493332992308,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34145408
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 20628584
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34898664
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8847840
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32031464
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34734800
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32097000
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34570984
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32113384
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34931432
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 51643112
+        }
+      ],
+      "physicalFootprintBytes": 359441792
+    },
+    {
+      "seconds": 6.734496167046018,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34145408
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 20612200
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34898664
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8815072
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32031464
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34734800
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32080616
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34570984
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32113384
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34931432
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 51004136
+        }
+      ],
+      "physicalFootprintBytes": 358737280
+    },
+    {
+      "seconds": 7.0436606670264155,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34145408
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 17040488
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34800360
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8765920
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31965928
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34734800
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32080616
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34669288
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32113384
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34800360
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 50971368
+        }
+      ],
+      "physicalFootprintBytes": 354887040
+    },
+    {
+      "seconds": 7.343896333011799,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34145408
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 17024104
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34800360
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8765920
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31916776
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34702032
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32080616
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34669288
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32113384
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34800360
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 50938600
+        }
+      ],
+      "physicalFootprintBytes": 354755968
+    },
+    {
+      "seconds": 7.658751583076082,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34145408
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 17024104
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34669288
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8765920
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31867624
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34702032
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32080616
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34620136
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32113384
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34800360
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32162536
+        }
+      ],
+      "physicalFootprintBytes": 335750528
+    },
+    {
+      "seconds": 7.953292250051163,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34145408
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 17007720
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34669288
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8765920
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31785704
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34702032
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32031464
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34603752
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32047848
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34800360
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32162536
+        }
+      ],
+      "physicalFootprintBytes": 335521152
+    },
+    {
+      "seconds": 8.263900542049669,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34145408
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 17007720
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34669288
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8765920
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31785704
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34702032
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32031464
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34603752
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32047848
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34882280
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32162536
+        }
+      ],
+      "physicalFootprintBytes": 335603072
+    },
+    {
+      "seconds": 8.567582666990347,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 34145408
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 17007720
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57860,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34669288
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8765920
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57864,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31785704
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34603728
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31949544
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34603752
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32047848
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34882280
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32162536
+        }
+      ],
+      "physicalFootprintBytes": 335422848
+    },
+    {
+      "seconds": 8.863676792010665,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 33948800
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 16860144
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8929760
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34603728
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31949544
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34554600
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32047848
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34833128
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32162536
+        }
+      ],
+      "physicalFootprintBytes": 268689208
+    },
+    {
+      "seconds": 9.168050542008132,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 33948800
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 16729072
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8913376
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34472656
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31900392
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34554600
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32047848
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34816744
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32162536
+        }
+      ],
+      "physicalFootprintBytes": 268345144
+    },
+    {
+      "seconds": 9.484334000037052,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 33735808
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 16729072
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8913376
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34472656
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31900392
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34505448
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31998696
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34816744
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32162536
+        }
+      ],
+      "physicalFootprintBytes": 268033848
+    },
+    {
+      "seconds": 9.799364792066626,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 33735808
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 16516080
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8831456
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57869,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34489040
+        },
+        {
+          "pid": 57870,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31900392
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34439912
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31949544
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34816744
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32162536
+        }
+      ],
+      "physicalFootprintBytes": 267640632
+    },
+    {
+      "seconds": 10.098377750022337,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 33375360
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 16352192
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8946144
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34407144
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31867624
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34718440
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32162536
+        }
+      ],
+      "physicalFootprintBytes": 200628560
+    },
+    {
+      "seconds": 10.414117083069868,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 33375360
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 16319424
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3162472
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8929760
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34407144
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31818472
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34718440
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32113384
+        }
+      ],
+      "physicalFootprintBytes": 200481104
+    },
+    {
+      "seconds": 10.711156375007704,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 33375360
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 16139200
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3080552
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8880608
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34407144
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31818472
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34521832
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 32064232
+        }
+      ],
+      "physicalFootprintBytes": 199924048
+    },
+    {
+      "seconds": 11.017375583061948,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 33375360
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 16106432
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3080552
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8782304
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57875,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34407144
+        },
+        {
+          "pid": 57878,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31818472
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34521832
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31982312
+        }
+      ],
+      "physicalFootprintBytes": 199711056
+    },
+    {
+      "seconds": 11.314013667055406,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 33031296
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 15778632
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3080552
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8913376
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34472680
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31982312
+        }
+      ],
+      "physicalFootprintBytes": 132895496
+    },
+    {
+      "seconds": 11.619136583060026,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 33031296
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 15762248
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3080552
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8913376
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34472680
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31900392
+        }
+      ],
+      "physicalFootprintBytes": 132797192
+    },
+    {
+      "seconds": 11.918021958088502,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 33031296
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 15516488
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3080552
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8913376
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34472680
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31900392
+        }
+      ],
+      "physicalFootprintBytes": 132551432
+    },
+    {
+      "seconds": 12.215266167069785,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 33031296
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 15516488
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3080552
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8831456
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        },
+        {
+          "pid": 57887,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 34472680
+        },
+        {
+          "pid": 57889,
+          "kind": "WebContent",
+          "physicalFootprintBytes": 31900392
+        }
+      ],
+      "physicalFootprintBytes": 132469512
+    },
+    {
+      "seconds": 12.522207083064131,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 32081000
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 15024752
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3080552
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8929760
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        }
+      ],
+      "physicalFootprintBytes": 64752712
+    },
+    {
+      "seconds": 12.830324708018452,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 32081000
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 14942832
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3080552
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8798688
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        }
+      ],
+      "physicalFootprintBytes": 64539720
+    },
+    {
+      "seconds": 13.135294792009518,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 32081000
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 14549616
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3080552
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8765920
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        }
+      ],
+      "physicalFootprintBytes": 64113736
+    },
+    {
+      "seconds": 13.447450417093933,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 32081000
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 14402160
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3080552
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8733152
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        }
+      ],
+      "physicalFootprintBytes": 63933512
+    },
+    {
+      "seconds": 13.758430167101324,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 32081000
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 14221936
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3080552
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8503776
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        }
+      ],
+      "physicalFootprintBytes": 63523912
+    },
+    {
+      "seconds": 14.068157625035383,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 32081000
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 14221936
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3080552
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8503776
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        }
+      ],
+      "physicalFootprintBytes": 63523912
+    },
+    {
+      "seconds": 14.374111708020791,
+      "phase": "quiescence",
+      "members": [
+        {
+          "pid": 57857,
+          "kind": "daemon",
+          "physicalFootprintBytes": 32081000
+        },
+        {
+          "pid": 57858,
+          "kind": "GPU",
+          "physicalFootprintBytes": 14221936
+        },
+        {
+          "pid": 57859,
+          "kind": "SetStoreUpdateService",
+          "physicalFootprintBytes": 3080552
+        },
+        {
+          "pid": 57861,
+          "kind": "Networking",
+          "physicalFootprintBytes": 8421856
+        },
+        {
+          "pid": 57863,
+          "kind": "com.apple.audio.SandboxHelper",
+          "physicalFootprintBytes": 5636648
+        }
+      ],
+      "physicalFootprintBytes": 63441992
+    }
+  ],
+  "guardFailure": [],
+  "errors": [],
+  "cleanup": {
+    "daemonGone": true,
+    "profileFilesGone": true
+  }
+}

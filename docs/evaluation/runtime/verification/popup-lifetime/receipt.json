@@ -1,0 +1,22 @@
+{
+  "testedPatchBinarySha256": "54973a27921c60a4201a5fe0451a961f4b9cd14d7daf1ecb74b2a94aebc310b5",
+  "combinedCandidateSha256": "563cf5b925e6a7778f0a708e78638062bc8c9fa018639dc3e2d32e70a9e33e5e",
+  "checks": 26,
+  "iterationsPerArm": 4,
+  "maxLogicalTabs": 2,
+  "guardBytes": 1073741824,
+  "files": {
+    "before.json": "0e481b380d3978d3ec9cad333948d3b2b3d28456b23d640a20487769cb99f0b1",
+    "fixed.json": "02c1f1687c6c35a78214b164e0754d21d03d653b855234e2ebab1e83ece86d1e",
+    "ownership.log": "b4a7b680e069c098aeb506997313172bc0f17c5b0707ec31b59b99a6c9149fba",
+    "frames.log": "416c054906db84e57644d0bfa8aae048aab61c85c14cfd6826a8e8d88baf138c",
+    "legacy-popup.log": "f64eb369c51fa2eba9b0b11085e8fb47c1e32ee2ca50078b85ac0eabf590623c",
+    "observe.log": "3d8e954c02b8547aca3302af1d35bbbaa915c78c435b1587b8e392b49dd9e8c6",
+    "probe.py": "2ab59eece1b093e3030a85547d9843e0285b694152c46d0d38f0c121cf775beb"
+  },
+  "patchSourceSha256": {
+    "Sources/Engine.swift": "d462271246cc945ee66223ea47c712d09eb6a92e4bb3f596dadbf3ca2f264299",
+    "Sources/Interact.swift": "f3f425230630bcb3655a3c103eb4c7213b4268f7fdd5bf983679e5a1072d140c"
+  },
+  "scope": "Bounded ownership/lifetime reproduction, not whole-grid performance proof"
+}
