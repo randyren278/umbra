@@ -1,0 +1,88 @@
+{
+  "umbra_revision": "c45b12dc4764f7827561cd1744ccbfc9bcd10e77",
+  "binary_sha256": "1a71d178d1899b5610adf065128167efadae7e054b27e18d7b06cc6681b8dd47",
+  "harness_sha256": "1ba887c0307edbea83059caaa7f623064f79eb9394f3fe173e135daf288b1bfb",
+  "arms": [
+    "baseline",
+    "candidate"
+  ],
+  "binaries": {
+    "baseline": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/baseline-app/Umbra.app/Contents/MacOS/umbra",
+    "candidate": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/baseline-app/Umbra.app/Contents/MacOS/umbra"
+  },
+  "binary_hashes": {
+    "baseline": "1a71d178d1899b5610adf065128167efadae7e054b27e18d7b06cc6681b8dd47",
+    "candidate": "1a71d178d1899b5610adf065128167efadae7e054b27e18d7b06cc6681b8dd47"
+  },
+  "miniwob_revision": "33c3b4ddef8c6eb67c57a29663d844b1eda7e614",
+  "browsergym_revision": "e71419aef5759a11cb7896a26c36e5f7e92d82b2",
+  "source_hashes": {
+    "browsergym/miniwob/src/browsergym/miniwob/base.py": "4d7b82b7b63403a9774969f4166ab858243bef381335ae1af3ced345e66552ab",
+    "browsergym/miniwob/src/browsergym/miniwob/all.py": "25c6ed2960494808e12d5a178290289e63f81eee328a0f47b384a66d53531b98",
+    "browsergym/experiments/src/browsergym/experiments/benchmark/configs.py": "b966c2e01dd5bb559c12c927d94189d533f856fd8665cebfa9416af946481097",
+    "browsergym/experiments/src/browsergym/experiments/benchmark/utils.py": "310045014808f38af288118f5919b90a44cbef26b92b74f35f5c2822f60f8bec",
+    "browsergym/experiments/src/browsergym/experiments/loop.py": "15cbb3e5ecbf516981870dbac08881ffdcaa6fbf64dfc1d3d7d9487141c94d3f"
+  },
+  "metadata_sha256": "37117db27909a17b1b78035528472922c98c479a54619ac398dc256a7d2fef09",
+  "max_actions": 10,
+  "seconds_per_episode": 120,
+  "repeats": 1,
+  "standard_repeats": 5,
+  "cases": [
+    {
+      "task": "miniwob.click-test-2",
+      "seed": 31,
+      "repeat": 0,
+      "arm": "candidate",
+      "backend": "umbra",
+      "split": "train"
+    },
+    {
+      "task": "miniwob.click-test-2",
+      "seed": 31,
+      "repeat": 0,
+      "arm": "baseline",
+      "backend": "umbra",
+      "split": "train"
+    },
+    {
+      "task": "miniwob.enter-text",
+      "seed": 0,
+      "repeat": 0,
+      "arm": "baseline",
+      "backend": "umbra",
+      "split": "train"
+    },
+    {
+      "task": "miniwob.enter-text",
+      "seed": 0,
+      "repeat": 0,
+      "arm": "candidate",
+      "backend": "umbra",
+      "split": "train"
+    }
+  ],
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "high",
+  "agent": "codex-cli 0.163.0",
+  "python": "3.12.13 (main, Mar 10 2026, 18:18:07) [Clang 21.1.4 ]",
+  "dependencies": {
+    "browsergym-core": "0.14.3",
+    "browsergym-miniwob": "0.14.3",
+    "numpy": "2.5.4",
+    "playwright": "1.63.0"
+  },
+  "playwright_mcp_version": "0.0.83",
+  "chromium_sha256": "a596b1cfc6353e987fcec8d71a23a28cd6a9e7a6b4e20b908e4c4fcffe51158e",
+  "mcp_source_sha256": "70dab09ab9a5bc1943fb78e2655f00af7349f9931073833919f19c5d7d786ad6",
+  "system": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434",
+  "limitations": [
+    "Adapted MCP action surface, not BrowserGym HighLevelActionSet",
+    "No arbitrary JavaScript or source/file access in either arm",
+    "No claim of published-leaderboard comparability",
+    "Timing includes model inference; tool latency logged separately",
+    "Four concurrent episodes: timing is under shared machine load",
+    "BrowserGym screenshot scale annotation is not applied by these MCP servers",
+    "Both arms use Umbra/WebKit; this comparison tests a runtime change"
+  ]
+}

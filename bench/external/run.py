@@ -27,7 +27,7 @@ import tomllib
 from concurrent.futures import ThreadPoolExecutor
 
 REPO = Path(__file__).resolve().parents[2]
-BINARY = REPO / 'build/Umbra.app/Contents/MacOS/umbra'
+BINARY = Path(os.environ.get('UMBRA_EVAL_BINARY', REPO / 'build/Umbra.app/Contents/MacOS/umbra'))
 UMBRA_OBSERVE = {'snapshot', 'text', 'markdown', 'screenshot', 'info'}
 UMBRA_ACT = {'click', 'fill', 'type', 'press', 'select', 'check', 'uncheck',
              'hover', 'scroll', 'drag', 'focus'}
@@ -64,7 +64,7 @@ def load_tasks(bgym):
 
 
 def cleanup(profile, env):
-    subprocess.run([str(BINARY), 'stop'], env=env, capture_output=True, timeout=20)
+    subprocess.run([str(env.get('UMBRA_EVAL_BINARY', BINARY)), 'stop'], env=env, capture_output=True, timeout=20)
     h = hashlib.sha256(('umbra profile ' + profile).encode()).hexdigest()[:32]
     uuid = '-'.join((h[:8], h[8:12], h[12:16], h[16:20], h[20:]))
     store = Path.home() / 'Library/WebKit/com.randyren.umbra/WebsiteDataStore' / uuid
@@ -173,10 +173,13 @@ def tool_error(message):
 
 def broker(case_file):
     """Only this controller sees upstream internals; the candidate gets filtered MCP."""
+    global BINARY
     case = json.loads(Path(case_file).read_text())
+    BINARY = Path(case.get('binary', BINARY))
     work = Path(case_file).parent
     env = {**os.environ, 'UMBRA_PROFILE': case['profile'], 'UMBRA_IDLE': '60',
-           'UMBRA_SITES': str(work / 'no-sites.json')}
+           'UMBRA_SITES': str(work / 'no-sites.json'),
+           'UMBRA_AGENTS': str(work / 'launch-agents')}
     task_cls = load_tasks(case['browsergym'])[case['task']]
     task = task_cls(seed=case['seed'], base_url=case['base'])
     page = mcp = pw = context = None
@@ -186,7 +189,7 @@ def broker(case_file):
     observations = 0
     state = None
     try:
-        if case['arm'] == 'umbra':
+        if case.get('backend', case['arm']) == 'umbra':
             page = UmbraPage(env)
             page.goto(case['base'] + case['task'].split('.', 1)[1] + '.html')
             page.call('viewport', **task.viewport)
@@ -297,7 +300,7 @@ def broker(case_file):
                 pass
         if mcp:
             mcp.close()
-        if case['arm'] == 'umbra':
+        if case.get('backend', case['arm']) == 'umbra':
             if page:
                 page.close()
             write(work / 'cleanup.json', {'clean': cleanup(case['profile'], env)})
@@ -314,6 +317,10 @@ def freeze(options):
     import numpy as np
     root = Path(options.out).resolve()
     root.mkdir(parents=True, exist_ok=False)
+    binaries = ({'baseline': str(Path(options.baseline_binary).resolve()),
+                 'candidate': str(Path(options.umbra_binary or BINARY).resolve())}
+                if options.baseline_binary else {'umbra': str(Path(options.umbra_binary or BINARY).resolve())})
+    arms = ['baseline', 'candidate'] if options.baseline_binary else ['umbra', 'playwright']
     metadata = Path(options.browsergym) / 'browsergym/experiments/src/browsergym/experiments/benchmark/metadata/miniwob.csv'
     tasks = list(csv.DictReader(metadata.open()))
     # Preserve the upstream standard five-seed plan, even for reduced-repetition runs.
@@ -325,18 +332,20 @@ def freeze(options):
         if options.tasks and task['task_name'] not in options.tasks.split(','):
             continue
         for repeat, seed in enumerate(seeds[:options.repeats]):
-            pair = ['umbra', 'playwright']
+            pair = list(arms)
             random.Random(f'{task["task_name"]}:{repeat}:42').shuffle(pair)
             for arm in pair:
                 cases.append({'task': task['task_name'], 'seed': int(seed), 'repeat': repeat,
-                              'arm': arm, 'split': task['browsergym_split']})
+                              'arm': arm, 'backend': 'umbra' if arm in binaries else 'playwright',
+                              'split': task['browsergym_split']})
     source_files = ['browsergym/miniwob/src/browsergym/miniwob/base.py',
                     'browsergym/miniwob/src/browsergym/miniwob/all.py',
                     'browsergym/experiments/src/browsergym/experiments/benchmark/configs.py',
                     'browsergym/experiments/src/browsergym/experiments/benchmark/utils.py',
                     'browsergym/experiments/src/browsergym/experiments/loop.py']
-    manifest = {'umbra_revision': git(REPO), 'binary_sha256': digest(BINARY),
-                'harness_sha256': digest(__file__), 'miniwob_revision': git(options.miniwob),
+    manifest = {'umbra_revision': git(REPO), 'binary_sha256': digest(binaries.get('candidate', binaries.get('umbra'))),
+                'harness_sha256': digest(__file__), 'arms': arms, 'binaries': binaries,
+                'binary_hashes': {arm: digest(path) for arm, path in binaries.items()}, 'miniwob_revision': git(options.miniwob),
                 'browsergym_revision': git(options.browsergym),
                 'source_hashes': {f: digest(Path(options.browsergym) / f) for f in source_files},
                 'metadata_sha256': digest(metadata), 'max_actions': 10,
@@ -358,7 +367,8 @@ def freeze(options):
                                 'Timing includes model inference; tool latency logged separately',
                                 'Four concurrent episodes: timing is under shared machine load',
                                 'BrowserGym screenshot scale annotation is not applied by these MCP servers',
-                                'Upstream WebKit rendering can differ from recommended Chromium']}
+                                ('Both arms use Umbra/WebKit; this comparison tests a runtime change' if options.baseline_binary else
+                                 'Upstream WebKit rendering can differ from recommended Chromium')]}
     write(root / 'manifest.json', manifest)
     write(root / 'config.json', vars(options))
     print(f'Frozen {len(cases)} episodes: {len(set(c["task"] for c in cases))} task types x {options.repeats} seeds x 2 arms', flush=True)
@@ -368,8 +378,17 @@ def run(options):
     root = Path(options.out).resolve()
     config = json.loads((root / 'config.json').read_text())
     manifest = json.loads((root / 'manifest.json').read_text())
-    if digest(BINARY) != manifest['binary_sha256'] or digest(__file__) != manifest['harness_sha256']:
+    binaries = manifest.get('binaries', {'umbra': str(BINARY)})
+    hashes = manifest.get('binary_hashes', {'umbra': manifest['binary_sha256']})
+    if any(digest(path) != hashes[arm] for arm, path in binaries.items()) or digest(__file__) != manifest['harness_sha256']:
         raise RuntimeError('binary or harness changed since freeze')
+    for key, revision in [('browsergym', 'browsergym_revision'), ('miniwob', 'miniwob_revision')]:
+        if git(config[key]) != manifest[revision] or subprocess.run(
+                ['git', '-C', config[key], 'diff', '--quiet', 'HEAD']).returncode:
+            raise RuntimeError(f'{key} source changed since freeze')
+    if any(digest(Path(config['browsergym']) / path) != value
+           for path, value in manifest['source_hashes'].items()):
+        raise RuntimeError('upstream grader or benchmark source changed since freeze')
     class Quiet(http.server.SimpleHTTPRequestHandler):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, directory=str(Path(config['miniwob']) / 'miniwob/html'), **kwargs)
@@ -387,6 +406,8 @@ def run(options):
         work.mkdir(exist_ok=True)
         full = {**case, **{k: config[k] for k in ('browsergym', 'playwright_mcp', 'chromium')},
                 'profile': 'external-' + secrets.token_hex(6), 'base': base, 'max_actions': manifest['max_actions']}
+        if case.get('backend', case['arm']) == 'umbra':
+            full['binary'] = binaries[case['arm']]
         write(work / 'case.json', full)
         script = str(Path(__file__).resolve())
         prompt = ('Use only the browser MCP tools to complete the task already loaded in the browser. '
@@ -408,7 +429,9 @@ def run(options):
                 '-c', 'mcp_servers.browser.startup_timeout_sec=90',
                 '-c', 'features.skip_host_skill_discovery=true']
         for feature in ('shell_tool', 'apps', 'plugins', 'browser_use', 'computer_use',
-                        'multi_agent', 'image_generation', 'view_image', 'skill_search'):
+                        'multi_agent', 'image_generation', 'view_image', 'skill_search',
+                        'memories', 'hooks', 'goals', 'in_app_browser',
+                        'browser_use_external', 'standalone_web_search'):
             args += ['--disable', feature]
         args += [prompt]
         write(work / 'invocation.json', {'argv': args, 'prompt': prompt})
@@ -456,8 +479,8 @@ def run(options):
                 os.kill(pid, signal.SIGKILL)
             except ProcessLookupError:
                 pass
-        if case['arm'] == 'umbra':
-            clean = cleanup(full['profile'], env)
+        if case.get('backend', case['arm']) == 'umbra':
+            clean = cleanup(full['profile'], {**env, 'UMBRA_EVAL_BINARY': full['binary']})
         else:
             shutil.rmtree(work / 'chrome', ignore_errors=True)
             clean = not (work / 'chrome').exists()
@@ -488,7 +511,7 @@ def summarize(root):
                 row[filename.removesuffix('.json')] = json.loads((work / filename).read_text())
         rows.append(row)
     write(root / 'results.json', rows)
-    for arm in ('umbra', 'playwright'):
+    for arm in manifest.get('arms', ['umbra', 'playwright']):
         group = [r for r in rows if r['arm'] == arm]
         success = sum(bool(r.get('score', {}).get('browsergym_success')) for r in group)
         complete = sum('run' in r for r in group)
@@ -502,6 +525,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['freeze', 'run', 'report'])
     parser.add_argument('--out', required=True)
+    parser.add_argument('--umbra-binary', help='Explicit Umbra executable to freeze')
+    parser.add_argument('--baseline-binary', help='Compare this Umbra baseline with --umbra-binary instead of Playwright')
     parser.add_argument('--browsergym')
     parser.add_argument('--miniwob')
     parser.add_argument('--playwright-mcp')

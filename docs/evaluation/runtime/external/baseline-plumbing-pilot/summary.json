@@ -1,0 +1,71 @@
+{
+  "baseline": {
+    "episodes": 2,
+    "finished": 2,
+    "successes": 2,
+    "strict_successes": 2,
+    "failures": {},
+    "cleanup_failures": 0,
+    "trace_violations": 0,
+    "episode_seconds": {
+      "n": 2,
+      "p50": 18.050351645972114,
+      "p95": 19.009750502096722
+    },
+    "tool_seconds": {
+      "n": 6,
+      "p50": 0.019557103980332613,
+      "p95": 0.1219699269568082
+    },
+    "tokens": {
+      "input_tokens": 170052,
+      "cached_input_tokens": 128896,
+      "output_tokens": 355
+    }
+  },
+  "candidate": {
+    "episodes": 2,
+    "finished": 2,
+    "successes": 2,
+    "strict_successes": 2,
+    "failures": {},
+    "cleanup_failures": 0,
+    "trace_violations": 0,
+    "episode_seconds": {
+      "n": 2,
+      "p50": 20.548629771044943,
+      "p95": 22.57596630246262
+    },
+    "tool_seconds": {
+      "n": 7,
+      "p50": 0.03109541698358953,
+      "p95": 0.04407995868241414
+    },
+    "tokens": {
+      "input_tokens": 176689,
+      "cached_input_tokens": 137088,
+      "output_tokens": 348
+    }
+  },
+  "paired_difference": {
+    "accepted_success": {
+      "candidate_minus_baseline": 0.0,
+      "task_cluster_95pct_ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "strict_success": {
+      "candidate_minus_baseline": 0.0,
+      "task_cluster_95pct_ci": [
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "complete": true,
+  "full_standard_campaign": false,
+  "distinct_binaries": false,
+  "observed_no_success_regression": false,
+  "interpretation": "Observed aggregate score comparison only. A nonnegative difference does not prove statistical noninferiority, per-task equivalence or reliability outside this frozen suite."
+}

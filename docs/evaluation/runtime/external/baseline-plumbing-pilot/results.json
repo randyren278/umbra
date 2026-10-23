@@ -1,0 +1,219 @@
+[
+  {
+    "task": "miniwob.click-test-2",
+    "seed": 31,
+    "repeat": 0,
+    "arm": "candidate",
+    "backend": "umbra",
+    "split": "train",
+    "run": {
+      "exit": 0,
+      "seconds": 22.801225917064585
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.985052,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 1,
+      "observations": 1,
+      "seconds": 14.926626332919113
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 4,
+    "tool_seconds": [
+      0.046133833937346935,
+      0.039287583087570965,
+      0.0014370420249179006
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 1,
+    "usage": {
+      "input_tokens": 88339,
+      "cached_input_tokens": 72448,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 168,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.click-test-2",
+    "seed": 31,
+    "repeat": 0,
+    "arm": "baseline",
+    "backend": "umbra",
+    "split": "train",
+    "run": {
+      "exit": 0,
+      "seconds": 16.984352916944772
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.989121,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 1,
+      "observations": 1,
+      "seconds": 10.84824445808772
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 3,
+    "tool_seconds": [
+      0.021494749933481216,
+      0.016851249965839088
+    ],
+    "tool_errors": 0,
+    "unbatched_interaction_units": 1,
+    "usage": {
+      "input_tokens": 81714,
+      "cached_input_tokens": 56576,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 179,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.enter-text",
+    "seed": 0,
+    "repeat": 0,
+    "arm": "baseline",
+    "backend": "umbra",
+    "split": "train",
+    "run": {
+      "exit": 0,
+      "seconds": 19.116350374999456
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.988378,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 2,
+      "observations": 1,
+      "seconds": 11.582247707992792
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 5,
+    "tool_seconds": [
+      0.01761945802718401,
+      0.049986957921646535,
+      0.14596424996852875,
+      0.0013740829890593886
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 2,
+    "usage": {
+      "input_tokens": 88338,
+      "cached_input_tokens": 72320,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 176,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  },
+  {
+    "task": "miniwob.enter-text",
+    "seed": 0,
+    "repeat": 0,
+    "arm": "candidate",
+    "backend": "umbra",
+    "split": "train",
+    "run": {
+      "exit": 0,
+      "seconds": 18.296033625025302
+    },
+    "score": {
+      "reward": 1.0,
+      "done": true,
+      "info": {
+        "REWARD_GLOBAL": 0.989604,
+        "RAW_REWARD_GLOBAL": 1,
+        "REWARD_REASON": null,
+        "DONE_GLOBAL": true,
+        "EPISODE_ID": 1,
+        "TASK_READY": true
+      },
+      "strict_success": true,
+      "browsergym_success": true,
+      "actions": 2,
+      "observations": 1,
+      "seconds": 10.370987875037827
+    },
+    "cleanup": {
+      "clean": true,
+      "parent_verified": true
+    },
+    "calls": 5,
+    "tool_seconds": [
+      0.014140082988888025,
+      0.03766116697806865,
+      0.03109541698358953,
+      0.00204149994533509
+    ],
+    "tool_errors": 1,
+    "unbatched_interaction_units": 2,
+    "usage": {
+      "input_tokens": 88350,
+      "cached_input_tokens": 64640,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 180,
+      "reasoning_output_tokens": 0
+    },
+    "trace_violations": [],
+    "accepted_success": true,
+    "strict_success": true,
+    "unbatched_budget_positive": true,
+    "unbatched_budget_strict": true,
+    "failure": null
+  }
+]
