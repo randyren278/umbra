@@ -1,0 +1,99 @@
+{
+  "baseRevision": "1ca605e686f2c766d6d049f244c48406559e6a50",
+  "worktree": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure",
+  "fullPatch": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure-v4.patch",
+  "fullPatchSha256": "85540ab0204748ca53a4eb9613df24070bd0b25c59f04811e681cefdd80cea36",
+  "incrementalOverV3": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-delivery-grace.patch",
+  "incrementalSha256": "e6ab29e79de817d4a8ed95a2a70250c472f2c97e6a41f8c5f406254b9927e8b6",
+  "files": {
+    "Sources/Server.swift": "596206ba6a50ca336929466b8af92650dd748cd92e6af7b747bab3a112c53ee5",
+    "Sources/MCP.swift": "3d87a746928a3b8a273d06c1a1bd883a7b58e35c8f8b056c102a009a089947f2",
+    "Sources/main.swift": "bc557e59ae6a24a488bc3d8b4292eee64a78d5912989445b019543a2eb1db4fb",
+    "tests/test_transport_pressure.py": "bf20e0ad1d7361440c05ab908fe99233466d5a7cac46fa47cda1af8838f4f31e",
+    "build/Umbra.app/Contents/MacOS/umbra": "1987c7361dd6aa3b148a93dd9c3e290b1c4b594c02c4c433298185ee6003d3aa"
+  },
+  "cause": "Runtime cannot emit its authoritative deadline error until execution deadlineD fires, then onFinish/onCancel and UI cleanup run before serialization/write. Client previously stopped at exactlyD, racing and replacing the meaningful server error with a generic transport timeout.",
+  "contract": {
+    "execution": "Original valid supplied timeout/absolute deadline remainsD on the wire. Connection/retry/startup admission budget staysD.",
+    "delivery": "Only connected reply waiting gets one uniform fixed delivery cutoffD+100ms. It is never reset across partial chunks or MCP readiness/actual call because both retain the originalD.",
+    "failure": "A complete failure reply received byD+100ms is returned unchanged, preserving command diagnostics and cleanup acknowledgment. No command-specific formatting is fabricated by transport.",
+    "success": "A complete successful reply must arrive with its newline byD; later success is rejected conservatively because protocol has no authoritative server completion timestamp.",
+    "cutoff": "All complete replies must have receivedAt<=D+100ms before decoding; blocked or partial peers beyond it get generic deadline2.",
+    "uncertainty": "Rejected late success does not establish whether an action occurred, and can reject an operation completed beforeD but delivered late. No automatic retry or client-side cancellation was added.",
+    "limits": "This bounds connection/reply waiting, not a hard whole-call wall-clock proof: existing blocking writeAll is unchanged. No-explicit-budget blocking-read policy is unchanged."
+  },
+  "checksLatestSource": {
+    "build": "make build succeeded; transport-pressure-build-v5.log",
+    "diffCheck": "git diff --check passed, full patch bytes match current diff; incremental checked over reconstructedv3 source",
+    "uniqueTests": 21,
+    "allPassed": true,
+    "suites": {
+      "transportAndDeadline": 13,
+      "exactOriginalSignInWindowCases": 3,
+      "existingMCP": 5
+    },
+    "logs": [
+      "transport-delivery-grace-tests.log",
+      "transport-delivery-signin-tests.log",
+      "transport-delivery-mcp-tests.log"
+    ],
+    "repeats": {
+      "tests": 18,
+      "allPassed": true,
+      "includes": "all13transport tests plus5unchanged256held/cancel MCP capacity runs",
+      "log": "transport-delivery-final-repeat.log"
+    },
+    "cleanup": {
+      "profiles": [
+        "test-12ffac76-0",
+        "test-12ffac76-1",
+        "test-12ffac76-2",
+        "test-12ffac76-3",
+        "test-12ffac76-4",
+        "test-12ffac76-5",
+        "test-12ffac76-6",
+        "test-12ffac76-7",
+        "test-12ffac76-8",
+        "test-12ffac76-9",
+        "test-12ffac76-10",
+        "test-12ffac76-11",
+        "test-12ffac76-12",
+        "test-12ffac76-13",
+        "test-12ffac76-14",
+        "test-12ffac76-15",
+        "test-12ffac76-16",
+        "test-12ffac76-17",
+        "test-12ffac76-18",
+        "test-12ffac76-19",
+        "test-12ffac76-20",
+        "test-12ffac76-21",
+        "test-12ffac76-22",
+        "test-12ffac76-23",
+        "test-12ffac76-24",
+        "test-12ffac76-25"
+      ],
+      "daemonsGone": true,
+      "profileFilesGone": true
+    }
+  },
+  "beforeEvidence": {
+    "exactSignIn": {
+      "binary": "frozen-candidate-v4/Umbra.app/Contents/MacOS/umbra",
+      "cases": 3,
+      "failures": 3,
+      "log": "transport-delivery-signin-baseline.log"
+    },
+    "graceContracts": {
+      "cases": 3,
+      "failures": 2,
+      "lateSuccessNegativeAlreadyPassed": true,
+      "log": "transport-delivery-grace-baseline.log"
+    },
+    "earlierReceipts": [
+      "transport-pressure-result.json",
+      "transport-pressure-result-v3.json"
+    ]
+  },
+  "independentReview": "auth_cancel confirmed Runtime cleanup ordering and shared MCP deadline; identified and verified the uniform receivedAt delivery-cutoff guard.",
+  "integration": "Root owns documentation and final combined full-suite/performance. Document the execution-vs-delivery distinction and conservative late-success uncertainty. Existing test assertions were not loosened. No default profile/install/public site/commit/push touched."
+}

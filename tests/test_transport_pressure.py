@@ -15,6 +15,93 @@ from server import Server
 
 
 class TransportPressureTests(unittest.TestCase):
+    def test_authoritative_failure_can_arrive_during_delivery_grace(self):
+        profile = base.new_profile()
+        path = base.LOCKS / f'daemon-{profile}.sock'
+        listener = socket.socket(socket.AF_UNIX)
+        listener.bind(str(path)); listener.listen(1); listener.settimeout(2)
+        process = timer = None
+        try:
+            process = base.spawn('eval', 'return 7', '--json', '--timeout', '.12', profile=profile)
+            conn, request = self.receive(listener)
+            conn.sendall(b'{"ok":false,"error":')
+            def finish():
+                try:
+                    conn.sendall(b'{"code":2,"message":"fixture execution deadline settled"}}\n')
+                except OSError:
+                    pass
+                finally:
+                    conn.close()
+            timer = threading.Timer(max(0, request['args']['deadline'] - time.time() + .04), finish)
+            timer.start()
+            out, err = process.communicate(timeout=2)
+            self.assertEqual(process.returncode, 2, (out, err))
+            self.assertEqual(json.loads(err)['error']['message'], 'fixture execution deadline settled')
+        finally:
+            if timer:
+                timer.join(1)
+            listener.close()
+            if process and process.poll() is None:
+                process.kill(); process.wait()
+            base.stop_daemons([profile]); path.unlink(missing_ok=True)
+
+    def test_success_newline_after_execution_deadline_is_rejected(self):
+        for partial in (False, True):
+            with self.subTest(partial=partial):
+                profile = base.new_profile()
+                path = base.LOCKS / f'daemon-{profile}.sock'
+                listener = socket.socket(socket.AF_UNIX)
+                listener.bind(str(path)); listener.listen(1); listener.settimeout(2)
+                process = timer = None
+                try:
+                    process = base.spawn('eval', 'return 7', '--json', '--timeout', '.12', profile=profile)
+                    conn, request = self.receive(listener)
+                    if partial:
+                        conn.sendall(b'{"ok":true,"result":{"value":7}}')
+                    def finish():
+                        try:
+                            conn.sendall(b'\n' if partial else b'{"ok":true,"result":{"value":7}}\n')
+                        except OSError:
+                            pass
+                        finally:
+                            conn.close()
+                    timer = threading.Timer(max(0, request['args']['deadline'] - time.time() + .04), finish)
+                    timer.start()
+                    out, err = process.communicate(timeout=2)
+                    self.assertEqual(process.returncode, 2, (out, err))
+                    self.assertIn('deadline', json.loads(err)['error']['message'])
+                finally:
+                    if timer:
+                        timer.join(1)
+                    listener.close()
+                    if process and process.poll() is None:
+                        process.kill(); process.wait()
+                    base.stop_daemons([profile]); path.unlink(missing_ok=True)
+
+    def test_unfinished_reply_is_bounded_by_fixed_delivery_grace(self):
+        profile = base.new_profile()
+        path = base.LOCKS / f'daemon-{profile}.sock'
+        listener = socket.socket(socket.AF_UNIX)
+        listener.bind(str(path)); listener.listen(1); listener.settimeout(2)
+        process = conn = None
+        try:
+            process = base.spawn('eval', 'return 7', '--json', '--timeout', '.12', profile=profile)
+            conn, request = self.receive(listener)
+            conn.sendall(b'{"ok":false,"error":')
+            out, err = process.communicate(timeout=2)
+            returned = time.time() - request['args']['deadline']
+            self.assertEqual(process.returncode, 2, (out, err))
+            self.assertGreaterEqual(returned, .09)
+            self.assertLess(returned, .2)
+            self.assertIn('deadline', json.loads(err)['error']['message'])
+        finally:
+            if conn:
+                conn.close()
+            listener.close()
+            if process and process.poll() is None:
+                process.kill(); process.wait()
+            base.stop_daemons([profile]); path.unlink(missing_ok=True)
+
     def delayed_reply(self, conn, delay):
         conn.sendall(b'{"ok":true,"result":')
         def finish():

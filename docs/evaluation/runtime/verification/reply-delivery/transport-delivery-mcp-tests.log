@@ -1,0 +1,10 @@
+test_cancel_queued_mutation_never_runs_and_id_is_reusable (__main__.MCPRuntimeTests.test_cancel_queued_mutation_never_runs_and_id_is_reusable) ... ok
+test_duplicate_active_id_is_rejected_without_replacing_original (__main__.MCPRuntimeTests.test_duplicate_active_id_is_rejected_without_replacing_original) ... ok
+test_immediate_cancel_prevents_dispatch_even_in_burst (__main__.MCPRuntimeTests.test_immediate_cancel_prevents_dispatch_even_in_burst) ... ok
+test_numeric_and_string_ids_are_distinct_and_matching_owner_cancels (__main__.MCPRuntimeTests.test_numeric_and_string_ids_are_distinct_and_matching_owner_cancels) ... ok
+test_cancelled_calls_keep_worker_capacity_until_transport_returns (__main__.MCPWorkerBudgetTests.test_cancelled_calls_keep_worker_capacity_until_transport_returns) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 6.514s
+
+OK

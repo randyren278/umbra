@@ -1,0 +1,8 @@
+test_no_sign_in_in_time_hides_the_window_again (__main__.SignInWindowTests.test_no_sign_in_in_time_hides_the_window_again) ... ok
+test_request_deadline_during_auth_check_never_opens_a_late_prompt (__main__.SignInWindowTests.test_request_deadline_during_auth_check_never_opens_a_late_prompt) ... ok
+test_request_deadline_hides_its_named_sign_in_prompt (__main__.SignInWindowTests.test_request_deadline_hides_its_named_sign_in_prompt) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 12.538s
+
+OK

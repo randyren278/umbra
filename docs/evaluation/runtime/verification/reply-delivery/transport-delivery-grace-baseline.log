@@ -1,0 +1,29 @@
+test_authoritative_failure_can_arrive_during_delivery_grace (__main__.TransportPressureTests.test_authoritative_failure_can_arrive_during_delivery_grace) ... FAIL
+test_success_newline_after_execution_deadline_is_rejected (__main__.TransportPressureTests.test_success_newline_after_execution_deadline_is_rejected) ... ok
+test_unfinished_reply_is_bounded_by_fixed_delivery_grace (__main__.TransportPressureTests.test_unfinished_reply_is_bounded_by_fixed_delivery_grace) ... FAIL
+
+======================================================================
+FAIL: test_authoritative_failure_can_arrive_during_delivery_grace (__main__.TransportPressureTests.test_authoritative_failure_can_arrive_during_delivery_grace)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure/tests/test_transport_pressure.py", line 39, in test_authoritative_failure_can_arrive_during_delivery_grace
+    self.assertEqual(json.loads(err)['error']['message'], 'fixture execution deadline settled')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'request deadline elapsed while waiting for daemon reply' != 'fixture execution deadline settled'
+- request deadline elapsed while waiting for daemon reply
++ fixture execution deadline settled
+
+
+======================================================================
+FAIL: test_unfinished_reply_is_bounded_by_fixed_delivery_grace (__main__.TransportPressureTests.test_unfinished_reply_is_bounded_by_fixed_delivery_grace)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure/tests/test_transport_pressure.py", line 94, in test_unfinished_reply_is_bounded_by_fixed_delivery_grace
+    self.assertGreaterEqual(returned, .09)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 0.011924982070922852 not greater than or equal to 0.09
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.244s
+
+FAILED (failures=2)

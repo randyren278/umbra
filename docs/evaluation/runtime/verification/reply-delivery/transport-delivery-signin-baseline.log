@@ -1,0 +1,44 @@
+test_no_sign_in_in_time_hides_the_window_again (__main__.SignInWindowTests.test_no_sign_in_in_time_hides_the_window_again) ... FAIL
+test_request_deadline_during_auth_check_never_opens_a_late_prompt (__main__.SignInWindowTests.test_request_deadline_during_auth_check_never_opens_a_late_prompt) ... FAIL
+test_request_deadline_hides_its_named_sign_in_prompt (__main__.SignInWindowTests.test_request_deadline_hides_its_named_sign_in_prompt) ... FAIL
+
+======================================================================
+FAIL: test_no_sign_in_in_time_hides_the_window_again (__main__.SignInWindowTests.test_no_sign_in_in_time_hides_the_window_again)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure/tests/test_daemon.py", line 1185, in test_no_sign_in_in_time_hides_the_window_again
+    self.assertSays(r, 'Never')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure/tests/test_umbra.py", line 228, in assertSays
+    self.assertIn(fact, result.err)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 'Never' not found in 'request deadline elapsed while waiting for daemon reply\n'
+
+======================================================================
+FAIL: test_request_deadline_during_auth_check_never_opens_a_late_prompt (__main__.SignInWindowTests.test_request_deadline_during_auth_check_never_opens_a_late_prompt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure/tests/test_daemon.py", line 1110, in test_request_deadline_during_auth_check_never_opens_a_late_prompt
+    self.assertSays(r, 'Slow', 'request deadline')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure/tests/test_umbra.py", line 228, in assertSays
+    self.assertIn(fact, result.err)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 'Slow' not found in 'request deadline elapsed while waiting for daemon reply\n'
+
+======================================================================
+FAIL: test_request_deadline_hides_its_named_sign_in_prompt (__main__.SignInWindowTests.test_request_deadline_hides_its_named_sign_in_prompt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure/tests/test_daemon.py", line 1094, in test_request_deadline_hides_its_named_sign_in_prompt
+    self.assertSays(r, 'Never', 'request deadline')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure/tests/test_umbra.py", line 228, in assertSays
+    self.assertIn(fact, result.err)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 'Never' not found in 'request deadline elapsed while waiting for daemon reply\n'
+
+----------------------------------------------------------------------
+Ran 3 tests in 7.415s
+
+FAILED (failures=3)

@@ -333,11 +333,13 @@ func call(_ command: String, _ args: [String: Any], spawn: Bool = true) -> Resul
     var values = args
     if requestUntil != .distantFuture { values["deadline"] = requestUntil.timeIntervalSince1970 }
     writeAll(fd, line(["id": 1, "command": command, "args": values]))
+    // Deadline failures get 100 ms for cleanup and delivery; execution is not extended.
+    let replyUntil = requestUntil == .distantFuture ? requestUntil : requestUntil.addingTimeInterval(0.1)
     var buffer = Data()
     var chunk = [UInt8](repeating: 0, count: 65536)
     while true {  // a reply can be megabytes (screenshots): look for the newline in new bytes only
         if requestUntil != .distantFuture {
-            let remaining = requestUntil.timeIntervalSinceNow
+            let remaining = replyUntil.timeIntervalSinceNow
             guard remaining > 0 else { return elapsed("while waiting for daemon reply") }
             var ready = pollfd(fd: fd, events: Int16(POLLIN), revents: 0)
             let count = poll(&ready, 1, Int32(min(ceil(remaining * 1000), Double(Int32.max))))
@@ -349,10 +351,15 @@ func call(_ command: String, _ args: [String: Any], spawn: Bool = true) -> Resul
         buffer.append(chunk, count: count)
         if chunk[..<count].contains(10) { break }
     }
+    let receivedAt = Date()
+    guard receivedAt <= replyUntil else { return elapsed("while waiting for daemon reply") }
     guard let reply = try? JSONSerialization.jsonObject(with: buffer) as? [String: Any] else {
         return .failure(UmbraError(1, "unreadable reply from Umbra's daemon"))
     }
-    if reply["ok"] as? Bool == true { return .success(reply["result"] as? [String: Any] ?? [:]) }
+    if reply["ok"] as? Bool == true {
+        guard receivedAt <= requestUntil else { return elapsed("while waiting for daemon reply") }
+        return .success(reply["result"] as? [String: Any] ?? [:])
+    }
     let error = reply["error"] as? [String: Any]
     return .failure(UmbraError(Int32(error?["code"] as? Int ?? 1), error?["message"] as? String ?? "failed", details: error ?? [:]))
 }
