@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "name": "umbra-runtime-mixed-v1",
+  "frozen_before_candidate": true,
+  "task_order": [
+    "static_html",
+    "json_api",
+    "javascript_dom",
+    "native_form"
+  ],
+  "weights": {
+    "static_html": 1,
+    "json_api": 1,
+    "javascript_dom": 1,
+    "native_form": 1
+  },
+  "concurrency": [
+    1,
+    4,
+    8,
+    16,
+    32
+  ],
+  "repeats": 3,
+  "cycles": 20,
+  "warmup_cycles": 1,
+  "controls": 20,
+  "memory_sample_seconds": 0.25,
+  "rows": 20,
+  "expected": {
+    "rows": 20,
+    "total": 210
+  },
+  "timeout_seconds": 60,
+  "routes": {
+    "matched": "Both binaries use WebKit read for static HTML, fetch for JSON, and identical persistent-tab DOM/native commands.",
+    "public_http": "Baseline uses its read/fetch browser paths. Candidate uses its public http command only for explicitly public static HTML/JSON; DOM/native tasks remain identical. This is product routing, not a pure WebKit engine comparison."
+  },
+  "success": "Every frozen task remains in denominator. Static and JSON content must equal expected data and server must receive its unique request token. DOM task must read JS-computed total and row count. Native task requires trusted input/click events, exact field/output state and a matching successful server receipt.",
+  "claims": "Raw bytes are not tokenizer counts. Whole-family physical footprint includes daemon and responsibility-associated WebKit/GPU/network processes. Throughput per GiB is descriptive; the 2x same-RAM gate additionally requires both arms within the same declared memory budget. Custom localhost tasks are regression/performance evidence, not independent agent benchmark success."
+}

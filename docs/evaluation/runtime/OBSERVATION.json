@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "name": "observation-journey-v1",
+  "frozenUTC": "2026-10-23T07:05:52Z",
+  "rounds": 3,
+  "statesPerRound": [
+    "native-fill",
+    "native-submit-and-server-receipt",
+    "public-static-html-json-and-javascript-dom-read-bundle",
+    "native-clear-field"
+  ],
+  "navigationResets": "navigate to fresh fixture app after every round, including final round; require full fallback against previous document baseline",
+  "expectedObservationStates": 16,
+  "expectedDOMActionReadStates": 12,
+  "expectedNavigationResets": 3,
+  "initialState": "initial full observation counted in both strategies",
+  "transports": [
+    "python-sdk-raw-result",
+    "cli-json-without-human-text",
+    "mcp-tool-result"
+  ],
+  "capture": "At every state obtain forced full and delta-since-previous-state responses through each actual transport. Keep independent previous baseline for each transport; no mutation occurs between paired observations. Compare exact reconstructed snapshot text, ordered ref IDs, refs count, URL, title, truncation/depth metadata and document ID; mode/full reset metadata retained. Count initial and reset full responses in aggregate denominator.",
+  "tokenizer": {
+    "package": "tiktoken",
+    "version": "0.12.0",
+    "encoding": "o200k_base",
+    "serialization": "canonical compact sorted JSON of actual consumer result payload; text token counts also retained",
+    "scope": "fixed-encoding observation response tokens only; no GPT-6 billing-tokenizer or whole-agent end-to-end token claim"
+  },
+  "gate": "All 16 states and3navigation resets succeed semantically and reconstruct per transport; aggregate delta strategy tokens <=50% forced-full strategy tokens. Report every transport separately; do not infer one transport from another. Retain per-state and aggregate full/delta token and byte totals, modes, changed/reset counts, raw outputs, failures and cleanup.",
+  "taskSemantics": "Each round validates public HTML payload, JSON payload and matching server tokens, JS-computed DOM totals, native trusted fill/click and exactly one successful server receipt. Public read bundle uses candidate public_http route.",
+  "workloadSha256": "bd536999c3efca63a69c02160bf2122597a05970f9a711d912d8c6cd936d8318"
+}

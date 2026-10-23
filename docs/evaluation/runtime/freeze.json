@@ -1,0 +1,6 @@
+{
+  "createdUTC": "2026-10-23T06:17:24Z",
+  "workloadSha256": "bd536999c3efca63a69c02160bf2122597a05970f9a711d912d8c6cd936d8318",
+  "candidateSha256": null,
+  "status": "Workload frozen before candidate selection. Candidate hash must be supplied by lead. Baseline pilot is plumbing only; no comparative claims."
+}

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "name": "secondary-common-admission-v1",
+  "frozenUTC": "2026-10-23T06:30:54Z",
+  "classification": "Secondary fixed-RAM experiment; primary frozen workload and routes unchanged",
+  "hardBudgetBytes": 2147483648,
+  "admissionWatermarkBytes": 1610612736,
+  "reservationBytes": 134217728,
+  "admissionTimeoutSeconds": 180,
+  "cellTimeoutSeconds": 900,
+  "keepaliveIntervalSeconds": 15,
+  "keepaliveReservedBytes": 134217728,
+  "method": "Identical admission policy in baseline and candidate. Gate setup/tab creation, warmup and measured tasks and controls. Immediately sample the whole responsibility family under the controller lock before admission. Admit only when fresh footprint plus all outstanding reservations plus one 128 MiB task reservation is at most 1536 MiB. Sample before releasing completed reservations. Include all admission waits in task latency and cell throughput time. One serial keepalive worker owns a permanent 128 MiB reservation, samples before/after each eval(return 1), visits existing worker tabs every 15 seconds, and remains included in wall time, commands, family CPU and memory. Abort at 2048 MiB, sampler failure, 180-second admission timeout, 900-second cell deadline or keepalive failure. Preserve failed/uncompleted tasks in denominator. Never reduce worker or physical tab count to fit. If setup cannot fit, the cell is ineligible. No passing subset establishes the full-matrix target.",
+  "workloadSha256": "bd536999c3efca63a69c02160bf2122597a05970f9a711d912d8c6cd936d8318"
+}

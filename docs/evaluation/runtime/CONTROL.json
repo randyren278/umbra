@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "name": "matched-load-control-and-runtime-grid-v1",
+  "frozenUTC": "2026-10-23T06:36:55Z",
+  "control": {
+    "command": "eval return 1",
+    "tab": "existing worker-0; independent persistent client; no extra browser tab",
+    "cadenceSeconds": 0.1,
+    "missedSlots": "skip; never issue catch-up bursts",
+    "window": "start with measured worker dispatch; stop after workers finish; include completion of an in-flight control in active wall time",
+    "secondary": "control requests use the same 128 MiB admission reservation",
+    "timing": "record scheduled/start/end monotonic timestamps; loaded latency includes admission and same-tab serialization; idle socket/CLI controls remain separately labeled",
+    "gate": "every probe succeeds and candidate loaded-control p95 <=1.10*baseline; retain sample counts and raw values; do not infer loaded latency from idle controls"
+  },
+  "runtimeGrid": {
+    "concurrency": [
+      1,
+      4,
+      8,
+      16,
+      32
+    ],
+    "scope": "candidate-only semantic phase outside performance windows; separate fresh profile at every level",
+    "ownership": "one leased tab per actor, matching agent/task; reject a wrong-owner mutation and verify no mutation occurred",
+    "fairness": "3 rounds per actor, 50ms asynchronous owned eval increment; every actor completes3; deadline10seconds, maximum per-command latency5seconds; record progress order, time since own last completion and counters",
+    "cancellation": "at every level: owned running wait false; queued mutation behind it; reject wrong-owner cancellation; cancel queued request by ID; cancel running wait by ID; verify cancellation results and zero mutation, then each owner can progress",
+    "resources": "same 2048 MiB whole-family abort guard; preserve full per-level errors, ownership checks, cancellation receipts, fairness records, runtime metrics and cleanup; ineligible resource-aborted levels remain failures"
+  },
+  "workloadSha256": "bd536999c3efca63a69c02160bf2122597a05970f9a711d912d8c6cd936d8318"
+}
