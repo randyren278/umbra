@@ -1,0 +1,41 @@
+{
+  "version": "0.3.0",
+  "build": "3",
+  "installedPath": "/Users/randyren/Applications/Umbra.app",
+  "cliLink": "/Users/randyren/.local/bin/umbra",
+  "previousVersion": "0.2.0",
+  "previousBuild": "2",
+  "previousDaemonPid": 87638,
+  "runningDaemonPid": 76880,
+  "oldDaemonStopped": true,
+  "runningCDHash": "9a6be447c7c4b72a577901627b7a954b26ded9f0",
+  "installedCDHash": "9a6be447c7c4b72a577901627b7a954b26ded9f0",
+  "runningSignatureMatchesInstalledBuild": true,
+  "binarySha256": "c66f2285b6b220edc6cb98cbffb7c3424afc3018c8926b792584ee8a297b9640",
+  "iconSha256": "28514909fc2cf517ba99083a9a346cd872cf6efdfdb30894044dfd352aab1c5d",
+  "releaseArchiveSha256": "cf678379cdae10d671405f6ca3d23cb85ee3ac737e4b2a24d2e5e26d5767dc8b",
+  "bundleSignatureValid": true,
+  "releaseSignatureValid": true,
+  "ownerStoreNamespaceUnchanged": true,
+  "ownerStoreDirectoryPresent": true,
+  "signedInDataNotReadOrDeleted": true,
+  "runtimeResponds": true,
+  "preInstallCliTests": 4,
+  "preInstallSmokeChecks": 17,
+  "independentReview": "No blocking findings; checked UMBRA_PROFILE handling, daemon restart and legacy MCP transports.",
+  "legacyMCPTransports": "Pre-existing stdio connections retain their older client code until the host reconnects; no active agent connection was killed.",
+  "verifiedUTC": "2026-10-23T21:11:41.313705+00:00",
+  "installedClientSmoke": {
+    "cliVersion": "umbra 0.3.0",
+    "openFillClickObserveReadPassed": true,
+    "state": {
+      "saved": "UPGRADE-VERIFIED",
+      "title": "Installed Umbra verification",
+      "value": "UPGRADE-VERIFIED"
+    },
+    "mcpServerVersion": "0.3.0",
+    "mcpRuntimeToolsAvailable": true,
+    "daemonGone": true,
+    "profileFilesGone": true
+  }
+}

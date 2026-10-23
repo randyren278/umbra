@@ -2,10 +2,11 @@
 
 All notable changes to Umbra are recorded here. Versions follow [Semantic Versioning](https://semver.org).
 
-## Unreleased
+## 0.3.0 - 2026-10-23
 
 ### Changed
 
+- The bundled app icon now matches the blue/violet artwork. Asset validation rejects stale icon sources or packaged icon bytes.
 - The sign-in window is a way to sign in, not a way to browse. It lists each site and whether it is signed in without loading any page. For a site it can check, it shows the login page only to sign in and closes it the moment the sign-in lands, before the signed-in site renders; a one-off URL or an added account's first sign-in stays open until Done.
 - The daemon shows the sign-in window, so other commands keep working while a person signs in; `umbra sign-in` no longer stops the daemon. Opening Umbra.app shows the window even while the daemon runs (macOS hands the launch to it). The window comes with a Dock icon and a menu bar; Quit closes the window and leaves the daemon running.
 <!-- umbra-figure: changelog-facts-4c9eb1aa75 -->
@@ -26,6 +27,7 @@ All notable changes to Umbra are recorded here. Versions follow [Semantic Versio
 
 ### Added
 
+- Shared runtime scheduling, tab ownership, deadlines and cancellation; incremental observations, typed DOM extraction, checked batches and resumable workflow checkpoints. See the [runtime guide](docs/runtime/README.md).
 - The sign-in window, redrawn for macOS 26: one Liquid Glass card of sites with each site's own logo, a status column (Signed in, Signed out, or Couldn't check with its reason), and Keep Signed In, Check Again and Sign Out… in each row's … menu. A login page opens under a toolbar with Done or a back button. On macOS 14 and 15 the same layout draws without glass.
 <!-- umbra-figure: changelog-facts-b933b0146f -->
 <picture>
