@@ -1,0 +1,48 @@
+test_connected_reply_wait_keeps_timeout_and_absolute_deadline (__main__.TransportPressureTests.test_connected_reply_wait_keeps_timeout_and_absolute_deadline) ... 
+  test_connected_reply_wait_keeps_timeout_and_absolute_deadline (__main__.TransportPressureTests.test_connected_reply_wait_keeps_timeout_and_absolute_deadline) (option='--timeout') ... FAIL
+  test_connected_reply_wait_keeps_timeout_and_absolute_deadline (__main__.TransportPressureTests.test_connected_reply_wait_keeps_timeout_and_absolute_deadline) (option='--deadline') ... FAIL
+test_mcp_reply_budget_covers_readiness_and_actual_dispatch (__main__.TransportPressureTests.test_mcp_reply_budget_covers_readiness_and_actual_dispatch) ... 
+  test_mcp_reply_budget_covers_readiness_and_actual_dispatch (__main__.TransportPressureTests.test_mcp_reply_budget_covers_readiness_and_actual_dispatch) (stage='runtime') ... FAIL
+  test_mcp_reply_budget_covers_readiness_and_actual_dispatch (__main__.TransportPressureTests.test_mcp_reply_budget_covers_readiness_and_actual_dispatch) (stage='eval') ... FAIL
+test_partial_replies_complete_with_budget_or_no_explicit_budget (__main__.TransportPressureTests.test_partial_replies_complete_with_budget_or_no_explicit_budget) ... ok
+
+======================================================================
+FAIL: test_connected_reply_wait_keeps_timeout_and_absolute_deadline (__main__.TransportPressureTests.test_connected_reply_wait_keeps_timeout_and_absolute_deadline) (option='--timeout')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure/tests/test_transport_pressure.py", line 47, in test_connected_reply_wait_keeps_timeout_and_absolute_deadline
+    self.assertEqual(process.returncode, 2, (out, err))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2 : (b'{\n  "value" : 7\n}\n', b'')
+
+======================================================================
+FAIL: test_connected_reply_wait_keeps_timeout_and_absolute_deadline (__main__.TransportPressureTests.test_connected_reply_wait_keeps_timeout_and_absolute_deadline) (option='--deadline')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure/tests/test_transport_pressure.py", line 47, in test_connected_reply_wait_keeps_timeout_and_absolute_deadline
+    self.assertEqual(process.returncode, 2, (out, err))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2 : (b'{\n  "value" : 7\n}\n', b'')
+
+======================================================================
+FAIL: test_mcp_reply_budget_covers_readiness_and_actual_dispatch (__main__.TransportPressureTests.test_mcp_reply_budget_covers_readiness_and_actual_dispatch) (stage='runtime')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure/tests/test_transport_pressure.py", line 84, in test_mcp_reply_budget_covers_readiness_and_actual_dispatch
+    self.assertLess(time.monotonic() - started, .35)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0.5327404170529917 not less than 0.35
+
+======================================================================
+FAIL: test_mcp_reply_budget_covers_readiness_and_actual_dispatch (__main__.TransportPressureTests.test_mcp_reply_budget_covers_readiness_and_actual_dispatch) (stage='eval')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure/tests/test_transport_pressure.py", line 82, in test_mcp_reply_budget_covers_readiness_and_actual_dispatch
+    self.assertTrue(value.get('isError', False), value)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : {'content': [{'type': 'text', 'text': '{"value":7}'}], 'structuredContent': {'value': 7}}
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.539s
+
+FAILED (failures=4)

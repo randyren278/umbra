@@ -1,0 +1,97 @@
+{
+  "baseRevision": "1ca605e686f2c766d6d049f244c48406559e6a50",
+  "worktree": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure",
+  "fullPatch": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-pressure-v3.patch",
+  "fullPatchSha256": "8ed9de6a328b80bff7516dab80215bca1a56bbc924e848996500f2d667465b01",
+  "incrementalOverV2": "/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/transport-reply-budget.patch",
+  "incrementalSha256": "661b92b6275ebd792551396d41fe594870b5af142a66ac3f0c9c26c36b8d74aa",
+  "files": {
+    "Sources/Server.swift": "02b388d8c694d87f91b6701837be0fbf57cfdf24b55b437585c2c811ff9f2bf9",
+    "Sources/MCP.swift": "3d87a746928a3b8a273d06c1a1bd883a7b58e35c8f8b056c102a009a089947f2",
+    "Sources/main.swift": "bc557e59ae6a24a488bc3d8b4292eee64a78d5912989445b019543a2eb1db4fb",
+    "tests/test_transport_pressure.py": "d5401e9f7ba52c6b0cad246f4d195a58bfacf9e31f048888996a3cb1c5abe4e9",
+    "build/Umbra.app/Contents/MacOS/umbra": "1db5ee1a5206d573241e59acb2037969e2b5a3b4b79c723f2fc970d06f228571"
+  },
+  "rootCause": {
+    "confirmed": "On Darwin a full live UNIX socket accept backlog returns ECONNREFUSED(61). call previously treated every connect failure as daemon absence, spawned a daemon that unlinked/replaced the live fixture socket, and produced the exact no-open-tab error instead of the mock response.",
+    "kernelProbe": "listen(1), first connection succeeded, second immediately failed ECONNREFUSED61. kern.ipc.somaxconn128 caps fixture listen(512), below256concurrent workers.",
+    "exactBaseline": "Frozen candidate v3 deterministic CLI backlog regression failed with exit64/no open tab, same observed whole-suite result; transport-pressure-deterministic-baseline.log.",
+    "uncertainty": "Original whole-suite event did not retain errno; kernel/backlog path is confirmed sufficient to reproduce its exact symptom, not a direct errno capture of that event.",
+    "unmodifiedMockBaseline": "6of6isolated runs passed; full-suite-only failure was not reproduced in quiet unmodified repeats."
+  },
+  "fix": [
+    "Capture local(fd,error) before close can overwrite errno.",
+    "Retry refused/full/interrupted connect failures for at most1s at20ms intervals before spawning; ENOENT remains immediate.",
+    "Bound retry/startup by valid supplied timeout/absolute deadline; never spawn after expiry and forward absolute budget.",
+    "MCP captures valid user budget once on receipt and propagates same absolute deadline through readiness and tool dispatch. Existing cancellation suppression/worker retention unchanged.",
+    "Main context-free read/fetch/download use same bounded probe. Nonblocking store acquisition makes fallback safe from live-daemon/store races; remaining original budget covers probe/store/headless phases.",
+    "Invalid budget fields stay with existing Runtime usage validation, preserving timeout usage error precedence.",
+    "For valid explicit request budgets only, poll before each daemon reply read using the remaining absolute deadline; EINTR/partial reads recompute remaining time, so reply fragments cannot reset the budget.",
+    "No-explicit-budget calls keep their original blocking-read behavior; partial replies that complete within a valid budget still reconstruct exactly."
+  ],
+  "replyBudgetBaseline": {
+    "log": "transport-reply-budget-baseline.log",
+    "tests": 3,
+    "failedAssertions": 4,
+    "observed": "CLI timeout/deadline0.12s returned late success7 after0.5s partial reply; MCP readiness returned deadline failure only after0.533s and actualtool returned late success. Complete partial replies before deadline and no-budget held replies already passed."
+  },
+  "checksLatestSource": {
+    "build": "make build succeeded; transport-pressure-build-v3.log",
+    "diffCheck": "git diff --check passed; complete patch bytes match current git diff",
+    "uniqueTests": 20,
+    "allPassed": true,
+    "suites": {
+      "transport": 10,
+      "existingMCP": 5,
+      "daemonReadFetchDownloadTimeoutCleanup": 5
+    },
+    "logs": [
+      "transport-pressure-tests-v3.log",
+      "transport-pressure-mcp-v3.log",
+      "transport-reply-cleanup-v3.log"
+    ],
+    "repeats": {
+      "tests": 15,
+      "allPassed": true,
+      "includes": "new10 plus5unchanged256held/cancel capacity test runs",
+      "log": "transport-pressure-final-repeat-v3.log"
+    },
+    "cleanup": {
+      "profiles": [
+        "test-56d7e1ec-0",
+        "test-56d7e1ec-1",
+        "test-56d7e1ec-2",
+        "test-56d7e1ec-3",
+        "test-56d7e1ec-4",
+        "test-56d7e1ec-5",
+        "test-56d7e1ec-6",
+        "test-56d7e1ec-7",
+        "test-56d7e1ec-8",
+        "test-56d7e1ec-9",
+        "test-56d7e1ec-10",
+        "test-56d7e1ec-11",
+        "test-56d7e1ec-12",
+        "test-56d7e1ec-13",
+        "test-56d7e1ec-14",
+        "test-56d7e1ec-15",
+        "test-56d7e1ec-16",
+        "test-56d7e1ec-17",
+        "test-56d7e1ec-18",
+        "test-56d7e1ec-19",
+        "test-56d7e1ec-20",
+        "test-56d7e1ec-21"
+      ],
+      "daemonsGone": true,
+      "profileFilesGone": true
+    }
+  },
+  "earlierSourceEvidence": {
+    "receipt": "transport-pressure-result.json",
+    "retained": "25targeted lifecycle/one-shot/store-lock compatibility tests passed before reply-poll addition. Latest source reran timeout/partial-response/MCP paths affected by that addition."
+  },
+  "integrationNeeds": [
+    "Add test_transport_pressure to tests/run.sh explicit suite list.",
+    "Combine with Engine wait optimization and rebuild/freeze before full-suite/performance claims."
+  ],
+  "limits": "No default profile, installed app, public site, commit or push touched. Final combined full-suite/performance remain root-owned. The send path and no-budget default policy are unchanged."
+}

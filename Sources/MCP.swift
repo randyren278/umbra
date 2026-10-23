@@ -105,10 +105,12 @@ private func mcpKey(_ id: Any) -> String {
 private final class MCPCall {
     let request: String
     let owner: [String: Any]
+    let deadline: Date?
     var dispatched = false
     init(_ arguments: [String: Any]) {
         request = arguments["request"] as? String ?? UUID().uuidString.lowercased()
         owner = arguments.filter { ["agent", "task"].contains($0.key) }
+        deadline = requestDeadline(arguments)
     }
 }
 
@@ -224,7 +226,12 @@ func runMCP() -> Never {
                 else {
                     // Establish the daemon before marking dispatch: an earlier cancellation skips
                     // the call; a racing cancellation leaves a bounded tombstone at the daemon.
-                    let ready = call("runtime", [:])
+                    var context: [String: Any] = [:]
+                    if let deadline = pending.deadline {
+                        context["deadline"] = deadline.timeIntervalSince1970
+                        values["deadline"] = deadline.timeIntervalSince1970
+                    }
+                    let ready = call("runtime", context)
                     output.lock()
                     let live = running[key] === pending
                     if live { pending.dispatched = true }

@@ -91,6 +91,22 @@ func stdinText() -> String {
     isatty(STDIN_FILENO) != 0 ? "" : String(decoding: FileHandle.standardInput.readDataToEndOfFile(), as: UTF8.self)
 }
 
+func oneShotTime(_ deadline: Date, _ timeout: Double) -> Double {
+    let remaining = deadline.timeIntervalSinceNow
+    guard remaining > 0 else { fail(2, "no answer in \(duration(timeout))") }
+    return remaining
+}
+
+func oneShotDaemon(_ deadline: Date, _ timeout: Double) -> Bool {
+    while true {
+        _ = oneShotTime(deadline, timeout)
+        if let fd = connectDaemon(until: deadline) { close(fd); return true }
+        _ = oneShotTime(deadline, timeout)
+        if takeLock(wait: false) != nil { return false }
+        usleep(useconds_t(min(0.02, oneShotTime(deadline, timeout)) * 1_000_000))
+    }
+}
+
 /// Prints a daemon reply the way the CLI shows it: its text, or JSON with --json.
 func show(_ result: Result<[String: Any], UmbraError>) -> Never {
     switch result {
@@ -151,27 +167,31 @@ case "read":
     let timeout = seconds("--timeout", default: 90)
     guard args.count == 1, let url = URL(string: args[0]) else { fail(64, usageLine(lookup("read")!)) }
     let script = stdinText()
-    if !context.isEmpty || connectDaemon().map({ close($0) }) != nil {
-        var values: [String: Any] = ["url": args[0], "script": script, "wait": wait, "timeout": timeout + wait]
-        values.merge(context) { _, new in new }
-        values["cookie"] = cookie
-        values["until"] = until
+    var values: [String: Any] = ["url": args[0], "script": script, "wait": wait, "timeout": timeout + wait]
+    values.merge(context) { _, new in new }
+    values["cookie"] = cookie
+    values["until"] = until
+    let budget = requestDeadline(values), deadline = budget ?? Date().addingTimeInterval(timeout + wait)
+    if !context.isEmpty || oneShotDaemon(deadline, timeout + wait) {
+        if budget != nil { values["deadline"] = deadline.timeIntervalSince1970 }
         switch call("read", values, spawn: !context.isEmpty) {
         case .success(let value): emit(value["output"]); exit(0)
         case .failure(let error): fail(error.code, error.message)
         }
     }
-    headless(timeout: timeout + wait) { read(url, script: script, cookie: cookie, wait: wait, until: until) }
+    headless(timeout: oneShotTime(deadline, timeout + wait)) { read(url, script: script, cookie: cookie, wait: wait, until: until) }
 case "fetch":
     let context = requestContext()
     let from = option("--from")
     let timeout = seconds("--timeout", default: 90)
     guard args.count == 1, let url = URL(string: args[0]), url.host != nil,
           let page = URL(string: from ?? "/robots.txt", relativeTo: url)?.absoluteURL else { fail(64, usageLine(lookup("fetch")!)) }
-    if !context.isEmpty || connectDaemon().map({ close($0) }) != nil {
-        var values: [String: Any] = ["url": args[0], "timeout": timeout]
-        values.merge(context) { _, new in new }
-        values["from"] = from
+    var values: [String: Any] = ["url": args[0], "timeout": timeout]
+    values.merge(context) { _, new in new }
+    values["from"] = from
+    let budget = requestDeadline(values), deadline = budget ?? Date().addingTimeInterval(timeout)
+    if !context.isEmpty || oneShotDaemon(deadline, timeout) {
+        if budget != nil { values["deadline"] = deadline.timeIntervalSince1970 }
         switch call("fetch", values, spawn: !context.isEmpty) {
         case .success(let value):
             FileHandle.standardOutput.write(Data((value["body"] as? String ?? "").utf8))
@@ -180,20 +200,22 @@ case "fetch":
         case .failure(let error): fail(error.code, error.message)
         }
     }
-    headless(timeout: timeout) { fetch(url, from: page) }
+    headless(timeout: oneShotTime(deadline, timeout)) { fetch(url, from: page) }
 case "download":
     let context = requestContext()
     let timeout = seconds("--timeout", default: 300)
     guard args.count == 2, let url = URL(string: args[0]) else { fail(64, usageLine(lookup("download")!)) }
     let file = URL(fileURLWithPath: args[1]).standardizedFileURL
-    if !context.isEmpty || connectDaemon().map({ close($0) }) != nil {
-        let values = ["url": args[0], "file": file.path, "timeout": timeout].merging(context) { _, new in new }
+    var values = ["url": args[0], "file": file.path, "timeout": timeout].merging(context) { _, new in new }
+    let budget = requestDeadline(values), deadline = budget ?? Date().addingTimeInterval(timeout)
+    if !context.isEmpty || oneShotDaemon(deadline, timeout) {
+        if budget != nil { values["deadline"] = deadline.timeIntervalSince1970 }
         switch call("download", values, spawn: !context.isEmpty) {
         case .success: exit(0)
         case .failure(let error): fail(error.code, error.message)
         }
     }
-    headless(timeout: timeout) { Download(url, to: file) }
+    headless(timeout: oneShotTime(deadline, timeout)) { Download(url, to: file) }
 
 case "sign-in":
     // The daemon shows the window: it owns the store, so agents keep working while a person signs

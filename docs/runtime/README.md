@@ -34,7 +34,7 @@ umbra runtime --json
 
 `tasks` returns pending jobs and the last 128 completion records. `runtime` adds limits, queue bytes, connection counts, memory-pressure state and lease metadata. Histories retain command names and labels, not command arguments or page contents. Labels themselves are supplied by clients; keep secrets out of them.
 
-`--deadline` is an absolute Unix timestamp in **seconds**. The runtime uses the earlier of that deadline and the command’s timeout measured from admission; queue time counts. SDKs enforce the same absolute deadline locally. `request` is the runtime cancellation identifier; the raw socket envelope’s `id` only correlates a reply. SDKs set both consistently unless you explicitly override `args.request`.
+`--deadline` is an absolute Unix timestamp in **seconds**. The runtime uses the earlier of that deadline and the command’s timeout measured from admission; queue time counts. SDKs enforce the same absolute deadline locally. Explicit CLI/MCP budgets also cover daemon connection retries, readiness and reply reads; read/fetch/download share their original budget with store acquisition and one-shot fallback. Refused/full UNIX connections retry for at most one second within that budget; a missing socket keeps immediate cold startup. `request` is the runtime cancellation identifier; the raw socket envelope’s `id` only correlates a reply. SDKs set both consistently unless you explicitly override `args.request`.
 
 Cancellation interrupts queued work and supported continuations, including idle-wait timers and DOM watches. It does not terminate arbitrary JavaScript already dispatched; that script and its later side effects may continue after cancellation is acknowledged. It cannot undo an already-dispatched click, submission or download. A timeout or socket closure alone does not prove that an action failed. Inspect the result before retrying consequential work. This runtime does not provide rollback.
 
@@ -64,7 +64,7 @@ Extraction is deterministic DOM traversal, not model interpretation. It returns 
 
 The JSON Schema subset supports types, properties, required fields, additional properties, array items, item/string/numeric bounds, enum and const. Unsupported constraints fail explicitly; this is not a full JSON Schema implementation.
 
-`watch` uses DOM mutation and input/change/load events rather than repeated agent calls. It returns `matched: false` when its duration expires; durations are 0–25 seconds, with at most 16 watches per document. A programmatic value change that emits no observed event can be missed. Use ordinary `wait --js` when the condition needs polling or JavaScript computation. This is a one-result wait, not a durable event stream.
+`watch` uses DOM mutation and input/change/load events rather than repeated agent calls. It returns `matched: false` when its duration expires; durations are 0–25 seconds, with at most 16 watches per document. A programmatic value change that emits no observed event can be missed. Use ordinary `wait --js` when the condition needs polling or JavaScript computation. This is a one-result wait, not a durable event stream. General `wait --js` conditions react to DOM/input/load/visibility events too, retaining a 100 ms fallback for globals/time or unobserved changes. Predicates may run repeatedly; keep them free of side effects. Resources remain on demand and are removed on completion, cancellation, timeout or navigation.
 
 ## Batch known steps and checkpoint a workflow
 

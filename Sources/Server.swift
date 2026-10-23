@@ -252,12 +252,43 @@ func installMenus() {
 
 // MARK: Client
 
-func connectDaemon() -> Int32? {
+private func daemonConnection() -> (fd: Int32?, error: Int32) {
     let fd = socket(AF_UNIX, SOCK_STREAM, 0)
-    guard fd >= 0 else { return nil }
-    if withAddress({ connect(fd, $0, $1) }) == 0 { return fd }
+    guard fd >= 0 else { return (nil, errno) }
+    if withAddress({ connect(fd, $0, $1) }) == 0 { return (fd, 0) }
+    let error = errno
     close(fd)
-    return nil
+    return (nil, error)
+}
+
+func connectDaemon() -> Int32? { daemonConnection().fd }
+
+private func daemonConnection(until limit: Date) -> (fd: Int32?, error: Int32) {
+    var connection = daemonConnection()
+    // Darwin refuses a live UNIX listener when its accept backlog is full.
+    let deadline = min(Date().addingTimeInterval(1), limit)
+    while connection.fd == nil, [ECONNREFUSED, EAGAIN, EINTR].contains(connection.error), Date() < deadline {
+        usleep(useconds_t(min(0.02, max(0, deadline.timeIntervalSinceNow)) * 1_000_000))
+        connection = daemonConnection()
+    }
+    return connection
+}
+
+func connectDaemon(until deadline: Date) -> Int32? { daemonConnection(until: deadline).fd }
+
+func requestDeadline(_ values: [String: Any], started: Date = Date()) -> Date? {
+    let input = Args(values: values)
+    var deadline: Date?
+    // Invalid budgets stay with normal command validation, preserving usage errors.
+    if values["timeout"] != nil {
+        guard let seconds = input.number("timeout"), seconds.isFinite, seconds > 0, seconds <= 86400 else { return nil }
+        deadline = started.addingTimeInterval(seconds)
+    }
+    if values["deadline"] != nil {
+        guard let value = input.number("deadline"), value.isFinite else { return nil }
+        deadline = min(deadline ?? .distantFuture, Date(timeIntervalSince1970: value))
+    }
+    return deadline
 }
 
 /// Starts `umbra serve` in its own session, so it outlives this process and the terminal.
@@ -281,21 +312,38 @@ func spawnDaemon() {
 
 /// Sends one command to this profile's daemon, starting it first when `spawn` is set.
 func call(_ command: String, _ args: [String: Any], spawn: Bool = true) -> Result<[String: Any], UmbraError> {
-    var fd = connectDaemon()
-    if fd == nil, spawn {
+    let requestUntil = requestDeadline(args) ?? .distantFuture
+    func elapsed(_ phase: String = "before daemon connection") -> Result<[String: Any], UmbraError> { .failure(UmbraError(2, "request deadline elapsed \(phase)")) }
+    guard Date() < requestUntil else { return elapsed() }
+    var connection = daemonConnection(until: requestUntil)
+    if connection.fd == nil, spawn, Date() < requestUntil {
         spawnDaemon()
-        let deadline = Date().addingTimeInterval(20)
-        while fd == nil, Date() < deadline {
+        let deadline = min(Date().addingTimeInterval(20), requestUntil)
+        while connection.fd == nil, Date() < deadline {
             usleep(20_000)
-            fd = connectDaemon()
+            connection = daemonConnection()
         }
     }
-    guard let fd else { return .failure(UmbraError(1, "could not reach Umbra's daemon; see \(daemonLog)")) }
+    guard Date() < requestUntil else {
+        if let fd = connection.fd { close(fd) }
+        return elapsed()
+    }
+    guard let fd = connection.fd else { return .failure(UmbraError(1, "could not reach Umbra's daemon; see \(daemonLog)")) }
     defer { close(fd) }
-    writeAll(fd, line(["id": 1, "command": command, "args": args]))
+    var values = args
+    if requestUntil != .distantFuture { values["deadline"] = requestUntil.timeIntervalSince1970 }
+    writeAll(fd, line(["id": 1, "command": command, "args": values]))
     var buffer = Data()
     var chunk = [UInt8](repeating: 0, count: 65536)
     while true {  // a reply can be megabytes (screenshots): look for the newline in new bytes only
+        if requestUntil != .distantFuture {
+            let remaining = requestUntil.timeIntervalSinceNow
+            guard remaining > 0 else { return elapsed("while waiting for daemon reply") }
+            var ready = pollfd(fd: fd, events: Int16(POLLIN), revents: 0)
+            let count = poll(&ready, 1, Int32(min(ceil(remaining * 1000), Double(Int32.max))))
+            if count == 0 || count < 0 && errno == EINTR { continue }
+            if count < 0 { return .failure(UmbraError(1, "could not read Umbra's daemon; see \(daemonLog)")) }
+        }
         let count = read(fd, &chunk, chunk.count)
         if count <= 0 { return .failure(UmbraError(1, "Umbra's daemon closed the connection; see \(daemonLog)")) }
         buffer.append(chunk, count: count)

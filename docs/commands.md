@@ -122,3 +122,5 @@ Results go to stdout and messages to stderr. Over MCP, a failure comes back as a
 | `5` | HTTP error status (`fetch`, `download`, `http`) | Check the URL and your access |
 | `64` | Usage error | Fix the command; `umbra help <command>` |
 | `78` | `sites.json` can't be parsed | Fix the file; the message names the problem |
+
+General `wait` conditions react to DOM/input/load/visibility events and retain a 100 ms fallback for globals, time or unobserved changes. JavaScript predicates may be evaluated repeatedly; keep them free of side effects. Observers and timers are on demand and removed when the wait ends.
