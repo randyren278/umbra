@@ -1,5 +1,7 @@
 # Evaluations and measurements
 
+**Sub-millisecond recorded snapshots, 70/70 project workflow runs, and reclaimed idle-tab memory.** Every headline below links to its method and retained samples. The latency and task runs were recorded October 13, 2026; the memory runs October 21. They are evidence for those builds and workloads, not measurements of every later release.
+
 ## MiniWoB++: external agent tasks
 
 All 125 task types, five upstream seed repetitions and both browser arms: **1,250 primary episodes**. Umbra earned full reward on **517/625 (82.7%)**, compared with **489/625 (78.2%)** for Playwright MCP.
@@ -23,7 +25,7 @@ The showcase ratios use the recorded medians, before rounding:
 | Accessibility snapshot | 0.94 ms | 3.57 ms | 3.80× |
 | Click + DOM update | 1.52 ms | 16.02 ms | 10.54× |
 
-Twenty measured runs per cell on one M1 Pro Mac. These project-authored fixtures measure direct daemon socket commands, without MCP framing. Playwright clicks include its actionability checks. They do not establish a general website or end-to-end agent speedup. The full table retains metrics where Chromium is faster.
+Twenty measured runs per cell on one M1 Pro Mac. These project-authored fixtures measure direct daemon socket commands, without MCP framing. Playwright clicks include its actionability checks. They do not establish a general website or end-to-end agent speedup. The full table retains metrics where Chromium is faster: warm local navigation took 6.5 ms with Chromium versus 12.8 ms through Umbra’s daemon socket.
 
 ## Memory: the tabs agents leave behind
 

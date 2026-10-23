@@ -16,6 +16,8 @@
 
 ## Benchmarks
 
+**0.94 ms snapshots. 1.52 ms clicks with DOM updates.** Those are the recorded daemon-socket medians on local fixtures, 20 runs per cell. In the abandoned-tab fixture, whole-browser memory fell from **2,756 to 331 MB** after idle tabs closed. [Methods, baselines and all samples](docs/evaluation/README.md).
+
 <a href="docs/evaluation/README.md">
   <picture>
     <source media="(max-width: 600px)" srcset="assets/showcase-mobile-v1.svg">
@@ -29,6 +31,8 @@
     <img src="assets/memory.svg" width="100%" alt="Memory of Umbra and its WebKit processes while one agent keeps working and ten others have each left a heavy page open. Before, the abandoned tabs stayed open at about 2.7 GB. Now each tab closes once unused and memory falls to 331 MB, 8.3 times less; their CPU fell from 15.3 to 1.9 seconds a minute. With four pages per tab, memory fell from 3,863 to 312 MB, 12.4 times less.">
   </picture>
 </a>
+
+The latency figures compare the same local fixture with Playwright Chromium and exclude MCP framing; Chromium navigated faster. Memory figures measure synthetic pages after abandoned tabs close, with a 60-second test idle limit. These results describe the recorded workloads, not a general website speedup.
 
 [Explore the complete evaluations, comparisons, methods and data →](docs/evaluation/README.md)
 

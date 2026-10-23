@@ -13,15 +13,15 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 SANS = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif"
 MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-INK, PAPER, MUTED, DIM = "#07060d", "#f4efe6", "#c3bdd3", "#9a93b3"
-AMBER, ORCHID, GREEN = "#f6b26b", "#c06bd6", "#5fd38d"
+INK, PAPER, MUTED, DIM = "#080b14", "#f1f4fc", "#c2cadd", "#98a5bf"
+BLUE, VIOLET, CYAN = "#93b4ff", "#b5a1ff", "#87dced"
 
 TAGLINE = ["The headless browser built for agents.", "Native WebKit, invisible, signed in."]
 COMMANDS = "open · snapshot · click · fill · screenshot · mcp"  # keep it to commands that exist
 
 # The how-it-works diagram: cards on a grid of (row, column), optionally spanning (rows, columns),
 # and arrows between cards that share rows (drawn across) or columns (drawn down); "both" draws two
-# heads. A line starting with "✓ " gets a green check. Lines should stay under about 24 characters
+# heads. A line starting with "✓ " gets a cyan check. Lines should stay under about 24 characters
 # per column a card spans. Row heights follow the cards that span one row.
 DIAGRAM = {
     "title": "How Umbra works",
@@ -36,10 +36,10 @@ DIAGRAM = {
         "daemon": dict(at=(0, 1), span=(2, 1), heading="Daemon", lines=["one per profile", "unix socket, JSON lines", "starts on first use",
                                                                          "exits after 15 idle min", "", "snapshot, refs and", "actions in an isolated", "JavaScript world"]),
         "tabs": dict(at=(0, 2), heading="Tabs", lines=["WebKit, off screen", "pages report visible", "trusted native input"]),
-        "store": dict(at=(1, 2), heading="Cookie store", accent=ORCHID, lines=["Umbra's own, on disk", "one per profile", "values never printed"]),
+        "store": dict(at=(1, 2), heading="Cookie store", accent=VIOLET, lines=["Umbra's own, on disk", "one per profile", "values never printed"]),
         "screen": dict(at=(2, 0), span=(1, 2), heading="Safari and your screen, untouched", accent=DIM, dashed=True, icon="compass",
                        lines=["no focus taken, no shared cookies", "no Safari tabs, no Dock icon while it works"]),
-        "signin": dict(at=(2, 2), heading="sign-in, handoff", mono=True, accent=GREEN, lines=["a window only when", "you're needed"]),
+        "signin": dict(at=(2, 2), heading="sign-in, handoff", mono=True, accent=CYAN, lines=["a window only when", "you're needed"]),
     },
     "arrows": [("cli", "daemon"), ("mcp", "daemon"), ("daemon", "tabs"), ("tabs", "store", "both"), ("signin", "store")],
 }
@@ -53,8 +53,8 @@ DIAGRAM_MOBILE = {
         "clients": dict(at=(0, 0), heading="umbra, umbra mcp", mono=True, lines=["your shell, or every command", "as a tool in Claude Code, Codex"]),
         "daemon": dict(at=(1, 0), heading="Daemon", lines=["one per profile", "starts on first use", "exits after 15 idle min"]),
         "tabs": dict(at=(2, 0), heading="Tabs", lines=["WebKit, off screen", "pages report visible", "trusted native input"]),
-        "store": dict(at=(3, 0), heading="Cookie store", accent=ORCHID, lines=["Umbra's own, on disk", "values never printed"]),
-        "signin": dict(at=(4, 0), heading="sign-in, handoff", mono=True, accent=GREEN, lines=["a window only when", "you're needed"]),
+        "store": dict(at=(3, 0), heading="Cookie store", accent=VIOLET, lines=["Umbra's own, on disk", "values never printed"]),
+        "signin": dict(at=(4, 0), heading="sign-in, handoff", mono=True, accent=CYAN, lines=["a window only when", "you're needed"]),
         "screen": dict(at=(5, 0), heading="Your screen, untouched", accent=DIM, dashed=True, icon="compass",
                        lines=["no focus taken, no shared cookies", "no Dock icon while it works"]),
     },
@@ -63,37 +63,37 @@ DIAGRAM_MOBILE = {
 
 DEFS = """
   <radialGradient id="corona" cx="0" cy="0" r="230" gradientUnits="userSpaceOnUse">
-    <stop offset="0.60" stop-color="#ffe7b0" stop-opacity="0"/>
-    <stop offset="0.655" stop-color="#fff1d2" stop-opacity="1"/>
-    <stop offset="0.70" stop-color="#f6b26b" stop-opacity="0.7"/>
-    <stop offset="0.82" stop-color="#c06bd6" stop-opacity="0.22"/>
-    <stop offset="1" stop-color="#7c5cf6" stop-opacity="0"/>
+    <stop offset="0.60" stop-color="#dce7ff" stop-opacity="0"/>
+    <stop offset="0.655" stop-color="#e8edff" stop-opacity="1"/>
+    <stop offset="0.70" stop-color="#93b4ff" stop-opacity="0.7"/>
+    <stop offset="0.82" stop-color="#b5a1ff" stop-opacity="0.22"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
   </radialGradient>
   <radialGradient id="rays" cx="0" cy="0" r="262" gradientUnits="userSpaceOnUse">
-    <stop offset="0.56" stop-color="#fff1d2" stop-opacity="0.75"/>
-    <stop offset="0.72" stop-color="#f6b26b" stop-opacity="0.32"/>
-    <stop offset="1" stop-color="#c06bd6" stop-opacity="0"/>
+    <stop offset="0.56" stop-color="#e8edff" stop-opacity="0.75"/>
+    <stop offset="0.72" stop-color="#93b4ff" stop-opacity="0.32"/>
+    <stop offset="1" stop-color="#b5a1ff" stop-opacity="0"/>
   </radialGradient>
   <radialGradient id="moon" cx="-40" cy="-50" r="190" gradientUnits="userSpaceOnUse">
-    <stop offset="0" stop-color="#1c1830"/>
-    <stop offset="1" stop-color="#07060d"/>
+    <stop offset="0" stop-color="#192039"/>
+    <stop offset="1" stop-color="#080b14"/>
   </radialGradient>
   <radialGradient id="bead" cx="0" cy="0" r="46" gradientUnits="userSpaceOnUse">
     <stop offset="0" stop-color="#ffffff"/>
-    <stop offset="0.18" stop-color="#fff4dc"/>
-    <stop offset="0.45" stop-color="#ffd08a" stop-opacity="0.45"/>
-    <stop offset="1" stop-color="#ffb35c" stop-opacity="0"/>
+    <stop offset="0.18" stop-color="#edf3ff"/>
+    <stop offset="0.45" stop-color="#bbceff" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#93b4ff" stop-opacity="0"/>
   </radialGradient>
   <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
-    <stop offset="0" stop-color="#7c5cf6" stop-opacity="0.20"/>
-    <stop offset="1" stop-color="#7c5cf6" stop-opacity="0"/>
+    <stop offset="0" stop-color="#7c83f6" stop-opacity="0.20"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
   </radialGradient>
   <filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
     <feGaussianBlur stdDeviation="2.6"/>
   </filter>
   <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#1b1730"/>
-    <stop offset="1" stop-color="#07060d"/>
+    <stop offset="0" stop-color="#151c30"/>
+    <stop offset="1" stop-color="#080b14"/>
   </linearGradient>"""
 
 
@@ -122,16 +122,16 @@ def mark(x, y, size):
         major = i % 6 == 0
         inner, outer = (172, 194) if major else (179, 187)
         ticks.append(f'<line x1="0" y1="-{inner}" x2="0" y2="-{outer}" transform="rotate({i * 15})" '
-                     f'stroke="#fff1d2" stroke-opacity="{0.6 if major else 0.3}" stroke-width="{3.5 if major else 2}" stroke-linecap="round"/>')
+                     f'stroke="#e8edff" stroke-opacity="{0.6 if major else 0.3}" stroke-width="{3.5 if major else 2}" stroke-linecap="round"/>')
     return f"""
   <g transform="translate({x} {y}) scale({size / 512})">
     <circle r="230" fill="url(#corona)"/>
     {streamers()}
     {''.join(ticks)}
-    <circle r="150" fill="#fff4dc"/>
+    <circle r="150" fill="#edf3ff"/>
     <circle cx="-7" cy="7" r="149" fill="url(#moon)"/>
     <g transform="translate(-7 7) rotate(45)">
-      <path d="M0 -84 L12 0 L-12 0 Z" fill="#ff6b6b" fill-opacity="0.30"/>
+      <path d="M0 -84 L12 0 L-12 0 Z" fill="#b5a1ff" fill-opacity="0.30"/>
       <path d="M0 84 L12 0 L-12 0 Z" fill="#ffffff" fill-opacity="0.12"/>
       <circle r="4.5" fill="#ffffff" fill-opacity="0.22"/>
     </g>
@@ -148,7 +148,7 @@ def small_mark(x, y, size):
     return f"""
   <g transform="translate({x} {y}) scale({size / 512})">
     <circle r="236" fill="url(#corona)"/>
-    <circle r="184" fill="#fff1d2"/>
+    <circle r="184" fill="#e8edff"/>
     <circle cx="-10" cy="10" r="160" fill="url(#moon)"/>
     <g transform="translate(124 -124)">
       <circle r="100" fill="url(#bead)"/>
@@ -224,7 +224,7 @@ def banner():
   <text x="430" y="196" font-family="{SANS}" font-size="124" font-weight="600" letter-spacing="4" fill="{PAPER}">umbra</text>
   <text x="434" y="254" font-family="{SANS}" font-size="33" fill="{PAPER}" fill-opacity="0.92">{TAGLINE[0]}</text>
   <text x="434" y="298" font-family="{SANS}" font-size="33" fill="{MUTED}">{TAGLINE[1]}</text>
-  <text x="435" y="350" font-family="{MONO}" font-size="24" fill="{AMBER}" fill-opacity="0.85">{COMMANDS}</text>""")
+  <text x="435" y="350" font-family="{MONO}" font-size="24" fill="{BLUE}" fill-opacity="0.85">{COMMANDS}</text>""")
 
 
 def social():
@@ -238,24 +238,24 @@ def social():
   <text x="560" y="300" font-family="{SANS}" font-size="140" font-weight="600" letter-spacing="4" fill="{PAPER}">umbra</text>
   <text x="565" y="368" font-family="{SANS}" font-size="35" fill="{PAPER}" fill-opacity="0.92">{TAGLINE[0]}</text>
   <text x="565" y="418" font-family="{SANS}" font-size="35" fill="{MUTED}">{TAGLINE[1]}</text>
-  <text x="566" y="470" font-family="{MONO}" font-size="22" fill="{AMBER}" fill-opacity="0.85">{COMMANDS}</text>""")
+  <text x="566" y="470" font-family="{MONO}" font-size="22" fill="{BLUE}" fill-opacity="0.85">{COMMANDS}</text>""")
 
 
 def compass(x, y):
     return f"""
   <g transform="translate({x} {y})" opacity="0.7">
     <circle r="20" fill="none" stroke="{MUTED}" stroke-width="2.5"/>
-    <g transform="rotate(45)"><path d="M0 -15 L4.5 0 L-4.5 0 Z" fill="#ff6b6b"/><path d="M0 15 L4.5 0 L-4.5 0 Z" fill="{MUTED}"/></g>
+    <g transform="rotate(45)"><path d="M0 -15 L4.5 0 L-4.5 0 Z" fill="#b5a1ff"/><path d="M0 15 L4.5 0 L-4.5 0 Z" fill="{MUTED}"/></g>
   </g>"""
 
 
-def box(x, y, w, h, heading, lines, accent=AMBER, mono=False, dashed=False, icon=None):
+def box(x, y, w, h, heading, lines, accent=BLUE, mono=False, dashed=False, icon=None):
     rows = []
     for i, line in enumerate(lines):
         base, indent = y + 96 + i * 36, 0
         if line.startswith("✓ "):
             line, indent = line[2:], 34
-            rows.append(f'<g transform="translate({x + 40} {base - 8})"><circle r="12" fill="{GREEN}"/>'
+            rows.append(f'<g transform="translate({x + 40} {base - 8})"><circle r="12" fill="{CYAN}"/>'
                         f'<path d="M-5.5 0.5 L-1.5 4.5 L6 -4" fill="none" stroke="{INK}" stroke-width="2.8" '
                         f'stroke-linecap="round" stroke-linejoin="round"/></g>')
         rows.append(f'<text x="{x + 28 + indent}" y="{base}" font-family="{SANS}" font-size="24" fill="{MUTED}">{line}</text>')
@@ -269,12 +269,12 @@ def box(x, y, w, h, heading, lines, accent=AMBER, mono=False, dashed=False, icon
 
 
 def arrow(x1, y1, x2, y2, both=False):
-    """A straight amber arrow; horizontal or vertical only."""
+    """A straight blue arrow; horizontal or vertical only."""
     dx, dy = (x2 > x1) - (x2 < x1), (y2 > y1) - (y2 < y1)
     head = lambda px, py, ux, uy: (f'<path d="M{px} {py} L{px - 16 * ux - 8 * uy} {py - 16 * uy - 8 * ux} '
-                                   f'L{px - 16 * ux + 8 * uy} {py - 16 * uy + 8 * ux} Z" fill="{AMBER}"/>')
+                                   f'L{px - 16 * ux + 8 * uy} {py - 16 * uy + 8 * ux} Z" fill="{BLUE}"/>')
     sx, sy = (x1 + 14 * dx, y1 + 14 * dy) if both else (x1, y1)
-    return (f'<line x1="{sx}" y1="{sy}" x2="{x2 - 14 * dx}" y2="{y2 - 14 * dy}" stroke="{AMBER}" stroke-width="3"/>'
+    return (f'<line x1="{sx}" y1="{sy}" x2="{x2 - 14 * dx}" y2="{y2 - 14 * dy}" stroke="{BLUE}" stroke-width="3"/>'
             + head(x2, y2, dx, dy) + (head(x1, y1, -dx, -dy) if both else ""))
 
 
@@ -294,7 +294,7 @@ def diagram(spec=DIAGRAM):
         return (48 + column * (w + gap), ys[row], across * w + (across - 1) * gap,
                 sum(heights[row:row + down]) + row_gap * (down - 1))
 
-    body = [box(*frame(name), c["heading"], c["lines"], c.get("accent", AMBER), c.get("mono", False),
+    body = [box(*frame(name), c["heading"], c["lines"], c.get("accent", BLUE), c.get("mono", False),
                 c.get("dashed", False), c.get("icon")) for name, c in cards.items()]
     for start, end, *both in spec["arrows"]:
         (ax, ay, aw, ah), (bx, by, bw, bh) = frame(start), frame(end)

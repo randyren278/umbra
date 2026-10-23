@@ -1,5 +1,7 @@
 # Umbra documentation
 
+Start with a signed-in session, give each independent agent a profile, and keep the same tab through the observe–act loop. For performance claims, follow the measurements back to their recorded workloads and samples.
+
 ## Get started
 
 - [Install, first commands and agent skill setup](install.md)
@@ -18,5 +20,5 @@
 
 - [Architecture](how-it-works.md)
 - [Security and limitations](security.md)
-- [Evaluations, comparisons and all recorded data](evaluation/README.md)
+- [Evaluations, comparisons and all recorded data](evaluation/README.md): [command latency](evaluation/latency/README.md), [idle-tab memory](evaluation/memory/README.md), and [external agent tasks](evaluation/miniwob/2026-10-13/RESULTS.md)
 - [Testing, development and graphics](development.md)

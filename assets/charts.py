@@ -14,7 +14,7 @@ import json
 import math
 from pathlib import Path
 
-from build import AMBER, DIM, GREEN, INK, MONO, MUTED, ORCHID, PAPER, SANS, card, stars, svg
+from build import BLUE, DIM, CYAN, INK, MONO, MUTED, VIOLET, PAPER, SANS, card, stars, svg
 
 HERE = Path(__file__).resolve().parent
 EVAL = HERE.parent / "docs/evaluation"
@@ -45,7 +45,7 @@ def showcase_data():
 def proof_panel(x, y, width, metric, label, caption, color):
     native, baseline = metric['umbra_socket']['p50'], metric['chromium']['p50']
     ratio = baseline / native
-    body = [f'<rect x="{x}" y="{y}" width="{width}" height="260" rx="18" fill="#07060d" fill-opacity="0.52" stroke="{color}" stroke-opacity="0.25"/>',
+    body = [f'<rect x="{x}" y="{y}" width="{width}" height="260" rx="18" fill="#080b14" fill-opacity="0.52" stroke="{color}" stroke-opacity="0.25"/>',
             text(x + 24, y + 34, label, 20, color, 600),
             text(x + 24, y + 118, f'{ratio:.1f}×', 78, PAPER, 700),
             text(x + 24, y + 151, caption, 23, MUTED)]
@@ -61,14 +61,14 @@ def reward_panel(x, y, width, result):
     rate = result['strict_rate']
     cx, cy, radius = x + width - 65, y + 215, 33
     perimeter = math.tau * radius
-    return (f'<rect x="{x}" y="{y}" width="{width}" height="260" rx="18" fill="#07060d" fill-opacity="0.52" stroke="{GREEN}" stroke-opacity="0.25"/>'
-            + text(x + 24, y + 34, 'EXTERNAL AGENT TASKS', 20, GREEN, 600)
+    return (f'<rect x="{x}" y="{y}" width="{width}" height="260" rx="18" fill="#080b14" fill-opacity="0.52" stroke="{CYAN}" stroke-opacity="0.25"/>'
+            + text(x + 24, y + 34, 'EXTERNAL AGENT TASKS', 20, CYAN, 600)
             + text(x + 24, y + 118, f'{rate:.1%}', 74, PAPER, 700)
             + text(x + 24, y + 151, 'Full reward on MiniWoB++', 22, MUTED)
-            + text(x + 24, y + 190, f'{result["strict_successes"]} / {result["episodes"]} cases', 23, GREEN, 600)
+            + text(x + 24, y + 190, f'{result["strict_successes"]} / {result["episodes"]} cases', 23, CYAN, 600)
             + text(x + 24, y + 222, '125 tasks · 5 repetitions', 18, MUTED)
             + f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="none" stroke="#ffffff" stroke-opacity="0.09" stroke-width="7"/>'
-            + f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="none" stroke="{GREEN}" stroke-width="7" stroke-linecap="round" stroke-dasharray="{perimeter * rate:.2f} {perimeter:.2f}" transform="rotate(-90 {cx} {cy})"/>')
+            + f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="none" stroke="{CYAN}" stroke-width="7" stroke-linecap="round" stroke-dasharray="{perimeter * rate:.2f} {perimeter:.2f}" transform="rotate(-90 {cx} {cy})"/>')
 
 
 def showcase_picture(mobile=False):
@@ -79,12 +79,12 @@ def showcase_picture(mobile=False):
             text(36, 106, 'Measured on a Mac. Built for your agent.', 22, MUTED)]
     panel_width = 528 if mobile else 360
     positions = [(36, 140), (36, 418), (36, 696)] if mobile else [(36, 140), (420, 140), (804, 140)]
-    body += [proof_panel(*positions[0], panel_width, metrics['snapshot'], 'READ THE PAGE', 'Faster snapshots', AMBER),
-             proof_panel(*positions[1], panel_width, metrics['click'], 'TAKE THE NEXT STEP', 'Faster clicks + DOM update', ORCHID),
+    body += [proof_panel(*positions[0], panel_width, metrics['snapshot'], 'READ THE PAGE', 'Faster snapshots', BLUE),
+             proof_panel(*positions[1], panel_width, metrics['click'], 'TAKE THE NEXT STEP', 'Faster clicks + DOM update', VIOLET),
              reward_panel(*positions[2], panel_width, result)]
     ribbon = 980 if mobile else 426
-    body += [f'<rect x="36" y="{ribbon}" width="{width - 72}" height="82" rx="16" fill="{GREEN}" fill-opacity="0.08"/>',
-             text(58, ribbon + 54, f'{passed}/{total}', 42, GREEN, 700),
+    body += [f'<rect x="36" y="{ribbon}" width="{width - 72}" height="82" rx="16" fill="{CYAN}" fill-opacity="0.08"/>',
+             text(58, ribbon + 54, f'{passed}/{total}', 42, CYAN, 700),
              text(230, ribbon + 35, 'Workflow runs passed', 24, PAPER, 600),
              text(230, ribbon + 62, '14 custom tasks · 5 agent setups', 18, MUTED)]
     if mobile:
@@ -120,8 +120,8 @@ SPEED_ROWS = [  # (label, metric in results.json)
     ("Viewport screenshot to a file", "screenshot"),
     ("Warm navigate (local page)", "navigate"),
 ]
-SPEED_SERIES = [("umbra_socket", "Umbra daemon socket", AMBER),
-                ("chromium", "Playwright Chromium", ORCHID),
+SPEED_SERIES = [("umbra_socket", "Umbra daemon socket", BLUE),
+                ("chromium", "Playwright Chromium", VIOLET),
                 ("webkit", "Playwright WebKit", DIM)]
 
 
@@ -210,7 +210,7 @@ def discs(x, y, tasks, step, radius):
     for i, (task, result) in enumerate(tasks):
         cx = x + i * step
         if result == "PASS":
-            out.append(f'<circle cx="{cx}" cy="{y}" r="{radius}" fill="{GREEN}"><title>{task}: passed</title></circle>'
+            out.append(f'<circle cx="{cx}" cy="{y}" r="{radius}" fill="{CYAN}"><title>{task}: passed</title></circle>'
                        f'<path d="M{cx - radius * 0.42:.1f} {y + 0.5:.1f} L{cx - radius * 0.1:.1f} {y + radius * 0.36:.1f} '
                        f'L{cx + radius * 0.45:.1f} {y - radius * 0.32:.1f}" fill="none" stroke="{INK}" stroke-width="2.6" '
                        f'stroke-linecap="round" stroke-linejoin="round"/>')
@@ -247,11 +247,11 @@ def eval_chart():
         y = top + r * row_h
         if r:
             body.append(f'<line x1="48" y1="{y - 18}" x2="{width - 48}" y2="{y - 18}" stroke="#ffffff" stroke-opacity="0.08" stroke-width="1.5"/>')
-        accent = AMBER if arm["family"] == "Claude" else ORCHID
+        accent = BLUE if arm["family"] == "Claude" else VIOLET
         body.append(f'<rect x="48" y="{y + 2}" width="5" height="44" rx="2.5" fill="{accent}"/>')
         body.append(text(68, y + 22, arm["agent"], 24, PAPER, 600) + text(68, y + 48, arm["guidance"], 19, MUTED))
         body.append(discs(536, y + 26, arm["tasks"], 33, 13))
-        score_color = GREEN if arm["passed"] == arm["total"] else AMBER
+        score_color = CYAN if arm["passed"] == arm["total"] else BLUE
         body.append(text(1000, y + 36, f"{arm['passed']}/{arm['total']}", 30, score_color, 700))
         body.append(text(1104, y + 36, f"{arm['median_calls']:g}", 26, PAPER))
     body.append(text(48, height - 58, "Calls: median tool calls per task. Critical: Safari or AppleScript, leaving its own profile, "
@@ -273,10 +273,10 @@ def eval_mobile():
             text(40, 176, "Zero critical failures." if not any(a["critical"] for a in arms) else "", 21, MUTED)]
     for g, arm in enumerate(arms):
         y = top + g * group_h
-        accent = AMBER if arm["family"] == "Claude" else ORCHID
+        accent = BLUE if arm["family"] == "Claude" else VIOLET
         body.append(f'<rect x="40" y="{y + 4}" width="5" height="40" rx="2.5" fill="{accent}"/>')
         body.append(text(58, y + 22, arm["agent"], 23, PAPER, 600) + text(58, y + 47, arm["guidance"], 20, MUTED))
-        score_color = GREEN if arm["passed"] == arm["total"] else AMBER
+        score_color = CYAN if arm["passed"] == arm["total"] else BLUE
         body.append(text(width - 40, y + 34, f"{arm['passed']}/{arm['total']}", 28, score_color, 700, anchor="end"))
         tasks = arm["tasks"]
         body.append(discs(54, y + 80, tasks[:7], 36, 13) + discs(54, y + 116, tasks[7:], 36, 13))
@@ -287,7 +287,7 @@ def eval_mobile():
 
 # MARK: Memory
 
-MEMORY_SERIES = [("before", "Before", ORCHID), ("after", "Now", AMBER)]
+MEMORY_SERIES = [("before", "Before", VIOLET), ("after", "Now", BLUE)]
 
 
 def memory_data():
@@ -299,11 +299,11 @@ def memory_tiles(data):
     runs = {label: {name: run["summary"] for name, run in data["runs"][label].items()} for label in ("before", "after")}
     one, four = (runs["before"]["one_page"], runs["after"]["one_page"]), (runs["before"]["four_pages"], runs["after"]["four_pages"])
     return [(f"{one[0]['end_mb'] / one[1]['end_mb']:.1f}× less memory", "after 10 agents leave a tab each",
-             f"{one[0]['end_mb']:,} → {one[1]['end_mb']:,} MB", AMBER),
+             f"{one[0]['end_mb']:,} → {one[1]['end_mb']:,} MB", BLUE),
             (f"{one[0]['idle_cpu_s_per_min'] / one[1]['idle_cpu_s_per_min']:.1f}× less CPU", "while those tabs sit unused",
-             f"{one[0]['idle_cpu_s_per_min']:.1f} → {one[1]['idle_cpu_s_per_min']:.1f} CPU s / min", GREEN),
+             f"{one[0]['idle_cpu_s_per_min']:.1f} → {one[1]['idle_cpu_s_per_min']:.1f} CPU s / min", CYAN),
             (f"{four[0]['end_mb'] / four[1]['end_mb']:.1f}× less memory", "when each tab visited 4 pages",
-             f"{four[0]['end_mb']:,} → {four[1]['end_mb']:,} MB · peak {four[0]['peak_mb']:,} → {four[1]['peak_mb']:,}", AMBER)]
+             f"{four[0]['end_mb']:,} → {four[1]['end_mb']:,} MB · peak {four[0]['peak_mb']:,} → {four[1]['peak_mb']:,}", BLUE)]
 
 
 def memory_desc(data):
@@ -345,7 +345,7 @@ def memory_plot(data, x0, y0, width, height, size=19):
 
 
 def memory_tile(x, y, width, head, what, numbers, color, size=1.0):
-    return (f'<rect x="{x}" y="{y}" width="{width}" height="{round(112 * size)}" rx="16" fill="#07060d" fill-opacity="0.52" stroke="{color}" stroke-opacity="0.25"/>'
+    return (f'<rect x="{x}" y="{y}" width="{width}" height="{round(112 * size)}" rx="16" fill="#080b14" fill-opacity="0.52" stroke="{color}" stroke-opacity="0.25"/>'
             + text(x + 22, y + round(42 * size), head, round(30 * size), PAPER, 700)
             + text(x + 22, y + round(72 * size), what, round(19 * size), MUTED)
             + text(x + 22, y + round(98 * size), numbers, round(19 * size), color, 600))
@@ -354,7 +354,7 @@ def memory_tile(x, y, width, head, what, numbers, color, size=1.0):
 def memory():
     data = memory_data()
     width, height = 1200, 620
-    body = [card(width, height), heading("Tabs agents leave behind let go",
+    body = [card(width, height), heading("Reclaim idle tabs. Keep agents moving.",
                                          "Umbra and its WebKit processes while one agent works and ten others have left", width)]
     for (label, name, color), x in zip(MEMORY_SERIES, (48, 360)):
         body.append(f'<rect x="{x}" y="138" width="22" height="14" rx="4" fill="{color}"/>'
@@ -371,7 +371,7 @@ def memory():
 def memory_mobile():
     data = memory_data()
     width, height = 600, 1150
-    body = [card(width, height), text(40, 70, "Tabs agents leave", 32, PAPER, 600), text(40, 108, "behind let go", 32, PAPER, 600),
+    body = [card(width, height), text(40, 70, "Reclaim idle tabs.", 32, PAPER, 600), text(40, 108, "Keep agents moving.", 32, PAPER, 600),
             text(40, 146, "Memory while one agent works on", 21, MUTED), text(40, 172, "and ten others have left a tab", 21, MUTED)]
     for (label, name, color), x in zip(MEMORY_SERIES, (40, 300)):
         body.append(f'<rect x="{x}" y="196" width="20" height="13" rx="4" fill="{color}"/>'
@@ -406,21 +406,21 @@ SIGN_IN = {
 def window_mock(x, y, w, rows, k=1.0):
     """The list window, drawn: the eclipse, each account with its status, and Add Account. k scales the type."""
     h = 140 + 74 * len(rows) + 86
-    out = [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="20" fill="#0d0b16" stroke="#ffffff" stroke-opacity="0.16" stroke-width="1.5"/>']
-    for i, color in enumerate(("#ff5f57", "#febc2e", "#28c840")):
+    out = [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="20" fill="#0d1322" stroke="#ffffff" stroke-opacity="0.16" stroke-width="1.5"/>']
+    for i, color in enumerate(("#66748e", "#8897b4", "#b1bdd2")):
         out.append(f'<circle cx="{x + 28 + i * 22}" cy="{y + 26}" r="7" fill="{color}" fill-opacity="0.85"/>')
-    out.append(f'<circle cx="{x + 58}" cy="{y + 88}" r="26" fill="#07060d" stroke="#fff1d2" stroke-width="3" stroke-opacity="0.9"/>'
-               f'<circle cx="{x + 74}" cy="{y + 72}" r="4" fill="#fff4dc"/>')
+    out.append(f'<circle cx="{x + 58}" cy="{y + 88}" r="26" fill="#080b14" stroke="#e8edff" stroke-width="3" stroke-opacity="0.9"/>'
+               f'<circle cx="{x + 74}" cy="{y + 72}" r="4" fill="#edf3ff"/>')
     out.append(text(x + 100, y + 86, "Umbra", round(26 * k), PAPER, 600) + text(x + 100, y + 112, "Sign in to each site once.", round(18 * k), MUTED))
     for i, (name, domain, signed) in enumerate(rows):
         ry = y + 140 + i * 74
         out.append(f'<line x1="{x + 24}" y1="{ry}" x2="{x + w - 24}" y2="{ry}" stroke="#ffffff" stroke-opacity="0.08"/>')
-        out.append(f'<rect x="{x + 24}" y="{ry + 16}" width="42" height="42" rx="10" fill="{AMBER}" fill-opacity="0.16"/>'
-                   + text(x + 45, ry + 45, name[0], round(21 * k), AMBER, 700, anchor="middle"))
+        out.append(f'<rect x="{x + 24}" y="{ry + 16}" width="42" height="42" rx="10" fill="{BLUE}" fill-opacity="0.16"/>'
+                   + text(x + 45, ry + 45, name[0], round(21 * k), BLUE, 700, anchor="middle"))
         out.append(text(x + 80, ry + 34, name, round(20 * k), PAPER, 600) + text(x + 80, ry + 56, domain, round(16 * k), MUTED))
         bx = x + w - 140 - round((k - 1) * 90)  # bigger type needs the status further left
         if signed:
-            out.append(f'<circle cx="{bx - 98}" cy="{ry + 37}" r="9" fill="{GREEN}"/>'
+            out.append(f'<circle cx="{bx - 98}" cy="{ry + 37}" r="9" fill="{CYAN}"/>'
                        f'<path d="M{bx - 102} {ry + 37} L{bx - 99} {ry + 40} L{bx - 93} {ry + 33}" fill="none" stroke="{INK}" stroke-width="2.2" stroke-linecap="round"/>'
                        + text(bx - 84, ry + 43, "Signed in", round(17 * k), PAPER))
         else:
@@ -446,7 +446,7 @@ def sign_in():
     mock, mock_h = window_mock(48, 160, 520, spec["rows"])
     height = 160 + mock_h + 56
     body = [card(width, height), heading(spec["title"], spec["subtitle"], width), mock]
-    accents = [AMBER, ORCHID, GREEN]
+    accents = [BLUE, VIOLET, CYAN]
     for i, (title, *lines) in enumerate(spec["steps"]):
         body.append(step(620, 176 + i * 132, i + 1, title, lines, accents[i]))
         if i < 2:
@@ -462,7 +462,7 @@ def sign_in_mobile():
     height = steps_top + 3 * 140 + 70
     body = [card(width, height), text(40, 70, "A sign-in window,", 32, PAPER, 600), text(40, 108, "not a browser", 32, PAPER, 600),
             text(40, 146, "Sign in once. Agents use the session.", 21, MUTED), mock]
-    accents = [AMBER, ORCHID, GREEN]
+    accents = [BLUE, VIOLET, CYAN]
     for i, (title, *lines) in enumerate(spec["steps"]):
         body.append(step(40, steps_top + i * 140, i + 1, title, lines, accents[i]))
     body.append(text(40, height - 34, "An added account: Done the first time, then checked.", 19, DIM))

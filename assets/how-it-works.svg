@@ -3,73 +3,73 @@
   <desc id="desc">The umbra CLI and the umbra mcp server are both clients of one daemon per profile, which they reach over a unix socket and start on first use. The daemon owns the tabs: WebKit views in off-screen windows that pages see as visible, driven with trusted native input. The tabs share Umbra's own cookie store on disk, filled once by umbra sign-in; sign-in and handoff are the only windows, shown when the person is needed. Safari and the screen are untouched: no focus taken, no shared cookies, and no Dock icon while it works.</desc>
   <defs>
   <radialGradient id="corona" cx="0" cy="0" r="230" gradientUnits="userSpaceOnUse">
-    <stop offset="0.60" stop-color="#ffe7b0" stop-opacity="0"/>
-    <stop offset="0.655" stop-color="#fff1d2" stop-opacity="1"/>
-    <stop offset="0.70" stop-color="#f6b26b" stop-opacity="0.7"/>
-    <stop offset="0.82" stop-color="#c06bd6" stop-opacity="0.22"/>
-    <stop offset="1" stop-color="#7c5cf6" stop-opacity="0"/>
+    <stop offset="0.60" stop-color="#dce7ff" stop-opacity="0"/>
+    <stop offset="0.655" stop-color="#e8edff" stop-opacity="1"/>
+    <stop offset="0.70" stop-color="#93b4ff" stop-opacity="0.7"/>
+    <stop offset="0.82" stop-color="#b5a1ff" stop-opacity="0.22"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
   </radialGradient>
   <radialGradient id="rays" cx="0" cy="0" r="262" gradientUnits="userSpaceOnUse">
-    <stop offset="0.56" stop-color="#fff1d2" stop-opacity="0.75"/>
-    <stop offset="0.72" stop-color="#f6b26b" stop-opacity="0.32"/>
-    <stop offset="1" stop-color="#c06bd6" stop-opacity="0"/>
+    <stop offset="0.56" stop-color="#e8edff" stop-opacity="0.75"/>
+    <stop offset="0.72" stop-color="#93b4ff" stop-opacity="0.32"/>
+    <stop offset="1" stop-color="#b5a1ff" stop-opacity="0"/>
   </radialGradient>
   <radialGradient id="moon" cx="-40" cy="-50" r="190" gradientUnits="userSpaceOnUse">
-    <stop offset="0" stop-color="#1c1830"/>
-    <stop offset="1" stop-color="#07060d"/>
+    <stop offset="0" stop-color="#192039"/>
+    <stop offset="1" stop-color="#080b14"/>
   </radialGradient>
   <radialGradient id="bead" cx="0" cy="0" r="46" gradientUnits="userSpaceOnUse">
     <stop offset="0" stop-color="#ffffff"/>
-    <stop offset="0.18" stop-color="#fff4dc"/>
-    <stop offset="0.45" stop-color="#ffd08a" stop-opacity="0.45"/>
-    <stop offset="1" stop-color="#ffb35c" stop-opacity="0"/>
+    <stop offset="0.18" stop-color="#edf3ff"/>
+    <stop offset="0.45" stop-color="#bbceff" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#93b4ff" stop-opacity="0"/>
   </radialGradient>
   <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
-    <stop offset="0" stop-color="#7c5cf6" stop-opacity="0.20"/>
-    <stop offset="1" stop-color="#7c5cf6" stop-opacity="0"/>
+    <stop offset="0" stop-color="#7c83f6" stop-opacity="0.20"/>
+    <stop offset="1" stop-color="#7c83f6" stop-opacity="0"/>
   </radialGradient>
   <filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
     <feGaussianBlur stdDeviation="2.6"/>
   </filter>
   <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#1b1730"/>
-    <stop offset="1" stop-color="#07060d"/>
+    <stop offset="0" stop-color="#151c30"/>
+    <stop offset="1" stop-color="#080b14"/>
   </linearGradient>
   </defs>
   <rect width="1200" height="890" rx="28" fill="url(#sky)"/><rect x="0.75" y="0.75" width="1198.5" height="888.5" rx="27.25" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5"/>
   <circle cx="544.4" cy="496.3" r="1.6" fill="#ffffff" fill-opacity="0.35"/><circle cx="1014.7" cy="178.9" r="1.6" fill="#ffffff" fill-opacity="0.43"/><circle cx="942.2" cy="96.8" r="1.2" fill="#ffffff" fill-opacity="0.21"/><circle cx="645.2" cy="779.9" r="0.8" fill="#ffffff" fill-opacity="0.42"/><circle cx="478.7" cy="404.7" r="1" fill="#ffffff" fill-opacity="0.43"/><circle cx="987.4" cy="70.2" r="0.8" fill="#ffffff" fill-opacity="0.24"/><circle cx="298.6" cy="41.8" r="1.6" fill="#ffffff" fill-opacity="0.30"/><circle cx="706.2" cy="183.6" r="1" fill="#ffffff" fill-opacity="0.44"/><circle cx="599.7" cy="584.4" r="1.6" fill="#ffffff" fill-opacity="0.44"/><circle cx="491.1" cy="489.0" r="0.8" fill="#ffffff" fill-opacity="0.47"/><circle cx="384.2" cy="213.1" r="1.2" fill="#ffffff" fill-opacity="0.16"/><circle cx="673.8" cy="108.6" r="0.8" fill="#ffffff" fill-opacity="0.53"/><circle cx="467.4" cy="838.0" r="0.8" fill="#ffffff" fill-opacity="0.25"/><circle cx="1098.8" cy="60.9" r="1.6" fill="#ffffff" fill-opacity="0.59"/><circle cx="480.2" cy="78.7" r="1" fill="#ffffff" fill-opacity="0.50"/><circle cx="331.1" cy="90.8" r="1.2" fill="#ffffff" fill-opacity="0.16"/><circle cx="494.9" cy="807.8" r="1" fill="#ffffff" fill-opacity="0.26"/><circle cx="134.0" cy="67.4" r="1.6" fill="#ffffff" fill-opacity="0.23"/><circle cx="669.3" cy="399.9" r="1" fill="#ffffff" fill-opacity="0.59"/><circle cx="914.8" cy="375.7" r="1.6" fill="#ffffff" fill-opacity="0.20"/><circle cx="507.4" cy="198.6" r="1.2" fill="#ffffff" fill-opacity="0.54"/><circle cx="1154.6" cy="524.6" r="0.8" fill="#ffffff" fill-opacity="0.24"/><circle cx="476.5" cy="749.1" r="0.8" fill="#ffffff" fill-opacity="0.17"/><circle cx="186.9" cy="394.8" r="0.8" fill="#ffffff" fill-opacity="0.50"/><circle cx="400.2" cy="270.2" r="0.8" fill="#ffffff" fill-opacity="0.18"/><circle cx="259.8" cy="562.2" r="0.8" fill="#ffffff" fill-opacity="0.42"/><circle cx="450.2" cy="404.9" r="1.6" fill="#ffffff" fill-opacity="0.52"/><circle cx="174.5" cy="347.3" r="1" fill="#ffffff" fill-opacity="0.29"/><circle cx="282.8" cy="539.8" r="1" fill="#ffffff" fill-opacity="0.22"/><circle cx="750.6" cy="491.3" r="1.6" fill="#ffffff" fill-opacity="0.55"/><circle cx="720.9" cy="377.6" r="0.8" fill="#ffffff" fill-opacity="0.20"/><circle cx="614.4" cy="234.9" r="1.6" fill="#ffffff" fill-opacity="0.27"/><circle cx="978.1" cy="527.8" r="1.2" fill="#ffffff" fill-opacity="0.38"/><circle cx="1101.3" cy="854.4" r="1" fill="#ffffff" fill-opacity="0.25"/><circle cx="669.3" cy="747.4" r="0.8" fill="#ffffff" fill-opacity="0.28"/><circle cx="1087.5" cy="191.0" r="0.8" fill="#ffffff" fill-opacity="0.18"/><circle cx="496.5" cy="229.7" r="0.8" fill="#ffffff" fill-opacity="0.23"/><circle cx="446.7" cy="506.9" r="1" fill="#ffffff" fill-opacity="0.19"/><circle cx="177.7" cy="402.4" r="1.2" fill="#ffffff" fill-opacity="0.45"/><circle cx="823.3" cy="517.4" r="1" fill="#ffffff" fill-opacity="0.42"/>
-  <text x="48" y="74" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="32" font-weight="600" fill="#f4efe6">How Umbra works</text>
+  <text x="48" y="74" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="32" font-weight="600" fill="#f1f4fc">How Umbra works</text>
 
   <rect x="48" y="108" width="330" height="212" rx="18" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.16"/>
-  <rect x="48" y="134" width="5" height="34" rx="2.5" fill="#f6b26b"/>
-  <text x="76" y="162" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="27" font-weight="600" fill="#f4efe6">umbra CLI</text>
-  <text x="76" y="204" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">your shell or script</text><text x="76" y="240" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">text or --json out</text><text x="76" y="276" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">plus an exit code</text>
+  <rect x="48" y="134" width="5" height="34" rx="2.5" fill="#93b4ff"/>
+  <text x="76" y="162" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="27" font-weight="600" fill="#f1f4fc">umbra CLI</text>
+  <text x="76" y="204" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">your shell or script</text><text x="76" y="240" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">text or --json out</text><text x="76" y="276" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">plus an exit code</text>
   <rect x="48" y="390" width="330" height="212" rx="18" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.16"/>
-  <rect x="48" y="416" width="5" height="34" rx="2.5" fill="#f6b26b"/>
-  <text x="76" y="444" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="27" font-weight="600" fill="#f4efe6">umbra mcp</text>
-  <text x="76" y="486" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">Claude Code, Codex,</text><text x="76" y="522" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">Cursor, Claude Desktop</text><text x="76" y="558" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">every command a tool</text>
+  <rect x="48" y="416" width="5" height="34" rx="2.5" fill="#93b4ff"/>
+  <text x="76" y="444" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="27" font-weight="600" fill="#f1f4fc">umbra mcp</text>
+  <text x="76" y="486" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">Claude Code, Codex,</text><text x="76" y="522" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">Cursor, Claude Desktop</text><text x="76" y="558" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">every command a tool</text>
   <rect x="435" y="108" width="330" height="494" rx="18" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.16"/>
-  <rect x="435" y="134" width="5" height="34" rx="2.5" fill="#f6b26b"/>
-  <text x="463" y="162" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" font-weight="600" fill="#f4efe6">Daemon</text>
-  <text x="463" y="204" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">one per profile</text><text x="463" y="240" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">unix socket, JSON lines</text><text x="463" y="276" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">starts on first use</text><text x="463" y="312" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">exits after 15 idle min</text><text x="463" y="348" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3"></text><text x="463" y="384" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">snapshot, refs and</text><text x="463" y="420" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">actions in an isolated</text><text x="463" y="456" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">JavaScript world</text>
+  <rect x="435" y="134" width="5" height="34" rx="2.5" fill="#93b4ff"/>
+  <text x="463" y="162" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" font-weight="600" fill="#f1f4fc">Daemon</text>
+  <text x="463" y="204" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">one per profile</text><text x="463" y="240" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">unix socket, JSON lines</text><text x="463" y="276" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">starts on first use</text><text x="463" y="312" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">exits after 15 idle min</text><text x="463" y="348" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd"></text><text x="463" y="384" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">snapshot, refs and</text><text x="463" y="420" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">actions in an isolated</text><text x="463" y="456" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">JavaScript world</text>
   <rect x="822" y="108" width="330" height="212" rx="18" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.16"/>
-  <rect x="822" y="134" width="5" height="34" rx="2.5" fill="#f6b26b"/>
-  <text x="850" y="162" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" font-weight="600" fill="#f4efe6">Tabs</text>
-  <text x="850" y="204" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">WebKit, off screen</text><text x="850" y="240" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">pages report visible</text><text x="850" y="276" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">trusted native input</text>
+  <rect x="822" y="134" width="5" height="34" rx="2.5" fill="#93b4ff"/>
+  <text x="850" y="162" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" font-weight="600" fill="#f1f4fc">Tabs</text>
+  <text x="850" y="204" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">WebKit, off screen</text><text x="850" y="240" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">pages report visible</text><text x="850" y="276" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">trusted native input</text>
   <rect x="822" y="390" width="330" height="212" rx="18" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.16"/>
-  <rect x="822" y="416" width="5" height="34" rx="2.5" fill="#c06bd6"/>
-  <text x="850" y="444" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" font-weight="600" fill="#f4efe6">Cookie store</text>
-  <text x="850" y="486" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">Umbra's own, on disk</text><text x="850" y="522" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">one per profile</text><text x="850" y="558" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">values never printed</text>
+  <rect x="822" y="416" width="5" height="34" rx="2.5" fill="#b5a1ff"/>
+  <text x="850" y="444" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" font-weight="600" fill="#f1f4fc">Cookie store</text>
+  <text x="850" y="486" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">Umbra's own, on disk</text><text x="850" y="522" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">one per profile</text><text x="850" y="558" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">values never printed</text>
   <rect x="48" y="672" width="717" height="176" rx="18" fill="#ffffff" fill-opacity="0.02" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="7 7" stroke-opacity="0.22"/>
-  <rect x="48" y="698" width="5" height="34" rx="2.5" fill="#9a93b3"/>
-  <text x="76" y="726" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" font-weight="600" fill="#f4efe6">Safari and your screen, untouched</text>
-  <text x="76" y="768" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">no focus taken, no shared cookies</text><text x="76" y="804" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">no Safari tabs, no Dock icon while it works</text>
+  <rect x="48" y="698" width="5" height="34" rx="2.5" fill="#98a5bf"/>
+  <text x="76" y="726" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" font-weight="600" fill="#f1f4fc">Safari and your screen, untouched</text>
+  <text x="76" y="768" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">no focus taken, no shared cookies</text><text x="76" y="804" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">no Safari tabs, no Dock icon while it works</text>
   <g transform="translate(725 812)" opacity="0.7">
-    <circle r="20" fill="none" stroke="#c3bdd3" stroke-width="2.5"/>
-    <g transform="rotate(45)"><path d="M0 -15 L4.5 0 L-4.5 0 Z" fill="#ff6b6b"/><path d="M0 15 L4.5 0 L-4.5 0 Z" fill="#c3bdd3"/></g>
+    <circle r="20" fill="none" stroke="#c2cadd" stroke-width="2.5"/>
+    <g transform="rotate(45)"><path d="M0 -15 L4.5 0 L-4.5 0 Z" fill="#b5a1ff"/><path d="M0 15 L4.5 0 L-4.5 0 Z" fill="#c2cadd"/></g>
   </g>
   <rect x="822" y="672" width="330" height="176" rx="18" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.16"/>
-  <rect x="822" y="698" width="5" height="34" rx="2.5" fill="#5fd38d"/>
-  <text x="850" y="726" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="27" font-weight="600" fill="#f4efe6">sign-in, handoff</text>
-  <text x="850" y="768" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">a window only when</text><text x="850" y="804" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c3bdd3">you're needed</text><line x1="384" y1="214.0" x2="415" y2="214.0" stroke="#f6b26b" stroke-width="3"/><path d="M429 214.0 L413 206.0 L413 222.0 Z" fill="#f6b26b"/><line x1="384" y1="496.0" x2="415" y2="496.0" stroke="#f6b26b" stroke-width="3"/><path d="M429 496.0 L413 488.0 L413 504.0 Z" fill="#f6b26b"/><line x1="771" y1="214.0" x2="802" y2="214.0" stroke="#f6b26b" stroke-width="3"/><path d="M816 214.0 L800 206.0 L800 222.0 Z" fill="#f6b26b"/><line x1="987.0" y1="340" x2="987.0" y2="370" stroke="#f6b26b" stroke-width="3"/><path d="M987.0 384 L979.0 368 L995.0 368 Z" fill="#f6b26b"/><path d="M987.0 326 L995.0 342 L979.0 342 Z" fill="#f6b26b"/><line x1="987.0" y1="666" x2="987.0" y2="622" stroke="#f6b26b" stroke-width="3"/><path d="M987.0 608 L995.0 624 L979.0 624 Z" fill="#f6b26b"/>
+  <rect x="822" y="698" width="5" height="34" rx="2.5" fill="#87dced"/>
+  <text x="850" y="726" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="27" font-weight="600" fill="#f1f4fc">sign-in, handoff</text>
+  <text x="850" y="768" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">a window only when</text><text x="850" y="804" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c2cadd">you're needed</text><line x1="384" y1="214.0" x2="415" y2="214.0" stroke="#93b4ff" stroke-width="3"/><path d="M429 214.0 L413 206.0 L413 222.0 Z" fill="#93b4ff"/><line x1="384" y1="496.0" x2="415" y2="496.0" stroke="#93b4ff" stroke-width="3"/><path d="M429 496.0 L413 488.0 L413 504.0 Z" fill="#93b4ff"/><line x1="771" y1="214.0" x2="802" y2="214.0" stroke="#93b4ff" stroke-width="3"/><path d="M816 214.0 L800 206.0 L800 222.0 Z" fill="#93b4ff"/><line x1="987.0" y1="340" x2="987.0" y2="370" stroke="#93b4ff" stroke-width="3"/><path d="M987.0 384 L979.0 368 L995.0 368 Z" fill="#93b4ff"/><path d="M987.0 326 L995.0 342 L979.0 342 Z" fill="#93b4ff"/><line x1="987.0" y1="666" x2="987.0" y2="622" stroke="#93b4ff" stroke-width="3"/><path d="M987.0 608 L995.0 624 L979.0 624 Z" fill="#93b4ff"/>
 </svg>
