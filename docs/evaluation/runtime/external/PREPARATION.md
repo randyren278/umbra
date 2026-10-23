@@ -1,6 +1,6 @@
 # Runtime comparison on external MiniWoB tasks
 
-Status: prepared, awaiting the lead's final candidate binary hash and completion of quiet performance measurements. No final 1,250-episode campaign has started.
+Status: two separate campaigns are prepared against frozen candidate `0f2db45988f472004708411947026319678e6d26f500cabe913f91a9646dcfc9`, product `1a1d850`. Full regression and quiet performance measurements must finish before execution. Zero episodes have launched in either final campaign.
 
 The historical October 13 campaign is a different artifact and does not prove capability preservation for this runtime change. The new comparison uses the frozen initial Umbra binary and final candidate, unchanged upstream BrowserGym setup/validation, 125 task types, five original seeded repeats, ten interaction requests, forty observations and a 120-second episode cap. Every frozen episode remains in the denominator. Both arms use the same filtered Umbra MCP surface and model configuration. Arm order is deterministically shuffled per task/repeat.
 
@@ -30,3 +30,13 @@ The controller can read pinned source and run `setup()`/`validate()`; the model 
 After the lead supplies the candidate hash, verify it, then freeze a new directory with `--baseline-binary INITIAL --umbra-binary CANDIDATE --repeats 5 --timeout 120` and all dependency paths. Confirm exactly 1,250 cases, 125 unique task types and 625 cases per arm before execution. Run at four workers only after the quiet performance matrix has completed. The hard episode-cap budget alone is about 10.4 hours (1,250 × 120 / 4); setup/cleanup and scheduling add overhead. The pilot is not a valid full-suite runtime estimate.
 
 Run `compare_report.py --root RAW --out REPORT` after the campaign; preserve unfinished episodes and failures, verify all cleanup receipts, and inspect task-level paired outcomes as well as aggregate scores. Report positive reward and full reward separately, with paired task-cluster intervals. A nonnegative observed score difference is not proof of statistical noninferiority or per-task equivalence. Do not claim the capability acceptance gate until this final campaign is complete and audited.
+
+## Separate competitor campaign
+
+The initial-Umbra comparison above remains unchanged at 1,250 episodes. A second, separate 1,250-episode campaign uses the harness’s original candidate-Umbra versus Playwright/Chromium arms, preserving the same 125 task types, five seeds, model `gpt-6.1-sol` at high effort, ten interaction requests, forty observations and 120-second episode cap. This supplies the competitor comparison required by the brief; it cannot replace the initial-Umbra capability-preservation comparison.
+
+Prepared task artifacts are `external-final-v2/{preflight.json,continue.md}` for initial/candidate Umbra (manifest SHA-256 `d2ef2d98ff525e405b785bd24e7c4f6e6172fe0e56e197c8fe5cc3459bb28dad`) and `external-competitor-v1/{preflight.json,continue.md}` for candidate/Playwright (manifest SHA-256 `b3d2db1400a9d12906580140a64f924a2795ab489ade435020f0703e612d9700`). Both freeze arm order before outcomes. These are preparation receipts, not measured results.
+
+The competitor freeze records Playwright MCP 0.0.83, its Node Playwright 1.64.0-alpha-1790635538000 dependency, controller Python Playwright 1.63.0, and Chromium 151.0.7922.34 with package and binary hashes. Recheck all hashes before execution; do not silently update dependencies. Browser tools expose different action/observation affordances, and controller, inference, shared clipboard, scheduling and any soak load affect results. This is a browser-agent task comparison, not an isolated rendering-engine speed test.
+
+Execute initial-Umbra/candidate first, then candidate/Playwright, with no more than four external workers total. Each campaign retains all 1,250 frozen cases, failures, incomplete episodes, cleanup and forbidden-tool audits. The initial comparison uses `compare_report.py`; the competitor comparison uses the original `report.py` with its proper Umbra/Playwright labels. Report positive and full reward separately, task-cluster uncertainty, timing limits and actual overlap with soak. Neither campaign may run during quiet performance matrices.

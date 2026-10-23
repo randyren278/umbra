@@ -43,6 +43,7 @@ All entries start **pending**. Implementation, passing tests and a performance r
 | 1, 4, 8, 16, 32 clients | Isolation, fairness, cancellation, success and resource accounting at each level |
 | 24-hour localhost soak | Live process handle, periodic health/resource evidence and final cleanup receipt |
 | No task-success regression | Frozen task suite with denominator and baseline/candidate failure details |
+| Relevant competitor comparison | Separate frozen candidate/Playwright-Chromium campaign on the same external tasks, seeds and model; report interface differences and retain every outcome |
 | Docs/SVGs and prominent stats | XML/link/data checks and inspected desktop/mobile renders; no green/orange metric accents |
 | Commit in chunks | Lead-owned focused commits; preserve the initial uncommitted patch |
 
