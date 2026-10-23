@@ -1,6 +1,9 @@
 {
   "createdUTC": "2026-10-23T06:17:24Z",
   "workloadSha256": "bd536999c3efca63a69c02160bf2122597a05970f9a711d912d8c6cd936d8318",
-  "candidateSha256": null,
-  "status": "Workload frozen before candidate selection. Candidate hash must be supplied by lead. Baseline pilot is plumbing only; no comparative claims."
+  "candidateSha256": "b3cab7cfd178ffc10613ec83ae42499148bd4704892491fcad5342a4dd7f5cab",
+  "status": "Candidate functional regression passed385tests/1skip+17smoke; comparative measurements starting under the unchanged frozen workload/method. Targets remain unproven.",
+  "sdkSha256": "1de49bf4f21951045660ce112fa94dc888fba1ffaba166c94974b882f88acfdb",
+  "productCommit": "40bd72a",
+  "candidateSelectedUTC": "2026-10-23T08:31:42.742908+00:00"
 }

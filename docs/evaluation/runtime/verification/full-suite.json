@@ -1,0 +1,118 @@
+{
+  "binarySha256": "b3cab7cfd178ffc10613ec83ae42499148bd4704892491fcad5342a4dd7f5cab",
+  "sdkSha256": "1de49bf4f21951045660ce112fa94dc888fba1ffaba166c94974b882f88acfdb",
+  "productCommit": "40bd72afe5c9d907e29786350d0e21538c0bde39",
+  "tests": 385,
+  "skipped": 1,
+  "smokeChecks": 17,
+  "exitCode": 0,
+  "wallSeconds": 822,
+  "suites": {
+    "test_umbra.py": {
+      "tests": 99,
+      "skipped": 0
+    },
+    "test_daemon.py": {
+      "tests": 135,
+      "skipped": 1
+    },
+    "mcp_conformance.py": {
+      "tests": 32,
+      "skipped": 0
+    },
+    "test_runtime.py": {
+      "tests": 19,
+      "skipped": 0
+    },
+    "test_request_identity.py": {
+      "tests": 4,
+      "skipped": 0
+    },
+    "test_capture_cancel.py": {
+      "tests": 8,
+      "skipped": 0
+    },
+    "test_idle_cancel.py": {
+      "tests": 5,
+      "skipped": 0
+    },
+    "test_headroom.py": {
+      "tests": 2,
+      "skipped": 0
+    },
+    "test_observe.py": {
+      "tests": 13,
+      "skipped": 0
+    },
+    "test_watch_cleanup.py": {
+      "tests": 4,
+      "skipped": 0
+    },
+    "test_frames.py": {
+      "tests": 9,
+      "skipped": 0
+    },
+    "test_events.py": {
+      "tests": 6,
+      "skipped": 0
+    },
+    "test_mcp_runtime.py": {
+      "tests": 5,
+      "skipped": 0
+    },
+    "test_resource_cleanup.py": {
+      "tests": 6,
+      "skipped": 0
+    },
+    "test_execution.py": {
+      "tests": 18,
+      "skipped": 0
+    },
+    "test_failure_bundle.py": {
+      "tests": 4,
+      "skipped": 0
+    },
+    "test_process_metrics.py": {
+      "tests": 7,
+      "skipped": 0
+    },
+    "test_sdk.py": {
+      "tests": 9,
+      "skipped": 0
+    }
+  },
+  "logSha256": "4021dda34b53c805046406841cff05ec440f2ac7c2b9a93a4fd1726fc559b5a0",
+  "sourceSha256": {
+    "Sources/Capture.swift": "41d1781724bae9852920e0cccdaf0d15b97408175e7430d269b5453054c6f966",
+    "Sources/CaptureObserve.swift": "49813c7b8fb9321d8e60011623706d6e3f27b92f67838cc503a8c0e59d3cbb04",
+    "Sources/CaptureText.swift": "d073e228adab6a57bb7e19a38f6c012b2b1f5add0c953e3402488ed481adac92",
+    "Sources/CoreCommands.swift": "0ff25a6b357ea96d2e2b2a971cf58da3a99061d87d3c2065a0bac0349c66e360",
+    "Sources/Engine.swift": "ab43773ddcfd3c46f766e5b4f8a4104779ba471ddad468511fd6d634ada5931e",
+    "Sources/Events.swift": "b64dade352506347d4737022ac4ff5d2a56642c057306f2c0a3a2b8ae23ee135",
+    "Sources/Execution.swift": "2e9ab3cb9c137d2d7f3e0b7579ff97d1e6d7688f8f878273a7a29050df565fb2",
+    "Sources/Frames.swift": "706f5675cba05ba0cf9e2ed4d0d5e59794ec6c25ed61742a003638ee9b96ada6",
+    "Sources/Inspector.swift": "1d9ca761e0c3b80dce7b321410287f1d01d0599f9b3d67b49305a6e7bba9c9fb",
+    "Sources/Interact.swift": "c5fa1af70bed4c57f3bb6017ffdbcad2de7b819a4fa6e6d26606c8f716b3a041",
+    "Sources/InteractJS.swift": "713bc02a84b09d886ec4f42de9a18cbf2df6694b8bd383c4467f39601e26aa08",
+    "Sources/KeepSignedIn.swift": "fef876b4d600b6e9abf629f79a5ad232f34ed87b2d4ecadd297697a6c0194094",
+    "Sources/Logo.swift": "38211ceee82cf649e6317c810a3ae92768e192dad305f312c6acb49460acad43",
+    "Sources/MCP.swift": "15679c0e18a2378490ad7ecaf0e2f01ef8b985e43c2285303d5faa3fb8cfb225",
+    "Sources/Observe.swift": "3140431b17dc156194a5b8b1979313da8dbe9c7aae88389c12babb5902ed1183",
+    "Sources/OneShot.swift": "69c23999fa67fd6335e247eb17ee2bb965180744dfe7a3f19a44c647446eeee6",
+    "Sources/ProcessMetrics.swift": "ef420d6d8e17fa2580ec0134bfd85ec45686f53948369c3df314dee81888f675",
+    "Sources/Recording.swift": "6fe5266d7318b58c50bd0e012a62a23b8ed60600d169e3675b7b143d98ff531f",
+    "Sources/Registry.swift": "f9a33928144976ca48211d9e0e30c850cc8fae4fa22af6151859c692d90d1068",
+    "Sources/Resources.swift": "a32a0148f64d5e76d87020190ffd6191bd8d0055143294f8b2b3d66aa1a3d1db",
+    "Sources/Runtime.swift": "a233f4470c9806e1aee5a9d2d0694ff9dbc92590c4fb293ad3e40feead36b381",
+    "Sources/Server.swift": "4ea46666088925219fd91adfcce98874024ea74a3f68b78c4f8c9bd463d3c2d1",
+    "Sources/SignIn.swift": "7ad101ca368ee25dfaff74ccfc8fab47616fc92f11cb7787cad81dedf70ca900",
+    "Sources/Store.swift": "e2abde2a830bdd2ffed18ccb37e0f326218a5fa808f166deae928721e2f838a5",
+    "Sources/main.swift": "6d2489d5197600ba37947df6238f5150010e15af5ec63645b91064569cbde049",
+    "Info.plist": "8cc08737a365516ac1168322a82a116c543fd5e13f399dbd7fda7c35c41c9c15",
+    "Makefile": "2298d8fca0df35997ddfade996b180f943e5994dbcdea4e3aad7397af852cb16",
+    "sdk/python/umbra.py": "1de49bf4f21951045660ce112fa94dc888fba1ffaba166c94974b882f88acfdb",
+    "sdk/typescript/umbra.ts": "ad2185b29c6e78f38b4258d26f4c3ff23a45d6d195c6795683978bf4b9acd6e2",
+    "sdk/swift/Umbra.swift": "14ba2aeae3f39ea3c6b3bad7675c2aba0e7a813ea400391b62cdf56017508ef8"
+  },
+  "scope": "Complete combined localhost functional regression; not performance or24hour stability evidence"
+}
