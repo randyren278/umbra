@@ -1,0 +1,202 @@
+== smoke.sh (/private/var/folders/l0/f73q0dln26v1fk40dxfc_w9h0000gn/T/umbra-runtime-k_tqurzx/frozen-candidate-v5/Umbra.app/Contents/MacOS/umbra)
+ok   read returns the script's value
+ok   read with no script prints the page
+ok   read awaits and prints JSON
+ok   read waits for a page global
+ok   a throwing script exits 2
+ok   a missing session cookie exits 3
+ok   an unreachable page exits 4
+ok   a slow script exits 2 at the timeout
+ok   fetch prints the body
+ok   an HTTP error exits 5 and still prints the body
+ok   download saves the exact bytes
+ok   download replaces an existing file
+ok   a download HTTP error exits 5
+ok   concurrent runs take turns
+ok   cookies lists the store
+ok   an unknown command exits 64
+ok   the profile's store is keyed by the bundle identifier and profile name
+all passed
+
+== test_umbra.py
+...................................................................................................
+----------------------------------------------------------------------
+Ran 99 tests in 152.788s
+
+OK
+
+== test_daemon.py
+...........................................................................................................s...........................
+----------------------------------------------------------------------
+Ran 135 tests in 351.897s
+
+OK (skipped=1)
+
+== mcp_conformance.py
+................
+initialize, from spawn to answer: best 13.9 ms, median 16.6 ms of 7
+................cleanup: every daemon exited; removed the stores and files of mcp-a5d8499b and mcp-a5d8499b-cold
+
+----------------------------------------------------------------------
+Ran 32 tests in 18.145s
+
+OK
+
+== test_runtime.py
+...................
+----------------------------------------------------------------------
+Ran 19 tests in 58.939s
+
+OK
+
+== test_condition_wait.py
+..........
+----------------------------------------------------------------------
+Ran 10 tests in 15.342s
+
+OK
+
+== test_transport_pressure.py
+.............
+----------------------------------------------------------------------
+Ran 13 tests in 8.136s
+
+OK
+
+== test_popup_ownership.py
+..
+----------------------------------------------------------------------
+Ran 2 tests in 4.186s
+
+OK
+
+== test_observation_efficiency.py
+......
+----------------------------------------------------------------------
+Ran 6 tests in 5.225s
+
+OK
+
+== test_request_identity.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 11.678s
+
+OK
+
+== test_capture_cancel.py
+........
+----------------------------------------------------------------------
+Ran 8 tests in 19.407s
+
+OK
+
+== test_idle_cancel.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 22.064s
+
+OK
+
+== test_headroom.py
+..
+----------------------------------------------------------------------
+Ran 2 tests in 1.025s
+
+OK
+
+== test_observe.py
+.............
+----------------------------------------------------------------------
+Ran 13 tests in 17.919s
+
+OK
+
+== test_watch_cleanup.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 9.641s
+
+OK
+
+== test_frames.py
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 9.257s
+
+OK
+
+== test_events.py
+......
+----------------------------------------------------------------------
+Ran 6 tests in 7.983s
+
+OK
+
+== test_mcp_runtime.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 6.475s
+
+OK
+
+== test_resource_cleanup.py
+......
+----------------------------------------------------------------------
+Ran 6 tests in 19.681s
+
+OK
+
+== test_execution.py
+..................
+----------------------------------------------------------------------
+Ran 18 tests in 48.647s
+
+OK
+
+== test_failure_bundle.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 3.331s
+
+OK
+
+== test_process_metrics.py
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 14.066s
+
+OK
+
+== test_sdk.py
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 7.854s
+
+OK
+
+== summary
+smoke.sh                 passed (11s)
+test_umbra.py            passed, 99 tests (159s)
+test_daemon.py           passed, 135 tests, 1 skipped (359s)
+mcp_conformance.py       passed, 32 tests (18s)
+test_runtime.py          passed, 19 tests (60s)
+test_condition_wait.py   passed, 10 tests (16s)
+test_transport_pressure.py passed, 13 tests (10s)
+test_popup_ownership.py  passed, 2 tests (5s)
+test_observation_efficiency.py passed, 6 tests (6s)
+test_request_identity.py passed, 4 tests (12s)
+test_capture_cancel.py   passed, 8 tests (20s)
+test_idle_cancel.py      passed, 5 tests (23s)
+test_headroom.py         passed, 2 tests (2s)
+test_observe.py          passed, 13 tests (19s)
+test_watch_cleanup.py    passed, 4 tests (10s)
+test_frames.py           passed, 9 tests (10s)
+test_events.py           passed, 6 tests (9s)
+test_mcp_runtime.py      passed, 5 tests (7s)
+test_resource_cleanup.py passed, 6 tests (20s)
+test_execution.py        passed, 18 tests (50s)
+test_failure_bundle.py   passed, 4 tests (4s)
+test_process_metrics.py  passed, 7 tests (15s)
+test_sdk.py              passed, 9 tests (8s)
+total 853s
