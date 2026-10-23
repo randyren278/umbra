@@ -1,0 +1,122 @@
+{
+  "verifiedUTC": "2026-10-23T20:58:51.794558+00:00",
+  "claim": "Built app and release archive contain the current cool-color icon at every macOS icon size",
+  "iconSourceReceipt": "assets/AppIcon.json",
+  "staleOldIconRejectedByValidator": true,
+  "bundles": [
+    {
+      "artifact": "build/Umbra.app",
+      "iconSha256": "28514909fc2cf517ba99083a9a346cd872cf6efdfdb30894044dfd352aab1c5d",
+      "signatureValid": true,
+      "iconSizes": {
+        "icon_32x32@2x.png": [
+          64,
+          64
+        ],
+        "icon_128x128.png": [
+          128,
+          128
+        ],
+        "icon_256x256@2x.png": [
+          512,
+          512
+        ],
+        "icon_32x32.png": [
+          32,
+          32
+        ],
+        "icon_512x512.png": [
+          512,
+          512
+        ],
+        "icon_16x16.png": [
+          16,
+          16
+        ],
+        "icon_16x16@2x.png": [
+          32,
+          32
+        ],
+        "icon_128x128@2x.png": [
+          256,
+          256
+        ],
+        "icon_512x512@2x.png": [
+          1024,
+          1024
+        ],
+        "icon_256x256.png": [
+          256,
+          256
+        ]
+      }
+    },
+    {
+      "artifact": "dist/Umbra-0.2.0.zip",
+      "iconSha256": "28514909fc2cf517ba99083a9a346cd872cf6efdfdb30894044dfd352aab1c5d",
+      "signatureValid": true,
+      "iconSizes": {
+        "icon_32x32@2x.png": [
+          64,
+          64
+        ],
+        "icon_128x128.png": [
+          128,
+          128
+        ],
+        "icon_256x256@2x.png": [
+          512,
+          512
+        ],
+        "icon_32x32.png": [
+          32,
+          32
+        ],
+        "icon_512x512.png": [
+          512,
+          512
+        ],
+        "icon_16x16.png": [
+          16,
+          16
+        ],
+        "icon_16x16@2x.png": [
+          32,
+          32
+        ],
+        "icon_128x128@2x.png": [
+          256,
+          256
+        ],
+        "icon_512x512@2x.png": [
+          1024,
+          1024
+        ],
+        "icon_256x256.png": [
+          256,
+          256
+        ]
+      }
+    }
+  ],
+  "archiveSha256": "047bf74ba15d2a0748277335c870c68115afe3b3d66b18e6e04f2a9ec6240d10",
+  "binarySha256": "b6a303a5c8840ed163b32e71930f17bca55ba3f8c09bdc828eafb20536f926c7",
+  "installedAppChanged": false,
+  "localhostSmoke": {
+    "openFillClickAndReadPassed": true,
+    "state": {
+      "done": "ICON-BUILD-OK",
+      "entry": "ICON-BUILD-OK",
+      "title": "Icon build smoke"
+    },
+    "daemonGone": true,
+    "profileFilesGone": true
+  },
+  "runtimeSectionsUnchanged": {
+    "baselineBinarySha256": "bace278786dd13901a428728c8dbc1e0ef542f78feaf7ba6c26df38ab212ad1e",
+    "currentBinarySha256": "b6a303a5c8840ed163b32e71930f17bca55ba3f8c09bdc828eafb20536f926c7",
+    "allMachOSectionHashesMatch": true,
+    "sections": 33,
+    "note": "Bundle re-signing changes the executable signature; runtime section bytes are unchanged."
+  }
+}

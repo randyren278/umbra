@@ -3,6 +3,8 @@
 social-preview.png and AppIcon.icns (the last two need rsvg-convert, and the icon iconutil). Run from
 anywhere (or `make icon`); writes beside this file. The words on the artwork and the how-it-works
 diagram are data, defined just below the palette."""
+import hashlib
+import json
 import math
 import random
 import shutil
@@ -339,6 +341,11 @@ def main():
                 suffix = "" if scale == 1 else "@2x"
                 render(icon(small=pixels <= 32), iconset / f"icon_{size}x{size}{suffix}.png", pixels, pixels)
         subprocess.run(["iconutil", "-c", "icns", "-o", str(HERE / "AppIcon.icns"), str(iconset)], check=True)
+    (HERE / "AppIcon.json").write_text(json.dumps({
+        "source": hashlib.sha256(icon().encode()).hexdigest(),
+        "smallSource": hashlib.sha256(icon(small=True).encode()).hexdigest(),
+        "icns": hashlib.sha256((HERE / "AppIcon.icns").read_bytes()).hexdigest(),
+    }, indent=2) + "\n")
 
 
 if __name__ == "__main__":

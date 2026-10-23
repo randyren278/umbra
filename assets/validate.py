@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Check SVG accessibility, the cool palette, and charts against recorded data."""
+import hashlib
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -29,6 +30,11 @@ def main():
     documentation, blocks = doc_figures.outputs(manifest)
     expected.update({'docs/' + name: source for name, source in documentation.items()})
     failures = []
+    icon_receipt = json.loads((HERE / 'AppIcon.json').read_text())
+    for key, source in [('source', build.icon().encode()), ('smallSource', build.icon(small=True).encode()),
+                        ('icns', (HERE / 'AppIcon.icns').read_bytes())]:
+        if icon_receipt.get(key) != hashlib.sha256(source).hexdigest():
+            failures.append(f'AppIcon.icns: stale {key}; regenerate with make icon')
     files = sorted(HERE.rglob("*.svg"))
     for path in files:
         source = path.read_text()
