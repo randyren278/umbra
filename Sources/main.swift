@@ -19,7 +19,8 @@ if let index = args.firstIndex(of: "--profile"), index + 1 < args.count {
 }
 
 registry = coreCommands() + interactCommands() + captureCommands() + signInCommands() + keepSignedInCommands()
-registry += runtimeCommands() + observeCommands() + resourceCommands()
+registry += runtimeCommands() + observeCommands() + executionCommands() + resourceCommands() + inspectorCommands()
+registry += recordingCommands()
 registry += frameCommands()
 registry += eventCommands()
 registry += processCommands()

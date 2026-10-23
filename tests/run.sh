@@ -23,7 +23,9 @@ smoke=$?
 smoke_time=$((SECONDS - start))
 
 results=()
-for suite in test_umbra test_daemon mcp_conformance; do
+export UMBRA_SDK_BINARY=$UMBRA
+export UMBRA_SDK_RUNTIME=1
+for suite in test_umbra test_daemon mcp_conformance test_runtime test_request_identity test_capture_cancel test_idle_cancel test_headroom test_observe test_watch_cleanup test_frames test_events test_mcp_runtime test_resource_cleanup test_execution test_failure_bundle test_process_metrics test_sdk; do
     print "\n== $suite.py"
     start=$SECONDS
     python3 $repo/tests/$suite.py "$@" 2>&1 | tee $log
