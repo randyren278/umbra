@@ -1220,6 +1220,30 @@ class KeepSignedInTests(UmbraCase):
         self.assertReport(r.text, 'App: signed in')
         self.assertEqual(len(self.srv.requests('/slow-app')), 1)
 
+    def test_a_rendered_probe_asks_again_on_the_page_an_ended_session_leaves_for(self):
+        # Regression: Air Canada's app, finding its session over, leaves for a signed-out page while the
+        # script is still waiting for a token. That read "couldn't check" instead of signed out.
+        self.srv.page('/app', "<title>Account</title><script>window.inside = true; setTimeout(() => location.replace('/gone'), 500);</script>")
+        self.srv.page('/gone', '<title>Signed out</title>')
+        script = 'await new Promise(r => setTimeout(r, 1500)); return window.inside === true;'
+        r = self.keep(sites=self.kept(self.site('App', probe='/app', probeScript=script)))
+        self.assertExit(r, 3)
+        self.assertReport(r.err, self.SIGNED_OUT.format('App'))
+        self.assertEqual(len(self.srv.requests('/gone')), 1)
+
+    def test_a_rendered_probe_cannot_answer_for_a_page_that_is_leaving(self):
+        self.srv.page('/app', "<title>Account</title><script>window.inside = true; setTimeout(() => location.replace('/gone'), 500);</script>")
+
+        @self.srv.route('/gone')
+        def gone(h):
+            time.sleep(2)
+            h.reply(200, '<title>Signed out</title>')
+
+        script = 'await new Promise(r => setTimeout(r, 750)); return window.inside === true;'
+        r = self.keep(sites=self.kept(self.site('App', probe='/app', probeScript=script)))
+        self.assertExit(r, 3)
+        self.assertReport(r.err, self.SIGNED_OUT.format('App'))
+
     def test_a_rendered_probe_rejects_a_stale_cookie_and_a_public_200_shell(self):
         self.sign_in()
         self.srv.page('/app', '<title>Public app shell</title>')
@@ -1307,6 +1331,77 @@ class KeepSignedInTests(UmbraCase):
         r = self.keep(sites=sites)
         self.assertExit(r, 0)
         self.assertReport(r.text, 'Form: signed in', 'Link: signed in', 'Button: signed in')
+
+    def token_app(self, valid, headers_first=False):
+        """A single-page app on its login page, as Wealthsimple's: it lets someone with a refresh token
+        in at once, then spends the token, which the server honours once and answers slowly. A refused
+        token signs them out. Returns the tokens the server has issued, newest last."""
+        tokens = [valid]
+
+        @self.srv.route('/token')
+        def token(h):
+            spent = h.req.cookies.get('rt') != tokens[-1]
+            if not spent:
+                tokens.append(f't{len(tokens)}')
+            if headers_first and not spent:
+                body = json.dumps({'refresh_token': tokens[-1]}).encode()
+                h.send_response(200)
+                h.send_header('Content-Type', 'application/json')
+                h.send_header('Content-Length', str(len(body)))
+                h.end_headers()
+                h.wfile.flush()
+                time.sleep(2)
+                h.wfile.write(body)
+                return
+            time.sleep(2)
+            if spent:
+                return h.reply(400, '{"error": "invalid_grant"}', 'application/json')
+            h.reply(200, json.dumps({'refresh_token': tokens[-1]}), 'application/json')
+
+        self.srv.page('/seed-rt', '<title>in</title>', headers=[('Set-Cookie', 'rt=t0; Path=/; Max-Age=3600')])
+        self.srv.page('/app/login', '''<title>App</title><body><script>
+          if (/(^|; )rt=/.test(document.cookie)) {
+            history.replaceState(null, '', '/app/home');
+            document.body.innerHTML = '<button>Log out</button>';
+            fetch('/token', {method: 'POST'}).then(r => r.ok ? r.json() : Promise.reject())
+              .then(t => { document.cookie = `rt=${t.refresh_token}; Path=/; Max-Age=3600`; },
+                    () => { document.cookie = 'rt=; Path=/; Max-Age=0'; location.replace('/app/login'); });
+          } else {
+            document.body.innerHTML = '<form><input type=password name=p></form>';
+          }
+        </script></body>''')
+        self.sign_in('/seed-rt')
+        return tokens
+
+    def test_a_login_page_check_lets_the_app_finish_spending_its_refresh_token(self):
+        # Regression: Wealthsimple's app spends its single-use refresh token as it starts. The check
+        # closed the page a second after the app let the person in, with the new token still on its
+        # way, so the next refresh was refused and the site signed them out.
+        tokens = self.token_app('t0')
+        sites = self.kept(self.site('App', login=self.srv.url('/app/login')))
+        for visit in range(2):
+            r = self.keep(sites=sites)
+            self.assertExit(r, 0)
+            self.assertReport(r.text, 'App: signed in')
+        self.assertEqual(tokens, ['t0', 't1', 't2'], 'each visit refreshes once, with the token the last one got')
+        self.assertExit(self.umbra('read', self.srv.url('/echo'), input='return 1', sites=sites), 0)
+        self.assertEqual(self.srv.requests('/echo')[-1].cookies.get('rt'), 't2', 'the newest token is kept')
+
+    def test_a_login_page_check_answers_once_the_app_has_heard_back(self):
+        # An app that lets someone in from what it remembers, then hears the session is over, is signed out.
+        self.token_app('revoked')
+        r = self.keep(sites=self.kept(self.site('App', login=self.srv.url('/app/login'))))
+        self.assertExit(r, 3)
+        self.assertReport(r.err, self.SIGNED_OUT.format('App'))
+
+    def test_a_login_page_check_waits_for_the_refresh_token_response_body(self):
+        tokens = self.token_app('t0', headers_first=True)
+        sites = self.kept(self.site('App', login=self.srv.url('/app/login')))
+        for visit in range(2):
+            r = self.keep(sites=sites)
+            self.assertExit(r, 0)
+            self.assertReport(r.text, 'App: signed in')
+        self.assertEqual(tokens, ['t0', 't1', 't2'])
 
     def test_a_renewed_session_cookie_is_kept_for_the_next_request(self):
         # keepSignedIn implies keepSession: the entry has no keepSession, yet the renewed

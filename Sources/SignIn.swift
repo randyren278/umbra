@@ -237,15 +237,65 @@ enum Landing {
     }
 }
 
+/// Requests in a sign-in page, including fetch bodies that may carry the renewed session.
+final class Requests: NSObject, WKScriptMessageHandler {
+    static let script = #"""
+    (() => {
+      const handler = window.webkit?.messageHandlers?.umbraRequests;
+      if (!handler || location.protocol === 'about:') return;
+      const post = kind => handler.postMessage(kind);
+      post('doc');
+      const fetch0 = window.fetch;
+      if (fetch0) window.fetch = function (...args) {
+        post('start');
+        return fetch0.apply(this, args).then(response => {
+          const end = () => post('end');
+          try {
+            const body = response.clone().body;
+            if (body) body.pipeTo(new WritableStream()).then(end, end);
+            else end();
+          } catch { end(); }
+          return response;
+        }, error => { post('end'); throw error; });
+      };
+      const send0 = XMLHttpRequest.prototype.send;
+      XMLHttpRequest.prototype.send = function (...args) {
+        post('start');
+        const end = () => post('end');
+        this.addEventListener('loadend', end, {once: true});
+        try { return send0.apply(this, args); }
+        catch (error) { this.removeEventListener('loadend', end); end(); throw error; }
+      };
+    })();
+    """#
+
+    var inflight = 0
+
+    func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
+        switch message.body as? String {
+        case "start": inflight += 1
+        case "end": inflight = max(0, inflight - 1)
+        case "doc" where message.frameInfo.isMainFrame: inflight = 0
+        default: break
+        }
+    }
+}
+
 /// Whether a site with no cookie or probe is signed in, asked as a person would: its login page,
 /// loaded where nobody sees it, watched until it lets the person in (a second) or stays at a
-/// sign-in step (two and a half).
+/// sign-in step (two and a half), and until the page's own requests are done. A site's app may
+/// renew its session as it starts (Wealthsimple spends a single-use refresh token): closing the
+/// page mid-request loses the renewal, and answering then misses the app hearing the session is over.
 final class Arrival: NSObject, WKNavigationDelegate {
     private static var running: Set<Arrival> = []
     private let web = WKWebView(frame: NSRect(x: 0, y: 0, width: 1280, height: 900), configuration: configuration())
+    private let requests = Requests()
     private let site: Site
     private var done: ((Signed, String?) -> Void)?
     private var seen: (look: Signed, times: Int)?
+    private var answer: (result: Signed, reason: String?)?
+    private var quiet = 0  // looks in a row with none of the page's requests under way
+    private var page = 0   // navigations begun so far
     private var timer: Timer?
     private var probing = false
     private var loaded = false
@@ -261,41 +311,58 @@ final class Arrival: NSObject, WKNavigationDelegate {
         self.site = site
         self.done = done
         super.init()
+        let controller = web.configuration.userContentController
+        controller.addUserScript(WKUserScript(source: Requests.script, injectionTime: .atDocumentStart, forMainFrameOnly: false))
+        controller.add(requests, contentWorld: .page, name: "umbraRequests")
         web.navigationDelegate = self
         web.load(URLRequest(url: url))
         timer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in self?.watch() }
         let timeout = site.probeScript == nil ? 15 : 30
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(timeout)) { [weak self] in
-            self?.finish(.unknown, "no answer in \(timeout) seconds")
+            guard let self else { return }
+            // A page whose requests never stop still gives the answer it settled on.
+            let (result, reason) = self.answer ?? (.unknown, "no answer in \(timeout) seconds")
+            self.finish(result, reason)
         }
     }
 
     private func watch() {
+        guard loaded else { return }
+        quiet = requests.inflight == 0 ? quiet + 1 : 0
+        if let answer, quiet >= 2 { return finish(answer.result, answer.reason) }
+        let page = self.page
         if let script = site.probeScript {
-            guard loaded, !probing else { return }
+            guard !probing else { return }
             probing = true
             return web.evaluateJavaScript("document.readyState === 'complete'", in: nil, in: .defaultClient) { [weak self] result in
-                guard let self, self.done != nil else { return }
+                guard let self, self.done != nil, self.page == page else { return }
                 guard case .success(let ready) = result, ready as? Bool == true else {
                     self.probing = false
                     return
                 }
                 self.web.callAsyncJavaScript(script, arguments: [:], in: nil, in: .page) { [weak self] result in
-                    guard let self, self.done != nil else { return }
+                    guard let self, self.done != nil, self.page == page else { return }
                     guard case .success(let value) = result, let signedIn = value as? NSNumber,
                           CFGetTypeID(signedIn) == CFBooleanGetTypeID() else {
-                        return self.finish(.unknown, "the signed-in script failed or didn't return a boolean")
+                        // A page on its way out (a site leaving for its sign-out page) takes the script
+                        // with it: ask the page it goes to.
+                        if !self.loaded { return self.probing = false }
+                        return self.answer = (.unknown, "the signed-in script failed or didn't return a boolean")
                     }
-                    self.finish(signedIn.boolValue ? .yes : .no)
+                    self.answer = (signedIn.boolValue ? .yes : .no, nil)
                 }
             }
         }
         Landing.look(web, site) { [weak self] look in
-            guard let self else { return }
-            guard let look else { return self.seen = nil }
+            guard let self, self.done != nil, self.page == page, self.loaded else { return }
+            guard let look else {
+                self.seen = nil
+                self.answer = nil
+                return
+            }
             let times = self.seen?.look == look ? self.seen!.times + 1 : 1
             self.seen = (look, times)
-            if times >= (look == .yes ? 4 : 10) { self.finish(look) }
+            self.answer = times >= (look == .yes ? 4 : 10) ? (look, nil) : nil
         }
     }
 
@@ -312,8 +379,14 @@ final class Arrival: NSObject, WKNavigationDelegate {
         if (error as NSError).code != NSURLErrorCancelled { finish(.unknown, "the page failed to load") }
     }
 
+    /// Invalidate the departing page's answer before the next page starts responding.
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         loaded = false
+        page += 1
+        probing = false
+        answer = nil
+        seen = nil
+        quiet = 0
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
