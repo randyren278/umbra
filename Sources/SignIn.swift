@@ -417,6 +417,8 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     private var waiters: [Waiter] = []
     private var pinned = false                 // opened by the person: stays until they close it
     private var page: WKWebView?
+    private var browser: BrowserView?
+    private var popups: [(web: WKWebView, window: NSWindow, browser: BrowserView)] = []
     private var current: Site?
     private var poll: Timer?                   // re-checks a cookie site while its login page is up
     private var file = sitesFile               // the sites file of the latest request: added accounts go there
@@ -683,6 +685,19 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     private func closePage() {
         poll?.invalidate()
         poll = nil
+        for popup in popups {
+            popup.web.stopLoading()
+            popup.web.navigationDelegate = nil
+            popup.web.uiDelegate = nil
+            popup.browser.finish()
+            popup.window.orderOut(nil)
+            popup.window.contentView = nil
+        }
+        let closed = popups
+        popups.removeAll()
+        DispatchQueue.main.async { _ = closed }
+        browser?.finish()
+        browser = nil
         guard let page else { return }
         page.stopLoading()
         page.navigationDelegate = nil
@@ -780,11 +795,72 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         }
     }
 
-    /// Pop-ups (some sign-ins open one) load in the same page.
+    /// Keep the provided configuration and opener: OAuth popups use window.opener/postMessage.
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
                  for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-        webView.load(navigationAction.request)
-        return nil
+        let web = WKWebView(frame: NSRect(x: 0, y: 0, width: 720, height: 640), configuration: configuration)
+        let popup = NSWindow(contentRect: web.frame, styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+        popup.isReleasedWhenClosed = false
+        popup.title = "Sign in to \(current?.name ?? "account")"
+        popup.delegate = self
+        web.uiDelegate = self
+        web.navigationDelegate = self
+        let browser = BrowserView(web)
+        popups.append((web, popup, browser))
+        browser.present(in: popup)
+        popup.center()
+        if unseen {
+            popup.alphaValue = 0
+            popup.ignoresMouseEvents = true
+            popup.collectionBehavior = [.canJoinAllSpaces]
+            popup.orderFrontRegardless()
+        } else {
+            popup.makeKeyAndOrderFront(nil)
+            popup.makeFirstResponder(web)
+        }
+        return web
+    }
+
+    func webViewDidClose(_ webView: WKWebView) {
+        popups.first { $0.web === webView }?.window.close()
+    }
+
+    private func visibleBrowser(_ webView: WKWebView) -> BrowserView? {
+        guard !unseen else { return nil }
+        return webView === page ? browser : popups.first { $0.web === webView }?.browser
+    }
+
+    func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String,
+                 initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+        guard let browser = visibleBrowser(webView) else { return completionHandler() }
+        browser.dialog("alert", message: message) { _, _ in completionHandler() }
+    }
+
+    func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String,
+                 initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+        guard let browser = visibleBrowser(webView) else { return completionHandler(false) }
+        browser.dialog("confirm", message: message) { accept, _ in completionHandler(accept) }
+    }
+
+    func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?,
+                 initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
+        guard let browser = visibleBrowser(webView) else { return completionHandler(nil) }
+        browser.dialog("prompt", message: prompt, text: defaultText) { accept, text in completionHandler(accept ? text : nil) }
+    }
+
+    func webView(_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters,
+                 initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping ([URL]?) -> Void) {
+        guard let browser = visibleBrowser(webView) else { return completionHandler(nil) }
+        browser.chooseFiles(parameters, done: completionHandler)
+    }
+
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        if webView === page { browser?.failed(error) }
+        else { popups.first { $0.web === webView }?.browser.failed(error) }
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        self.webView(webView, didFailProvisionalNavigation: navigation, withError: error)
     }
 
     // MARK: Window
@@ -804,6 +880,16 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     }
 
     func windowWillClose(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, let index = popups.firstIndex(where: { $0.window === window }) {
+            let popup = popups.remove(at: index)
+            popup.web.stopLoading()
+            popup.web.navigationDelegate = nil
+            popup.web.uiDelegate = nil
+            popup.browser.finish()
+            popup.window.contentView = nil
+            DispatchQueue.main.async { _ = popup }
+            return
+        }
         closePage()
         pending = []
         finished.formUnion(sites.map(\.name))
@@ -1147,7 +1233,7 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
     }
 
     private func showPage(_ site: Site, _ web: WKWebView) {
-        if #unavailable(macOS 26) { window.styleMask.remove(.fullSizeContentView) }
+        window.styleMask.remove(.fullSizeContentView)
         window.styleMask.insert(.resizable)
         window.titlebarAppearsTransparent = false
         window.titleVisibility = .visible
@@ -1155,15 +1241,11 @@ final class SignInWindow: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUI
         window.subtitle = site.checkable ? "This page closes as soon as you're signed in."
             : learning.contains(site.name) ? "Sign in, then click Done. Umbra remembers this account."
             : "This page closes once you're signed in, or click Done."
-        let toolbar = NSToolbar(identifier: "page")
-        toolbar.delegate = self
-        toolbar.displayMode = .iconOnly
-        toolbar.allowsUserCustomization = false
-        window.toolbar = toolbar
-        window.toolbarStyle = .unified
-        window.contentView = web
+        let leave = toolbar(NSToolbar(identifier: "page"), itemForItemIdentifier: SignInWindow.leave, willBeInsertedIntoToolbar: true)
+        let browser = BrowserView(web, leading: leave)
+        self.browser = browser
+        browser.present(in: window)
         resize(to: NSSize(width: 1040, height: 780))
-        if #available(macOS 26, *) { web.obscuredContentInsets = NSEdgeInsets(top: titlebar, left: 0, bottom: 0, right: 0) }
     }
 
     /// One grouped card: glass from macOS 26, a rounded box before.

@@ -102,6 +102,9 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     var uploads: [URL] = []                          // what the next file chooser receives
     var downloads: [[String: Any]] = []
     var handoff: (() -> Void)?
+    private var browser: BrowserView?
+    private var hiddenSize: NSSize?
+    private var handoffParent: UUID?
     var navigations = 0                              // main-frame navigations started; actions compare before and after
     var lastUsed = Date()                            // when a command on it last finished (Engine.rest)
     var operation: String?
@@ -155,6 +158,7 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
 
     func conceal() {
         window.styleMask = [.borderless]
+        window.hasShadow = false
         window.alphaValue = 0
         window.ignoresMouseEvents = true
         window.collectionBehavior = [.transient, .ignoresCycle, .stationary]
@@ -251,10 +255,12 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        browser?.failed(error)
         failed(error)
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        browser?.failed(error)
         failed(error)
     }
 
@@ -332,6 +338,11 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         let popup = engine.open(name: nil, config: configuration, select: false)
         popup.opener = id
         if let owner = engine.runtime.lease(self) { engine.runtime.leases[popup.name] = owner }
+        if handoff != nil {
+            popup.handoffParent = id
+            popup.handoff = {}
+            popup.reveal("Browser popup")
+        }
         return popup.web
     }
 
@@ -349,23 +360,27 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
 
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+        if let browser, !unseen { return browser.dialog("alert", message: message) { _, _ in completionHandler() } }
         _ = answer("alert", message)
         completionHandler()
     }
 
     func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+        if let browser, !unseen { return browser.dialog("confirm", message: message) { accept, _ in completionHandler(accept) } }
         completionHandler(answer("confirm", message).accept)
     }
 
     func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
+        if let browser, !unseen { return browser.dialog("prompt", message: prompt, text: defaultText) { accept, text in completionHandler(accept ? text : nil) } }
         let reply = answer("prompt", prompt, default: defaultText ?? "")
         completionHandler(reply.accept ? reply.text ?? "" : nil)
     }
 
     func webView(_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping ([URL]?) -> Void) {
+        if let browser, !unseen, uploads.isEmpty { return browser.chooseFiles(parameters, done: completionHandler) }
         let files = parameters.allowsMultipleSelection ? uploads : Array(uploads.prefix(1))
         uploads = []
         completionHandler(files.isEmpty ? nil : files)
@@ -440,19 +455,41 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         window.collectionBehavior = unseen ? [.canJoinAllSpaces] : []  // unseen, it is up on whatever Space the person is on
         window.ignoresMouseEvents = unseen
         window.alphaValue = unseen ? 0 : 1
+        hiddenSize = web.frame.size
+        let browser = BrowserView(web, headless: true)
+        self.browser = browser
+        browser.present(in: window)
         let screen = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
-        window.setFrame(NSRect(x: screen.midX - engine.size.width / 2, y: screen.midY - engine.size.height / 2,
-                               width: engine.size.width, height: engine.size.height + 28), display: true)
+        let content = window.frameRect(forContentRect: NSRect(origin: .zero, size: hiddenSize!))
+        let size = NSSize(width: min(content.width, screen.width), height: min(content.height, screen.height))
+        window.setFrame(NSRect(x: screen.midX - size.width / 2, y: screen.midY - size.height / 2,
+                               width: size.width, height: size.height), display: true)
         if unseen { return window.orderFrontRegardless() }
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
+        window.makeFirstResponder(web)
     }
 
     func endHandoff() {
+        for popup in engine.tabs where popup.handoffParent == id {
+            popup.handoffParent = nil
+            if popup.handoff != nil { popup.endHandoff() }
+        }
+        browser?.finish()
+        browser = nil
+        window.contentView = web
         conceal()
-        NSApp.deactivate()  // hand focus back to whatever the person was using
+        if let hiddenSize { window.setContentSize(hiddenSize) }
+        hiddenSize = nil
         let finished = handoff
         handoff = nil
+        if !unseen {
+            if let next = engine.tabs.first(where: { $0.handoff != nil }) {
+                next.window.makeKeyAndOrderFront(nil)
+                next.window.makeFirstResponder(next.web)
+            } else if let sign = SignInWindow.shown { sign.present() }
+            else { NSApp.deactivate() }
+        }
         if !engine.tabs.contains(where: { $0.handoff != nil }) && SignInWindow.shown == nil { NSApp.setActivationPolicy(.prohibited) }
         finished?()
     }
@@ -530,6 +567,7 @@ final class Engine {
     func close(_ tab: Tab) {
         closeEvents(tab)
         guard tabs.contains(where: { $0 === tab }) else { return }
+        if tab.handoff != nil { tab.endHandoff() }
         runtime.leases.removeValue(forKey: tab.name)
         FormState.shared.tabs.removeObject(forKey: tab.web)
         tab.operation = nil

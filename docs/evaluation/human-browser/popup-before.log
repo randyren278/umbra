@@ -1,0 +1,18 @@
+test_sign_in_popup_keeps_its_opener_and_can_close_itself (__main__.SignInWindowTests.test_sign_in_popup_keeps_its_opener_and_can_close_itself) ... FAIL
+
+======================================================================
+FAIL: test_sign_in_popup_keeps_its_opener_and_can_close_itself (__main__.SignInWindowTests.test_sign_in_popup_keeps_its_opener_and_can_close_itself)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/randyren/Developer/umbra/tests/test_daemon.py", line 942, in test_sign_in_popup_keeps_its_opener_and_can_close_itself
+    self.assertExit(r, 0)
+    ~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/randyren/Developer/umbra/tests/test_umbra.py", line 222, in assertExit
+    self.assertEqual(result.code, code, f'stderr: {result.err[-800:]!r} stdout: {result.out[:300]!r}')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : stderr: 'sign-in exceeded its request deadline while waiting for Popup\n' stdout: b''
+
+----------------------------------------------------------------------
+Ran 1 test in 6.552s
+
+FAILED (failures=1)

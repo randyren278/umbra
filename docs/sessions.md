@@ -47,6 +47,12 @@ umbra handoff "Approve the Duo push" --until "location.pathname.startsWith('/app
 
 The window hides again afterward, and the tab carries on where you left it. If the condition already holds, no window appears at all.
 
+Visible sign-in and handoff windows have native Back, Forward, Reload/Stop and a current-site label. Command-R reloads, Command-[ and Command-] navigate history, Command-+ and Command-minus zoom, and Command-0 restores actual size. Trackpad history gestures and pinch zoom are enabled while the window is visible. A loading bar shows progress; failed navigations offer a reload message. A blank login challenge can be reloaded, or restarted from the account list with Sites → Sign In.
+
+JavaScript alerts, confirmations and prompts appear as native sheets while you control the page; file inputs open the macOS file chooser. Closing or timing out the handoff cancels an open sheet.
+
+On high-refresh displays, visible windows request the display's rendering cadence when the system WebKit exposes that capability. This uses a guarded private WebKit feature and falls back to the system default when unavailable. Handoff restores the tab's previous rendering preference, zoom and viewport when it ends. The same web view and form state survive. Authentication popups keep their opener and can send their result back to the login page. Popups opened during a handoff are visible too, and hide when the parent handoff ends.
+
 
 ## Profiles
 

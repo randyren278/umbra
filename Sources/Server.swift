@@ -245,8 +245,18 @@ func installMenus() {
     edit.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
     edit.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
     edit.addItem(withTitle: "Close", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+    let view = NSMenu(title: "View")
+    view.addItem(withTitle: "Reload Page", action: #selector(BrowserView.browserReload(_:)), keyEquivalent: "r")
+    view.addItem(withTitle: "Stop Loading", action: #selector(BrowserView.browserStop(_:)), keyEquivalent: ".")
+    view.addItem(.separator())
+    view.addItem(withTitle: "Zoom In", action: #selector(BrowserView.browserZoomIn(_:)), keyEquivalent: "+")
+    view.addItem(withTitle: "Zoom Out", action: #selector(BrowserView.browserZoomOut(_:)), keyEquivalent: "-")
+    view.addItem(withTitle: "Actual Size", action: #selector(BrowserView.browserActualSize(_:)), keyEquivalent: "0")
+    let history = NSMenu(title: "History")
+    history.addItem(withTitle: "Back", action: #selector(BrowserView.browserBack(_:)), keyEquivalent: "[")
+    history.addItem(withTitle: "Forward", action: #selector(BrowserView.browserForward(_:)), keyEquivalent: "]")
     NSApp.mainMenu = NSMenu()
-    for menu in [app, edit] {
+    for menu in [app, edit, view, history] {
         let item = NSMenuItem()
         item.submenu = menu
         NSApp.mainMenu?.addItem(item)

@@ -1,0 +1,11 @@
+{
+  "buildSHA256": "903f676b70189ff40b45a20c308779296f6bd5ac34aafdad81f6e6915b28efd3",
+  "host": "canvas.ubc.ca",
+  "path": "/",
+  "hasPassword": false,
+  "profileStatus": 200,
+  "profileIsJSON": true,
+  "userReport": "CWL and Duo completed without the blank card",
+  "scope": "Fresh isolated profile; original profile not inspected; handoff ended by explicit test cleanup",
+  "scrollFeedback": "Felt smooth"
+}

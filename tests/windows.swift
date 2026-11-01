@@ -56,6 +56,55 @@ import CoreGraphics
 import Foundation
 
 while let line = readLine() {
+    if line.hasPrefix("click ") {
+        let parts = line.split(separator: " ").map(String.init)
+        let trusted = CGPreflightPostEventAccess()
+        var sent = false
+        if trusted, parts.count == 4, let pid = Int32(parts[1]), let x = Double(parts[2]), let y = Double(parts[3]) {
+            NSRunningApplication(processIdentifier: pid)?.activate(options: [.activateIgnoringOtherApps])
+            let cursor = CGEvent(source: nil)?.location
+            let point = CGPoint(x: x, y: y)
+            for type in [CGEventType.mouseMoved, .leftMouseDown, .leftMouseUp] {
+                CGEvent(mouseEventSource: nil, mouseType: type, mouseCursorPosition: point, mouseButton: .left)?.post(tap: .cghidEventTap)
+                usleep(20_000)
+            }
+            if let cursor { CGWarpMouseCursorPosition(cursor) }
+            sent = true
+        }
+        print("{\"trusted\": \(trusted), \"sent\": \(sent)}")
+        fflush(stdout)
+        continue
+    }
+    if line.hasPrefix("key ") || line.hasPrefix("scroll ") {
+        let parts = line.split(separator: " ").map(String.init)
+        let trusted = CGPreflightPostEventAccess()
+        var sent = false
+        if trusted, parts.count >= 3, let pid = Int32(parts[1]) {
+            if parts[0] == "key", let code = UInt16(parts[2]) {
+                for down in [true, false] {
+                    if let event = CGEvent(keyboardEventSource: nil, virtualKey: code, keyDown: down) {
+                        event.flags = parts.count > 3 && parts[3] == "plain" ? [] : .maskCommand
+                        event.postToPid(pid)
+                        sent = true
+                    }
+                }
+            } else if parts[0] == "scroll", parts.count == 5,
+                      let x = Double(parts[2]), let y = Double(parts[3]), let delta = Int32(parts[4]),
+                      let event = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: delta, wheel2: 0, wheel3: 0) {
+                let cursor = CGEvent(source: nil)?.location
+                CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: CGPoint(x: x, y: y), mouseButton: .left)?.post(tap: .cghidEventTap)
+                usleep(20_000)
+                event.location = CGPoint(x: x, y: y)
+                event.post(tap: .cghidEventTap)
+                usleep(20_000)
+                if let cursor { CGWarpMouseCursorPosition(cursor) }
+                sent = true
+            }
+        }
+        print("{\"trusted\": \(trusted), \"sent\": \(sent)}")
+        fflush(stdout)
+        continue
+    }
     if line.hasPrefix("press ") {
         let parts = line.split(separator: " ", maxSplits: 2).map(String.init)
         let trusted = AXIsProcessTrusted()

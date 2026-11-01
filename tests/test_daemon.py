@@ -658,6 +658,34 @@ class SessionCommandTests(SessionCase):
                 self.assertInvisible(self.profile, 'handoff timed out', settle=1)
                 self.assertEqual(self.eval(VISIBLE), '["visible",true]')
 
+    def test_handoff_preserves_the_agents_viewport_and_form(self):
+        self.open(self.srv.url('/a'))
+        self.umbra('viewport', '640', '480')
+        self.eval('document.body.innerHTML = `<input id="draft" value="keep me">`; window.before = [innerWidth, innerHeight]')
+        proc = base.spawn('handoff', 'inspect the page', '--timeout', '2', profile=self.profile)
+        self.assertTrue(wait_for(lambda: shown(daemon_of(self.profile)), 5))
+        proc.communicate(timeout=10)
+        self.assertEqual(proc.returncode, 2)
+        self.assertInvisible(self.profile, 'handoff ended', settle=1)
+        self.assertEqual(self.eval('return [innerWidth, innerHeight, draft.value]'), '[640,480,"keep me"]')
+
+    def test_handoff_popups_are_visible_and_hide_with_the_parent(self):
+        start = {'value': False}
+        self.srv.route('/human-popup-start')(lambda h: h.reply(200, json.dumps(start['value']), 'application/json'))
+        self.srv.page('/human-popup-parent', '''<title>Parent</title><script>
+            const timer = setInterval(async () => {
+                if (await (await fetch('/human-popup-start')).json()) { clearInterval(timer); window.open('/b'); }
+            }, 100);
+            </script>''')
+        self.open(self.srv.url('/human-popup-parent'))
+        proc = base.spawn('handoff', 'inspect the popup', '--timeout', '6', profile=self.profile)
+        self.assertTrue(wait_for(lambda: shown(daemon_of(self.profile)), 3))
+        start['value'] = True
+        self.assertTrue(wait_for(lambda: len(shown(daemon_of(self.profile))) >= 2, 3))
+        out, err = proc.communicate(timeout=10)
+        self.assertEqual(proc.returncode, 2, err)
+        self.assertInvisible(self.profile, 'parent handoff timed out', settle=2)
+
     def test_pages_believe_they_are_visible(self):
         self.open(self.srv.url('/a'))
         self.assertEqual(self.eval(VISIBLE), '["visible",true]')
@@ -692,6 +720,97 @@ class SessionCommandTests(SessionCase):
         self.assertEqual((status['profile'], status['idleLimit']), (self.profile, 60))
         self.assertEqual([t['title'] for t in status['tabs']], ['Page A'])
         self.assertIn(f'profile {self.profile}', self.umbra('status').text)
+
+
+@unittest.skipUnless(base.GUI, 'native browser input needs UMBRA_TEST_GUI=1')
+class HumanBrowserTests(SessionCase):
+    def setUp(self):
+        super().setUp()
+        self.srv = Server()
+        self.done = False
+        self.confirm = False
+        self.file = False
+        self.srv.route('/human-done')(lambda h: h.reply(200, 'true' if self.done else 'false', 'application/json'))
+        self.srv.route('/human-confirm')(lambda h: h.reply(200, json.dumps(self.confirm), 'application/json'))
+        self.srv.route('/human-file')(lambda h: h.reply(200, json.dumps(self.file), 'application/json'))
+        self.srv.page('/human-event', 'ok')
+        self.srv.page('/human', '''<title>Native browser test</title>
+            <style>body{margin:0;font:20px system-ui;background:#f5f4ef;color:#252724}
+            header{padding:48px;background:#e6ece3}article{padding:48px;height:9000px}
+            p{max-width:560px;line-height:1.6}</style>
+            <header><h1>A page for people, too.</h1><p>Scroll, zoom, and reload with native browser controls.</p></header>
+            <article><h2>Native WebKit scrolling</h2><p>The page stays in the same WebKit view when control passes between a person and an agent.</p><input value="A draft to keep"><input id=upload type=file></article>
+            <script>
+            addEventListener('wheel', e => fetch('/human-event?wheel=' + e.isTrusted + '&delta=' + e.deltaY + '&height=' + document.scrollingElement.scrollHeight + '&client=' + innerHeight), {passive:true});
+            addEventListener('scroll', () => fetch('/human-event?y=' + scrollY), {passive:true});
+            addEventListener('resize', () => fetch('/human-event?width=' + innerWidth));
+            setInterval(async () => { window.done = await (await fetch('/human-done')).json() }, 200);
+            let asked = false;
+            setInterval(async () => {
+                if (!asked && await (await fetch('/human-confirm')).json()) {
+                    asked = true; fetch('/human-event?confirmed=' + confirm('Keep control of this page?'));
+                }
+            }, 200);
+            let choosing = false;
+            setInterval(async () => {
+                if (!choosing && await (await fetch('/human-file')).json()) {
+                    choosing = true; upload.focus(); fetch('/human-event?fileReady=true');
+                }
+            }, 200);
+            </script>''')
+
+    def tearDown(self):
+        super().tearDown()
+        self.srv.close()
+
+    def native(self, command):
+        window_report([])
+        lister.stdin.write(command + '\n')
+        lister.stdin.flush()
+        answer = json.loads(lister.stdout.readline())
+        if not answer['trusted']:
+            self.skipTest('native input needs Accessibility permission')
+        self.assertTrue(answer['sent'])
+
+    def test_native_scroll_shortcuts_and_handoff_cleanup(self):
+        self.json('open', self.srv.url('/human'))
+        before = self.json('eval', 'return [innerWidth, innerHeight]')['value']
+        proc = base.spawn('handoff', 'Native browser test', '--until', 'window.done', '--timeout', '30', profile=self.profile)
+        [pid] = daemon_of(self.profile)
+        windows = wait_for(lambda: shown([pid]), 5)
+        self.assertTrue(windows)
+        self.assertTrue(wait_for(lambda: front_pid() == pid, 5))
+        window = max(windows, key=lambda w: w['visibleArea'])
+        x, y, width, height = window['bounds']
+        self.native(f'scroll {pid} {x + width / 2} {y + height / 2} -180')
+        self.assertTrue(wait_for(lambda: any(r.query.get('wheel') == 'true' for r in self.srv.requests('/human-event')), 5))
+        # OS natural-scroll preferences can invert a synthetic device's direction.
+        self.native(f'scroll {pid} {x + width / 2} {y + height / 2} 180')
+        self.assertTrue(wait_for(lambda: any(int(r.query.get('y', 0)) > 0 for r in self.srv.requests('/human-event')), 5), [r.query for r in self.srv.requests('/human-event')])
+        self.native(f'key {pid} 27')  # Command-minus, through the responder chain
+        self.assertTrue(wait_for(lambda: any(int(r.query.get('width', 0)) > width for r in self.srv.requests('/human-event')), 5))
+        self.native(f'key {pid} 15')  # Command-R
+        self.assertTrue(wait_for(lambda: len(self.srv.requests('/human')) >= 2, 5))
+        self.assertTrue(wait_for(lambda: ('AXButton', 'Reload') in (texts(pid) or []), 5))
+        self.assertTrue(press(pid, 'Reload'))
+        self.assertTrue(wait_for(lambda: len(self.srv.requests('/human')) >= 3, 5))
+        if directory := os.environ.get('UMBRA_BROWSER_EVIDENCE'):
+            Path(directory).mkdir(parents=True, exist_ok=True)
+            subprocess.run(['screencapture', '-x', '-o', '-l', str(window['id']), str(Path(directory) / 'browser.png')], check=True)
+        self.confirm = True
+        self.assertTrue(wait_for(lambda: ('AXButton', 'Cancel') in (texts(pid) or []), 5))
+        self.assertTrue(press(pid, 'Cancel'))
+        self.assertTrue(wait_for(lambda: any(r.query.get('confirmed') == 'false' for r in self.srv.requests('/human-event')), 5))
+        self.file = True
+        self.assertTrue(wait_for(lambda: any(r.query.get('fileReady') == 'true' for r in self.srv.requests('/human-event')), 5))
+        self.native(f'key {pid} 49 plain')  # Space opens the focused file input
+        self.assertTrue(wait_for(lambda: ('AXButton', 'Cancel') in (texts(pid) or []), 5))
+        self.assertTrue(press(pid, 'Cancel'))
+        self.done = True
+        out, err = proc.communicate(timeout=10)
+        self.assertEqual(proc.returncode, 0, err)
+        self.assertInvisible(self.profile, 'human finished', settle=2)
+        self.assertEqual(self.json('eval', 'return [innerWidth, innerHeight]')['value'], before)
 
 
 class RestingTabTests(SessionCase):
@@ -917,6 +1036,26 @@ class SignInWindowTests(SessionCase):
         self.assertInvisible(self.profile, 'sign-in done', settle=3)
         [pid] = daemon_pids(self.profile)
         self.assertEqual(app_type(pid), 'BackgroundOnly', 'no Dock icon once the window is gone')
+
+    def test_sign_in_popup_keeps_its_opener_and_can_close_itself(self):
+        self.srv.page('/login-popup', '''<title>Sign in</title><input type=password><script>
+            addEventListener('message', async e => {
+                if (e.origin === location.origin && e.data === 'authorized') await fetch('/set');
+            });
+            setTimeout(() => window.open('/provider-popup'), 400);
+            </script>''')
+        self.srv.page('/provider-popup', '''<title>Provider</title><script>
+            fetch('/popup-receipt?opener=' + !!window.opener).then(() => {
+                if (window.opener) { window.opener.postMessage('authorized', location.origin); window.close(); }
+            });
+            </script>''')
+        self.srv.page('/popup-receipt', 'ok')
+        self.sites.write_text(json.dumps([{'name': 'Popup', 'domain': '127.0.0.1',
+                                          'login': self.srv.url('/login-popup'), 'cookie': 'sess'}]))
+        r = self.run_umbra('sign-in', 'Popup', '--timeout', '6')
+        self.assertExit(r, 0)
+        self.assertEqual([r.query for r in self.requests('/popup-receipt')], [{'opener': 'true'}])
+        self.assertInvisible(self.profile, 'popup login finished', settle=2)
 
     def test_a_probed_site_is_checked_before_its_page_shows(self):
         r = self.run_umbra('sign-in', 'Probe')
