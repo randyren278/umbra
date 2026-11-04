@@ -15,6 +15,7 @@ import re
 import signal
 import subprocess
 import sys
+import threading
 import time
 import unittest
 from pathlib import Path
@@ -722,6 +723,63 @@ class SessionCommandTests(SessionCase):
         self.assertIn(f'profile {self.profile}', self.umbra('status').text)
 
 
+class CredentialsTests(SessionCase):
+    def test_passwords_helper_preserves_the_page_and_ends_with_handoff(self):
+        srv = Server()
+        self.addCleanup(srv.close)
+        done = [False]
+        srv.route('/credentials-done')(lambda h: h.reply(200, json.dumps(done[0]), 'application/json'))
+        srv.page('/credentials', '<title>Sign in</title><input value="A draft to keep"><script>'
+                 'setInterval(async () => { window.done = await (await fetch("/credentials-done")).json() }, 100);</script>')
+        self.json('open', srv.url('/credentials'))
+        proc = base.spawn('handoff', 'Passwords test', '--until', 'window.done', '--timeout', '30', profile=self.profile)
+        [pid] = daemon_of(self.profile)
+        self.assertTrue(wait_for(lambda: shown([pid]), 5))
+        if texts(pid) is None:
+            proc.kill()
+            self.skipTest('native controls need Accessibility permission')
+        self.assertTrue(wait_for(lambda: ('AXButton', 'Passwords & Passkeys') in (texts(pid) or []), 5))
+        self.assertTrue(press(pid, 'Passwords & Passkeys'))
+        self.assertTrue(wait_for(lambda: ('AXButton', 'Open Passwords') in (texts(pid) or []), 5))
+        if not base.GUI:
+            self.assertBackground()
+            self.assertFalse(any(w['onscreen'] and w['visibleArea'] > 0 and w['alpha'] > 0 for w in window_report([pid])['windows']),
+                             'the unseen helper must stay transparent')
+        content = '\n'.join(text for role, text in texts(pid) if role == 'AXStaticText')
+        self.assertIn('127.0.0.1', content)
+        self.assertIn('press ⌘V', content)
+        self.assertIn('Local passkeys require an Apple-approved browser build', content)
+        self.assertIn('Safari sign-ins stay in Safari', content)
+        self.assertNotIn(('AXButton', 'Allow Passkeys'), texts(pid))
+        if directory := os.environ.get('UMBRA_CREDENTIALS_EVIDENCE'):
+            Path(directory).mkdir(parents=True, exist_ok=True)
+            window = max(shown([pid]), key=lambda w: w['visibleArea'])
+            subprocess.run(['screencapture', '-x', '-o', '-l', str(window['id']), str(Path(directory) / 'helper.png')], check=True)
+        self.assertTrue(press(pid, 'Cancel'))
+        if base.GUI and Path('/System/Applications/Passwords.app').exists():
+            def passwords_pid():
+                asn = subprocess.run(['lsappinfo', 'find', 'bundleID=com.apple.Passwords'], capture_output=True, text=True, timeout=10).stdout.strip()
+                if not asn:
+                    return None
+                info = subprocess.run(['lsappinfo', 'info', '-only', 'pid', asn], capture_output=True, text=True, timeout=10).stdout
+                found = re.search(r'pid"?\s*=\s*(\d+)', info)
+                return int(found.group(1)) if found else None
+            existing = passwords_pid()
+            self.assertTrue(press(pid, 'Passwords & Passkeys'))
+            self.assertTrue(wait_for(lambda: ('AXButton', 'Open Passwords') in (texts(pid) or []), 5))
+            self.assertTrue(press(pid, 'Open Passwords'))
+            self.assertTrue(wait_for(lambda: (target := passwords_pid()) is not None and target == front_pid(), 10), 'Passwords did not open in front')
+            if not existing:
+                self.assertTrue(quit_app(passwords_pid()))
+        self.assertTrue(press(pid, 'Passwords & Passkeys'))
+        self.assertTrue(wait_for(lambda: ('AXButton', 'Cancel') in (texts(pid) or []), 5))
+        done[0] = True
+        out, err = proc.communicate(timeout=10)
+        self.assertEqual(proc.returncode, 0, err)
+        self.assertInvisible(self.profile, 'handoff ended with passwords helper open', settle=2)
+        self.assertEqual(self.json('eval', 'return document.querySelector("input").value')['value'], 'A draft to keep')
+
+
 @unittest.skipUnless(base.GUI, 'native browser input needs UMBRA_TEST_GUI=1')
 class HumanBrowserTests(SessionCase):
     def setUp(self):
@@ -1108,12 +1166,22 @@ class SignInWindowTests(SessionCase):
 
     def test_a_script_checked_session_waits_for_real_auth_after_the_cookie_changes(self):
         self.srv.page('/login-rendered', '''<title>Log in</title><script>
-          setTimeout(() => fetch('/set'), 200);
-          setTimeout(() => fetch('/set-verified'), 1500);
+          setTimeout(async () => {
+            await fetch('/set');
+            if ((await fetch('/after-fresh-probe')).ok) await fetch('/set-verified');
+          }, 200);
         </script>''')
         self.srv.page('/set-verified', 'ok', headers=[('Set-Cookie', 'verified=on; Path=/; Max-Age=3600')])
-        self.srv.route('/api/verified')(lambda h: h.reply(200 if h.req.cookies.get('verified') == 'on' else 401,
-                                                       '{}', 'application/json'))
+        fresh = threading.Event()
+        self.srv.route('/after-fresh-probe')(lambda h: h.reply(200 if fresh.wait(20) else 504, ''))
+
+        @self.srv.route('/api/verified')
+        def verified(h):
+            signed = h.req.cookies.get('verified') == 'on'
+            if h.req.cookies.get('sess') == 'on' and not signed:
+                fresh.set()
+            h.reply(200 if signed else 401, '{}', 'application/json')
+
         self.sites = base.write_sites([{'name': 'Rendered', 'domain': '127.0.0.1',
                                       'login': self.srv.url('/login-rendered'), 'cookie': 'sess',
                                       'probe': '/home', 'probeScript': "return (await fetch('/api/verified')).ok;"}])

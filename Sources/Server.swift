@@ -252,6 +252,8 @@ func installMenus() {
     view.addItem(withTitle: "Zoom In", action: #selector(BrowserView.browserZoomIn(_:)), keyEquivalent: "+")
     view.addItem(withTitle: "Zoom Out", action: #selector(BrowserView.browserZoomOut(_:)), keyEquivalent: "-")
     view.addItem(withTitle: "Actual Size", action: #selector(BrowserView.browserActualSize(_:)), keyEquivalent: "0")
+    view.addItem(.separator())
+    view.addItem(withTitle: "Passwords & Passkeys…", action: #selector(BrowserView.browserCredentials(_:)), keyEquivalent: "")
     let history = NSMenu(title: "History")
     history.addItem(withTitle: "Back", action: #selector(BrowserView.browserBack(_:)), keyEquivalent: "[")
     history.addItem(withTitle: "Forward", action: #selector(BrowserView.browserForward(_:)), keyEquivalent: "]")

@@ -37,6 +37,6 @@
 - Checkpoints use atomic replacement and a lock, without an fsync/power-loss durability guarantee. Optional SDK repair callbacks only propose replacement arguments and do not execute or automatically retry steps.
 - `fill` and `type` insert text the way an input method does, so a page that listens for a `keydown` per character won't see one. Use `press` for those keys.
 - HTML5 drag and drop is dispatched as page events, which are untrusted, because a native drag session would act on the real desktop. Mouse-driven drags (sliders, sortable lists, canvases) are native.
-- No passkeys or Touch ID in the sign-in window. Use a password with a push approval or a code.
+- The local ad hoc build cannot use local passkeys. The key button opens Passwords for manual copy/paste; direct passkey access requires Apple's approved browser entitlement and the person's permission. Umbra does not import Safari sessions or read the Passwords database. See [sign-in](sessions.md).
 - One daemon per profile. Runs of the one-shot commands without a daemon take turns on the profile's lock.
 - It's not a scraper or an anti-bot tool. It's for your own accounts at a human pace. It doesn't hide automation, rotate identities or solve CAPTCHAs, and site terms still apply.

@@ -189,6 +189,10 @@ final class BrowserView: NSView, NSToolbarDelegate, NSUserInterfaceValidations {
     @objc func browserZoomIn(_ sender: Any?) { web.pageZoom = min(3, web.pageZoom + 0.1) }
     @objc func browserZoomOut(_ sender: Any?) { web.pageZoom = max(0.5, web.pageZoom - 0.1) }
     @objc func browserActualSize(_ sender: Any?) { web.pageZoom = 1; web.magnification = 1 }
+    @objc func browserCredentials(_ sender: Any?) {
+        guard let window else { return }
+        BrowserCredentials.show(in: window, site: web.url?.host ?? "this website")
+    }
 
     func validateUserInterfaceItem(_ item: NSValidatedUserInterfaceItem) -> Bool {
         switch item.action {
@@ -201,7 +205,8 @@ final class BrowserView: NSView, NSToolbarDelegate, NSUserInterfaceValidations {
 
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
         (leading.map { [$0.itemIdentifier] } ?? []) + [NSToolbarItem.Identifier("browser-back"), NSToolbarItem.Identifier("browser-forward"),
-            NSToolbarItem.Identifier("browser-reload"), .flexibleSpace, NSToolbarItem.Identifier("browser-origin"), .flexibleSpace]
+            NSToolbarItem.Identifier("browser-reload"), .flexibleSpace, NSToolbarItem.Identifier("browser-origin"), .flexibleSpace,
+            NSToolbarItem.Identifier("browser-credentials")]
     }
 
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] { toolbarDefaultItemIdentifiers(toolbar) }
@@ -215,6 +220,13 @@ final class BrowserView: NSView, NSToolbarDelegate, NSUserInterfaceValidations {
             origin.setAccessibilityLabel("Current site")
             item.view = origin
             item.label = "Current site"
+        } else if identifier.rawValue == "browser-credentials" {
+            item.label = "Passwords & Passkeys"
+            item.toolTip = "Open Passwords or manage passkey access"
+            item.image = NSImage(systemSymbolName: "key", accessibilityDescription: item.label)
+            item.target = self
+            item.action = #selector(browserCredentials(_:))
+            item.isBordered = true
         } else {
             let back = identifier.rawValue == "browser-back", forward = identifier.rawValue == "browser-forward"
             item.label = back ? "Back" : forward ? "Forward" : "Reload"
