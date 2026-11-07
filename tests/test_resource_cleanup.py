@@ -3,6 +3,7 @@ import json
 import re
 import threading
 import socket
+import subprocess
 import sys
 import time
 import unittest
@@ -173,6 +174,66 @@ list.addEventListener('scroll',render);render();
             release.set()
             self.result('cancel', 'held-handoff')
             process.communicate(timeout=3)
+
+
+WEBGPU = """<title>start</title><script>(async () => {
+  const adapter = navigator.gpu && await navigator.gpu.requestAdapter();
+  if (!adapter) return document.title = 'none';
+  await adapter.requestDevice();
+  document.title = 'device';
+})().catch(e => document.title = 'failed ' + e)</script>"""
+
+
+def gpu_processes():
+    ps = subprocess.run(['ps', '-axo', 'pid=,comm='], capture_output=True, text=True).stdout
+    return {int(line.split()[0]) for line in ps.splitlines() if line.strip().endswith('/com.apple.WebKit.GPU')}
+
+
+def gpu_connections(pid):
+    """Live GPUConnectionToWebProcess objects in a GPU process: one per web process it still serves."""
+    heap = subprocess.run(['heap', str(pid)], capture_output=True, text=True)
+    if heap.returncode:
+        return None
+    found = re.search(r'^\s*(\d+)\s+\d+\s+[\d.]+\s+WebKit::GPUConnectionToWebProcess\s', heap.stdout, re.M)
+    return int(found.group(1)) if found else 0
+
+
+class GPUReleaseTests(base.UmbraCase):
+    """A closed tab gives back what its page made in the shared GPU process. A page that asked for a
+    WebGPU adapter left it holding the page's GPU connection, and with it every tile the page painted,
+    after its process ended: a day of such tabs used up the GPU process's IOSurfaces and video stopped
+    decoding in every tab."""
+
+    def setUp(self):
+        super().setUp()
+        self.server = Server()
+        self.server.page('/', '<title>plain</title>')
+        self.server.page('/webgpu', WEBGPU)
+        before = gpu_processes()
+        self.assertExit(self.umbra('open', self.server.url('/'), '--tab', 'kept'), 0)
+        deadline = time.monotonic() + 5
+        while not (started := gpu_processes() - before) and time.monotonic() < deadline:
+            time.sleep(.1)
+        if len(started) != 1:
+            self.skipTest(f'could not tell which GPU process is the daemon\'s: {sorted(started)}')
+        self.gpu = started.pop()
+        self.baseline = gpu_connections(self.gpu)
+        if self.baseline is None:
+            self.skipTest('heap cannot read the GPU process')
+
+    def tearDown(self):
+        self.umbra('stop')
+        self.server.close()
+
+    def test_closed_tabs_release_their_gpu_connections(self):
+        for i in range(3):
+            tab = f'webgpu-{i}'
+            self.assertExit(self.umbra('open', self.server.url('/webgpu'), '--tab', tab, '--until', "document.title !== 'start'"), 0)
+            self.assertExit(self.umbra('tab', 'close', tab), 0)
+        deadline = time.monotonic() + 10
+        while (live := gpu_connections(self.gpu)) != self.baseline and time.monotonic() < deadline:
+            time.sleep(.5)
+        self.assertEqual(live, self.baseline, 'closed tabs left their connections in the GPU process')
 
 
 if __name__ == '__main__':

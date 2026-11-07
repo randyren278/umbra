@@ -85,7 +85,21 @@ func configuration() -> WKWebViewConfiguration {
     if config.preferences.responds(to: NSSelectorFromString("_setUsesPageCache:")) {
         config.preferences.setValue(false, forKey: "usesPageCache")
     }
+    // No WebGPU: the GPU process never frees the WebGPU objects of a page whose process ends before
+    // they are garbage-collected (Instagram's scripts ask for an adapter on every page), and each
+    // keeps the page's GPU connection and every tile it painted. A day of closed tabs used up the GPU
+    // process's IOSurfaces, and video stopped decoding in every tab.
+    disable("WebGPUEnabled", in: config.preferences)
     return config
+}
+
+private func disable(_ feature: String, in preferences: WKPreferences) {
+    let type: AnyObject = WKPreferences.self, set = NSSelectorFromString("_setEnabled:forFeature:")
+    guard type.responds(to: NSSelectorFromString("_features")), preferences.responds(to: set),
+          let match = (type.perform(NSSelectorFromString("_features"))?.takeUnretainedValue() as? [NSObject])?
+            .first(where: { $0.value(forKey: "key") as? String == feature }) else { return }
+    typealias Setter = @convention(c) (AnyObject, Selector, Bool, AnyObject) -> Void
+    unsafeBitCast(preferences.method(for: set), to: Setter.self)(preferences, set, false, match)
 }
 
 /// Sites files that sign-in requests named besides this process's own (a client may use another).
