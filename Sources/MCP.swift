@@ -6,17 +6,17 @@ import Foundation
 let mcpVersions = ["2025-06-18", "2025-03-26", "2024-11-05"]  // newest first
 
 let mcpInstructions = """
-    Umbra is a real WebKit browser on this Mac: invisible, signed in to the person's sites, and its \
-    tabs persist between calls (the `umbra` CLI drives the same tabs). Work in a loop: `open` a URL, \
-    `snapshot` to see the page as a tree with element refs (e1, e2…), then act on refs with `click`, \
-    `fill`, `type`, `press` or `select`. Refs go stale when the page changes: snapshot again after \
-    navigating or after any action that changes the page. `wait` for a selector, text, URL, JavaScript \
-    condition or network idle instead of sleeping. For 2FA, a CAPTCHA or a consent screen, call `handoff` \
-    with a short message; the person finishes it in a window and the call returns. Give your work its \
-    own `tab` name and close it with `tab` when you are done: each open tab holds a web process, and one \
-    unused for 15 minutes closes by itself. Use `screenshot` \
-    only when visual layout matters; `text` and `markdown` are cheaper for reading. For a JSON API on \
-    a signed-in site, `fetch` the URL directly: one request with the browser's cookies, no tab needed.
+    Umbra is invisible WebKit on this Mac, signed in; tabs persist between calls and share CLI state. \
+    Use it for background web work or an explicit Umbra request. Otherwise open/show/preview requests \
+    for websites or local HTML belong in the user's normal or named browser, including a bare \
+    "open this URL". Do not substitute Umbra or `handoff` when that browser is unavailable; report the \
+    gap. For mixed tasks, do background work here and show results in the normal browser.
+    Within Umbra, `open` a URL, `snapshot` for element refs, then `click`, `fill`, `type`, `press` or \
+    `select` refs. Refs go stale: snapshot again after navigation or changes. `wait` for a condition \
+    instead of sleeping. For 2FA, CAPTCHA or consent, use `handoff` for the human step. Give each task \
+    a named `tab` and close it when done; idle tabs close after 15 minutes. Use `screenshot` for layout; \
+    `text` or `markdown` for reading. For signed-in JSON APIs, `fetch` directly with the browser's cookies; \
+    no tab needed.
     """
 
 /// Tools that only look, unless they write a file where the caller says (a `path` or `file`

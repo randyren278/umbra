@@ -48,7 +48,7 @@ Leave out `--scope user` to add it to the current project only. [docs/mcp.md](mc
 
 ### Teach your agent
 
-[`skill/SKILL.md`](../skill/SKILL.md) is an agent skill that teaches the loop, the targets, waiting, sign-in and handoff, and the rules. Claude Code and Codex both load it from their skills folder; a link keeps it current as you pull:
+[`skill/SKILL.md`](../skill/SKILL.md) is an agent skill for background web work and explicit Umbra requests. It teaches the loop, the targets, waiting, sign-in and handoff, and the rules. Opening a website or local HTML preview for the user stays in their normal browser. Claude Code and Codex both load it from their skills folder; a link keeps it current as you pull:
 
 ```sh
 mkdir -p ~/.claude/skills ~/.codex/skills

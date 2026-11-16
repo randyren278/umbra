@@ -59,6 +59,8 @@ Installs `~/Applications/Umbra.app` and links `~/.local/bin/umbra`. [Installatio
 
 ## Start browsing
 
+Use Umbra for background web work or when you explicitly request it. When you ask your agent to open, show or preview a website or local HTML file for you, it should use your normal browser. The [agent skill and MCP instructions](docs/agents.md) carry this routing rule.
+
 ```sh
 umbra open example.com
 umbra snapshot --interactive

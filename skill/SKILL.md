@@ -1,11 +1,19 @@
 ---
 name: umbra
-description: Use when a task needs a web browser - reading or acting on a page, a site behind a login (Canvas, LinkedIn, Instagram, any account), JavaScript-rendered content, filling forms, clicking through a flow, screenshots, downloads that need a session, or scraping your own data - instead of Safari, AppleScript, Playwright, Chrome or Computer Use.
+description: Use for background web tasks such as course refreshes, authenticated reads, downloads, and unattended browser automation, or when the user explicitly requests Umbra. Requests to open, show, or preview a website or local HTML file for the user belong in their normal browser unless they name Umbra.
 ---
 
 # Umbra: the browser for agents
 
-`umbra` is a headless WebKit browser on this Mac. It's invisible while it works (no window, no Dock icon, never takes focus), signed in through its own cookie store, and keeps tabs alive between commands. Never drive Safari with AppleScript, never borrow Safari's cookies for new work, and never take over the screen with Computer Use for web tasks.
+`umbra` is a headless WebKit browser on this Mac. It's invisible while it works (no window, no Dock icon, never takes focus), signed in through its own cookie store, and keeps tabs alive between commands.
+
+## Choose the browser
+
+Use Umbra for background work: checking Canvas or Piazza, refreshing course data, reading authenticated pages, downloading files, and unattended automation. An explicit request to use Umbra also selects it.
+
+When the user asks to open, show, or preview a website or local HTML file for them, use their normal browser or the browser they name. A bare "open this URL" is a visible browser request, even for a signed-in site. Do not satisfy it with an invisible Umbra tab or an Umbra handoff. If a task combines a background refresh with opening the result, do the refresh in Umbra and open the result in the normal browser. If that browser is unavailable, report the gap instead of silently substituting Umbra.
+
+Keep background work inside Umbra's own session; do not borrow Safari's cookies or take over the user's screen to complete it. Sign-in and handoff below are for authentication or human steps within an Umbra task; they do not make Umbra the user's regular browser.
 
 ## The loop
 

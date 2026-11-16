@@ -15,16 +15,24 @@ ln -s "$PWD/skill" ~/.claude/skills/umbra    # Claude Code
 ln -s "$PWD/skill" ~/.codex/skills/umbra     # Codex
 ```
 
-Claude Code and Codex pick it up in new sessions and use it whenever a task needs a browser: a page behind a login, JavaScript-rendered content, a form, a download that needs a session, or a screenshot.
+Claude Code and Codex pick it up in new sessions for background web work or an explicit request to use Umbra. Course refreshes, authenticated reads, downloads and unattended automation run in Umbra. Requests to open, show or preview a website or local HTML file for the user use their normal browser or the browser they name, even when the site requires sign-in.
 
 ## Instructions for any agent
 
 ```markdown
-## Web browsing: use umbra
+## Background web tasks: use Umbra
 
 `umbra` is a headless WebKit browser on this Mac. It's invisible, signed in to the user's
-sites, and keeps tabs alive between commands. Use it instead of Safari, AppleScript or
-Computer Use for anything on the web.
+sites, and keeps tabs alive between commands. Use it for background web work or when
+the user explicitly requests Umbra. Keep background tasks in its own session without
+borrowing Safari's cookies or taking over the screen.
+
+Requests to open, show or preview websites or local HTML files for the user belong in
+their normal browser or the browser they name. A bare "open this URL" is a visible
+browser request. Do not substitute an invisible Umbra tab or an Umbra handoff. If that
+browser is unavailable, report the gap. For a mixed task, do the background work in
+Umbra and open the result in the normal browser. Sign-in and handoff are for human
+steps within an Umbra task, not ordinary page previews.
 
 - Loop: `umbra open <url>`, then `umbra snapshot --interactive` (an outline with refs like
   e3), then act: `umbra click e4`, `umbra fill e3 "text"`, `umbra select e5 "Label"`,
