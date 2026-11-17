@@ -8,7 +8,6 @@ from pathlib import Path
 import build
 import charts
 import doc_figures
-import low_memory
 import json
 
 HERE = Path(__file__).resolve().parent
@@ -30,7 +29,6 @@ def main():
     manifest = json.loads(doc_figures.MANIFEST.read_text())
     documentation, blocks = doc_figures.outputs(manifest)
     expected.update({'docs/' + name: source for name, source in documentation.items()})
-    expected.update(low_memory.outputs())
     failures = []
     icon_receipt = json.loads((HERE / 'AppIcon.json').read_text())
     for key, source in [('source', build.icon().encode()), ('smallSource', build.icon(small=True).encode()),
@@ -71,7 +69,7 @@ def main():
         source = (HERE.parent / entry['document']).read_text()
         if source.count(blocks[ident]) != 1:
             failures.append(f"{entry['document']}: figure/text source mismatch for {ident}")
-    for ident in ['competitive-benchmarks', 'why-umbra']:
+    for ident, _ in doc_figures.README_PANELS:
         if (HERE.parent / 'README.md').read_text().count(blocks[ident]) != 1:
             failures.append(f'README benchmark panel missing or stale: {ident}')
     for path in doc_figures.documents():

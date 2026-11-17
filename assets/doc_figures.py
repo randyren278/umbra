@@ -13,6 +13,7 @@ import math
 import re
 import statistics
 import textwrap
+import low_memory
 from pathlib import Path
 
 from build import BLUE, CYAN, VIOLET, PAPER, MUTED, DIM, SANS, card, svg
@@ -331,13 +332,20 @@ def figure(entry, ident):
     return files, block
 
 
+README_PANELS = [
+    ('competitive-benchmarks', competitive_picture), ('why-umbra', why_picture),
+    ('low-memory-comparison', lambda mobile: low_memory.comparison(json.loads(low_memory.DATA.read_text()), mobile)),
+    ('low-memory-reads', lambda mobile: low_memory.coverage(json.loads(low_memory.DATA.read_text()), mobile)),
+]
+
+
 def outputs(manifest):
     import xml.etree.ElementTree as ET
     files, blocks = {}, {}
     for ident, entry in manifest.items():
         generated, block = figure(entry, ident)
         files.update(generated); blocks[ident] = block
-    for kind, renderer in [('competitive-benchmarks', competitive_picture), ('why-umbra', why_picture)]:
+    for kind, renderer in README_PANELS:
         names = []
         for mobile in (False, True):
             source = renderer(mobile)
@@ -364,7 +372,7 @@ def main():
             source, count = re.subn(pattern, lambda _: blocks[ident], source, flags=re.S)
             if count != 1: raise ValueError(f'{path}: missing/duplicate figure slot {ident}')
         if path == ROOT / 'README.md':
-            for ident in ['competitive-benchmarks', 'why-umbra']:
+            for ident, _ in README_PANELS:
                 source = re.sub(r'<!-- runtime-panel: ' + ident + r' -->.*?<!-- /runtime-panel -->', lambda _: '<!-- runtime-panel: ' + ident + ' -->\n' + blocks[ident] + '\n<!-- /runtime-panel -->', source, flags=re.S)
         rendered[path] = source
     if args.collect:
@@ -375,7 +383,7 @@ def main():
     for name, source in files.items(): (OUT / name).write_text(source)
     for path, source in rendered.items():
         if path.read_text() != source: path.write_text(source)
-    print(f'Generated {len(files)} responsive SVGs for {len(manifest)} documentation figures and two README panels')
+    print(f'Generated {len(files)} responsive SVGs for {len(manifest)} documentation figures and {len(README_PANELS)} README panels')
 
 
 if __name__ == '__main__':

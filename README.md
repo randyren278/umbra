@@ -25,10 +25,12 @@
 
 [Speed benchmarks](docs/evaluation/latency/README.md) · [Token benchmark, method and raw results](docs/evaluation/observation-tokens/README.md)
 
+<!-- runtime-panel: low-memory-comparison -->
 <picture>
-  <source media="(max-width: 600px)" srcset="assets/low-memory-comparison-mobile.svg">
-  <img src="assets/low-memory-comparison.svg" width="100%" alt="Matched synthetic four-surface session: after ten native actions, stock used 438–443 MiB and the opt-in hybrid used 221–222 MiB, a paired 49.3–50.1% reduction. Three reordered sessions per mode; native physical footprint includes helpers. All views retained. These are local fixtures, not real-site results.">
+  <source media="(max-width: 600px)" srcset="assets/docs/low-memory-comparison-mobile-6de8fd3083.svg">
+  <img src="assets/docs/low-memory-comparison-9b35b27a08.svg" width="100%" alt="Matched local signed-in-like fixture, three reordered sessions per mode on M1 Pro. After ten task mixes, stock four-WebKit footprint was 371–379 MiB versus 75–76 MiB with three API views and one retained WebKit view. After ten native actions, stock was 438–443 MiB versus 221–222 MiB hybrid, a paired 49.3–50.1 percent reduction. All views retained. Native physical footprint includes client helpers, not summed RSS or globally deduplicated RAM. No live-site benchmark.">
 </picture>
+<!-- /runtime-panel -->
 
 The hybrid keeps three supported API views and one live WebKit fallback. Measurements use the same signed-in-like local tasks on an M1 Pro, with new isolated profiles and all views retained. Physical footprint includes daemon and WebKit helpers; it is not summed RSS or globally deduplicated RAM. [Results, methodology and reproduction](docs/evaluation/low-memory/README.md).
 
@@ -94,10 +96,12 @@ umbra render --tab reading
 
 The tab retains its WebKit view and JavaScript state. Native input and capture promote it automatically; `render` promotes explicitly without reloading. Promotion is sticky, and the offscreen window remains invisible. Animation frames may pause before promotion. Ordinary browser commands retain their existing defaults. [Modes, API contracts and limitations](docs/api.md).
 
+<!-- runtime-panel: low-memory-reads -->
 <picture>
-  <source media="(max-width: 600px)" srcset="assets/low-memory-reads-mobile.svg">
-  <img src="assets/low-memory-reads.svg" width="100%" alt="Explicit read cohort: 90 declared API reads and 90 structural DOM tasks passed across three candidate sessions without render-host promotion. API-only footprint was 20.1–20.2 MiB; adding one windowless WebKit view used 68.2–71.4 MiB; after native work it used 225.2–228.0 MiB. Native and pixel work promoted once per session. C3 controls already read without rendering, so no additional RAM reduction is demonstrated.">
+  <source media="(max-width: 600px)" srcset="assets/docs/low-memory-reads-mobile-eda1b6e08f.svg">
+  <img src="assets/docs/low-memory-reads-d7bfb13bf1.svg" width="100%" alt="Separate matched read cohort with three sessions per mode. Candidate footprint: 20.1–20.2 MiB for three API views without WebKit; 68.2–71.4 MiB with a retained windowless JavaScript WebKit view; 225.2–228.0 MiB after native work. Across three candidate sessions, 90 API reads and 90 DOM read/find/link tasks passed without render-host promotion. Native and pixel work promoted once per session, preserving the same view and matching pixels. C3 equivalent reads also stayed windowless; no additional RAM reduction demonstrated. Not live-site measurements.">
 </picture>
+<!-- /runtime-panel -->
 
 `api read` uses declared GET/HEAD routes. `dom read/find/links` reads bounded main-document structure without style, geometry or input; CSS-hidden text may be included. Native input, geometry and pixels need the full browser. These explicit contracts expand no-render task coverage; they do not demonstrate a further RAM reduction over efficient C3 reads. [Read scope and fallback](docs/semantic.md) · [Benchmark limits](docs/evaluation/low-memory/README.md).
 
