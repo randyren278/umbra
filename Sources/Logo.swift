@@ -5,7 +5,8 @@
 import AppKit
 
 enum Logo {
-    private static let folder = supportDir.appendingPathComponent("Logos")
+    private static let folder = environment["UMBRA_LOGOS"].map { URL(fileURLWithPath: $0) }
+        ?? supportDir.appendingPathComponent("Logos")
     private static let session = URLSession(configuration: .ephemeral)
     private static var found: [String: NSImage] = [:]
     private static var waiting: [String: [(NSImage) -> Void]] = [:]

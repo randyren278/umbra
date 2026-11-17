@@ -110,13 +110,15 @@ func coreCommands() -> [Command] {
         Command(name: "open", help: "Load a URL in a tab (the current one, or --tab NAME, created if new) and wait for it to load.",
                 params: [Param(name: "url", kind: .string, help: "URL, host name or file path", required: true, positional: true),
                          Param(name: "new", kind: .boolean, help: "Open in a new tab"),
+                         Param(name: "nonvisual", kind: .boolean, help: "Create a windowless tab. Timers/animation frames may pause; native input and capture promote it, or use render explicitly. Chosen only when creating a tab."),
                          Param(name: "until", kind: .string, help: "JavaScript condition to wait for after load, across redirects")],
                 aliases: ["goto", "navigate"], timeout: 60) { args, engine, reply in
             guard let url = normalizeURL(args.string("url") ?? "") else { return reply(.failure(UmbraError(64, "not a URL: \(args.string("url") ?? "")"))) }
             let tab: Tab
-            if args.bool("new") { tab = engine.open(name: args.string("tab")) } else {
+            if args.bool("new") { tab = engine.open(name: args.string("tab"), nonvisual: args.bool("nonvisual")) } else {
                 switch engine.tab(args, create: true) { case .success(let found): tab = found; case .failure(let error): return reply(.failure(error)) }
             }
+            guard !args.bool("nonvisual") || tab.nonvisual else { return reply(.failure(UmbraError(64, "nonvisual is chosen when a tab is created; use a new tab"))) }
             engine.current = tab
             tab.status = nil
             if url.isFileURL {
@@ -125,6 +127,10 @@ func coreCommands() -> [Command] {
             } else {
                 tab.load(url, done: settle(tab, args, reply))
             }
+        },
+        Command(name: "render", help: "Promote a windowless tab to normal offscreen rendering without reloading it. Resumes visibility-dependent work and animation frames; the view remains invisible to the person.") { args, engine, reply in
+            guard let tab = pick(args, engine, reply) else { return }
+            tab.wake(render: true) { report(tab, reply) }
         },
         Command(name: "back", help: "Go back in the tab's history.", timeout: 60) { args, engine, reply in
             guard let tab = pick(args, engine, reply) else { return }
@@ -269,7 +275,7 @@ func coreCommands() -> [Command] {
         Command(name: "status", help: "The daemon's profile, uptime and tabs.", usesTab: false) { _, engine, reply in
             let uptime = Int(Date().timeIntervalSince(startedAt))
             reply(.success(["pid": Int(getpid()), "profile": profile ?? "default", "uptime": uptime, "idleLimit": Int(idleLimit),
-                            "tabs": engine.tabs.map(\.summary),
+                            "tabs": engine.tabs.map(\.summary), "profileStoreUsed": profileStoreUsed,
                             "text": "umbra daemon \(getpid()) · profile \(profile ?? "default") · up \(uptime) s · \(engine.tabs.count) tab(s)"]))
         },
         Command(name: "stop", help: "Close every tab and stop this profile's daemon.", usesTab: false, mcp: false) { _, _, reply in

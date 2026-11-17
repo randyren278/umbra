@@ -25,6 +25,16 @@
 
 [Speed benchmarks](docs/evaluation/latency/README.md) · [Token benchmark, method and raw results](docs/evaluation/observation-tokens/README.md)
 
+<!-- runtime-panel: low-memory-comparison -->
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/docs/low-memory-comparison-mobile-6de8fd3083.svg">
+  <img src="assets/docs/low-memory-comparison-9b35b27a08.svg" width="100%" alt="Matched local signed-in-like fixture, three reordered sessions per mode on M1 Pro. After ten task mixes, stock four-WebKit footprint was 371–379 MiB versus 75–76 MiB with three API views and one retained WebKit view. After ten native actions, stock was 438–443 MiB versus 221–222 MiB hybrid, a paired 49.3–50.1 percent reduction. All views retained. Native physical footprint includes client helpers, not summed RSS or globally deduplicated RAM. No live-site benchmark.">
+</picture>
+<!-- /runtime-panel -->
+
+The hybrid keeps three supported API views and one live WebKit fallback. Measurements use the same signed-in-like local tasks on an M1 Pro, with new isolated profiles and all views retained. Physical footprint includes daemon and WebKit helpers; it is not summed RSS or globally deduplicated RAM. [Results, methodology and reproduction](docs/evaluation/low-memory/README.md).
+
+
 ## Why Umbra
 
 <!-- runtime-panel: why-umbra -->
@@ -75,8 +85,30 @@ umbra mcp --print-config
 
 [Connect over MCP](docs/mcp.md) · [Teach your agent](docs/agents.md) · [Browse the commands](docs/commands.md)
 
+## Opt-in low-memory sessions
+
+Use [declared API sessions](docs/api.md) for supported same-origin JSON routes without creating a browser. For browser tasks that can run without visibility-dependent rendering, opt a new tab into nonvisual mode:
+
+```sh
+umbra open example.com --new --tab reading --nonvisual
+umbra dom read --tab reading
+umbra dom find --tab reading --query urgent
+umbra render --tab reading
+```
+
+The tab retains its WebKit view and JavaScript state. Native input and capture promote it automatically; `render` promotes explicitly without reloading. Promotion is sticky, and the offscreen window remains invisible. Animation frames may pause before promotion. Ordinary browser commands retain their existing defaults. [Modes, API contracts and limitations](docs/api.md).
+
+<!-- runtime-panel: low-memory-reads -->
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/docs/low-memory-reads-mobile-eda1b6e08f.svg">
+  <img src="assets/docs/low-memory-reads-d7bfb13bf1.svg" width="100%" alt="Separate matched read cohort with three sessions per mode. Candidate footprint: 20.1–20.2 MiB for three API views without WebKit; 68.2–71.4 MiB with a retained windowless JavaScript WebKit view; 225.2–228.0 MiB after native work. Across three candidate sessions, 90 API reads and 90 DOM read/find/link tasks passed without render-host promotion. Native and pixel work promoted once per session, preserving the same view and matching pixels. C3 equivalent reads also stayed windowless; no additional RAM reduction demonstrated. Not live-site measurements.">
+</picture>
+<!-- /runtime-panel -->
+
+`api read` uses declared GET/HEAD routes. `dom read/find/links` reads bounded main-document structure without style, geometry or input; CSS-hidden text may be included. Native input, geometry and pixels need the full browser. These explicit contracts expand no-render task coverage; they do not demonstrate a further RAM reduction over efficient C3 reads. [Read scope and fallback](docs/semantic.md) · [Benchmark limits](docs/evaluation/low-memory/README.md).
+
 ## Go deeper
 
-[Runtime guide](docs/runtime/README.md) · [Recipes](docs/recipes.md) · [Accounts and handoff](docs/sessions.md) · [Architecture](docs/how-it-works.md) · [Security and limitations](docs/security.md) · [Testing and development](docs/development.md) · [FAQ](docs/faq.md)
+[Explicit no-render reads](docs/semantic.md) · [Runtime guide](docs/runtime/README.md) · [Recipes](docs/recipes.md) · [Accounts and handoff](docs/sessions.md) · [Architecture](docs/how-it-works.md) · [Security and limitations](docs/security.md) · [Testing and development](docs/development.md) · [FAQ](docs/faq.md)
 
 [MIT](LICENSE) © 2026 Randy Ren

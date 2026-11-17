@@ -21,7 +21,7 @@ let mcpInstructions = """
 
 /// Tools that only look, unless they write a file where the caller says (a `path` or `file`
 /// param), which may replace one. Every tool may reach any site.
-let readOnlyTools: Set = ["snapshot", "text", "markdown", "screenshot", "tabs", "status", "cookies", "links",
+let readOnlyTools: Set = ["dom", "snapshot", "text", "markdown", "screenshot", "tabs", "status", "cookies", "links",
                           "html", "info", "console", "network", "downloads", "get", "observe", "extract", "watch", "capabilities", "frames", "events", "tasks", "processes"]
 
 let errorHints: [Int32: String] = [

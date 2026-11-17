@@ -1,0 +1,1381 @@
+{
+  "recordedUTC": "2026-11-17T01:46:58.151920+00:00",
+  "environment": {
+    "OS": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434",
+    "hardwareModel": "MacBookPro18,3",
+    "cpu": "Apple M1 Pro",
+    "physicalMemoryBytes": "17179869184",
+    "compiler": "Apple Swift version 6.4.2 (swiftlang-6.4.2.1.9 clang-2100.4.1.1)\nTarget: arm64-apple-macosx27.0.0",
+    "buildFlags": "-O -swift-version 5; repository make build target and ad-hoc bundle signing"
+  },
+  "unit": "MiB = 2**20 bytes",
+  "accounting": "Native physical footprint over unique client/helper PIDs, including daemon, WebContent, GPU, networking and ancillary helpers. Not summed RSS or globally deduplicated DRAM. Fixture server/controller excluded.",
+  "stockBase": "364b29a448d8668fef44e177871794649b494b3a",
+  "originalC3": {
+    "binarySHA256": "219ac84a4876752d6ecc332ec7ef6b757dbc0f9c1a218167d16172db2b52034e",
+    "baselineBinarySHA256": "f3946e275442dfecbf6be41c04435749e9c4ecb2c88922d3174cd0102631481f",
+    "fixtureSHA256": "af060d88f53c819d7d42afc144b33d2c4659f4138c5f937d130827175b648195",
+    "benchmarkSHA256": "3b7cb867f9d9cd7171d90bcdba89393572ac71e835821bf5c48ea28a6e5add84",
+    "method": "Three independent reordered blocks; stage numbers are median of five correlated samples per run; ranges are across run medians. MiB=2**20 bytes. P95 is nearest-rank pooled task observations, descriptive only.",
+    "arms": {
+      "baseline": {
+        "runs": 3,
+        "successes": 3,
+        "checks": 282,
+        "stages": [
+          {
+            "four_surfaces_ready": {
+              "medianMiB": 364.58446502685547,
+              "maxMiB": 398.72509002685547,
+              "representativeKindsMiB": {
+                "daemon": 34.688575744628906,
+                "GPU": 24.6573486328125,
+                "SetStoreUpdateService": 2.2971954345703125,
+                "WebContent": 290.0966339111328,
+                "Networking": 7.312934875488281,
+                "com.apple.audio.SandboxHelper": 5.531776428222656
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            },
+            "mix_9": {
+              "medianMiB": 374.5066604614258,
+              "maxMiB": 569.1941604614258,
+              "representativeKindsMiB": {
+                "daemon": 34.251075744628906,
+                "GPU": 27.829498291015625,
+                "SetStoreUpdateService": 2.2346954345703125,
+                "WebContent": 297.6123046875,
+                "Networking": 7.109809875488281,
+                "com.apple.audio.SandboxHelper": 5.469276428222656
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            },
+            "steady_promoted": {
+              "medianMiB": 438.1472854614258,
+              "maxMiB": 438.5691604614258,
+              "representativeKindsMiB": {
+                "daemon": 34.282325744628906,
+                "GPU": 27.673248291015625,
+                "SetStoreUpdateService": 2.2346954345703125,
+                "WebContent": 361.4560546875,
+                "Networking": 7.031684875488281,
+                "com.apple.audio.SandboxHelper": 5.469276428222656
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            }
+          },
+          {
+            "four_surfaces_ready": {
+              "medianMiB": 361.88134002685547,
+              "maxMiB": 404.77196502685547,
+              "representativeKindsMiB": {
+                "daemon": 34.282371520996094,
+                "GPU": 22.610519409179688,
+                "SetStoreUpdateService": 2.3284454345703125,
+                "WebContent": 289.8934631347656,
+                "Networking": 7.2504119873046875,
+                "com.apple.audio.SandboxHelper": 5.5161285400390625
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            },
+            "mix_9": {
+              "medianMiB": 371.24114990234375,
+              "maxMiB": 568.2567749023438,
+              "representativeKindsMiB": {
+                "daemon": 34.157371520996094,
+                "GPU": 25.90778350830078,
+                "SetStoreUpdateService": 2.2659454345703125,
+                "WebContent": 296.4091339111328,
+                "Networking": 7.0472869873046875,
+                "com.apple.audio.SandboxHelper": 5.4536285400390625
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            },
+            "steady_promoted": {
+              "medianMiB": 438.67867279052734,
+              "maxMiB": 440.95992279052734,
+              "representativeKindsMiB": {
+                "daemon": 34.188621520996094,
+                "GPU": 28.110931396484375,
+                "SetStoreUpdateService": 2.2659454345703125,
+                "WebContent": 361.6122589111328,
+                "Networking": 7.0472869873046875,
+                "com.apple.audio.SandboxHelper": 5.4536285400390625
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            }
+          },
+          {
+            "four_surfaces_ready": {
+              "medianMiB": 366.6312713623047,
+              "maxMiB": 399.4750213623047,
+              "representativeKindsMiB": {
+                "daemon": 34.7042236328125,
+                "GPU": 24.454200744628906,
+                "SetStoreUpdateService": 2.3128204345703125,
+                "WebContent": 292.2528381347656,
+                "Networking": 7.375434875488281,
+                "com.apple.audio.SandboxHelper": 5.5317535400390625
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            },
+            "mix_9": {
+              "medianMiB": 378.80367279052734,
+              "maxMiB": 573.7411727905273,
+              "representativeKindsMiB": {
+                "daemon": 35.4229736328125,
+                "GPU": 28.53282928466797,
+                "SetStoreUpdateService": 2.2659454345703125,
+                "WebContent": 300.0653610229492,
+                "Networking": 7.047309875488281,
+                "com.apple.audio.SandboxHelper": 5.4692535400390625
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            },
+            "steady_promoted": {
+              "medianMiB": 443.22554779052734,
+              "maxMiB": 443.66304779052734,
+              "representativeKindsMiB": {
+                "daemon": 35.3917236328125,
+                "GPU": 28.01720428466797,
+                "SetStoreUpdateService": 2.2659454345703125,
+                "WebContent": 365.0341110229492,
+                "Networking": 7.047309875488281,
+                "com.apple.audio.SandboxHelper": 5.4692535400390625
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            }
+          }
+        ]
+      },
+      "stock": {
+        "runs": 3,
+        "successes": 3,
+        "checks": 282,
+        "stages": [
+          {
+            "four_surfaces_ready": {
+              "medianMiB": 381.60009002685547,
+              "maxMiB": 406.53759002685547,
+              "representativeKindsMiB": {
+                "daemon": 34.657371520996094,
+                "GPU": 25.7042236328125,
+                "SetStoreUpdateService": 2.3284454345703125,
+                "WebContent": 306.0497360229492,
+                "Networking": 7.3441619873046875,
+                "com.apple.audio.SandboxHelper": 5.516151428222656
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            },
+            "mix_9": {
+              "medianMiB": 372.85057067871094,
+              "maxMiB": 568.6630706787109,
+              "representativeKindsMiB": {
+                "daemon": 34.594871520996094,
+                "GPU": 27.23590850830078,
+                "SetStoreUpdateService": 2.2659454345703125,
+                "WebContent": 296.2529067993164,
+                "Networking": 7.0472869873046875,
+                "com.apple.audio.SandboxHelper": 5.453651428222656
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            },
+            "steady_promoted": {
+              "medianMiB": 437.17869567871094,
+              "maxMiB": 438.81932067871094,
+              "representativeKindsMiB": {
+                "daemon": 34.610496520996094,
+                "GPU": 28.12653350830078,
+                "SetStoreUpdateService": 2.2659454345703125,
+                "WebContent": 359.6747817993164,
+                "Networking": 7.0472869873046875,
+                "com.apple.audio.SandboxHelper": 5.453651428222656
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            }
+          },
+          {
+            "four_surfaces_ready": {
+              "medianMiB": 370.38143157958984,
+              "maxMiB": 406.64705657958984,
+              "representativeKindsMiB": {
+                "daemon": 34.751121520996094,
+                "GPU": 22.704269409179688,
+                "SetStoreUpdateService": 2.2659454345703125,
+                "WebContent": 297.7528381347656,
+                "Networking": 7.406730651855469,
+                "com.apple.audio.SandboxHelper": 5.500526428222656
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            },
+            "mix_9": {
+              "medianMiB": 371.9757537841797,
+              "maxMiB": 570.3507537841797,
+              "representativeKindsMiB": {
+                "daemon": 35.844871520996094,
+                "GPU": 26.517295837402344,
+                "SetStoreUpdateService": 2.2190704345703125,
+                "WebContent": 294.7997589111328,
+                "Networking": 7.156730651855469,
+                "com.apple.audio.SandboxHelper": 5.438026428222656
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            },
+            "steady_promoted": {
+              "medianMiB": 439.2257537841797,
+              "maxMiB": 439.5226287841797,
+              "representativeKindsMiB": {
+                "daemon": 35.876121520996094,
+                "GPU": 28.548545837402344,
+                "SetStoreUpdateService": 2.2190704345703125,
+                "WebContent": 359.9872589111328,
+                "Networking": 7.156730651855469,
+                "com.apple.audio.SandboxHelper": 5.438026428222656
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            }
+          },
+          {
+            "four_surfaces_ready": {
+              "medianMiB": 374.94390869140625,
+              "maxMiB": 402.39703369140625,
+              "representativeKindsMiB": {
+                "daemon": 34.7198486328125,
+                "GPU": 24.5479736328125,
+                "SetStoreUpdateService": 2.2971954345703125,
+                "WebContent": 300.4560089111328,
+                "Networking": 7.375480651855469,
+                "com.apple.audio.SandboxHelper": 5.547401428222656
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            },
+            "mix_9": {
+              "medianMiB": 374.0693893432617,
+              "maxMiB": 571.4443893432617,
+              "representativeKindsMiB": {
+                "daemon": 35.4229736328125,
+                "GPU": 26.00153350830078,
+                "SetStoreUpdateService": 2.2503204345703125,
+                "WebContent": 297.8310546875,
+                "Networking": 7.078605651855469,
+                "com.apple.audio.SandboxHelper": 5.484901428222656
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            },
+            "steady_promoted": {
+              "medianMiB": 439.6943893432617,
+              "maxMiB": 439.9912643432617,
+              "representativeKindsMiB": {
+                "daemon": 34.5010986328125,
+                "GPU": 27.79840850830078,
+                "SetStoreUpdateService": 2.2503204345703125,
+                "WebContent": 362.5810546875,
+                "Networking": 7.078605651855469,
+                "com.apple.audio.SandboxHelper": 5.484901428222656
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            }
+          }
+        ]
+      },
+      "windowless": {
+        "runs": 3,
+        "successes": 3,
+        "checks": 282,
+        "stages": [
+          {
+            "four_surfaces_ready": {
+              "medianMiB": 122.20850372314453,
+              "maxMiB": 127.23975372314453,
+              "representativeKindsMiB": {
+                "daemon": 31.219825744628906,
+                "GPU": 14.344253540039062,
+                "WebContent": 63.893463134765625,
+                "Networking": 7.250457763671875,
+                "com.apple.audio.SandboxHelper": 5.5005035400390625
+              },
+              "pids": 8,
+              "WebContentPIDs": 4
+            },
+            "mix_9": {
+              "medianMiB": 143.22415161132812,
+              "maxMiB": 144.05227661132812,
+              "representativeKindsMiB": {
+                "daemon": 31.438575744628906,
+                "GPU": 13.891128540039062,
+                "WebContent": 85.39348602294922,
+                "Networking": 7.062957763671875,
+                "com.apple.audio.SandboxHelper": 5.4380035400390625
+              },
+              "pids": 8,
+              "WebContentPIDs": 4
+            },
+            "steady_promoted": {
+              "medianMiB": 289.0530319213867,
+              "maxMiB": 345.8811569213867,
+              "representativeKindsMiB": {
+                "daemon": 34.079246520996094,
+                "GPU": 24.079017639160156,
+                "WebContent": 216.19036102294922,
+                "Networking": 6.984832763671875,
+                "com.apple.audio.SandboxHelper": 5.4380035400390625,
+                "SetStoreUpdateService": 2.2815704345703125
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            }
+          },
+          {
+            "four_surfaces_ready": {
+              "medianMiB": 123.0836410522461,
+              "maxMiB": 128.1305160522461,
+              "representativeKindsMiB": {
+                "daemon": 31.829177856445312,
+                "GPU": 14.563072204589844,
+                "WebContent": 63.7373046875,
+                "Networking": 7.391059875488281,
+                "com.apple.audio.SandboxHelper": 5.563026428222656
+              },
+              "pids": 8,
+              "WebContentPIDs": 4
+            },
+            "mix_9": {
+              "medianMiB": 140.5524139404297,
+              "maxMiB": 144.4586639404297,
+              "representativeKindsMiB": {
+                "daemon": 31.126052856445312,
+                "GPU": 10.516197204589844,
+                "WebContent": 86.1435775756836,
+                "Networking": 7.266059875488281,
+                "com.apple.audio.SandboxHelper": 5.500526428222656
+              },
+              "pids": 8,
+              "WebContentPIDs": 4
+            },
+            "steady_promoted": {
+              "medianMiB": 290.0843048095703,
+              "maxMiB": 296.5061798095703,
+              "representativeKindsMiB": {
+                "daemon": 33.8135986328125,
+                "GPU": 24.03209686279297,
+                "WebContent": 217.2842025756836,
+                "Networking": 7.125434875488281,
+                "com.apple.audio.SandboxHelper": 5.500526428222656,
+                "SetStoreUpdateService": 2.3284454345703125
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            }
+          },
+          {
+            "four_surfaces_ready": {
+              "medianMiB": 122.4586181640625,
+              "maxMiB": 127.7867431640625,
+              "representativeKindsMiB": {
+                "daemon": 31.110450744628906,
+                "GPU": 14.516197204589844,
+                "WebContent": 63.893463134765625,
+                "Networking": 7.422355651855469,
+                "com.apple.audio.SandboxHelper": 5.516151428222656
+              },
+              "pids": 8,
+              "WebContentPIDs": 4
+            },
+            "mix_9": {
+              "medianMiB": 140.0680160522461,
+              "maxMiB": 145.0523910522461,
+              "representativeKindsMiB": {
+                "daemon": 31.157325744628906,
+                "GPU": 10.484947204589844,
+                "WebContent": 85.79973602294922,
+                "Networking": 7.172355651855469,
+                "com.apple.audio.SandboxHelper": 5.453651428222656
+              },
+              "pids": 8,
+              "WebContentPIDs": 4
+            },
+            "steady_promoted": {
+              "medianMiB": 284.9437484741211,
+              "maxMiB": 345.9749984741211,
+              "representativeKindsMiB": {
+                "daemon": 32.969871520996094,
+                "GPU": 24.297813415527344,
+                "WebContent": 212.81536102294922,
+                "Networking": 7.141105651855469,
+                "com.apple.audio.SandboxHelper": 5.453651428222656,
+                "SetStoreUpdateService": 2.2659454345703125
+              },
+              "pids": 9,
+              "WebContentPIDs": 4
+            }
+          }
+        ]
+      },
+      "hybrid": {
+        "runs": 3,
+        "successes": 3,
+        "checks": 231,
+        "stages": [
+          {
+            "four_surfaces_ready": {
+              "medianMiB": 67.7220458984375,
+              "maxMiB": 73.8626708984375,
+              "representativeKindsMiB": {
+                "daemon": 29.782325744628906,
+                "GPU": 9.85992431640625,
+                "Networking": 5.6254119873046875,
+                "WebContent": 16.891357421875,
+                "com.apple.audio.SandboxHelper": 5.563026428222656
+              },
+              "pids": 5,
+              "WebContentPIDs": 1
+            },
+            "mix_9": {
+              "medianMiB": 76.0814437866211,
+              "maxMiB": 76.6908187866211,
+              "representativeKindsMiB": {
+                "daemon": 29.782325744628906,
+                "GPU": 9.65679931640625,
+                "Networking": 5.4379119873046875,
+                "WebContent": 25.703880310058594,
+                "com.apple.audio.SandboxHelper": 5.500526428222656
+              },
+              "pids": 5,
+              "WebContentPIDs": 1
+            },
+            "steady_promoted": {
+              "medianMiB": 221.5664825439453,
+              "maxMiB": 221.7696075439453,
+              "representativeKindsMiB": {
+                "daemon": 32.485496520996094,
+                "GPU": 23.64147186279297,
+                "Networking": 5.4847869873046875,
+                "WebContent": 152.1726303100586,
+                "com.apple.audio.SandboxHelper": 5.500526428222656,
+                "SetStoreUpdateService": 2.2815704345703125
+              },
+              "pids": 6,
+              "WebContentPIDs": 1
+            }
+          },
+          {
+            "four_surfaces_ready": {
+              "medianMiB": 67.4095687866211,
+              "maxMiB": 73.5970687866211,
+              "representativeKindsMiB": {
+                "daemon": 29.719825744628906,
+                "GPU": 10.047447204589844,
+                "Networking": 5.547309875488281,
+                "WebContent": 16.641334533691406,
+                "com.apple.audio.SandboxHelper": 5.453651428222656
+              },
+              "pids": 5,
+              "WebContentPIDs": 1
+            },
+            "mix_9": {
+              "medianMiB": 76.15959167480469,
+              "maxMiB": 76.62834167480469,
+              "representativeKindsMiB": {
+                "daemon": 29.813575744628906,
+                "GPU": 9.781822204589844,
+                "Networking": 5.437934875488281,
+                "WebContent": 25.735107421875,
+                "com.apple.audio.SandboxHelper": 5.391151428222656
+              },
+              "pids": 5,
+              "WebContentPIDs": 1
+            },
+            "steady_promoted": {
+              "medianMiB": 222.3321990966797,
+              "maxMiB": 283.2540740966797,
+              "representativeKindsMiB": {
+                "daemon": 32.594871520996094,
+                "GPU": 23.829063415527344,
+                "Networking": 5.469184875488281,
+                "WebContent": 152.703857421875,
+                "com.apple.audio.SandboxHelper": 5.391151428222656,
+                "SetStoreUpdateService": 2.3440704345703125
+              },
+              "pids": 6,
+              "WebContentPIDs": 1
+            }
+          },
+          {
+            "four_surfaces_ready": {
+              "medianMiB": 67.6282730102539,
+              "maxMiB": 73.6907730102539,
+              "representativeKindsMiB": {
+                "daemon": 29.766700744628906,
+                "GPU": 10.016151428222656,
+                "Networking": 5.594207763671875,
+                "WebContent": 16.719459533691406,
+                "com.apple.audio.SandboxHelper": 5.5317535400390625
+              },
+              "pids": 5,
+              "WebContentPIDs": 1
+            },
+            "mix_9": {
+              "medianMiB": 75.3626480102539,
+              "maxMiB": 75.5188980102539,
+              "representativeKindsMiB": {
+                "daemon": 29.047950744628906,
+                "GPU": 9.766151428222656,
+                "Networking": 5.500457763671875,
+                "WebContent": 25.563209533691406,
+                "com.apple.audio.SandboxHelper": 5.4848785400390625
+              },
+              "pids": 5,
+              "WebContentPIDs": 1
+            },
+            "steady_promoted": {
+              "medianMiB": 221.2540512084961,
+              "maxMiB": 282.0665512084961,
+              "representativeKindsMiB": {
+                "daemon": 31.735496520996094,
+                "GPU": 23.829063415527344,
+                "Networking": 5.500457763671875,
+                "WebContent": 152.3600845336914,
+                "com.apple.audio.SandboxHelper": 5.4848785400390625,
+                "SetStoreUpdateService": 2.3440704345703125
+              },
+              "pids": 6,
+              "WebContentPIDs": 1
+            }
+          }
+        ]
+      }
+    },
+    "settled10s": {
+      "baseline": [
+        {
+          "medianMiB": 388.6475372314453,
+          "maxMiB": 389.0694122314453,
+          "representativeKindsMiB": {
+            "daemon": 33.735496520996094,
+            "GPU": 21.98595428466797,
+            "SetStoreUpdateService": 2.8909454345703125,
+            "WebContent": 318.2528839111328,
+            "Networking": 8.594253540039062,
+            "com.apple.audio.SandboxHelper": 3.1880035400390625
+          },
+          "pids": 9,
+          "WebContentPIDs": 4
+        },
+        {
+          "medianMiB": 385.52269744873047,
+          "maxMiB": 385.86644744873047,
+          "representativeKindsMiB": {
+            "daemon": 33.876121520996094,
+            "GPU": 22.14238739013672,
+            "SetStoreUpdateService": 2.8596954345703125,
+            "WebContent": 315.1278839111328,
+            "Networking": 8.297332763671875,
+            "com.apple.audio.SandboxHelper": 3.2192764282226562
+          },
+          "pids": 9,
+          "WebContentPIDs": 4
+        },
+        {
+          "medianMiB": 384.7882080078125,
+          "maxMiB": 385.4288330078125,
+          "representativeKindsMiB": {
+            "daemon": 33.422996520996094,
+            "GPU": 22.079750061035156,
+            "SetStoreUpdateService": 2.8440704345703125,
+            "WebContent": 314.7997817993164,
+            "Networking": 8.437980651855469,
+            "com.apple.audio.SandboxHelper": 3.2036285400390625
+          },
+          "pids": 9,
+          "WebContentPIDs": 4
+        }
+      ],
+      "hybrid": [
+        {
+          "medianMiB": 157.0508804321289,
+          "maxMiB": 157.0977554321289,
+          "representativeKindsMiB": {
+            "daemon": 31.2198486328125,
+            "GPU": 15.89154052734375,
+            "Networking": 6.5160369873046875,
+            "WebContent": 97.313232421875,
+            "com.apple.audio.SandboxHelper": 3.2349014282226562,
+            "SetStoreUpdateService": 2.8753204345703125
+          },
+          "pids": 6,
+          "WebContentPIDs": 1
+        },
+        {
+          "medianMiB": 157.37891387939453,
+          "maxMiB": 157.50391387939453,
+          "representativeKindsMiB": {
+            "daemon": 30.891769409179688,
+            "GPU": 15.563323974609375,
+            "Networking": 6.5316619873046875,
+            "WebContent": 98.20381164550781,
+            "com.apple.audio.SandboxHelper": 3.2817764282226562,
+            "SetStoreUpdateService": 2.9065704345703125
+          },
+          "pids": 6,
+          "WebContentPIDs": 1
+        },
+        {
+          "medianMiB": 157.5196304321289,
+          "maxMiB": 157.7227554321289,
+          "representativeKindsMiB": {
+            "daemon": 30.98554229736328,
+            "GPU": 15.860221862792969,
+            "Networking": 6.531684875488281,
+            "WebContent": 98.094482421875,
+            "com.apple.audio.SandboxHelper": 3.1098785400390625,
+            "SetStoreUpdateService": 2.9378204345703125
+          },
+          "pids": 6,
+          "WebContentPIDs": 1
+        }
+      ]
+    },
+    "pairedPostNativeSavingPercent": [
+      49.431049809972656,
+      49.317755139000084,
+      50.0809345689922
+    ],
+    "pairedSettled10sSavingPercent": [
+      59.59040894716829,
+      59.177782547985025,
+      59.06329062221919
+    ]
+  },
+  "explicitReads": {
+    "binarySHA256": "a0f4f2a25f326420045cb1bbbcb987cd8b1e89017a5d7e6690c21391e856ac40",
+    "fixtureSHA256": "2168712cbecf95518e0e09df0f7ce37f9ed5cffb5389d469279580f303f84f2d",
+    "benchmarkSHA256": "fd5aaf87dca14e38d9fcf91746c1fd71c4a534bc1b72ad75f4e825ebd225ebdc",
+    "arms": {
+      "layout": {
+        "runs": 3,
+        "successes": 3,
+        "checks": 285,
+        "stages": {
+          "engine_free_reads": [
+            {
+              "MiB": 19.985130310058594,
+              "WebContent": 0,
+              "processes": 1
+            },
+            {
+              "MiB": 19.906982421875,
+              "WebContent": 0,
+              "processes": 1
+            },
+            {
+              "MiB": 19.953857421875,
+              "WebContent": 0,
+              "processes": 1
+            }
+          ],
+          "before_graphics": [
+            {
+              "MiB": 67.30012512207031,
+              "WebContent": 1,
+              "processes": 5
+            },
+            {
+              "MiB": 69.19084167480469,
+              "WebContent": 1,
+              "processes": 5
+            },
+            {
+              "MiB": 67.1595458984375,
+              "WebContent": 1,
+              "processes": 5
+            }
+          ],
+          "graphics_peak": [
+            {
+              "MiB": 170.51937866210938,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 171.86326599121094,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 212.9258575439453,
+              "WebContent": 1,
+              "processes": 6
+            }
+          ],
+          "post_native_burst": [
+            {
+              "MiB": 226.0352325439453,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 230.62909698486328,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 224.7071304321289,
+              "WebContent": 1,
+              "processes": 6
+            }
+          ],
+          "idle10": [
+            {
+              "MiB": 152.62895965576172,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 151.5509490966797,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 149.6602554321289,
+              "WebContent": 1,
+              "processes": 6
+            }
+          ]
+        },
+        "timings": {
+          "api_inbox": {
+            "n": 30,
+            "medianMs": 8.623187517514452,
+            "p95Ms": 27.062333014328033
+          },
+          "api_dashboard": {
+            "n": 30,
+            "medianMs": 4.713166505098343,
+            "p95Ms": 16.54408301692456
+          },
+          "api_settings": {
+            "n": 30,
+            "medianMs": 2.5510829873383045,
+            "p95Ms": 7.249957998283207
+          },
+          "dom_read": {
+            "n": 30,
+            "medianMs": 1.4164370077196509,
+            "p95Ms": 3.586708044167608
+          },
+          "dom_find": {
+            "n": 30,
+            "medianMs": 1.0069790005218238,
+            "p95Ms": 1.5764159616082907
+          },
+          "dom_links": {
+            "n": 30,
+            "medianMs": 1.8402709683869034,
+            "p95Ms": 2.6769170071929693
+          },
+          "explicit_url_navigation": {
+            "n": 9,
+            "medianMs": 8.672458992805332,
+            "p95Ms": 10.866958007682115
+          },
+          "trusted_native_write": {
+            "n": 3,
+            "medianMs": 26.310249988455325,
+            "p95Ms": 41.86862497590482
+          },
+          "screenshot": {
+            "n": 3,
+            "medianMs": 58.678083994891495,
+            "p95Ms": 102.88087499793619
+          },
+          "warm_native_read": {
+            "n": 30,
+            "medianMs": 4.789875005371869,
+            "p95Ms": 8.663833024911582
+          }
+        },
+        "coverage": [
+          {
+            "engineFreeReadCalls": 30,
+            "structuralReadFindLinkCalls": 30,
+            "explicitNavigationCalls": 3,
+            "linkedNavigationCalls": 2,
+            "freshnessNavigationCalls": 1,
+            "promotedReadCalls": 0,
+            "logicalSurfaces": 4,
+            "residentBrowserViews": 1
+          },
+          {
+            "engineFreeReadCalls": 30,
+            "structuralReadFindLinkCalls": 30,
+            "explicitNavigationCalls": 3,
+            "linkedNavigationCalls": 2,
+            "freshnessNavigationCalls": 1,
+            "promotedReadCalls": 0,
+            "logicalSurfaces": 4,
+            "residentBrowserViews": 1
+          },
+          {
+            "engineFreeReadCalls": 30,
+            "structuralReadFindLinkCalls": 30,
+            "explicitNavigationCalls": 3,
+            "linkedNavigationCalls": 2,
+            "freshnessNavigationCalls": 1,
+            "promotedReadCalls": 0,
+            "logicalSurfaces": 4,
+            "residentBrowserViews": 1
+          }
+        ],
+        "transitions": [
+          [
+            {
+              "stage": "ready",
+              "windowCreated": false,
+              "rendered": false
+            },
+            {
+              "stage": "graphics",
+              "windowCreated": true,
+              "rendered": true
+            }
+          ],
+          [
+            {
+              "stage": "ready",
+              "windowCreated": false,
+              "rendered": false
+            },
+            {
+              "stage": "graphics",
+              "windowCreated": true,
+              "rendered": true
+            }
+          ],
+          [
+            {
+              "stage": "ready",
+              "windowCreated": false,
+              "rendered": false
+            },
+            {
+              "stage": "graphics",
+              "windowCreated": true,
+              "rendered": true
+            }
+          ]
+        ],
+        "writes": [
+          2,
+          2,
+          2
+        ],
+        "maxAnySampleMiB": [
+          287.6758575439453,
+          289.6447219848633,
+          225.1290054321289
+        ]
+      },
+      "script": {
+        "runs": 3,
+        "successes": 3,
+        "checks": 375,
+        "stages": {
+          "engine_free_reads": [
+            {
+              "MiB": 19.969482421875,
+              "WebContent": 0,
+              "processes": 1
+            },
+            {
+              "MiB": 19.938255310058594,
+              "WebContent": 0,
+              "processes": 1
+            },
+            {
+              "MiB": 19.985107421875,
+              "WebContent": 0,
+              "processes": 1
+            }
+          ],
+          "before_graphics": [
+            {
+              "MiB": 71.8782730102539,
+              "WebContent": 1,
+              "processes": 5
+            },
+            {
+              "MiB": 69.7064437866211,
+              "WebContent": 1,
+              "processes": 5
+            },
+            {
+              "MiB": 71.1439208984375,
+              "WebContent": 1,
+              "processes": 5
+            }
+          ],
+          "graphics_peak": [
+            {
+              "MiB": 172.92576599121094,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 214.83208465576172,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 172.86322021484375,
+              "WebContent": 1,
+              "processes": 6
+            }
+          ],
+          "post_native_burst": [
+            {
+              "MiB": 240.26974487304688,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 228.47286987304688,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 231.4103240966797,
+              "WebContent": 1,
+              "processes": 6
+            }
+          ],
+          "idle10": [
+            {
+              "MiB": 153.59786987304688,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 152.12911987304688,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 152.9884262084961,
+              "WebContent": 1,
+              "processes": 6
+            }
+          ]
+        },
+        "timings": {
+          "api_inbox": {
+            "n": 30,
+            "medianMs": 10.549146012635902,
+            "p95Ms": 48.30420803045854
+          },
+          "api_dashboard": {
+            "n": 30,
+            "medianMs": 4.111125483177602,
+            "p95Ms": 15.079416974913329
+          },
+          "api_settings": {
+            "n": 30,
+            "medianMs": 2.35229151439853,
+            "p95Ms": 21.053042029961944
+          },
+          "dom_read": {
+            "n": 30,
+            "medianMs": 2.1079790021758527,
+            "p95Ms": 2.9026250122115016
+          },
+          "dom_find": {
+            "n": 30,
+            "medianMs": 1.6105830145534128,
+            "p95Ms": 2.5501250056549907
+          },
+          "dom_links": {
+            "n": 30,
+            "medianMs": 3.78402101341635,
+            "p95Ms": 4.866792005486786
+          },
+          "explicit_url_navigation": {
+            "n": 9,
+            "medianMs": 9.407958015799522,
+            "p95Ms": 10.411750001367182
+          },
+          "trusted_native_write": {
+            "n": 3,
+            "medianMs": 32.00937499059364,
+            "p95Ms": 47.774125006981194
+          },
+          "screenshot": {
+            "n": 3,
+            "medianMs": 48.95533400122076,
+            "p95Ms": 102.73554199375212
+          },
+          "warm_native_read": {
+            "n": 30,
+            "medianMs": 4.1943749820347875,
+            "p95Ms": 6.7016659886576235
+          }
+        },
+        "coverage": [
+          {
+            "engineFreeReadCalls": 30,
+            "structuralReadFindLinkCalls": 30,
+            "explicitNavigationCalls": 3,
+            "linkedNavigationCalls": 2,
+            "freshnessNavigationCalls": 1,
+            "promotedReadCalls": 0,
+            "logicalSurfaces": 4,
+            "residentBrowserViews": 1
+          },
+          {
+            "engineFreeReadCalls": 30,
+            "structuralReadFindLinkCalls": 30,
+            "explicitNavigationCalls": 3,
+            "linkedNavigationCalls": 2,
+            "freshnessNavigationCalls": 1,
+            "promotedReadCalls": 0,
+            "logicalSurfaces": 4,
+            "residentBrowserViews": 1
+          },
+          {
+            "engineFreeReadCalls": 30,
+            "structuralReadFindLinkCalls": 30,
+            "explicitNavigationCalls": 3,
+            "linkedNavigationCalls": 2,
+            "freshnessNavigationCalls": 1,
+            "promotedReadCalls": 0,
+            "logicalSurfaces": 4,
+            "residentBrowserViews": 1
+          }
+        ],
+        "transitions": [
+          [
+            {
+              "stage": "ready",
+              "windowCreated": false,
+              "rendered": false
+            },
+            {
+              "stage": "graphics",
+              "windowCreated": true,
+              "rendered": true
+            }
+          ],
+          [
+            {
+              "stage": "ready",
+              "windowCreated": false,
+              "rendered": false
+            },
+            {
+              "stage": "graphics",
+              "windowCreated": true,
+              "rendered": true
+            }
+          ],
+          [
+            {
+              "stage": "ready",
+              "windowCreated": false,
+              "rendered": false
+            },
+            {
+              "stage": "graphics",
+              "windowCreated": true,
+              "rendered": true
+            }
+          ]
+        ],
+        "writes": [
+          2,
+          2,
+          2
+        ],
+        "maxAnySampleMiB": [
+          297.7853698730469,
+          287.5822448730469,
+          288.8946990966797
+        ]
+      },
+      "dom": {
+        "runs": 3,
+        "successes": 3,
+        "checks": 375,
+        "stages": {
+          "engine_free_reads": [
+            {
+              "MiB": 20.157005310058594,
+              "WebContent": 0,
+              "processes": 1
+            },
+            {
+              "MiB": 20.157005310058594,
+              "WebContent": 0,
+              "processes": 1
+            },
+            {
+              "MiB": 20.125778198242188,
+              "WebContent": 0,
+              "processes": 1
+            }
+          ],
+          "before_graphics": [
+            {
+              "MiB": 68.19084167480469,
+              "WebContent": 1,
+              "processes": 5
+            },
+            {
+              "MiB": 71.3470687866211,
+              "WebContent": 1,
+              "processes": 5
+            },
+            {
+              "MiB": 70.80012512207031,
+              "WebContent": 1,
+              "processes": 5
+            }
+          ],
+          "graphics_peak": [
+            {
+              "MiB": 169.86322021484375,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 214.66018676757812,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 174.37882232666016,
+              "WebContent": 1,
+              "processes": 6
+            }
+          ],
+          "post_native_burst": [
+            {
+              "MiB": 226.16034698486328,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 225.20708465576172,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 228.0196762084961,
+              "WebContent": 1,
+              "processes": 6
+            }
+          ],
+          "idle10": [
+            {
+              "MiB": 150.67597198486328,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 152.01958465576172,
+              "WebContent": 1,
+              "processes": 6
+            },
+            {
+              "MiB": 153.1602783203125,
+              "WebContent": 1,
+              "processes": 6
+            }
+          ]
+        },
+        "timings": {
+          "api_inbox": {
+            "n": 30,
+            "medianMs": 7.7818959834985435,
+            "p95Ms": 39.24391599139199
+          },
+          "api_dashboard": {
+            "n": 30,
+            "medianMs": 4.411271016579121,
+            "p95Ms": 17.55891600623727
+          },
+          "api_settings": {
+            "n": 30,
+            "medianMs": 2.451333013596013,
+            "p95Ms": 10.312125028576702
+          },
+          "dom_read": {
+            "n": 30,
+            "medianMs": 1.8970000091940165,
+            "p95Ms": 6.399624980986118
+          },
+          "dom_find": {
+            "n": 30,
+            "medianMs": 1.5667500265408307,
+            "p95Ms": 2.31983297271654
+          },
+          "dom_links": {
+            "n": 30,
+            "medianMs": 3.2953750051092356,
+            "p95Ms": 4.80345799587667
+          },
+          "explicit_url_navigation": {
+            "n": 9,
+            "medianMs": 9.413749969098717,
+            "p95Ms": 11.041874997317791
+          },
+          "trusted_native_write": {
+            "n": 3,
+            "medianMs": 44.82595802983269,
+            "p95Ms": 48.37795899948105
+          },
+          "screenshot": {
+            "n": 3,
+            "medianMs": 49.165707954671234,
+            "p95Ms": 69.74050001008436
+          },
+          "warm_native_read": {
+            "n": 30,
+            "medianMs": 4.3454789847601205,
+            "p95Ms": 13.199832988902926
+          }
+        },
+        "coverage": [
+          {
+            "engineFreeReadCalls": 30,
+            "structuralReadFindLinkCalls": 30,
+            "explicitNavigationCalls": 3,
+            "linkedNavigationCalls": 2,
+            "freshnessNavigationCalls": 1,
+            "promotedReadCalls": 0,
+            "logicalSurfaces": 4,
+            "residentBrowserViews": 1
+          },
+          {
+            "engineFreeReadCalls": 30,
+            "structuralReadFindLinkCalls": 30,
+            "explicitNavigationCalls": 3,
+            "linkedNavigationCalls": 2,
+            "freshnessNavigationCalls": 1,
+            "promotedReadCalls": 0,
+            "logicalSurfaces": 4,
+            "residentBrowserViews": 1
+          },
+          {
+            "engineFreeReadCalls": 30,
+            "structuralReadFindLinkCalls": 30,
+            "explicitNavigationCalls": 3,
+            "linkedNavigationCalls": 2,
+            "freshnessNavigationCalls": 1,
+            "promotedReadCalls": 0,
+            "logicalSurfaces": 4,
+            "residentBrowserViews": 1
+          }
+        ],
+        "transitions": [
+          [
+            {
+              "stage": "ready",
+              "windowCreated": false,
+              "rendered": false
+            },
+            {
+              "stage": "graphics",
+              "windowCreated": true,
+              "rendered": true
+            }
+          ],
+          [
+            {
+              "stage": "ready",
+              "windowCreated": false,
+              "rendered": false
+            },
+            {
+              "stage": "graphics",
+              "windowCreated": true,
+              "rendered": true
+            }
+          ],
+          [
+            {
+              "stage": "ready",
+              "windowCreated": false,
+              "rendered": false
+            },
+            {
+              "stage": "graphics",
+              "windowCreated": true,
+              "rendered": true
+            }
+          ]
+        ],
+        "writes": [
+          2,
+          2,
+          2
+        ],
+        "maxAnySampleMiB": [
+          287.6759719848633,
+          227.11333465576172,
+          288.2228012084961
+        ]
+      },
+      "heldout-script": {
+        "success": true,
+        "checks": 103,
+        "transitions": [
+          {
+            "stage": "ready",
+            "windowCreated": false,
+            "rendered": false
+          },
+          {
+            "stage": "graphics",
+            "windowCreated": true,
+            "rendered": true
+          }
+        ],
+        "writes": 2
+      },
+      "heldout-dom": {
+        "success": true,
+        "checks": 103,
+        "transitions": [
+          {
+            "stage": "ready",
+            "windowCreated": false,
+            "rendered": false
+          },
+          {
+            "stage": "graphics",
+            "windowCreated": true,
+            "rendered": true
+          }
+        ],
+        "writes": 2
+      }
+    },
+    "claim": "Expanded bounded CLI/MCP read contract; no additional RAM reduction demonstrated over efficient C3 windowless reads."
+  }
+}

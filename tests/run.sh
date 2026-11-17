@@ -14,7 +14,9 @@ if [[ $UMBRA == $default ]]; then
     make -C $repo -s build >/dev/null || { print -u2 "run.sh: make build failed"; exit 1 }
 fi
 log=$(mktemp)
-trap 'rm -f $log' EXIT
+logos=$(mktemp -d)
+export UMBRA_LOGOS=$logos
+trap 'rm -f $log; rm -rf $logos' EXIT
 
 print "== smoke.sh ($UMBRA)"
 start=$SECONDS
@@ -25,7 +27,7 @@ smoke_time=$((SECONDS - start))
 results=()
 export UMBRA_SDK_BINARY=$UMBRA
 export UMBRA_SDK_RUNTIME=1
-for suite in test_umbra test_daemon mcp_conformance test_runtime test_condition_wait test_transport_pressure test_popup_ownership test_observation_efficiency test_request_identity test_capture_cancel test_idle_cancel test_headroom test_observe test_watch_cleanup test_frames test_events test_mcp_runtime test_resource_cleanup test_execution test_failure_bundle test_process_metrics test_sdk; do
+for suite in test_umbra test_daemon mcp_conformance test_runtime test_condition_wait test_transport_pressure test_popup_ownership test_observation_efficiency test_request_identity test_capture_cancel test_idle_cancel test_headroom test_observe test_watch_cleanup test_frames test_events test_mcp_runtime test_resource_cleanup test_execution test_failure_bundle test_process_metrics test_sdk test_low_memory test_semantic test_benchmark_cleanup; do
     print "\n== $suite.py"
     start=$SECONDS
     python3 $repo/tests/$suite.py "$@" 2>&1 | tee $log

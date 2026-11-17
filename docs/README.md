@@ -11,6 +11,7 @@ Start with a signed-in session, give each independent agent a profile, and keep 
 ## Use Umbra
 
 - [Commands and exit codes](commands.md)
+- [Explicit API/DOM reads without rendering](semantic.md)
 - [Sign-in, handoff and profiles](sessions.md)
 - [Account configuration](sites.md)
 - [Recipes](recipes.md)

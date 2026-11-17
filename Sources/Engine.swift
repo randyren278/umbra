@@ -1,4 +1,4 @@
-// The daemon's browser: tabs whose pages believe they are visible, and never are.
+// The daemon's browser: retained tabs with opt-in windowless execution.
 import AppKit
 import WebKit
 
@@ -92,7 +92,24 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     let name: String
     var opener: UUID?
     let web: WKWebView
-    let window: NSWindow
+    let nonvisual: Bool
+    private var renderWindow: NSWindow?
+    var windowCreated: Bool { renderWindow != nil }
+    var rendered: Bool { renderWindow?.isVisible ?? false }
+    var window: NSWindow {
+        if let renderWindow { return renderWindow }
+        let frame = NSRect(origin: .zero, size: web.frame.size).offsetBy(dx: -30000, dy: -30000)
+        let made = NSWindow(contentRect: frame, styleMask: [.borderless], backing: .buffered, defer: false)
+        made.isReleasedWhenClosed = false
+        made.hasShadow = false
+        made.alphaValue = 0
+        made.ignoresMouseEvents = true
+        made.collectionBehavior = [.transient, .ignoresCycle, .stationary]
+        made.contentView = web
+        made.delegate = self
+        renderWindow = made
+        return made
+    }
     unowned let engine: Engine
     var extras: [String: Any] = [:]                  // lanes keep per-tab state here
     var status: Int?                                 // the last main-frame HTTP status
@@ -115,8 +132,9 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
     private var restarting = false                   // the web process was killed on purpose: not a crash
     private var saving: [ObjectIdentifier: (url: String, path: URL)] = [:]
 
-    init(name: String, configuration: WKWebViewConfiguration, engine: Engine) {
+    init(name: String, configuration: WKWebViewConfiguration, engine: Engine, nonvisual: Bool = false) {
         self.name = name
+        self.nonvisual = nonvisual
         self.engine = engine
         let controller = configuration.userContentController
         if !controller.userScripts.contains(where: { $0.source == conditionWaitScript }) {
@@ -124,17 +142,8 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         }
         let frame = NSRect(origin: .zero, size: engine.size)
         web = WKWebView(frame: frame, configuration: configuration)
-        // Ordered in but transparent, click-through and far off screen: WebKit then treats the
-        // page as visible (requestAnimationFrame, IntersectionObserver and visibilityState
-        // behave as in Safari) while nothing can be seen, clicked or focused.
-        window = NSWindow(contentRect: frame.offsetBy(dx: -30000, dy: -30000), styleMask: [.borderless],
-                          backing: .buffered, defer: false)
         super.init()
-        window.isReleasedWhenClosed = false
-        window.hasShadow = false
-        window.contentView = web
-        window.delegate = self
-        conceal()
+        if !nonvisual { conceal() }
         let occlusion = NSSelectorFromString("_setWindowOcclusionDetectionEnabled:")
         if web.responds(to: occlusion) { web.perform(occlusion, with: false) }
         web.navigationDelegate = self
@@ -166,15 +175,24 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         window.orderFrontRegardless()
     }
 
-    /// Shows a tab that was resting hidden, and goes on once its page knows it is visible again.
-    func wake(then go: @escaping () -> Void) {
-        guard !window.isVisible else { return go() }
+    /// Opted-in views stay windowless until native input or rendering is requested.
+    func wake(render: Bool = true, then go: @escaping () -> Void) {
+        if nonvisual && !windowCreated && !render { return go() }
+        guard !rendered else { return go() }
         window.orderFrontRegardless()
         wait(until: "document.visibilityState == 'visible'", in: umbraWorld, timeout: 2) { _ in go() }
     }
 
+    func restWindow() { renderWindow?.orderOut(nil) }
+
+    func detachWindow() {
+        renderWindow?.orderOut(nil)
+        renderWindow?.contentView = nil
+    }
+
     var summary: [String: Any] {
-        ["tab": name, "url": web.url?.absoluteString ?? "", "title": web.title ?? ""]
+        ["tab": name, "url": web.url?.absoluteString ?? "", "title": web.title ?? "",
+         "nonvisual": nonvisual, "rendered": rendered, "windowCreated": windowCreated]
     }
 
     // MARK: Navigation
@@ -337,6 +355,7 @@ final class Tab: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         guard engine.runtime.admissionError(newTab: true) == nil else { return nil }
         let popup = engine.open(name: nil, config: configuration, select: false)
         popup.opener = id
+        for key in ["apiSession", "apiAgent", "apiTask"] { popup.extras[key] = extras[key] }
         if let owner = engine.runtime.lease(self) { engine.runtime.leases[popup.name] = owner }
         if handoff != nil {
             popup.handoffParent = id
@@ -509,10 +528,10 @@ final class Engine {
     private var closedIdle: Set<String> = []  // so a command naming one hears why it is gone
 
     @discardableResult
-    func open(name: String?, config: WKWebViewConfiguration? = nil, select: Bool = true) -> Tab {
+    func open(name: String?, config: WKWebViewConfiguration? = nil, select: Bool = true, nonvisual: Bool = false) -> Tab {
         counter += 1
         let tab = Tab(name: name ?? (tabs.isEmpty ? "main" : "tab-\(counter)"),
-                      configuration: config ?? configuration(), engine: self)
+                      configuration: config ?? configuration(), engine: self, nonvisual: nonvisual)
         tabs.append(tab)
         closedIdle.remove(tab.name)
         if select || current == nil { current = tab }
@@ -531,8 +550,8 @@ final class Engine {
                 close(tab)
                 if wasCurrent { current = nil }  // never some other agent's tab
                 closedIdle.insert(tab.name)
-            } else if idle > limit / 3, tab.window.isVisible {
-                tab.window.orderOut(nil)
+            } else if idle > limit / 3, tab.rendered {
+                tab.restWindow()
             }
         }
     }
@@ -550,7 +569,7 @@ final class Engine {
                 if wasCurrent { current = nil }
                 closedIdle.insert(tab.name)
                 reclaimed += 1
-            } else { tab.window.orderOut(nil) }
+            } else { tab.restWindow() }
         }
         return reclaimed
     }
@@ -560,7 +579,12 @@ final class Engine {
     func attend(_ kept: [Site]) {
         for tab in tabs where tab.busy == 0 && tab.handoff == nil {
             guard let host = tab.web.url?.host, kept.contains(where: { host == $0.domain || host.hasSuffix("." + $0.domain) }) else { continue }
-            tab.nudge()
+            if tab.nonvisual && !tab.windowCreated {
+                tab.wake(render: true) { [weak tab] in
+                    guard let tab, self.tabs.contains(where: { $0 === tab }), tab.busy == 0, tab.handoff == nil else { return }
+                    tab.nudge()
+                }
+            } else { tab.nudge() }
         }
     }
 
@@ -573,8 +597,7 @@ final class Engine {
         tab.operation = nil
         tab.web.stopLoading()
         tab.finishLoading(.failure(UmbraError(4, "the tab closed")))
-        tab.window.orderOut(nil)
-        tab.window.contentView = nil
+        tab.detachWindow()
         tabs.removeAll { $0 === tab }
         if current === tab { current = tabs.last }
     }
@@ -584,13 +607,13 @@ final class Engine {
     func tab(_ args: Args, create: Bool = false) -> Result<Tab, UmbraError> {
         if let name = args.string("tab") {
             if let tab = tabs.first(where: { $0.name == name }) { return .success(tab) }
-            if create { return .success(open(name: name)) }
+            if create { return .success(open(name: name, nonvisual: args.bool("nonvisual"))) }
             if closedIdle.contains(name) {
                 return .failure(UmbraError(64, "tab \(name) closed after \(duration(idleLimit)) unused; `umbra --tab \(name) open <url>` opens it again"))
             }
             return .failure(UmbraError(64, "no tab named \(name); see `umbra tabs`"))
         }
         if let current { return .success(current) }
-        return create ? .success(open(name: nil)) : .failure(UmbraError(64, "no open tab; start with `umbra open <url>`"))
+        return create ? .success(open(name: nil, nonvisual: args.bool("nonvisual"))) : .failure(UmbraError(64, "no open tab; start with `umbra open <url>`"))
     }
 }

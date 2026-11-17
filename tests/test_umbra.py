@@ -40,6 +40,7 @@ DOWNLOADS_EXISTED = DOWNLOADS.exists()
 REAL_STORE = '6f1c7a52-3d0b-4e8f-9a61-f1a57c0de001'
 RUN = 'test-' + secrets.token_hex(4)
 TMP = Path(tempfile.mkdtemp(prefix='umbra-tests-'))
+LOGOS = Path(os.environ.get('UMBRA_LOGOS', str(TMP / 'logos')))
 NO_SITES = TMP / 'no-sites.json'  # never created: no sites at all
 AGENTS = TMP / 'agents'  # UMBRA_AGENTS for every run: no launch agent ever lands in ~/Library/LaunchAgents
 AGENTS.mkdir()
@@ -171,7 +172,7 @@ def environment(profile, sites, env=None):
     starts idles out in a minute."""
     assert profile in profiles, 'tests must use new_profile(): never the default store, always cleaned up'
     return {**os.environ, 'UMBRA_PROFILE': profile, 'UMBRA_SITES': str(sites or NO_SITES), 'UMBRA_IDLE': '60',
-            'UMBRA_AGENTS': str(AGENTS), **({} if GUI else {'UMBRA_UNSEEN': '1'}), **(env or {})}
+            'UMBRA_AGENTS': str(AGENTS), 'UMBRA_LOGOS': str(LOGOS), **({} if GUI else {'UMBRA_UNSEEN': '1'}), **(env or {})}
 
 
 def spawn(*args, profile, input=None, sites=None, stdin=subprocess.DEVNULL, binary=UMBRA, cwd=None, env=None):
