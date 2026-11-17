@@ -8,6 +8,7 @@ from pathlib import Path
 import build
 import charts
 import doc_figures
+import low_memory
 import json
 
 HERE = Path(__file__).resolve().parent
@@ -29,6 +30,7 @@ def main():
     manifest = json.loads(doc_figures.MANIFEST.read_text())
     documentation, blocks = doc_figures.outputs(manifest)
     expected.update({'docs/' + name: source for name, source in documentation.items()})
+    expected.update(low_memory.outputs())
     failures = []
     icon_receipt = json.loads((HERE / 'AppIcon.json').read_text())
     for key, source in [('source', build.icon().encode()), ('smallSource', build.icon(small=True).encode()),

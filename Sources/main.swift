@@ -24,6 +24,7 @@ registry += recordingCommands()
 registry += frameCommands()
 registry += eventCommands()
 registry += processCommands()
+registry += apiCommands() + semanticCommands()
 _ = sites  // a malformed sites file stops every command (exit 78), before anything else runs
 let json = args.contains("--json")
 args.removeAll { $0 == "--json" }

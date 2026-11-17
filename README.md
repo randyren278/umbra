@@ -25,6 +25,14 @@
 
 [Speed benchmarks](docs/evaluation/latency/README.md) · [Token benchmark, method and raw results](docs/evaluation/observation-tokens/README.md)
 
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/low-memory-comparison-mobile.svg">
+  <img src="assets/low-memory-comparison.svg" width="100%" alt="Matched synthetic four-surface session: after ten native actions, stock used 438–443 MiB and the opt-in hybrid used 221–222 MiB, a paired 49.3–50.1% reduction. Three reordered sessions per mode; native physical footprint includes helpers. All views retained. These are local fixtures, not real-site results.">
+</picture>
+
+The hybrid keeps three supported API views and one live WebKit fallback. Measurements use the same signed-in-like local tasks on an M1 Pro, with new isolated profiles and all views retained. Physical footprint includes daemon and WebKit helpers; it is not summed RSS or globally deduplicated RAM. [Results, methodology and reproduction](docs/evaluation/low-memory/README.md).
+
+
 ## Why Umbra
 
 <!-- runtime-panel: why-umbra -->
@@ -73,8 +81,28 @@ umbra mcp --print-config
 
 [Connect over MCP](docs/mcp.md) · [Teach your agent](docs/agents.md) · [Browse the commands](docs/commands.md)
 
+## Opt-in low-memory sessions
+
+Use [declared API sessions](docs/api.md) for supported same-origin JSON routes without creating a browser. For browser tasks that can run without visibility-dependent rendering, opt a new tab into nonvisual mode:
+
+```sh
+umbra open example.com --new --tab reading --nonvisual
+umbra dom read --tab reading
+umbra dom find --tab reading --query urgent
+umbra render --tab reading
+```
+
+The tab retains its WebKit view and JavaScript state. Native input and capture promote it automatically; `render` promotes explicitly without reloading. Promotion is sticky, and the offscreen window remains invisible. Animation frames may pause before promotion. Ordinary browser commands retain their existing defaults. [Modes, API contracts and limitations](docs/api.md).
+
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/low-memory-reads-mobile.svg">
+  <img src="assets/low-memory-reads.svg" width="100%" alt="Explicit read cohort: 90 declared API reads and 90 structural DOM tasks passed across three candidate sessions without render-host promotion. API-only footprint was 20.1–20.2 MiB; adding one windowless WebKit view used 68.2–71.4 MiB; after native work it used 225.2–228.0 MiB. Native and pixel work promoted once per session. C3 controls already read without rendering, so no additional RAM reduction is demonstrated.">
+</picture>
+
+`api read` uses declared GET/HEAD routes. `dom read/find/links` reads bounded main-document structure without style, geometry or input; CSS-hidden text may be included. Native input, geometry and pixels need the full browser. These explicit contracts expand no-render task coverage; they do not demonstrate a further RAM reduction over efficient C3 reads. [Read scope and fallback](docs/semantic.md) · [Benchmark limits](docs/evaluation/low-memory/README.md).
+
 ## Go deeper
 
-[Runtime guide](docs/runtime/README.md) · [Recipes](docs/recipes.md) · [Accounts and handoff](docs/sessions.md) · [Architecture](docs/how-it-works.md) · [Security and limitations](docs/security.md) · [Testing and development](docs/development.md) · [FAQ](docs/faq.md)
+[Explicit no-render reads](docs/semantic.md) · [Runtime guide](docs/runtime/README.md) · [Recipes](docs/recipes.md) · [Accounts and handoff](docs/sessions.md) · [Architecture](docs/how-it-works.md) · [Security and limitations](docs/security.md) · [Testing and development](docs/development.md) · [FAQ](docs/faq.md)
 
 [MIT](LICENSE) © 2026 Randy Ren

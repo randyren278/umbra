@@ -111,6 +111,10 @@ final class Runtime {
     }
 
     func ownerError(_ tab: Tab, _ args: Args) -> UmbraError? {
+        if let owner = tab.extras["apiAgent"] as? String,
+           (args.string("agent") ?? "") != owner || (args.string("task") ?? "") != (tab.extras["apiTask"] as? String ?? "") {
+            return UmbraError(64, "tab \(tab.name) belongs to an API agent/task; provide its matching --agent and --task")
+        }
         guard let owner = lease(tab), owner.agent != args.string("agent") || owner.task != (args.string("task") ?? "") else { return nil }
         return UmbraError(64, "tab \(tab.name) is leased by another agent/task; provide its matching --agent and --task")
     }
@@ -164,7 +168,7 @@ final class Runtime {
             }
             if command.name == "open", (input.bool("new") || (try? engine.tab(input).get()) == nil) {
                 if let error = admissionError(newTab: true) { rejected += 1; return reply(.failure(error)) }
-                tab = engine.open(name: input.string("tab"), select: false)
+                tab = engine.open(name: input.string("tab"), select: false, nonvisual: input.bool("nonvisual"))
                 values["new"] = false
             } else {
                 switch engine.tab(input) { case .success(let found): tab = found; case .failure(let error): return reply(.failure(error)) }
@@ -183,7 +187,10 @@ final class Runtime {
             values["tab"] = tab.name
         }
         values["request"] = id
-        let job = Job(id, operation, command, Args(values: values), tab, tab.map { "tab:\($0.name)" } ?? (["batch", "workflow", "replay"].contains(command.name) ? "coordinator:\(id)" : "global:\(id)"), deadline, reply)
+        let lane = command.name == "api" ? "api:\(input.string("name") ?? "")"
+            : tab.map { ($0.extras["apiSession"] as? String).map { "api:\($0)" } ?? "tab:\($0.name)" }
+                ?? (["batch", "workflow", "replay"].contains(command.name) ? "coordinator:\(id)" : "global:\(id)")
+        let job = Job(id, operation, command, Args(values: values), tab, lane, deadline, reply)
         jobs.append(job)
         peakQueued = max(peakQueued, jobs.filter { $0.started == nil }.count)
         let timer = DispatchSource.makeTimerSource(queue: .main)
@@ -240,7 +247,17 @@ final class Runtime {
                     guard let self, let job else { return }; self.finish(job, result)
                 }
             }
-            if let tab = job.tab { tab.wake(then: execute) } else { execute() }
+            if let tab = job.tab {
+                let native = ["click", "fill", "type", "press", "select", "check", "uncheck", "hover", "scroll", "drag", "upload", "focus", "pointer"]
+                let frameInput = job.command.name == "frame" && native.contains(job.args.string("operation") ?? "")
+                let viewportChange = job.command.name == "viewport" && ["width", "height", "scale", "mobile"].contains { job.args.values[$0] != nil }
+                let capture = ["screenshot", "pdf", "handoff", "render"].contains(job.command.name)
+                    || (job.command.name == "record" && job.args.string("action") == "start")
+                let geometry = ["get", "frames", "frame"].contains(job.command.name)
+                let visibility = (job.command.name == "watch" && ["visible", "hidden"].contains(job.args.string("state") ?? "visible"))
+                    || (job.command.name == "wait" && (job.args.string("selector") != nil || job.args.string("text") != nil || job.args.string("gone") != nil))
+                tab.wake(render: native.contains(job.command.name) || frameInput || viewportChange || capture || geometry || visibility, then: execute)
+            } else { execute() }
         }
         // Synchronous commands may have released a slot while drain was traversing the snapshot.
         let occupied = Set(jobs.filter { $0.started != nil }.map(\.lane))

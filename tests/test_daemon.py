@@ -989,7 +989,7 @@ class SignInWindowTests(SessionCase):
     def setUpClass(cls):
         # Logos are cached for every profile: start without the test hosts' entries, so each run asks afresh.
         for host in ['127.0.0.1', 'localhost']:
-            (base.LOCKS / 'Logos' / host).unlink(missing_ok=True)
+            (base.LOGOS / host).unlink(missing_ok=True)
         cls.srv = srv = Server()
         signed = [('Set-Cookie', 'sess=on; Path=/; Max-Age=3600')]
         # A single-page app with no cookie or probe in the sites file: signed in, its login page moves on to

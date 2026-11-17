@@ -43,7 +43,7 @@ NO_SITES = Path('/nonexistent/umbra-sites.json')
 VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05']
 CORE = {'open', 'back', 'forward', 'reload', 'tabs', 'tab', 'eval', 'wait', 'status', 'handoff', 'cookies',
         'downloads', 'fetch'}
-READ_ONLY = {'snapshot', 'text', 'markdown', 'screenshot', 'tabs', 'status', 'cookies', 'links', 'html', 'info',
+READ_ONLY = {'dom', 'snapshot', 'text', 'markdown', 'screenshot', 'tabs', 'status', 'cookies', 'links', 'html', 'info',
              'console', 'network', 'downloads', 'get', 'observe', 'extract', 'watch', 'capabilities', 'frames', 'events', 'tasks', 'processes'}
 TYPES = {'string', 'number', 'integer', 'boolean', 'array', 'object', 'null'}
 PAGE = '<!doctype html><title>Umbra MCP</title><h1>Hello from MCP</h1>'

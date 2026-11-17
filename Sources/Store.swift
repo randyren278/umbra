@@ -40,8 +40,12 @@ func uuid(named name: String) -> UUID {
 // The store is keyed by this identifier and the bundle identifier in Info.plist, which is
 // embedded in the binary: changing either signs every site out. The default identifier came
 // from FIRST's helper so its store could move here intact.
-let store = WKWebsiteDataStore(forIdentifier: profile.map { uuid(named: "umbra profile " + $0) }
+var profileStoreUsed = false
+let store: WKWebsiteDataStore = {
+    profileStoreUsed = true
+    return WKWebsiteDataStore(forIdentifier: profile.map { uuid(named: "umbra profile " + $0) }
                                ?? UUID(uuidString: "6F1C7A52-3D0B-4E8F-9A61-F1A57C0DE001")!)
+}()
 
 struct Site: Decodable {
     let name, domain, login: String
@@ -74,9 +78,9 @@ extension HTTPCookie {
 
 let safariVersion = Bundle(path: "/Applications/Safari.app")?.infoDictionary?["CFBundleShortVersionString"] as? String ?? "26.0"
 
-func configuration() -> WKWebViewConfiguration {
+func configuration(dataStore: WKWebsiteDataStore? = nil) -> WKWebViewConfiguration {
     let config = WKWebViewConfiguration()
-    config.websiteDataStore = store
+    config.websiteDataStore = dataStore ?? store
     // WebKit writes the rest of Safari's user agent around this, so sites see Safari.
     config.applicationNameForUserAgent = "Version/\(safariVersion) Safari/605.1.15"
     // No back-forward cache: it keeps each page a tab leaves frozen in memory, often in a process of
@@ -134,6 +138,7 @@ func keepSessions(then done: @escaping () -> Void) {
 /// process otherwise writes them on its own schedule, and a quick exit on a busy machine loses
 /// them: a sign-in made during the run would be gone on the next one.
 func persist(then done: @escaping () -> Void) {
+    guard profileStoreUsed else { return done() }
     keepSessions {
         let flush = NSSelectorFromString("_flushCookiesToDiskWithCompletionHandler:")
         let cookies = store.httpCookieStore
